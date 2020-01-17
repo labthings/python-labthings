@@ -39,7 +39,8 @@ def argument_to_param(argument, rule, override=None):
     type_, format_ = CONVERTER_MAPPING.get(
         type(rule._converters[argument]), DEFAULT_TYPE
     )
-    param["type"] = type_
+    param["schema"] = {}
+    param["schema"]["type"] = type_
     if format_ is not None:
         param["format"] = format_
     if rule.defaults and argument in rule.defaults:
