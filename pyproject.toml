@@ -5,7 +5,7 @@ description = ""
 authors = ["jtc42 <jtc9242@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.6"
 Flask = "^1.1.1"
 marshmallow = "^3.3.0"
 webargs = "^5.5.2"
