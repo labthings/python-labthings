@@ -2,11 +2,7 @@ from ..view import View
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 
-from ...core.utilities import (
-    get_docstring,
-    get_summary,
-    rupdate,
-)
+from ...core.utilities import get_docstring, get_summary, rupdate
 
 from ..fields import Field
 from marshmallow import Schema as BaseSchema
@@ -40,9 +36,7 @@ def rule2path(rule: Rule, view: View, spec: APISpec):
     # Add URL arguments
     if rule.arguments:
         for op in params.get("operations").keys():
-            params["operations"][op].update({
-                "parameters": rule_to_params(rule)
-            })
+            params["operations"][op].update({"parameters": rule_to_params(rule)})
 
     # Add extra parameters
     if hasattr(view, "__apispec__"):

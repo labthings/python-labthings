@@ -8,11 +8,7 @@ import sys
 import os
 import glob
 
-from ..core.utilities import (
-    get_docstring,
-    camel_to_snake,
-    snake_to_spine,
-)
+from ..core.utilities import get_docstring, camel_to_snake, snake_to_spine
 
 
 class BaseExtension:

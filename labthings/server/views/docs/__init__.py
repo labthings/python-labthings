@@ -1,4 +1,12 @@
-from flask import abort, url_for, jsonify, render_template, Blueprint, current_app, request
+from flask import (
+    abort,
+    url_for,
+    jsonify,
+    render_template,
+    Blueprint,
+    current_app,
+    request,
+)
 
 from labthings.core.utilities import get_docstring
 
@@ -36,7 +44,7 @@ class W3CThingDescriptionView(View):
     """
 
     def get(self):
-        base_url = request.host_url.rstrip('/')
+        base_url = request.host_url.rstrip("/")
 
         props = {}
         for key, prop in current_labthing().properties.items():
@@ -53,20 +61,14 @@ class W3CThingDescriptionView(View):
                 hasattr(prop, "post") or hasattr(prop, "put") or hasattr(prop, "delete")
             )
             props[key]["writeOnly"] = not hasattr(prop, "get")
-            props[key]["links"] = [
-                {"href": f"{base_url}{url}"} for url in prop_urls
-            ]
+            props[key]["links"] = [{"href": f"{base_url}{url}"} for url in prop_urls]
 
             props[key]["uriVariables"] = {}
             for prop_rule in prop_rules:
                 params = rule_to_params(prop_rule)
                 params_dict = {}
                 for param in params:
-                    params_dict.update({
-                        param.get("name"): {
-                            "type": param.get("type")
-                        }
-                    })
+                    params_dict.update({param.get("name"): {"type": param.get("type")}})
                 props[key]["uriVariables"].update(params_dict)
             if not props[key]["uriVariables"]:
                 del props[key]["uriVariables"]
@@ -102,12 +104,8 @@ docs_blueprint = Blueprint(
     "labthings_docs", __name__, static_folder="./static", template_folder="./templates"
 )
 
-docs_blueprint.add_url_rule(
-    "/swagger", view_func=APISpecView.as_view("swagger_json")
-)
+docs_blueprint.add_url_rule("/swagger", view_func=APISpecView.as_view("swagger_json"))
 docs_blueprint.add_url_rule(
     "/swagger-ui", view_func=SwaggerUIView.as_view("swagger_ui")
 )
-docs_blueprint.add_url_rule(
-    "/td", view_func=W3CThingDescriptionView.as_view("w3c_td")
-)
+docs_blueprint.add_url_rule("/td", view_func=W3CThingDescriptionView.as_view("w3c_td"))

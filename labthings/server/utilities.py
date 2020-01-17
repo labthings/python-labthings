@@ -1,7 +1,4 @@
-from ..core.utilities import (
-    get_docstring,
-    get_summary,
-)
+from ..core.utilities import get_docstring, get_summary
 
 from .view import View
 

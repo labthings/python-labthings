@@ -164,13 +164,9 @@ class doc_response(object):
         }
 
         if self.mimetype:
-            self.response_dict.update({
-                "responses": {
-                    self.code: {
-                        "content": {self.mimetype: {}}
-                    }
-                }
-            })
+            self.response_dict.update(
+                {"responses": {self.code: {"content": {self.mimetype: {}}}}}
+            )
 
     def __call__(self, f):
         # Pass params to call function attribute for external access

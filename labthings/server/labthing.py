@@ -219,7 +219,7 @@ class LabThing(object):
             # Add the url to the application or blueprint
             app.add_url_rule(rule, view_func=resource_func, **kwargs)
             # Add the resource to our API spec
-            #self.spec.path(**view2path(rule, view, self.spec))
+            # self.spec.path(**view2path(rule, view, self.spec))
 
         # TEST: Getting Flask rule objects
         flask_rules = app.url_map._rules_by_endpoint.get(endpoint)
