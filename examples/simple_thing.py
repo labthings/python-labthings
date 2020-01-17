@@ -7,7 +7,9 @@ from labthings.server.decorators import (
     ThingAction,
     ThingProperty,
     use_args,
+    use_body,
     marshal_task,
+    marshal_with,
 )
 from labthings.server.view import View
 from labthings.server.find import find_component
@@ -67,6 +69,10 @@ Create a view to view and change our magic_denoise value, and register is as a T
 
 @ThingProperty
 class DenoiseProperty(View):
+
+    # Output will be a single integer
+    @marshal_with(fields.Integer(example=200))
+    # Main function to handle GET requests
     def get(self):
         """Show the current magic_denoise value"""
 
@@ -74,23 +80,28 @@ class DenoiseProperty(View):
         my_component = find_component("org.labthings.example.mycomponent")
         return my_component.magic_denoise
 
-    @use_args(
-        {
-            "value": fields.Integer(
-                required=True, description="New value for magic_denoise"
-            )
-        }
+    # Expect a single integer in the request body. Pass to post function as argument.
+    @use_body(
+        fields.Integer(
+            required=True, example=200, description="New value for magic_denoise"
+        )
     )
-    def post(self, args):
+    # Output will be a single integer
+    @marshal_with(fields.Integer(example=200))
+    # Main function to handle POST requests
+    def post(self, body):
         """Change the current magic_denoise value"""
 
         # Find our attached component
         my_component = find_component("org.labthings.example.mycomponent")
 
-        new_value = args.get("value")
+        # Get the new value out of the request body
+        new_value = body
+
+        # Apply the new value
         my_component.magic_denoise = new_value
 
-        return self.get()
+        return my_component.magic_denoise
 
 
 """
@@ -100,6 +111,9 @@ Create a view to quickly get some noisy data, and register is as a Thing propert
 
 @ThingProperty
 class QuickDataProperty(View):
+    # Output will be a list of floats
+    @marshal_with(fields.List(fields.Float()))
+    # Main function to handle GET requests
     def get(self):
         """Show the current data value"""
 
@@ -115,6 +129,7 @@ Create a view to start an averaged measurement, and register is as a Thing actio
 
 @ThingAction
 class MeasurementAction(View):
+    # Expect JSON parameters in the request body. Pass to post function as dictionary argument.
     @use_args(
         {
             "averages": fields.Integer(
@@ -124,7 +139,9 @@ class MeasurementAction(View):
             )
         }
     )
+    # Shorthand to say we're always going to return a Task object
     @marshal_task
+    # Main function to handle POST requests
     def post(self, args):
         """Start an averaged measurement"""
 
