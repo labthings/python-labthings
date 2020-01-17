@@ -1,12 +1,16 @@
 from webargs import flaskparser
 from functools import wraps, update_wrapper
-from flask import make_response
+from flask import make_response, jsonify, abort, request
 from http import HTTPStatus
+from marshmallow.exceptions import ValidationError
 
 from ..core.utilities import rupdate
 
 from .spec import update_spec
-from .schema import TaskSchema
+from .schema import TaskSchema, Schema
+from .fields import Field
+
+import logging
 
 
 def unpack(value):
@@ -38,6 +42,11 @@ class marshal_with(object):
         self.schema = schema
         self.code = code
 
+        if isinstance(self.schema, Schema):
+            self.converter = self.schema.jsonify
+        elif isinstance(self.schema, Field):
+            self.converter = lambda x: jsonify(self.schema._serialize(x, None, None))
+
     def __call__(self, f):
         # Pass params to call function attribute for external access
         update_spec(f, {"_schema": {self.code: self.schema}})
@@ -47,9 +56,9 @@ class marshal_with(object):
             resp = f(*args, **kwargs)
             if isinstance(resp, tuple):
                 data, code, headers = unpack(resp)
-                return make_response(self.schema.jsonify(data), code, headers)
+                return make_response(self.converter(data), code, headers)
             else:
-                return make_response(self.schema.jsonify(resp))
+                return make_response(self.converter(resp))
 
         return wrapper
 
@@ -91,11 +100,54 @@ def ThingProperty(viewcls):
 thing_property = ThingProperty
 
 
-class use_args(object):
+class use_body(object):
+    """
+    Gets the request body as a single value and adds it as a positional argument
+    """
+
     def __init__(self, schema, **kwargs):
-        """
-        Equivalent to webargs.flask_parser.use_args
-        """
+        self.schema = schema
+
+    def __call__(self, f):
+        # Pass params to call function attribute for external access
+        update_spec(f, {"_params": self.schema})
+
+        # Wrapper function
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            # Get data from request
+            data = request.data or None
+
+            # If no data is there
+            if not data:
+                # If data is required
+                if self.schema.required == True:
+                    # Abort
+                    return abort(400)
+                # Otherwise, look for the schema fields 'missing' property
+                if self.schema.missing:
+                    data = self.schema.missing
+
+            # Serialize data if it exists
+            if data:
+                try:
+                    data = self.schema._deserialize(data, None, None)
+                except ValidationError as e:
+                    logging.error(e)
+                    return abort(400)
+
+            # Inject argument and return wrapped function
+            return f(*args, data, **kwargs)
+
+        return wrapper
+
+
+class use_args(object):
+    """
+    Equivalent to webargs.flask_parser.use_args
+    """
+
+    def __init__(self, schema, **kwargs):
         self.schema = schema
         self.wrapper = flaskparser.use_args(schema, **kwargs)
 
@@ -105,15 +157,6 @@ class use_args(object):
         # Wrapper function
         update_wrapper(self.wrapper, f)
         return self.wrapper(f)
-
-
-class use_kwargs(use_args):
-    def __init__(self, schema, **kwargs):
-        """
-        Equivalent to webargs.flask_parser.use_kwargs
-        """
-        kwargs["as_kwargs"] = True
-        use_args.__init__(self, schema, **kwargs)
 
 
 class Doc(object):
