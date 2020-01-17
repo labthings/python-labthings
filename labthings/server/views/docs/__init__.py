@@ -1,11 +1,11 @@
 from flask import (
-    abort,
     url_for,
     jsonify,
     render_template,
     Blueprint,
     current_app,
     request,
+    make_response,
 )
 
 from labthings.core.utilities import get_docstring
@@ -13,8 +13,6 @@ from labthings.core.utilities import get_docstring
 from ...view import View
 from ...find import current_labthing
 from ...spec import rule_to_path, rule_to_params
-
-import os
 
 
 class APISpecView(View):
@@ -35,7 +33,7 @@ class SwaggerUIView(View):
     """
 
     def get(self):
-        return render_template("swagger-ui.html")
+        return make_response(render_template("swagger-ui.html"))
 
 
 class W3CThingDescriptionView(View):

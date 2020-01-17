@@ -2,7 +2,15 @@ import collections.abc
 import re
 import base64
 import operator
+import sys
 from functools import reduce
+
+try:
+    from collections.abc import OrderedDict
+except ImportError:
+    from collections import OrderedDict
+
+PY3 = sys.version_info > (3,)
 
 
 def get_docstring(obj):
