@@ -1,2 +1,2 @@
-# flask-labthings
-Python implementation of LabThings, based on the Flask microframework
+# python-labthings
+Python implementation of the LabThings API structure, based on the Flask microframework.
