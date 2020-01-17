@@ -134,6 +134,8 @@ def convert_schema(schema, spec: APISpec):
         return schema
     elif isinstance(schema, Mapping):
         return map2properties(schema, spec)
+    elif isinstance(schema, Field):
+        return field2property(schema, spec)
     else:
         raise TypeError(
             "Unsupported schema type. Ensure schema is a Schema class, or dictionary of Field objects"
@@ -156,3 +158,12 @@ def map2properties(schema, spec: APISpec):
             d[k] = v
 
     return {"properties": d}
+
+
+def field2property(field, spec: APISpec):
+    marshmallow_plugin = next(
+        plugin for plugin in spec.plugins if isinstance(plugin, MarshmallowPlugin)
+    )
+    converter = marshmallow_plugin.converter
+
+    return converter.field2property(field)
