@@ -6,6 +6,7 @@ from labthings.server.quick import create_app
 from labthings.server.decorators import (
     ThingAction,
     ThingProperty,
+    PropertySchema,
     use_args,
     use_body,
     marshal_task,
@@ -67,12 +68,19 @@ Create a view to view and change our magic_denoise value, and register is as a T
 """
 
 
-@ThingProperty
+@ThingProperty  # Register this view as a Thing Property
+@PropertySchema(  # Define the data we're going to output (get), and what to expect in (post)
+    fields.Integer(
+        required=True,
+        example=200,
+        minimum=100,
+        maximum=500,
+        description="Value of magic_denoise",
+    )
+)
 class DenoiseProperty(View):
 
-    # Output will be a single integer
-    @marshal_with(fields.Integer(example=200))
-    # Main function to handle GET requests
+    # Main function to handle GET requests (read)
     def get(self):
         """Show the current magic_denoise value"""
 
@@ -80,15 +88,7 @@ class DenoiseProperty(View):
         my_component = find_component("org.labthings.example.mycomponent")
         return my_component.magic_denoise
 
-    # Expect a single integer in the request body. Pass to post function as argument.
-    @use_body(
-        fields.Integer(
-            required=True, example=200, description="New value for magic_denoise"
-        )
-    )
-    # Output will be a single integer
-    @marshal_with(fields.Integer(example=200))
-    # Main function to handle POST requests
+    # Main function to handle POST requests (write)
     def post(self, body):
         """Change the current magic_denoise value"""
 
