@@ -130,6 +130,13 @@ def method2operation(method: callable, spec: APISpec):
 
 
 def convert_schema(schema, spec: APISpec):
+    """
+    Ensure that a given schema is either a real Marshmallow schema, 
+    or is a dictionary describing the schema inline.
+
+    Marshmallow schemas are left as they are so that the APISpec module
+    can add them to the "schemas" list in our APISpec documentation.
+    """
     if isinstance(schema, BaseSchema):
         return schema
     elif isinstance(schema, Mapping):
@@ -143,6 +150,9 @@ def convert_schema(schema, spec: APISpec):
 
 
 def map2properties(schema, spec: APISpec):
+    """
+    Convert any dictionary-like map of Marshmallow fields into a dictionary describing it's JSON schema
+    """
     marshmallow_plugin = next(
         plugin for plugin in spec.plugins if isinstance(plugin, MarshmallowPlugin)
     )
@@ -157,13 +167,36 @@ def map2properties(schema, spec: APISpec):
         else:
             d[k] = v
 
-    return {"properties": d}
+    return {"type": "object", "properties": d}
 
 
 def field2property(field, spec: APISpec):
+    """
+    Convert a single Marshmallow field into a JSON schema of that field
+    """
     marshmallow_plugin = next(
         plugin for plugin in spec.plugins if isinstance(plugin, MarshmallowPlugin)
     )
     converter = marshmallow_plugin.converter
 
     return converter.field2property(field)
+
+
+def schema2json(schema, spec: APISpec):
+    """
+    Convert any Marshmallow schema, field, or dictionary of fields stright to a JSON schema
+    This should not be used when generating APISpec documentation, otherwise schemas wont
+    be listed in the "schemas" list. This is used, for example, in the Thing Description.
+    """
+    if not isinstance(schema, BaseSchema):
+        schema = convert_schema(schema, spec)
+
+    if isinstance(schema, BaseSchema):
+        marshmallow_plugin = next(
+            plugin for plugin in spec.plugins if isinstance(plugin, MarshmallowPlugin)
+        )
+        converter = marshmallow_plugin.converter
+
+        schema = converter.schema2jsonschema(schema)
+
+    return schema

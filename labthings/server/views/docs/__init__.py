@@ -12,7 +12,7 @@ from labthings.core.utilities import get_docstring
 
 from ...view import View
 from ...find import current_labthing
-from ...spec import rule_to_path, rule_to_params
+from ...spec import get_spec, rule_to_path, rule_to_params, convert_schema, schema2json
 
 
 class APISpecView(View):
@@ -46,14 +46,40 @@ class W3CThingDescriptionView(View):
 
         props = {}
         for key, prop in current_labthing().properties.items():
+            props[key] = {}
             prop_rules = current_app.url_map._rules_by_endpoint.get(prop.endpoint)
             prop_urls = [rule_to_path(rule) for rule in prop_rules]
 
-            props[key] = {}
+            # Look for a _propertySchema in the Property classes API SPec
+            prop_spec = get_spec(prop)
+            prop_schema = prop_spec.get("_propertySchema")
+            if not prop_schema:
+                # If prop is read-only
+                if hasattr(prop, "get") and not (
+                    hasattr(prop, "post") or hasattr(prop, "put")
+                ):
+                    prop_schema = get_spec(prop.get).get("_schema").get(200)
+                # If prop is write-only
+                elif not hasattr(prop, "get") and (
+                    hasattr(prop, "post") or hasattr(prop, "put")
+                ):
+                    if hasattr(prop, "post"):
+                        prop_schema = get_spec(prop.post).get("_params")
+                    elif hasattr(prop, "put"):
+                        prop_schema = get_spec(prop.put).get("_params")
+                    else:
+                        prop_schema = {}
+
+            prop_json_schema = schema2json(prop_schema, current_labthing().spec)
+
+            props[key].update(prop_json_schema)
+
+            # Generate the rest of the description
             props[key]["title"] = prop.__name__
-            # TODO: Get description from __apispec__ preferentially
-            props[key]["description"] = get_docstring(prop) or (
-                get_docstring(prop.get) if hasattr(prop, "get") else ""
+            props[key]["description"] = (
+                props[key].get("description")
+                or get_docstring(prop)
+                or (get_docstring(prop.get) if hasattr(prop, "get") else "")
             )
             props[key]["readOnly"] = not (
                 hasattr(prop, "post") or hasattr(prop, "put") or hasattr(prop, "delete")

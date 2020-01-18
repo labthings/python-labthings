@@ -100,6 +100,32 @@ def ThingProperty(viewcls):
 thing_property = ThingProperty
 
 
+class PropertySchema(object):
+    def __init__(self, schema, code=200):
+        """
+        :param schema: a dict of whose keys will make up the final
+                        serialized response output
+        """
+        self.schema = schema
+        self.code = code
+
+    def __call__(self, viewcls):
+        update_spec(viewcls, {"_propertySchema": self.schema})
+
+        if hasattr(viewcls, "get") and callable(viewcls.get):
+            viewcls.get = marshal_with(self.schema, code=self.code)(viewcls.get)
+
+        if hasattr(viewcls, "post") and callable(viewcls.post):
+            viewcls.post = marshal_with(self.schema, code=self.code)(viewcls.post)
+            viewcls.post = use_args(self.schema)(viewcls.post)
+
+        if hasattr(viewcls, "put") and callable(viewcls.put):
+            viewcls.put = marshal_with(self.schema, code=self.code)(viewcls.put)
+            viewcls.put = use_args(self.schema)(viewcls.put)
+
+        return viewcls
+
+
 class use_body(object):
     """
     Gets the request body as a single value and adds it as a positional argument
@@ -149,7 +175,11 @@ class use_args(object):
 
     def __init__(self, schema, **kwargs):
         self.schema = schema
-        self.wrapper = flaskparser.use_args(schema, **kwargs)
+
+        if isinstance(schema, Field):
+            self.wrapper = use_body(schema, **kwargs)
+        else:
+            self.wrapper = flaskparser.use_args(schema, **kwargs)
 
     def __call__(self, f):
         # Pass params to call function attribute for external access
