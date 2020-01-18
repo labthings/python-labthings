@@ -89,17 +89,14 @@ class DenoiseProperty(View):
         return my_component.magic_denoise
 
     # Main function to handle POST requests (write)
-    def post(self, body):
+    def post(self, new_property_value):
         """Change the current magic_denoise value"""
 
         # Find our attached component
         my_component = find_component("org.labthings.example.mycomponent")
 
-        # Get the new value out of the request body
-        new_value = body
-
         # Apply the new value
-        my_component.magic_denoise = new_value
+        my_component.magic_denoise = new_property_value
 
         return my_component.magic_denoise
 
@@ -110,9 +107,8 @@ Create a view to quickly get some noisy data, and register is as a Thing propert
 
 
 @ThingProperty
+@PropertySchema(fields.List(fields.Float()))
 class QuickDataProperty(View):
-    # Output will be a list of floats
-    @marshal_with(fields.List(fields.Float()))
     # Main function to handle GET requests
     def get(self):
         """Show the current data value"""
