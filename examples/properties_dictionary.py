@@ -1,10 +1,7 @@
 from fractions import Fraction
 
 from labthings.server.quick import create_app
-from labthings.server.decorators import (
-    ThingProperty,
-    PropertySchema,
-)
+from labthings.server.decorators import ThingProperty, PropertySchema
 from labthings.server.view import View
 from labthings.server.find import find_component
 from labthings.server.types import data_dict_to_schema
@@ -29,9 +26,7 @@ class MyComponent:
         self.some_property = Fraction(5, 2)
         self.some_string = "Hello"
 
-        self.prop_keys = [
-            "magic_denoise", "some_property", "some_string", "x_range"
-        ]
+        self.prop_keys = ["magic_denoise", "some_property", "some_string", "x_range"]
 
     def get_state(self):
         return {key: getattr(self, key) for key in self.prop_keys}
@@ -45,6 +40,7 @@ class MyComponent:
     def get_state_schema(self):
         s = data_dict_to_schema(self.get_state())
         return s
+
 
 my_component = MyComponent()
 

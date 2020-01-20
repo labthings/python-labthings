@@ -60,15 +60,21 @@ class W3CThingDescriptionView(View):
                 if hasattr(prop, "get") and not (
                     hasattr(prop, "post") or hasattr(prop, "put")
                 ):
-                    prop_schema = convert_schema(get_spec(prop.get).get("_schema").get(200), swag)
+                    prop_schema = convert_schema(
+                        get_spec(prop.get).get("_schema").get(200), swag
+                    )
                 # If prop is write-only
                 elif not hasattr(prop, "get") and (
                     hasattr(prop, "post") or hasattr(prop, "put")
                 ):
                     if hasattr(prop, "post"):
-                        prop_schema = convert_schema(get_spec(prop.post).get("_params"), swag)
+                        prop_schema = convert_schema(
+                            get_spec(prop.post).get("_params"), swag
+                        )
                     elif hasattr(prop, "put"):
-                        prop_schema = convert_schema(get_spec(prop.put).get("_params"), swag)
+                        prop_schema = convert_schema(
+                            get_spec(prop.put).get("_params"), swag
+                        )
                     else:
                         prop_schema = {}
 

@@ -56,7 +56,10 @@ def rapply(data, func, apply_to_iterables=True):
 
     # If the object is a dictionary
     if isinstance(data, collections.abc.Mapping):
-        return {key: rapply(val, func, apply_to_iterables=apply_to_iterables) for key, val in data.items()}
+        return {
+            key: rapply(val, func, apply_to_iterables=apply_to_iterables)
+            for key, val in data.items()
+        }
     # If the object is iterable but NOT a dictionary or a string
     elif apply_to_iterables and (
         isinstance(data, collections.abc.Iterable)

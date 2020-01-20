@@ -71,7 +71,9 @@ def make_primative(value):
     global DEFAULT_BUILTIN_CONVERSIONS, DEFAULT_TYPE_MAPPING
 
     logging.debug(f"Converting {value} to primative type...")
-    value_typestrings = [x.__module__+"."+x.__name__ for x in inspect.getmro(type(value))]
+    value_typestrings = [
+        x.__module__ + "." + x.__name__ for x in inspect.getmro(type(value))
+    ]
 
     for typestring in value_typestrings:
         if typestring in DEFAULT_BUILTIN_CONVERSIONS:
@@ -107,6 +109,7 @@ def data_dict_to_schema(data_dict):
     working_dict = rapply(working_dict, value_to_field, apply_to_iterables=False)
 
     return working_dict
+
 
 # TODO: Deserialiser with inverse defaults
 # TODO: Option to switch to .npy serialisation/deserialisation (or look for a better common array format)

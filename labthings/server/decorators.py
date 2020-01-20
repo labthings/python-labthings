@@ -48,7 +48,9 @@ class marshal_with(object):
         elif isinstance(self.schema, Schema):
             self.converter = self.schema.jsonify
         else:
-            raise TypeError(f"Unsupported schema type {type(self.schema)} for marshal_with")
+            raise TypeError(
+                f"Unsupported schema type {type(self.schema)} for marshal_with"
+            )
 
     def __call__(self, f):
         # Pass params to call function attribute for external access
