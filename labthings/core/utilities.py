@@ -44,24 +44,26 @@ def rupdate(d, u):
     return d
 
 
-def rapply(data, func):
+def rapply(data, func, apply_to_iterables=True):
     """
     Recursively apply a function to a dictionary, list, array, or tuple
 
     Args:
         data: Input iterable data
         func: Function to apply to all non-iterable values
+        apply_to_iterables (bool): Apply the function to elements in lists/tuples
     """
+
     # If the object is a dictionary
     if isinstance(data, collections.abc.Mapping):
-        return {key: rapply(val, func) for key, val in data.items()}
+        return {key: rapply(val, func, apply_to_iterables=apply_to_iterables) for key, val in data.items()}
     # If the object is iterable but NOT a dictionary or a string
-    elif (
+    elif apply_to_iterables and (
         isinstance(data, collections.abc.Iterable)
         and not isinstance(data, collections.abc.Mapping)
         and not isinstance(data, str)
     ):
-        return [rapply(x, func) for x in data]
+        return [rapply(x, func, apply_to_iterables=apply_to_iterables) for x in data]
     # if the object is neither a map nor iterable
     else:
         return func(data)
