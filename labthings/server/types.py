@@ -2,13 +2,19 @@
 # Note: We shouldn't ever need to use this directly. We should go via the apispec converter
 from apispec.ext.marshmallow.field_converter import DEFAULT_FIELD_MAPPING
 
-from . import fields
+from labthings.server import fields
+from labthings.core.utilities import rapply
+
+from labthings.server.schema import Schema
 
 # Extra standard library Python types
 from datetime import date, datetime, time, timedelta
 from decimal import Decimal
 from typing import Dict, List, Tuple, Union
 from uuid import UUID
+
+import inspect
+import copy
 
 """
 TODO: Use this to convert arbitrary dictionary into its own schema, for W3C TD
@@ -59,8 +65,54 @@ DEFAULT_BUILTIN_CONVERSIONS = {
     "fractions.Fraction": to_float,
 }
 
+
+def make_primative(value):
+    global DEFAULT_BUILTIN_CONVERSIONS, DEFAULT_TYPE_MAPPING
+
+    value_typestrings = [x.__module__+"."+x.__name__ for x in inspect.getmro(type(value))]
+
+    for typestring in value_typestrings:
+        if typestring in DEFAULT_BUILTIN_CONVERSIONS:
+            value = DEFAULT_BUILTIN_CONVERSIONS.get(typestring)(value)
+            break
+
+    # If the final type is not primative
+    if not type(value) in DEFAULT_TYPE_MAPPING:
+        # Fall back to a string representation
+        value = str(value)
+
+    return value
+
+
+def value_to_field(value):
+    global DEFAULT_TYPE_MAPPING
+    if type(value) in DEFAULT_TYPE_MAPPING:
+        return DEFAULT_TYPE_MAPPING.get(type(value))(example=value)
+    else:
+        raise TypeError(f"Unsupported data type {type(value)}")
+
+
+def data_dict_to_schema(data_dict):
+    working_dict = copy.deepcopy(data_dict)
+    working_dict = rapply(working_dict, make_primative)
+
+    working_dict = rapply(working_dict, value_to_field)
+    return Schema.from_dict(working_dict)
+
 # TODO: Deserialiser with inverse defaults
 # TODO: Option to switch to .npy serialisation/deserialisation (or look for a better common array format)
 
-# Use with [x.__module__+"."+x.__name__ for x in inspect.getmro(type(POSSIBLE_MATCHER))]
-# Resulting array will contain strings with the same format as keys in DEFAULT_BUILTIN_CONVERSIONS
+"""
+# TODO: MOVE TO UNIT TESTS
+from fractions import Fraction
+
+d = {
+    "val1": Fraction(5,2),
+    "map1": {
+        "subval1": "Hello",
+        "subval2": False
+    },
+    "val2": 5
+}
+
+"""
