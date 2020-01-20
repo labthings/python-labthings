@@ -2,6 +2,8 @@ import random
 import math
 import time
 
+from fractions import Fraction
+
 from labthings.server.quick import create_app
 from labthings.server.decorators import (
     ThingAction,
@@ -14,9 +16,9 @@ from labthings.server.decorators import (
 )
 from labthings.server.view import View
 from labthings.server.find import find_component
+from labthings.server.types import data_dict_to_schema
 from labthings.server import fields
 from labthings.core.tasks import taskify
-
 
 """
 Class for our lab component functionality. This could include serial communication,
@@ -27,18 +29,25 @@ equipment API calls, network requests, or a "virtual" device as seen here.
 class MyComponent:
     def __init__(self):
         self.x_range = range(-100, 100)
+
         self.magic_denoise = 200
+        self.some_property = Fraction(5, 2)
+        self.some_string = "Hello"
+
+        self.prop_keys = [
+            "magic_denoise", "some_property", "some_string"
+        ]
 
     def noisy_pdf(self, x, mu=0.0, sigma=25.0):
         """
         Generate a noisy gaussian function (to act as some pretend data)
-        
+
         Our noise is inversely proportional to self.magic_denoise
         """
         x = float(x - mu) / sigma
         return (
-            math.exp(-x * x / 2.0) / math.sqrt(2.0 * math.pi) / sigma
-            + (1 / self.magic_denoise) * random.random()
+                math.exp(-x * x / 2.0) / math.sqrt(2.0 * math.pi) / sigma
+                + (1 / self.magic_denoise) * random.random()
         )
 
     @property
@@ -62,6 +71,21 @@ class MyComponent:
 
         return summed_data
 
+    def get_state(self):
+        return {key: getattr(self, key) for key in self.prop_keys}
+
+    def set_state(self, new_state):
+        for key in self.prop_keys:
+            if key in new_state:
+                setattr(self, key, new_state.get(key))
+        return self.get_state()
+
+    def get_state_schema(self):
+        return data_dict_to_schema(self.get_state())
+
+
+my_component = MyComponent()
+
 
 """
 Create a view to view and change our magic_denoise value, and register is as a Thing property
@@ -69,16 +93,8 @@ Create a view to view and change our magic_denoise value, and register is as a T
 
 
 @ThingProperty  # Register this view as a Thing Property
-@PropertySchema(  # Define the data we're going to output (get), and what to expect in (post)
-    fields.Integer(
-        required=True,
-        example=200,
-        minimum=100,
-        maximum=500,
-        description="Value of magic_denoise",
-    )
-)
-class DenoiseProperty(View):
+@PropertySchema(my_component.get_state_schema())
+class MapProperty(View):
 
     # Main function to handle GET requests (read)
     def get(self):
@@ -86,19 +102,17 @@ class DenoiseProperty(View):
 
         # When a GET request is made, we'll find our attached component
         my_component = find_component("org.labthings.example.mycomponent")
-        return my_component.magic_denoise
+        return my_component.get_state()
 
-    # Main function to handle POST requests (write)
-    def post(self, new_property_value):
+    # Main function to handle PUT requests (update)
+    def put(self, new_property_value):
         """Change the current magic_denoise value"""
 
         # Find our attached component
         my_component = find_component("org.labthings.example.mycomponent")
 
         # Apply the new value
-        my_component.magic_denoise = new_property_value
-
-        return my_component.magic_denoise
+        return my_component.set_state(new_property_value)
 
 
 """
@@ -162,13 +176,12 @@ app, labthing = create_app(
 )
 
 # Attach an instance of our component
-labthing.add_component(MyComponent(), "org.labthings.example.mycomponent")
+labthing.add_component(my_component, "org.labthings.example.mycomponent")
 
 # Add routes for the API views we created
-labthing.add_view(DenoiseProperty, "/denoise")
+labthing.add_view(MapProperty, "/props")
 labthing.add_view(QuickDataProperty, "/quick-data")
 labthing.add_view(MeasurementAction, "/actions/measure")
-
 
 # Start the app
 if __name__ == "__main__":
