@@ -13,6 +13,7 @@ from decimal import Decimal
 from typing import Dict, List, Tuple, Union
 from uuid import UUID
 
+import logging
 import inspect
 import copy
 
@@ -69,6 +70,7 @@ DEFAULT_BUILTIN_CONVERSIONS = {
 def make_primative(value):
     global DEFAULT_BUILTIN_CONVERSIONS, DEFAULT_TYPE_MAPPING
 
+    logging.debug(f"Converting {value} to primative type...")
     value_typestrings = [x.__module__+"."+x.__name__ for x in inspect.getmro(type(value))]
 
     for typestring in value_typestrings:
@@ -86,6 +88,12 @@ def make_primative(value):
 
 def value_to_field(value):
     global DEFAULT_TYPE_MAPPING
+
+    if isinstance(value, (List, Tuple)) or type(value) is type(Union):
+        # Get type of elements from the zeroth element.
+        # NOTE: This is definitely not ideal, but we can TODO later
+        element_field = value_to_field(value[0])
+        return fields.List(element_field, example=value)
     if type(value) in DEFAULT_TYPE_MAPPING:
         return DEFAULT_TYPE_MAPPING.get(type(value))(example=value)
     else:
@@ -94,10 +102,11 @@ def value_to_field(value):
 
 def data_dict_to_schema(data_dict):
     working_dict = copy.deepcopy(data_dict)
-    working_dict = rapply(working_dict, make_primative)
 
-    working_dict = rapply(working_dict, value_to_field)
-    return Schema.from_dict(working_dict)
+    working_dict = rapply(working_dict, make_primative)
+    working_dict = rapply(working_dict, value_to_field, apply_to_iterables=False)
+
+    return working_dict
 
 # TODO: Deserialiser with inverse defaults
 # TODO: Option to switch to .npy serialisation/deserialisation (or look for a better common array format)
@@ -113,6 +122,8 @@ d = {
         "subval2": False
     },
     "val2": 5
+    "val3": [1, 2, 3, 4]
+    "val4": range(1, 5)
 }
 
 """
