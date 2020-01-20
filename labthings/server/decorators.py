@@ -3,8 +3,7 @@ from functools import wraps, update_wrapper
 from flask import make_response, jsonify, abort, request
 from http import HTTPStatus
 from marshmallow.exceptions import ValidationError
-
-from ..core.utilities import rupdate
+from collections import Mapping
 
 from .spec import update_spec
 from .schema import TaskSchema, Schema
@@ -42,10 +41,14 @@ class marshal_with(object):
         self.schema = schema
         self.code = code
 
-        if isinstance(self.schema, Schema):
-            self.converter = self.schema.jsonify
+        if isinstance(self.schema, Mapping):
+            self.converter = Schema.from_dict(self.schema)().jsonify
         elif isinstance(self.schema, Field):
             self.converter = lambda x: jsonify(self.schema._serialize(x, None, None))
+        elif isinstance(self.schema, Schema):
+            self.converter = self.schema.jsonify
+        else:
+            raise TypeError(f"Unsupported schema type {type(self.schema)} for marshal_with")
 
     def __call__(self, f):
         # Pass params to call function attribute for external access
