@@ -141,28 +141,22 @@ def convert_schema(schema, spec: APISpec):
     if not schema:
         return schema
 
-    # Call callables
-    if callable(schema):
-        working_schema = schema()
-    else:
-        working_schema = schema
-
     # Expand/convert actual schema data
-    if isinstance(working_schema, BaseSchema):
-        return working_schema
-    elif isinstance(working_schema, Mapping):
-        return map2properties(working_schema, spec)
-    elif isinstance(working_schema, Field):
-        return field2property(working_schema, spec)
+    if isinstance(schema, BaseSchema):
+        return schema
+    elif isinstance(schema, Mapping):
+        return map2properties(schema, spec)
+    elif isinstance(schema, Field):
+        return field2property(schema, spec)
     else:
         raise TypeError(
-            f"Unsupported schema type {working_schema}. Ensure schema is a Schema class, or dictionary of Field objects"
+            f"Unsupported schema type {schema}. Ensure schema is a Schema class, or dictionary of Field objects"
         )
 
 
 def map2properties(schema, spec: APISpec):
     """
-    Convert any dictionary-like map of Marshmallow fields into a dictionary describing it's JSON schema
+    Recursively convert any dictionary-like map of Marshmallow fields into a dictionary describing it's JSON schema
     """
     marshmallow_plugin = next(
         plugin for plugin in spec.plugins if isinstance(plugin, MarshmallowPlugin)
@@ -195,12 +189,10 @@ def field2property(field, spec: APISpec):
 
 def schema2json(schema, spec: APISpec):
     """
-    Convert any Marshmallow schema, field, or dictionary of fields stright to a JSON schema
+    Convert any Marshmallow schema stright to a JSON schema.
     This should not be used when generating APISpec documentation, otherwise schemas wont
     be listed in the "schemas" list. This is used, for example, in the Thing Description.
     """
-    if not isinstance(schema, BaseSchema):
-        schema = convert_schema(schema, spec)
 
     if isinstance(schema, BaseSchema):
         marshmallow_plugin = next(
