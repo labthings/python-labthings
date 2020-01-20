@@ -44,6 +44,8 @@ class W3CThingDescriptionView(View):
     def get(self):
         base_url = request.host_url.rstrip("/")
 
+        swag = current_labthing().spec
+
         props = {}
         for key, prop in current_labthing().properties.items():
             props[key] = {}
@@ -52,21 +54,21 @@ class W3CThingDescriptionView(View):
 
             # Look for a _propertySchema in the Property classes API SPec
             prop_spec = get_spec(prop)
-            prop_schema = prop_spec.get("_propertySchema")
+            prop_schema = convert_schema(prop_spec.get("_propertySchema"), swag)
             if not prop_schema:
                 # If prop is read-only
                 if hasattr(prop, "get") and not (
                     hasattr(prop, "post") or hasattr(prop, "put")
                 ):
-                    prop_schema = get_spec(prop.get).get("_schema").get(200)
+                    prop_schema = convert_schema(get_spec(prop.get).get("_schema").get(200), swag)
                 # If prop is write-only
                 elif not hasattr(prop, "get") and (
                     hasattr(prop, "post") or hasattr(prop, "put")
                 ):
                     if hasattr(prop, "post"):
-                        prop_schema = get_spec(prop.post).get("_params")
+                        prop_schema = convert_schema(get_spec(prop.post).get("_params"), swag)
                     elif hasattr(prop, "put"):
-                        prop_schema = get_spec(prop.put).get("_params")
+                        prop_schema = convert_schema(get_spec(prop.put).get("_params"), swag)
                     else:
                         prop_schema = {}
 
