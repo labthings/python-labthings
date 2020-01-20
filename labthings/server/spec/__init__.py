@@ -137,15 +137,26 @@ def convert_schema(schema, spec: APISpec):
     Marshmallow schemas are left as they are so that the APISpec module
     can add them to the "schemas" list in our APISpec documentation.
     """
-    if isinstance(schema, BaseSchema):
+    # Don't process Nones
+    if not schema:
         return schema
-    elif isinstance(schema, Mapping):
-        return map2properties(schema, spec)
-    elif isinstance(schema, Field):
-        return field2property(schema, spec)
+
+    # Call callables
+    if callable(schema):
+        working_schema = schema()
+    else:
+        working_schema = schema
+
+    # Expand/convert actual schema data
+    if isinstance(working_schema, BaseSchema):
+        return working_schema
+    elif isinstance(working_schema, Mapping):
+        return map2properties(working_schema, spec)
+    elif isinstance(working_schema, Field):
+        return field2property(working_schema, spec)
     else:
         raise TypeError(
-            "Unsupported schema type. Ensure schema is a Schema class, or dictionary of Field objects"
+            f"Unsupported schema type {working_schema}. Ensure schema is a Schema class, or dictionary of Field objects"
         )
 
 
