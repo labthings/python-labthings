@@ -1,13 +1,12 @@
 from flask import abort, url_for
 
-from ..decorators import marshal_with, ThingProperty, Tag
+from ..decorators import marshal_with, Tag
 from ..view import View
 from ..schema import TaskSchema
 
 from ...core import tasks
 
 
-@ThingProperty
 @Tag("tasks")
 class TaskList(View):
     @marshal_with(TaskSchema(many=True))
