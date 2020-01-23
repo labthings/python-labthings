@@ -17,13 +17,6 @@ import logging
 import inspect
 import copy
 
-"""
-TODO: Use this to convert arbitrary dictionary into its own schema, for W3C TD
-
-First: Convert Python non-builtins to builtins using DEFAULT_BUILTIN_CONVERSIONS
-Then match types of each element to Field using DEFAULT_TYPE_MAPPING
-Finally convert Fields to JSON using converter (preferred due to extra metadata), or DEFAULT_FIELD_MAPPING
-"""
 # Python types to Marshmallow fields
 DEFAULT_TYPE_MAPPING = {
     bool: fields.Boolean,
@@ -113,20 +106,3 @@ def data_dict_to_schema(data_dict):
 
 # TODO: Deserialiser with inverse defaults
 # TODO: Option to switch to .npy serialisation/deserialisation (or look for a better common array format)
-
-"""
-# TODO: MOVE TO UNIT TESTS
-from fractions import Fraction
-
-d = {
-    "val1": Fraction(5,2),
-    "map1": {
-        "subval1": "Hello",
-        "subval2": False
-    },
-    "val2": 5
-    "val3": [1, 2, 3, 4]
-    "val4": range(1, 5)
-}
-
-"""
