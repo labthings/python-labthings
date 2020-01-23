@@ -1,4 +1,40 @@
-from labthings.server import types
+from labthings.server import types, fields
+import pytest
+
+from fractions import Fraction
+from datetime import datetime
+import uuid
+
+
+@pytest.fixture
+def types_dict():
+    d = {
+        "fraction": Fraction(5, 2),
+        "map1": {
+            "string": "Hello",
+            "bool": False,
+        },
+        "int": 5,
+        "list_int": [1, 2, 3, 4],
+        "range": range(1, 5),
+        "datetime": datetime.today(),
+        "uuid": uuid.uuid4(),
+    }
+
+    s = {
+        "fraction": fields.Float(),
+        "map1": {
+            "string": fields.String(),
+            "bool": fields.Boolean(),
+        },
+        "int": fields.Integer(),
+        "list_int": fields.List(fields.Int()),
+        "range": fields.List(fields.Int()),
+        "datetime": fields.DateTime(),
+        "uuid": fields.UUID(),
+    }
+
+    return d, s
 
 
 def test_make_primative():
@@ -29,35 +65,13 @@ def test_value_to_field():
     )
 
 
-def test_data_dict_to_schema():
-    from labthings.server import fields
-    from fractions import Fraction
+def test_data_dict_to_schema(types_dict):
     from marshmallow import Schema
 
-    d = {
-        "val1": Fraction(5, 2),
-        "map1": {
-            "subval1": "Hello",
-            "subval2": False,
-        },
-        "val2": 5,
-        "val3": [1, 2, 3, 4],
-        "val4": range(1, 5),
-    }
-
-    gen_schema_dict = types.data_dict_to_schema(d)
-    expected_schema_dict = {
-        "val1": fields.Float(),
-        "map1": {
-            "subval1": fields.String(),
-            "subval2": fields.Boolean(),
-        },
-        "val2": fields.Integer(),
-        "val3": fields.List(fields.Int()),
-        "val4": fields.List(fields.Int()),
-    }
+    data, expected_schema_dict = types_dict
+    gen_schema_dict = types.data_dict_to_schema(data)
 
     gen_schema = Schema.from_dict(gen_schema_dict)()
     expected_schema = Schema.from_dict(expected_schema_dict)()
 
-    assert gen_schema.dump(d) == expected_schema.dump(d)
+    assert gen_schema.dump(data) == expected_schema.dump(data)
