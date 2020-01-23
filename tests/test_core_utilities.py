@@ -92,17 +92,13 @@ def test_rapply():
 
 
 def test_get_by_path():
-    d1 = {
-        "a": {"b": "String"},
-    }
+    d1 = {"a": {"b": "String"}}
 
     assert utilities.get_by_path(d1, ("a", "b")) == "String"
 
 
 def test_set_by_path():
-    d1 = {
-        "a": {"b": "String"},
-    }
+    d1 = {"a": {"b": "String"}}
 
     utilities.set_by_path(d1, ("a", "b"), "Set")
 
