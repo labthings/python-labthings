@@ -16,7 +16,8 @@ PY3 = sys.version_info > (3,)
 def get_docstring(obj):
     ds = obj.__doc__
     if ds:
-        return ds.strip()
+        stripped = [line.strip() for line in ds.splitlines() if line]
+        return " \n".join(stripped)
     else:
         return ""
 
@@ -87,10 +88,6 @@ def create_from_path(items):
     for key in reversed(items):
         tree_dict = {key: tree_dict}
     return tree_dict
-
-
-def bottom_level_name(obj):
-    return obj.__name__.split(".")[-1]
 
 
 def camel_to_snake(name):
