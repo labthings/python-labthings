@@ -11,6 +11,9 @@ from .fields import Field
 
 import logging
 
+# Useful externals to have included here
+from marshmallow import pre_dump, pre_load
+
 
 def unpack(value):
     """Return a three tuple of data, code, and headers"""
