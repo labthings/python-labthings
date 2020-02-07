@@ -10,10 +10,7 @@ import uuid
 def types_dict():
     d = {
         "fraction": Fraction(5, 2),
-        "map1": {
-            "string": "Hello",
-            "bool": False,
-        },
+        "map1": {"string": "Hello", "bool": False},
         "int": 5,
         "list_int": [1, 2, 3, 4],
         "range": range(1, 5),
@@ -23,10 +20,7 @@ def types_dict():
 
     s = {
         "fraction": fields.Float(),
-        "map1": {
-            "string": fields.String(),
-            "bool": fields.Boolean(),
-        },
+        "map1": {"string": fields.String(), "bool": fields.Boolean()},
         "int": fields.Integer(),
         "list_int": fields.List(fields.Int()),
         "range": fields.List(fields.Int()),
