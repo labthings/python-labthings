@@ -16,7 +16,7 @@ def find_schema_for_view(view: View):
     # If prop is read-only
     if hasattr(view, "get") and not (hasattr(view, "post") or hasattr(view, "put")):
         # Use GET schema
-        prop_schema = get_spec(view.get).get("_schema").get(200)
+        prop_schema = get_spec(view.get).get("_schema", {}).get(200)
     # If prop is write-only
     elif not hasattr(view, "get") and (hasattr(view, "post") or hasattr(view, "put")):
         if hasattr(view, "post"):
@@ -72,14 +72,15 @@ class ThingDescription:
         if not prop_schema:
             prop_schema = find_schema_for_view(view)
 
-        # Ensure valid schema type
-        prop_schema = convert_schema(prop_schema, self.apispec)
+        if prop_schema:
+            # Ensure valid schema type
+            prop_schema = convert_schema(prop_schema, self.apispec)
 
-        # Convert schema to JSON
-        prop_schema_json = schema_to_json(prop_schema, self.apispec)
+            # Convert schema to JSON
+            prop_schema_json = schema_to_json(prop_schema, self.apispec)
 
-        # Add schema to prop description
-        prop_description.update(prop_schema_json)
+            # Add schema to prop description
+            prop_description.update(prop_schema_json)
 
         # Add URI variables
         for prop_rule in rules:
@@ -110,4 +111,4 @@ class ThingDescription:
         self.properties.append(self.view_to_thing_property(rules, view))
 
     def action(self, rules: list, view: View):
-        self.properties.append(self.view_to_thing_action(rules, view))
+        self.actions.append(self.view_to_thing_action(rules, view))
