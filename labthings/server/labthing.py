@@ -6,7 +6,9 @@ from . import EXTENSION_NAME  # TODO: Move into .names
 from .names import TASK_ENDPOINT, TASK_LIST_ENDPOINT, EXTENSION_LIST_ENDPOINT
 from .extensions import BaseExtension
 from .utilities import description_from_view
-from .spec import rule2path, get_spec
+from .spec.apispec import rule_to_apispec_path
+from .spec.utilities import get_spec
+from .spec.td import ThingDescription
 from .decorators import tag
 
 from .views.extensions import ExtensionList
@@ -34,8 +36,6 @@ class LabThing(object):
         self.extensions = {}
 
         self.views = []
-        self.properties = {}
-        self.actions = {}
 
         self.custom_root_links = {}
 
@@ -55,6 +55,8 @@ class LabThing(object):
             openapi_version="3.0.2",
             plugins=[MarshmallowPlugin()],
         )
+
+        self.thing_description = ThingDescription(self.spec)
 
         if app is not None:
             self.init_app(app)
@@ -218,21 +220,18 @@ class LabThing(object):
             rule = self._complete_url(url, "")
             # Add the url to the application or blueprint
             app.add_url_rule(rule, view_func=resource_func, **kwargs)
-            # Add the resource to our API spec
-            # self.spec.path(**view2path(rule, view, self.spec))
 
-        # TEST: Getting Flask rule objects
         flask_rules = app.url_map._rules_by_endpoint.get(endpoint)
         for flask_rule in flask_rules:
-            self.spec.path(**rule2path(flask_rule, view, self.spec))
+            self.spec.path(**rule_to_apispec_path(flask_rule, view, self.spec))
 
         # Handle resource groups listed in API spec
         view_spec = get_spec(view)
         view_groups = view_spec.get("_groups", {})
         if "actions" in view_groups:
-            self.actions[view.endpoint] = view
+            self.thing_description.action(flask_rules, view)
         if "properties" in view_groups:
-            self.properties[view.endpoint] = view
+            self.thing_description.property(flask_rules, view)
 
     ### Utilities
 

@@ -5,7 +5,7 @@ from http import HTTPStatus
 from marshmallow.exceptions import ValidationError
 from collections import Mapping
 
-from .spec import update_spec
+from .spec.utilities import update_spec
 from .schema import TaskSchema, Schema
 from .fields import Field
 
