@@ -45,7 +45,7 @@ def rupdate(d, u):
     return d
 
 
-def rapply(data, func, apply_to_iterables=True):
+def rapply(data, func, *args, apply_to_iterables=True, **kwargs):
     """
     Recursively apply a function to a dictionary, list, array, or tuple
 
@@ -58,7 +58,9 @@ def rapply(data, func, apply_to_iterables=True):
     # If the object is a dictionary
     if isinstance(data, collections.abc.Mapping):
         return {
-            key: rapply(val, func, apply_to_iterables=apply_to_iterables)
+            key: rapply(
+                val, func, *args, apply_to_iterables=apply_to_iterables, **kwargs
+            )
             for key, val in data.items()
         }
     # If the object is iterable but NOT a dictionary or a string
@@ -67,10 +69,13 @@ def rapply(data, func, apply_to_iterables=True):
         and not isinstance(data, collections.abc.Mapping)
         and not isinstance(data, str)
     ):
-        return [rapply(x, func, apply_to_iterables=apply_to_iterables) for x in data]
+        return [
+            rapply(x, func, *args, apply_to_iterables=apply_to_iterables, **kwargs)
+            for x in data
+        ]
     # if the object is neither a map nor iterable
     else:
-        return func(data)
+        return func(data, *args, **kwargs)
 
 
 def get_by_path(root, items):
