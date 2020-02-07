@@ -17,7 +17,7 @@ def get_docstring(obj):
     ds = obj.__doc__
     if ds:
         stripped = [line.strip() for line in ds.splitlines() if line]
-        return " \n".join(stripped)
+        return " \n".join(stripped).replace("\n", " ").replace("\r", "")
     else:
         return ""
 
