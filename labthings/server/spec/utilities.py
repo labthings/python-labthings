@@ -12,12 +12,12 @@ from collections import Mapping
 def update_spec(obj, spec):
     obj.__apispec__ = obj.__dict__.get("__apispec__", {})
     rupdate(obj.__apispec__, spec)
-    return obj.__apispec__
+    return obj.__apispec__ or {}
 
 
 def get_spec(obj):
     obj.__apispec__ = obj.__dict__.get("__apispec__", {})
-    return obj.__apispec__
+    return obj.__apispec__ or {}
 
 
 def convert_schema(schema, spec: APISpec):
