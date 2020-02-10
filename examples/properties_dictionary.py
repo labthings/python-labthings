@@ -59,18 +59,18 @@ class MapProperty(View):
         """Show the current magic_denoise value"""
 
         # When a GET request is made, we'll find our attached component
-        my_component = find_component("org.labthings.example.mycomponent")
-        return my_component.get_state()
+        found_my_component = find_component("org.labthings.example.mycomponent")
+        return found_my_component.get_state()
 
     # Main function to handle PUT requests (update)
     def put(self, new_property_value):
         """Change the current magic_denoise value"""
 
         # Find our attached component
-        my_component = find_component("org.labthings.example.mycomponent")
+        found_my_component = find_component("org.labthings.example.mycomponent")
 
         # Apply the new value
-        return my_component.set_state(new_property_value)
+        return found_my_component.set_state(new_property_value)
 
 
 # Create LabThings Flask app
