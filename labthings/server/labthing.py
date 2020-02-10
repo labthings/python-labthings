@@ -88,7 +88,7 @@ class LabThing(object):
         self._version = version
         self.spec.version = version
 
-    ### Flask stuff
+    # Flask stuff
 
     def init_app(self, app):
         app.teardown_appcontext(self.teardown)
@@ -120,12 +120,12 @@ class LabThing(object):
         self.add_view(TaskList, "/tasks", endpoint=TASK_LIST_ENDPOINT)
         self.add_view(TaskView, "/tasks/<id>", endpoint=TASK_ENDPOINT)
 
-    ### Device stuff
+    # Device stuff
 
     def add_component(self, device_object, device_name: str):
         self.components[device_name] = device_object
 
-    ### Extension stuff
+    # Extension stuff
 
     def register_extension(self, extension_object):
         if isinstance(extension_object, BaseExtension):
@@ -141,7 +141,7 @@ class LabThing(object):
                 **extension_view["kwargs"],
             )
 
-    ### Resource stuff
+    # Resource stuff
 
     def _complete_url(self, url_part, registration_prefix):
         """This method is used to defer the construction of the final url in
@@ -233,7 +233,7 @@ class LabThing(object):
         if "properties" in view_groups:
             self.thing_description.property(flask_rules, view)
 
-    ### Utilities
+    # Utilities
 
     def url_for(self, view, **values):
         """Generates a URL to the given resource.
@@ -249,7 +249,7 @@ class LabThing(object):
             kwargs = {}
         self.custom_root_links[title] = (view, kwargs)
 
-    ### Description
+    # Description
     def rootrep(self):
         """
         Root representation
