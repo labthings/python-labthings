@@ -140,7 +140,10 @@ class TaskThread(threading.Thread):
         # Should only be called on a started thread, so raise otherwise.
         if self.ident is None:
             raise RuntimeError(
-                "Cannot halt a thread that hasn't started. No valid running thread identifier."
+                (
+                    "Cannot halt a thread that hasn't started. ",
+                    "No valid running thread identifier.",
+                )
             )
 
         # If the thread has died we don't want to raise an exception so log.
