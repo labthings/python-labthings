@@ -26,12 +26,11 @@ def example_class():
 def test_get_docstring(example_class):
     assert (
         utilities.get_docstring(example_class)
-        == "First line of class docstring. \nSecond line of class docstring. \n"
+        == "First line of class docstring. Second line of class docstring. "
     )
 
-    assert (
-        utilities.get_docstring(example_class.class_method)
-        == "First line of class method docstring. \nSecond line of class method docstring. \n"
+    assert utilities.get_docstring(example_class.class_method) == (
+        "First line of class method docstring. Second line of class method docstring. "
     )
 
     assert utilities.get_docstring(example_class.class_method_no_docstring) == ""

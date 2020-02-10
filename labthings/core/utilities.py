@@ -7,17 +7,21 @@ from functools import reduce
 PY3 = sys.version_info > (3,)
 
 
-def get_docstring(obj):
+def get_docstring(obj, remove_newlines=True):
     ds = obj.__doc__
     if ds:
         stripped = [line.strip() for line in ds.splitlines() if line]
-        return " \n".join(stripped).replace("\n", " ").replace("\r", "")
+        if remove_newlines:
+            return " ".join(stripped).replace("\n", " ").replace("\r", "")
+        else:
+            return "\n".join(stripped)
     else:
         return ""
 
 
 def get_summary(obj):
-    return get_docstring(obj).partition("\n")[0].strip()
+    print(get_docstring(obj, remove_newlines=False))
+    return get_docstring(obj, remove_newlines=False).partition("\n")[0].strip()
 
 
 def rupdate(d, u):
