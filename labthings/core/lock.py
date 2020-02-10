@@ -5,7 +5,7 @@ from .exceptions import LockError
 
 class StrictLock(object):
     """
-    Class that behaves like a Python RLock, 
+    Class that behaves like a Python RLock,
     but with stricter timeout conditions and custom exceptions.
 
     Args:

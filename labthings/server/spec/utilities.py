@@ -48,7 +48,7 @@ def convert_schema(schema, spec: APISpec):
 
 def map_to_properties(schema, spec: APISpec):
     """
-    Recursively convert any dictionary-like map of Marshmallow fields 
+    Recursively convert any dictionary-like map of Marshmallow fields
     into a dictionary describing it's JSON schema
     """
     marshmallow_plugin = next(
