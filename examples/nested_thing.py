@@ -41,8 +41,8 @@ class MyComponent:
         """
         x_value = float(x_value - mu) / sigma
         return (
-                math.exp(-x_value * x_value / 2.0) / math.sqrt(2.0 * math.pi) / sigma
-                + (1 / self.magic_denoise) * random.random()
+            math.exp(-x_value * x_value / 2.0) / math.sqrt(2.0 * math.pi) / sigma
+            + (1 / self.magic_denoise) * random.random()
         )
 
     @property
@@ -60,12 +60,15 @@ class MyComponentSchema(Schema):
 
 
 """
-Create a view to view and change our magic_denoise value, and register is as a Thing property
+Create a view to view and change our magic_denoise value, 
+and register is as a Thing property
 """
 
 
-@ThingProperty  # Register this view as a Thing Property
-@PropertySchema(  # Define the data we're going to output (get), and what to expect in (post)
+# Register this view as a Thing Property
+@ThingProperty
+# Define the data we're going to output (get), and what to expect in (post)
+@PropertySchema(
     fields.Integer(
         required=True,
         example=200,

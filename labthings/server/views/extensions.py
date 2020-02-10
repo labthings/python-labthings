@@ -15,13 +15,9 @@ class ExtensionList(View):
     @marshal_with(ExtensionSchema(many=True))
     def get(self):
         """
-        Return the current Extension forms
+        List enabled extensions.
 
-        Returns an array of present Extension forms (describing Extension user interfaces.)
-        Please note, this is *not* a list of all enabled Extensions, only those with associated
-        user interface forms.
-
-        A complete list of enabled Extensions can be found in the microscope state.
-
+        Returns a list of Extension representations, including basic documentation.
+        Describes server methods, web views, and other relevant Lab Things metadata.
         """
         return registered_extensions().values()

@@ -203,7 +203,8 @@ class LabThing(object):
         if endpoint in getattr(app, "view_functions", {}):
             previous_view_class = app.view_functions[endpoint].__dict__["view_class"]
 
-            # if you override the endpoint with a different class, avoid the collision by raising an exception
+            # If you override the endpoint with a different class,
+            # avoid the collision by raising an exception
             if previous_view_class != view:
                 raise ValueError(
                     "This endpoint (%s) is already set to the class %s."
