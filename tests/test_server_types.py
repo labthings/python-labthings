@@ -32,14 +32,10 @@ def types_dict():
 
 
 def test_make_primative():
-    from fractions import Fraction
-
     assert types.make_primative(Fraction(5, 2)) == 2.5
 
 
 def test_value_to_field():
-    from labthings.server import fields
-
     # Test arrays of data
     d1 = [1, 2, 3]
     gen_field = types.value_to_field(d1)
