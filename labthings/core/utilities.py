@@ -11,12 +11,10 @@ def get_docstring(obj, remove_newlines=True):
     ds = obj.__doc__
     if ds:
         stripped = [line.strip() for line in ds.splitlines() if line]
-        if remove_newlines:
-            return " ".join(stripped).replace("\n", " ").replace("\r", "")
-        else:
+        if not remove_newlines:
             return "\n".join(stripped)
-    else:
-        return ""
+        return " ".join(stripped).replace("\n", " ").replace("\r", "")
+    return ""
 
 
 def get_summary(obj):
