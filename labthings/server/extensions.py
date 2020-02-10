@@ -118,7 +118,7 @@ def find_extensions_in_file(extension_path: str, module_name="extensions") -> li
 
     try:
         spec.loader.exec_module(mod)
-    except Exception as e:
+    except Exception as e:  # skipcq: PYL-W0703
         logging.error(
             f"Exception in extension path {extension_path}: \n{traceback.format_exc()}"
         )

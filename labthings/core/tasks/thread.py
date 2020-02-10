@@ -101,7 +101,7 @@ class TaskThread(threading.Thread):
             try:
                 self._return_value = f(*args, **kwargs)
                 self._status = "success"
-            except Exception as e:
+            except Exception as e:  # skipcq: PYL-W0703
                 logging.error(e)
                 logging.error(traceback.format_exc())
                 self._return_value = str(e)
