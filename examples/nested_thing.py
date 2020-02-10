@@ -17,9 +17,9 @@ equipment API calls, network requests, or a "virtual" device as seen here.
 
 
 class DataSet:
-    def __init__(self, xs, ys):
-        self.xs = xs
-        self.ys = ys
+    def __init__(self, x_values, y_values):
+        self.xs = x_values
+        self.ys = y_values
 
 
 class DataSetSchema(Schema):
@@ -29,20 +29,20 @@ class DataSetSchema(Schema):
 
 class MyComponent:
     def __init__(self):
-        self.id = uuid.uuid4()
+        self.id = uuid.uuid4()  # skipcq: PYL-C0103
         self.x_range = range(-100, 100)
         self.magic_denoise = 200
 
-    def noisy_pdf(self, x, mu=0.0, sigma=25.0):
+    def noisy_pdf(self, x_value, mu=0.0, sigma=25.0):
         """
         Generate a noisy gaussian function (to act as some pretend data)
         
         Our noise is inversely proportional to self.magic_denoise
         """
-        x = float(x - mu) / sigma
+        x_value = float(x_value - mu) / sigma
         return (
-            math.exp(-x * x / 2.0) / math.sqrt(2.0 * math.pi) / sigma
-            + (1 / self.magic_denoise) * random.random()
+                math.exp(-x_value * x_value / 2.0) / math.sqrt(2.0 * math.pi) / sigma
+                + (1 / self.magic_denoise) * random.random()
         )
 
     @property
