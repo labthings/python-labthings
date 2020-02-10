@@ -1,6 +1,7 @@
 from flask.views import MethodView
 from flask import request
 from werkzeug.wrappers import Response as ResponseBase
+from werkzeug.exceptions import MethodNotAllowed
 
 from labthings.core.utilities import OrderedDict
 
@@ -45,7 +46,8 @@ class View(MethodView):
         if meth is None and request.method == "HEAD":
             meth = getattr(self, "get", None)
 
-        assert meth is not None, "Unimplemented method %r" % request.method
+        if meth is None:
+            raise MethodNotAllowed(f"Unimplemented method {request.method}")
 
         # Generate basic response
         resp = meth(*args, **kwargs)
