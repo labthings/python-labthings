@@ -177,7 +177,7 @@ class TaskThread(threading.Thread):
         Returns:
             bool: If _thread_proc is currently running
         """
-        could_acquire = self._running_lock.acquire(0)
+        could_acquire = self._running_lock.acquire(False)  # skipcq: PYL-E1111
         if could_acquire:
             self._running_lock.release()
             return False
