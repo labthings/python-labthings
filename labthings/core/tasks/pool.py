@@ -63,8 +63,8 @@ def tasks():
     Returns:
         list: List of tasks in default taskmaster
     """
-    global _default_task_master
-    return _default_task_master.tasks
+    global DEFAULT_TASK_MASTER
+    return DEFAULT_TASK_MASTER.tasks
 
 
 def dict():
@@ -73,8 +73,8 @@ def dict():
     Returns:
         dict: Dictionary of tasks in default taskmaster
     """
-    global _default_task_master
-    return _default_task_master.dict
+    global DEFAULT_TASK_MASTER
+    return DEFAULT_TASK_MASTER.dict
 
 
 def states():
@@ -83,18 +83,18 @@ def states():
     Returns:
         dict: Dictionary of task states in default taskmaster
     """
-    global _default_task_master
-    return _default_task_master.states
+    global DEFAULT_TASK_MASTER
+    return DEFAULT_TASK_MASTER.states
 
 
 def cleanup_tasks():
-    global _default_task_master
-    return _default_task_master.cleanup()
+    global DEFAULT_TASK_MASTER
+    return DEFAULT_TASK_MASTER.cleanup()
 
 
 def remove_task(task_id: str):
-    global _default_task_master
-    return _default_task_master.remove(task_id)
+    global DEFAULT_TASK_MASTER
+    return DEFAULT_TASK_MASTER.remove(task_id)
 
 
 # Operations on the current task
@@ -132,7 +132,7 @@ def taskify(f):
 
     @wraps(f)
     def wrapped(*args, **kwargs):
-        task = _default_task_master.new(
+        task = DEFAULT_TASK_MASTER.new(
             f, *args, **kwargs
         )  # Append to parent object's task list
         task.start()  # Start the function
@@ -142,4 +142,4 @@ def taskify(f):
 
 
 # Create our default, protected, module-level task pool
-_default_task_master = TaskMaster()
+DEFAULT_TASK_MASTER = TaskMaster()
