@@ -1,5 +1,11 @@
 version = 1
 
+# Glob pattern of the test files
+test_patterns = [
+  "tests/**",
+  "test_*.py"
+]
+
 [[analyzers]]
 name = "python"
 enabled = true
