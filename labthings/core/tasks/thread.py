@@ -14,7 +14,7 @@ class ThreadTerminationError(SystemExit):
 
 
 class TaskThread(threading.Thread):
-    def __init__(self, target=None, name=None, args=(), kwargs={}, daemon=True):
+    def __init__(self, target=None, name=None, args=None, kwargs=None, daemon=True):
         threading.Thread.__init__(
             self,
             group=None,
@@ -24,6 +24,11 @@ class TaskThread(threading.Thread):
             kwargs=kwargs,
             daemon=daemon,
         )
+        # Handle arguments
+        if args is None:
+            args = ()
+        if kwargs is None:
+            kwargs = {}
 
         # A UUID for the TaskThread (not the same as the threading.Thread ident)
         self._ID = uuid.uuid4()  # Task ID

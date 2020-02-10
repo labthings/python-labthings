@@ -244,7 +244,9 @@ class LabThing(object):
     def owns_endpoint(self, endpoint):
         return endpoint in self.endpoints
 
-    def add_root_link(self, view, title, kwargs={}):
+    def add_root_link(self, view, title, kwargs=None):
+        if kwargs is None:
+            kwargs = {}
         self.custom_root_links[title] = (view, kwargs)
 
     ### Description
