@@ -60,7 +60,7 @@ class MyComponentSchema(Schema):
 
 
 """
-Create a view to view and change our magic_denoise value, 
+Create a view to view and change our magic_denoise value,
 and register is as a Thing property
 """
 

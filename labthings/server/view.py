@@ -11,7 +11,7 @@ from labthings.server.representations import DEFAULT_REPRESENTATIONS
 
 class View(MethodView):
     """
-    A LabThing Resource class should make use of functions 
+    A LabThing Resource class should make use of functions
     get(), put(), post(), and delete(), corresponding to HTTP methods.
 
     These functions will allow for automated documentation generation

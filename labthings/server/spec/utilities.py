@@ -83,8 +83,8 @@ def field_to_property(field, spec: APISpec):
 def schema_to_json(schema, spec: APISpec):
     """
     Convert any Marshmallow schema stright to a fully expanded JSON schema.
-    This should not be used when generating APISpec documentation, 
-    otherwise schemas wont be listed in the "schemas" list. 
+    This should not be used when generating APISpec documentation,
+    otherwise schemas wont be listed in the "schemas" list.
     This is used, for example, in the Thing Description.
     """
 
