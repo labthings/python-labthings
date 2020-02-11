@@ -98,6 +98,15 @@ class BaseExtension:
 
 
 def find_instances_in_module(module, class_to_find):
+    """Find instances of a particular class within a module
+    
+    Args:
+        module: Python module to search
+        class_to_find (class): Python class to search for instances of
+    
+    Returns:
+        list: List of objects derived from `class_to_find` 
+    """
     objs = []
     for attribute in dir(module):
         if not attribute.startswith("__"):
@@ -108,6 +117,16 @@ def find_instances_in_module(module, class_to_find):
 
 
 def find_extensions_in_file(extension_path: str, module_name="extensions") -> list:
+    """Find LabThings extension objects from a particular Python file
+    
+    Args:
+        extension_path (str): Path to the extension file
+        module_name (str, optional): Name of the module to load extensions into. 
+            Defaults to "extensions".
+    
+    Returns:
+        list: List of extension objects
+    """
     logging.debug(f"Loading extensions from {extension_path}")
 
     spec = util.spec_from_file_location(module_name, extension_path)
@@ -128,7 +147,17 @@ def find_extensions_in_file(extension_path: str, module_name="extensions") -> li
             return find_instances_in_module(mod, BaseExtension)
 
 
-def find_extensions(extension_dir: str, module_name="extensions"):
+def find_extensions(extension_dir: str, module_name="extensions") -> list:
+    """Find LabThings extension objects from files in an extension directory
+    
+    Args:
+        extension_dir (str): Path to directory contatining extension files
+        module_name (str, optional): Name of the module to load extensions into. 
+            Defaults to "extensions".
+    
+    Returns:
+        list: List of extension objects
+    """
     logging.debug(f"Loading extensions from {extension_dir}")
 
     extensions = []

@@ -8,6 +8,14 @@ PATH_RE = re.compile(r"<(?:[^:<>]+:)?([^<>]+)>")
 
 
 def rule_to_path(rule):
+    """Convert a Flask rule into an APISpec formatted URL path
+    
+    Args:
+        rule: Flask rule object
+    
+    Returns:
+        str: URL path
+    """
     return PATH_RE.sub(r"{\1}", rule.rule)
 
 
@@ -22,6 +30,15 @@ DEFAULT_TYPE = ("string", None)
 
 
 def rule_to_params(rule, overrides=None):
+    """Convert a Flask rule into APISpec URL parameters description
+    
+    Args:
+        rule: Flask rule object
+        overrides (dict, optional): Optional dictionary to override params with
+    
+    Returns:
+        dict: Dictionary of URL parameters
+    """
     overrides = overrides or {}
     result = [
         argument_to_param(argument, rule, overrides.get(argument, {}))
@@ -35,6 +52,16 @@ def rule_to_params(rule, overrides=None):
 
 
 def argument_to_param(argument, rule, override=None):
+    """Convert a Flask rule into APISpec URL parameters description
+    
+    Args:
+        argument (str): URL argument
+        rule: Flask rule object
+        override (dict, optional): Optional dictionary to override params with
+    
+    Returns:
+        dict: Dictionary of URL parameter description
+    """
     param = {"in": "path", "name": argument, "required": True}
     type_, format_ = CONVERTER_MAPPING.get(
         # skipcq: PYL-W0212

@@ -38,18 +38,50 @@ DEFAULT_TYPE_MAPPING = {
 
 
 def ndarray_to_list(o):
+    """Convert a Numpy ndarray into a list of values
+    
+    Args:
+        o (numpy.ndarray): Data to convert
+    
+    Returns:
+        list: Python list of data
+    """
     return o.tolist()
 
 
 def to_int(o):
+    """Convert a value into a Python integer
+    
+    Args:
+        o: Data to convert
+    
+    Returns:
+        int: Python int of data
+    """
     return int(o)
 
 
 def to_float(o):
+    """Convert a value into a Python float
+    
+    Args:
+        o: Data to convert
+    
+    Returns:
+        int: Python float of data
+    """
     return float(o)
 
 
 def to_string(o):
+    """Convert a value into a Python string
+    
+    Args:
+        o: Data to convert
+    
+    Returns:
+        int: Python string of data
+    """
     return str(o)
 
 
@@ -62,6 +94,14 @@ DEFAULT_BUILTIN_CONVERSIONS = {
 
 
 def make_primative(value):
+    """Attempt to convert a value into a primative Python type
+    
+    Args:
+        value: Data to convert
+    
+    Returns:
+        Converted data if possible, otherwise original data
+    """
     global DEFAULT_BUILTIN_CONVERSIONS, DEFAULT_TYPE_MAPPING
 
     logging.debug(f"Converting {value} to primative type...")
@@ -83,6 +123,17 @@ def make_primative(value):
 
 
 def value_to_field(value):
+    """Attempt to match a value to a Marshmallow field type
+    
+    Args:
+        value: Data to obtain field from
+    
+    Raises:
+        TypeError: Data is not of a type that maps to a Marshmallow field
+    
+    Returns:
+        Marshmallow field best matching the value type
+    """
     global DEFAULT_TYPE_MAPPING
 
     if isinstance(value, (List, Tuple)) or type(value) is type(Union):
@@ -96,7 +147,15 @@ def value_to_field(value):
         raise TypeError(f"Unsupported data type {type(value)}")
 
 
-def data_dict_to_schema(data_dict):
+def data_dict_to_schema(data_dict: dict):
+    """Attempt to create a Marshmallow schema from a dictionary of data
+    
+    Args:
+        data_dict (dict): Dictionary of data
+    
+    Returns:
+        dict: Dictionary of Marshmallow fields matching input data types
+    """
     working_dict = copy.deepcopy(data_dict)
 
     working_dict = rapply(working_dict, make_primative)
