@@ -12,6 +12,18 @@ from labthings.core.utilities import get_docstring
 
 
 def find_schema_for_view(view: View):
+    """Find the broadest available data schema for a Flask view
+
+    First looks for class-level, then GET, POST, and PUT methods depending on if the
+    view is read/write only
+    
+    Args:
+        view (View): View to search for schema
+    
+    Returns:
+        Broadest available schema dictionary for the View. Returns empty dictionary
+            if no schema is found
+    """
     prop_schema = {}
     # If prop is read-only
     if hasattr(view, "get") and not (hasattr(view, "post") or hasattr(view, "put")):

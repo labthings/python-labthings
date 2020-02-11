@@ -7,7 +7,7 @@ from .exceptions import JSONExceptionHandler
 
 def create_app(
     import_name,
-    prefix: str = "",
+    prefix: str = "/api",
     title: str = "",
     description: str = "",
     version: str = "0.0.0",
@@ -15,6 +15,23 @@ def create_app(
     handle_cors: bool = True,
     flask_kwargs: dict = {},
 ):
+    """QUick-create a LabThings-enabled Flask app
+    
+    Args:
+        import_name: Flask import name. Usually `__name__`.
+        prefix (str, optional): URL prefix for all LabThings views. Defaults to "/api".
+        title (str, optional): Title/name of the LabThings Thing.
+        description (str, optional): Brief description of the LabThings Thing.
+        version (str, optional): Version number/code of the Thing. Defaults to "0.0.0".
+        handle_errors (bool, optional): Use the LabThings error handler, 
+            to JSON format internal exceptions. Defaults to True.
+        handle_cors (bool, optional): Automatically enable CORS on all LabThings views. 
+            Defaults to True.
+        flask_kwargs (dict, optional): Keyword arguments to pass to the Flask instance.
+    
+    Returns:
+        (Flask app object, LabThings object)
+    """
     # Handle arguments
     if flask_kwargs is None:
         flask_kwargs = {}

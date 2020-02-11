@@ -10,6 +10,14 @@ def http_status_message(code):
 
 
 def description_from_view(view_class):
+    """Create a dictionary description of a Flask View
+    
+    Args:
+        view_class (View): Flask View class
+    
+    Returns:
+        dict: Basic metadata such as description and methods from View class
+    """
     summary = get_summary(view_class)
 
     methods = []
@@ -27,6 +35,14 @@ def description_from_view(view_class):
 
 
 def view_class_from_endpoint(endpoint: str):
+    """Retrieve a Flask view class from a given endpoint
+    
+    Args:
+        endpoint (str): Endpoint corresponding to View class
+    
+    Returns:
+        View: View class attached to the specified endpoint
+    """
     return current_app.view_functions[endpoint].view_class
 
 

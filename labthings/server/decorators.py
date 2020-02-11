@@ -8,6 +8,7 @@ from collections import Mapping
 from .spec.utilities import update_spec
 from .schema import TaskSchema, Schema, FieldSchema
 from .fields import Field
+from .view import View
 
 import logging
 
@@ -37,9 +38,11 @@ def unpack(value):
 
 class marshal_with(object):
     def __init__(self, schema, code=200):
-        """
-        :param schema: a dict of whose keys will make up the final
-                        serialized response output
+        """Decorator to format the response of a View with a Marshmallow schema
+
+        Args:
+            schema: Marshmallow schema, field, or dict of Fields, describing
+                the format of data to be returned by a View
         """
         self.schema = schema
         self.code = code
@@ -72,6 +75,8 @@ class marshal_with(object):
 
 
 def marshal_task(f):
+    """Decorator to format the response of a View with the standard Task schema"""
+
     # Pass params to call function attribute for external access
     update_spec(f, {"responses": {201: {"description": "Task started successfully"}}})
     update_spec(f, {"_schema": {201: TaskSchema()}})
@@ -88,7 +93,15 @@ def marshal_task(f):
     return wrapper
 
 
-def ThingAction(viewcls):
+def ThingAction(viewcls: View):
+    """Decorator to tag a view as a Thing Action
+
+    Args:
+        viewcls (View): View class to tag as an Action
+
+    Returns:
+        View: View class with Action spec tags
+    """
     # Pass params to call function attribute for external access
     update_spec(viewcls, {"tags": ["actions"]})
     update_spec(viewcls, {"_groups": ["actions"]})
@@ -99,6 +112,14 @@ thing_action = ThingAction
 
 
 def ThingProperty(viewcls):
+    """Decorator to tag a view as a Thing Property
+
+    Args:
+        viewcls (View): View class to tag as an Property
+
+    Returns:
+        View: View class with Property spec tags
+    """
     # Pass params to call function attribute for external access
     update_spec(viewcls, {"tags": ["properties"]})
     update_spec(viewcls, {"_groups": ["properties"]})

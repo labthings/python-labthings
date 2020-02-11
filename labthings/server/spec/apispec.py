@@ -10,6 +10,16 @@ from http import HTTPStatus
 
 
 def rule_to_apispec_path(rule: Rule, view: View, spec: APISpec):
+    """Generate APISpec Path arguments from a flask Rule and View
+    
+    Args:
+        rule (Rule): Flask Rule for path
+        view (View): Flask View for path
+        spec (APISpec): APISpec object to generate arguments for
+    
+    Returns:
+        dict: APISpec `path` funtion argument dictionary
+    """
     params = {
         "path": rule_to_path(rule),
         "operations": view_to_apispec_operations(view, spec),
@@ -31,6 +41,15 @@ def rule_to_apispec_path(rule: Rule, view: View, spec: APISpec):
 
 
 def view_to_apispec_operations(view: View, spec: APISpec):
+    """Generate APISpec `operations` argument from a flask View
+    
+    Args:
+        view (View): Flask View for operations
+        spec (APISpec): APISpec object to generate arguments for
+    
+    Returns:
+        dict: APISpec `operations` dictionary
+    """
     # Operations inherit tags from parent
     inherited_tags = []
     if hasattr(view, "__apispec__"):
@@ -59,6 +78,15 @@ def view_to_apispec_operations(view: View, spec: APISpec):
 
 
 def method_to_apispec_operation(method: callable, spec: APISpec):
+    """Generate APISpec `operation` parameters from a flask View method
+    
+    Args:
+        method (callable): Flask View method for APISpec operation
+        spec (APISpec): APISpec object to generate arguments for
+    
+    Returns:
+        dict: APISpec `operation` dictionary
+    """
     if hasattr(method, "__apispec__"):
         apispec = getattr(method, "__apispec__")
     else:
