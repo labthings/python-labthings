@@ -5,6 +5,9 @@ from . import EXTENSION_NAME
 
 
 def current_labthing():
+    # We use _get_current_object so that Task threads can still
+    # reach the Flask app object. Just using current_app returns
+    # a wrapper, which breaks it's use in Task threads
     app = current_app._get_current_object()  # skipcq: PYL-W0212
     if not app:
         return None
