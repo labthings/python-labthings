@@ -43,6 +43,50 @@ class Schema(marshmallow.Schema):
         return jsonify(data, *args, **kwargs)
 
 
+class FieldSchema:
+    """
+    "Virtual schema" for handling individual fields treated as schemas.
+    
+    For example, when serializing/deserializing individual values that are not
+    attributes of an object.
+    """
+
+    def __init__(self, field: fields.Field):
+        """Create a converter for data of the field type
+        
+        Args:
+            field (Field): Marshmallow Field type of data
+        """
+        self.field = field
+
+    def deserialize(self, value):
+        return self.field.deserialize(value)
+
+    def serialize(self, value):
+        """Serialize a value to Field type
+        
+        Args:
+            value: Data to serialize
+        
+        Returns:
+            Serialized data
+        """
+        obj = type("obj", (object,), {"value": value})
+
+        return self.field.serialize("value", obj)
+
+    def jsonify(self, value):
+        """Serialize a value to JSON
+        
+        Args:
+            value: Data to serialize
+        
+        Returns:
+            Serialized JSON data
+        """
+        return jsonify(self.serialize(value))
+
+
 class TaskSchema(Schema):
     _ID = fields.String(data_key="id")
     target_string = fields.String(data_key="function")
