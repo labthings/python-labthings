@@ -14,7 +14,7 @@ class LockError(ThreadError):
         else:
             self.message = "Unknown error."
 
-        self.string = "{}: {}".format(self.code, self.message)
+        self.string = f"{self.code}: LOCK {lock}: {self.message}"
         print(self.string)
 
         ThreadError.__init__(self)
