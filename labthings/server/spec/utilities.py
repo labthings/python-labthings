@@ -22,7 +22,9 @@ def update_spec(obj, spec: dict):
 
 
 def get_spec(obj):
-    """Get the __apispec__ dictionary created by LabThings decorators for a particular object
+    """
+    Get the __apispec__ dictionary, created by LabThings decorators,
+    for a particular Python object
 
     Args:
         obj: Python object

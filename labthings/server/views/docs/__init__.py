@@ -5,9 +5,7 @@ from ...find import current_labthing
 
 
 class APISpecView(View):
-    """
-    OpenAPI v3 documentation
-    """
+    """OpenAPI v3 documentation"""
 
     def get(self):
         """OpenAPI v3 documentation"""
