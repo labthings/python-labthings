@@ -18,7 +18,7 @@ class Schema(marshmallow.Schema):
     See `marshmallow.Schema` for more details about the `Schema` API.
     """
 
-    def jsonify(self, obj, many=sentinel, *args, **kwargs):
+    def jsonify(self, obj, *args, many=sentinel, **kwargs):
         """Return a JSON response containing the serialized data.
         :param obj: Object to serialize.
         :param bool many: Whether `obj` should be serialized as an instance
