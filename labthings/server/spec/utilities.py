@@ -129,8 +129,11 @@ def expand_refs(schema_dict, spec: APISpec):
 
     name = schema_dict.get("$ref").split("/")[-1]
 
-    if name in spec.components._schemas:
-        schema_dict.update(spec.components._schemas.get(name))
+    # Get the list of all schemas registered with APISpec
+    spec_schemas = spec.to_dict().get("components", {}).get("schemas", {})
+
+    if name in spec_schemas:
+        schema_dict.update(spec_schemas.get(name))
         del schema_dict["$ref"]
 
     return schema_dict
