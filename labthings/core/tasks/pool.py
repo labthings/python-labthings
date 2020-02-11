@@ -88,9 +88,7 @@ def states():
 
 
 def cleanup_tasks():
-    """
-    Remove all finished tasks from the task list
-    """
+    """Remove all finished tasks from the task list"""
     global DEFAULT_TASK_MASTER
     return DEFAULT_TASK_MASTER.cleanup()
 

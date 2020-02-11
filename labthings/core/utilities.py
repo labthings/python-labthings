@@ -42,9 +42,9 @@ def get_summary(obj):
 def rupdate(destination_dict, update_dict):
     """Recursively update a dictionary
 
-    This will take an "update_dictionary", 
+    This will take an "update_dictionary",
     and recursively merge it with "destination_dict".
-    
+
     Args:
         destination_dict (dict): Original dictionary
         update_dict (dict): New data dictionary
@@ -127,7 +127,7 @@ def create_from_path(items):
             }
         }
     }
-    
+
     Args:
         items (list): Key path
 
