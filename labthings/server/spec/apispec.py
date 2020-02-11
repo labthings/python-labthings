@@ -137,7 +137,7 @@ def method_to_apispec_operation(method: callable, spec: APISpec):
 
     # Bung in any extra swagger fields supplied
     for key, val in apispec.items():
-        if not key in ["_params", "_schema"]:
+        if key not in ["_params", "_schema"]:
             rupdate(op, {key: val})
 
     return op
