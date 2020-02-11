@@ -10,25 +10,19 @@ class APISpecView(View):
     """
 
     def get(self):
-        """
-        OpenAPI v3 documentation
-        """
+        """OpenAPI v3 documentation"""
         return current_labthing().spec.to_dict()
 
 
 class SwaggerUIView(View):
-    """
-    Swagger UI documentation
-    """
+    """Swagger UI documentation"""
 
     def get(self):
         return make_response(render_template("swagger-ui.html"))
 
 
 class W3CThingDescriptionView(View):
-    """
-    W3C-style Thing Description
-    """
+    """W3C-style Thing Description"""
 
     def get(self):
         return current_labthing().thing_description.to_dict()

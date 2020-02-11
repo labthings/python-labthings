@@ -254,9 +254,7 @@ class LabThing:
 
     # Description
     def rootrep(self):
-        """
-        Root representation
-        """
+        """Root representation"""
         # TODO: Allow custom root representations
 
         rr = {

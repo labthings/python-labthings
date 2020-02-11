@@ -156,9 +156,7 @@ class PropertySchema:
 
 
 class use_body:
-    """
-    Gets the request body as a single value and adds it as a positional argument
-    """
+    """Gets the request body as a single value and adds it as a positional argument"""
 
     def __init__(self, schema, **kwargs):
         self.schema = schema
@@ -198,9 +196,7 @@ class use_body:
 
 
 class use_args:
-    """
-    Equivalent to webargs.flask_parser.use_args
-    """
+    """Equivalent to webargs.flask_parser.use_args"""
 
     def __init__(self, schema, **kwargs):
         self.schema = schema

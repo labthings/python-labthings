@@ -11,9 +11,7 @@ from ...core import tasks
 class TaskList(View):
     @marshal_with(TaskSchema(many=True))
     def get(self):
-        """
-        List of all session tasks
-        """
+        """List of all session tasks"""
         return tasks.tasks()
 
 

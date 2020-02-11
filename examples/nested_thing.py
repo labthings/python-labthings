@@ -47,9 +47,7 @@ class MyComponent:
 
     @property
     def data(self):
-        """
-        Return a 1D data trace.
-        """
+        """Return a 1D data trace."""
         return DataSet(self.x_range, [self.noisy_pdf(x) for x in self.x_range])
 
 

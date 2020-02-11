@@ -61,9 +61,7 @@ class TaskThread(threading.Thread):
 
     @property
     def id(self):
-        """
-        Return ID of current TaskThread
-        """
+        """Return ID of current TaskThread"""
         return self._ID
 
     @property
@@ -112,9 +110,7 @@ class TaskThread(threading.Thread):
         return wrapped
 
     def run(self):
-        """
-        Overrides default threading.Thread run() method
-        """
+        """Overrides default threading.Thread run() method"""
         logging.debug((self._args, self._kwargs))
         try:
             with self._running_lock:
@@ -128,9 +124,7 @@ class TaskThread(threading.Thread):
             del self._target, self._args, self._kwargs
 
     def wait(self):
-        """
-        Start waiting for the task to finish before returning
-        """
+        """Start waiting for the task to finish before returning"""
         print("Joining thread {}".format(self))
         self.join()
         return self._return_value

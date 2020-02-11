@@ -8,9 +8,7 @@ from ..decorators import marshal_with
 
 
 class ExtensionList(View):
-    """
-    List and basic documentation for all enabled Extensions
-    """
+    """List and basic documentation for all enabled Extensions"""
 
     @marshal_with(ExtensionSchema(many=True))
     def get(self):

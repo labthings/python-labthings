@@ -41,15 +41,11 @@ class MyComponent:
 
     @property
     def data(self):
-        """
-        Return a 1D data trace.
-        """
+        """Return a 1D data trace."""
         return [self.noisy_pdf(x) for x in self.x_range]
 
     def average_data(self, n: int):
-        """
-        Average n-sets of data. Emulates a measurement that may take a while.
-        """
+        """Average n-sets of data. Emulates a measurement that may take a while."""
         summed_data = self.data
 
         for i in range(n):

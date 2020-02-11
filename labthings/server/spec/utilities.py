@@ -69,9 +69,7 @@ def map_to_properties(schema, spec: APISpec):
 
 
 def field_to_property(field, spec: APISpec):
-    """
-    Convert a single Marshmallow field into a JSON schema of that field
-    """
+    """Convert a single Marshmallow field into a JSON schema of that field"""
     marshmallow_plugin = next(
         plugin for plugin in spec.plugins if isinstance(plugin, MarshmallowPlugin)
     )
