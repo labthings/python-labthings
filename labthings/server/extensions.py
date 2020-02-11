@@ -105,7 +105,7 @@ def find_instances_in_module(module, class_to_find):
         class_to_find (class): Python class to search for instances of
     
     Returns:
-        list: List of objects derived from `class_to_find` 
+        list: List of objects derived from `class_to_find`
     """
     objs = []
     for attribute in dir(module):
@@ -121,7 +121,7 @@ def find_extensions_in_file(extension_path: str, module_name="extensions") -> li
     
     Args:
         extension_path (str): Path to the extension file
-        module_name (str, optional): Name of the module to load extensions into. 
+        module_name (str, optional): Name of the module to load extensions into.
             Defaults to "extensions".
     
     Returns:
@@ -152,7 +152,7 @@ def find_extensions(extension_dir: str, module_name="extensions") -> list:
     
     Args:
         extension_dir (str): Path to directory contatining extension files
-        module_name (str, optional): Name of the module to load extensions into. 
+        module_name (str, optional): Name of the module to load extensions into.
             Defaults to "extensions".
     
     Returns:

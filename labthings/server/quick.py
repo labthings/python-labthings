@@ -23,9 +23,9 @@ def create_app(
         title (str, optional): Title/name of the LabThings Thing.
         description (str, optional): Brief description of the LabThings Thing.
         version (str, optional): Version number/code of the Thing. Defaults to "0.0.0".
-        handle_errors (bool, optional): Use the LabThings error handler, 
+        handle_errors (bool, optional): Use the LabThings error handler,
             to JSON format internal exceptions. Defaults to True.
-        handle_cors (bool, optional): Automatically enable CORS on all LabThings views. 
+        handle_cors (bool, optional): Automatically enable CORS on all LabThings views.
             Defaults to True.
         flask_kwargs (dict, optional): Keyword arguments to pass to the Flask instance.
     

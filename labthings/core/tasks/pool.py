@@ -15,7 +15,7 @@ class TaskMaster:
     def tasks(self):
         """
         Returns:
-            list: List of TaskThread objects. 
+            list: List of TaskThread objects.
         """
         return self._tasks
 
