@@ -5,7 +5,7 @@ from . import EXTENSION_NAME
 
 
 def current_labthing():
-    app = current_app._get_current_object()
+    app = current_app._get_current_object()  # skipcq: PYL-W0212
     if not app:
         return None
     logging.debug("Active app extensions:")
