@@ -1,6 +1,6 @@
 from webargs import flaskparser
 from functools import wraps, update_wrapper
-from flask import make_response, jsonify, abort, request
+from flask import make_response, abort, request
 from http import HTTPStatus
 from marshmallow.exceptions import ValidationError
 from collections import Mapping
