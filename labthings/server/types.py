@@ -1,5 +1,6 @@
 # Marshmallow fields to JSON schema types
-# Note: We shouldn't ever need to use this directly. We should go via the apispec converter
+# Note: We shouldn't ever need to use this directly.
+# We should go via the apispec converter
 from apispec.ext.marshmallow.field_converter import DEFAULT_FIELD_MAPPING
 
 from labthings.server import fields
@@ -105,4 +106,4 @@ def data_dict_to_schema(data_dict):
 
 
 # TODO: Deserialiser with inverse defaults
-# TODO: Option to switch to .npy serialisation/deserialisation (or look for a better common array format)
+# TODO: Option to switch to .npy serialisation/deserialisation (see OFM server)

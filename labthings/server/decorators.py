@@ -1,12 +1,12 @@
 from webargs import flaskparser
 from functools import wraps, update_wrapper
-from flask import make_response, jsonify, abort, request
+from flask import make_response, abort, request
 from http import HTTPStatus
 from marshmallow.exceptions import ValidationError
 from collections import Mapping
 
 from .spec.utilities import update_spec
-from .schema import TaskSchema, Schema
+from .schema import TaskSchema, Schema, FieldSchema
 from .fields import Field
 
 import logging
@@ -47,7 +47,7 @@ class marshal_with(object):
         if isinstance(self.schema, Mapping):
             self.converter = Schema.from_dict(self.schema)().jsonify
         elif isinstance(self.schema, Field):
-            self.converter = lambda x: jsonify(self.schema._serialize(x, None, None))
+            self.converter = FieldSchema(self.schema).jsonify
         elif isinstance(self.schema, Schema):
             self.converter = self.schema.jsonify
         else:
@@ -165,7 +165,7 @@ class use_body(object):
             # Serialize data if it exists
             if data:
                 try:
-                    data = self.schema._deserialize(data, None, None)
+                    data = FieldSchema(self.schema).deserialize(data)
                 except ValidationError as e:
                     logging.error(e)
                     return abort(400)

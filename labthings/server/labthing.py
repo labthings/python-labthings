@@ -88,7 +88,7 @@ class LabThing(object):
         self._version = version
         self.spec.version = version
 
-    ### Flask stuff
+    # Flask stuff
 
     def init_app(self, app):
         app.teardown_appcontext(self.teardown)
@@ -120,12 +120,12 @@ class LabThing(object):
         self.add_view(TaskList, "/tasks", endpoint=TASK_LIST_ENDPOINT)
         self.add_view(TaskView, "/tasks/<id>", endpoint=TASK_ENDPOINT)
 
-    ### Device stuff
+    # Device stuff
 
     def add_component(self, device_object, device_name: str):
         self.components[device_name] = device_object
 
-    ### Extension stuff
+    # Extension stuff
 
     def register_extension(self, extension_object):
         if isinstance(extension_object, BaseExtension):
@@ -141,7 +141,7 @@ class LabThing(object):
                 **extension_view["kwargs"],
             )
 
-    ### Resource stuff
+    # Resource stuff
 
     def _complete_url(self, url_part, registration_prefix):
         """This method is used to defer the construction of the final url in
@@ -203,7 +203,8 @@ class LabThing(object):
         if endpoint in getattr(app, "view_functions", {}):
             previous_view_class = app.view_functions[endpoint].__dict__["view_class"]
 
-            # if you override the endpoint with a different class, avoid the collision by raising an exception
+            # If you override the endpoint with a different class,
+            # avoid the collision by raising an exception
             if previous_view_class != view:
                 raise ValueError(
                     "This endpoint (%s) is already set to the class %s."
@@ -221,7 +222,9 @@ class LabThing(object):
             # Add the url to the application or blueprint
             app.add_url_rule(rule, view_func=resource_func, **kwargs)
 
-        flask_rules = app.url_map._rules_by_endpoint.get(endpoint)
+        # There might be a better way to do this than _rules_by_endpoint,
+        # but I can't find one so this will do for now. Skipping PYL-W0212
+        flask_rules = app.url_map._rules_by_endpoint.get(endpoint)  # skipcq: PYL-W0212
         for flask_rule in flask_rules:
             self.spec.path(**rule_to_apispec_path(flask_rule, view, self.spec))
 
@@ -233,7 +236,7 @@ class LabThing(object):
         if "properties" in view_groups:
             self.thing_description.property(flask_rules, view)
 
-    ### Utilities
+    # Utilities
 
     def url_for(self, view, **values):
         """Generates a URL to the given resource.
@@ -244,10 +247,12 @@ class LabThing(object):
     def owns_endpoint(self, endpoint):
         return endpoint in self.endpoints
 
-    def add_root_link(self, view, title, kwargs={}):
+    def add_root_link(self, view, title, kwargs=None):
+        if kwargs is None:
+            kwargs = {}
         self.custom_root_links[title] = (view, kwargs)
 
-    ### Description
+    # Description
     def rootrep(self):
         """
         Root representation

@@ -8,9 +8,7 @@ from labthings.server.decorators import (
     ThingProperty,
     PropertySchema,
     use_args,
-    use_body,
     marshal_task,
-    marshal_with,
 )
 from labthings.server.view import View
 from labthings.server.find import find_component
@@ -64,12 +62,15 @@ class MyComponent:
 
 
 """
-Create a view to view and change our magic_denoise value, and register is as a Thing property
+Create a view to view and change our magic_denoise value,
+and register is as a Thing property
 """
 
 
-@ThingProperty  # Register this view as a Thing Property
-@PropertySchema(  # Define the data we're going to output (get), and what to expect in (post)
+# Register this view as a Thing Property
+@ThingProperty
+# Define the data we're going to output (get), and what to expect in (post)
+@PropertySchema(
     fields.Integer(
         required=True,
         example=200,
@@ -125,7 +126,8 @@ Create a view to start an averaged measurement, and register is as a Thing actio
 
 @ThingAction
 class MeasurementAction(View):
-    # Expect JSON parameters in the request body. Pass to post function as dictionary argument.
+    # Expect JSON parameters in the request body.
+    # Pass to post function as dictionary argument.
     @use_args(
         {
             "averages": fields.Integer(

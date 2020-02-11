@@ -63,8 +63,8 @@ def tasks():
     Returns:
         list: List of tasks in default taskmaster
     """
-    global _default_task_master
-    return _default_task_master.tasks
+    global DEFAULT_TASK_MASTER
+    return DEFAULT_TASK_MASTER.tasks
 
 
 def dict():
@@ -73,8 +73,8 @@ def dict():
     Returns:
         dict: Dictionary of tasks in default taskmaster
     """
-    global _default_task_master
-    return _default_task_master.dict
+    global DEFAULT_TASK_MASTER
+    return DEFAULT_TASK_MASTER.dict
 
 
 def states():
@@ -83,24 +83,37 @@ def states():
     Returns:
         dict: Dictionary of task states in default taskmaster
     """
-    global _default_task_master
-    return _default_task_master.states
+    global DEFAULT_TASK_MASTER
+    return DEFAULT_TASK_MASTER.states
 
 
 def cleanup_tasks():
-    global _default_task_master
-    return _default_task_master.cleanup()
+    """Remove all finished tasks from the task list"""
+    global DEFAULT_TASK_MASTER
+    return DEFAULT_TASK_MASTER.cleanup()
 
 
 def remove_task(task_id: str):
-    global _default_task_master
-    return _default_task_master.remove(task_id)
+    """Remove a particular task from the task list
+
+    Arguments:
+        task_id {str} -- ID of the target task
+    """
+    global DEFAULT_TASK_MASTER
+    return DEFAULT_TASK_MASTER.remove(task_id)
 
 
 # Operations on the current task
 
 
 def current_task():
+    """Return the Task instance in which the caller is currently running.
+
+    If this function is called from outside a Task thread, it will return None.
+
+    Returns:
+        TaskThread -- Currently running Task thread.
+    """
     current_task_thread = threading.current_thread()
     if not isinstance(current_task_thread, TaskThread):
         return None
@@ -108,6 +121,13 @@ def current_task():
 
 
 def update_task_progress(progress: int):
+    """Update the progress of the Task in which the caller is currently running.
+
+    If this function is called from outside a Task thread, it will do nothing.
+
+    Arguments:
+        progress {int} -- Current progress, in percent (0-100)
+    """
     if current_task():
         current_task().update_progress(progress)
     else:
@@ -115,6 +135,13 @@ def update_task_progress(progress: int):
 
 
 def update_task_data(data: dict):
+    """Update the data of the Task in which the caller is currently running.
+
+    If this function is called from outside a Task thread, it will do nothing.
+
+    Arguments:
+        data {dict} -- Additional data to merge with the Task data
+    """
     if current_task():
         current_task().update_data(data)
     else:
@@ -132,7 +159,7 @@ def taskify(f):
 
     @wraps(f)
     def wrapped(*args, **kwargs):
-        task = _default_task_master.new(
+        task = DEFAULT_TASK_MASTER.new(
             f, *args, **kwargs
         )  # Append to parent object's task list
         task.start()  # Start the function
@@ -142,4 +169,4 @@ def taskify(f):
 
 
 # Create our default, protected, module-level task pool
-_default_task_master = TaskMaster()
+DEFAULT_TASK_MASTER = TaskMaster()

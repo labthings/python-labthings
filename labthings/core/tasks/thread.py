@@ -14,7 +14,7 @@ class ThreadTerminationError(SystemExit):
 
 
 class TaskThread(threading.Thread):
-    def __init__(self, target=None, name=None, args=(), kwargs={}, daemon=True):
+    def __init__(self, target=None, name=None, args=None, kwargs=None, daemon=True):
         threading.Thread.__init__(
             self,
             group=None,
@@ -24,6 +24,11 @@ class TaskThread(threading.Thread):
             kwargs=kwargs,
             daemon=daemon,
         )
+        # Handle arguments
+        if args is None:
+            args = ()
+        if kwargs is None:
+            kwargs = {}
 
         # A UUID for the TaskThread (not the same as the threading.Thread ident)
         self._ID = uuid.uuid4()  # Task ID
@@ -96,7 +101,7 @@ class TaskThread(threading.Thread):
             try:
                 self._return_value = f(*args, **kwargs)
                 self._status = "success"
-            except Exception as e:
+            except Exception as e:  # skipcq: PYL-W0703
                 logging.error(e)
                 logging.error(traceback.format_exc())
                 self._return_value = str(e)
@@ -133,7 +138,11 @@ class TaskThread(threading.Thread):
     def async_raise(self, exc_type):
         """Raise an exception in this thread."""
         # Should only be called on a started thread, so raise otherwise.
-        assert self.ident is not None, "Only started threads have thread identifier"
+        if self.ident is None:
+            raise RuntimeError(
+                "Cannot halt a thread that hasn't started. "
+                "No valid running thread identifier."
+            )
 
         # If the thread has died we don't want to raise an exception so log.
         if not self.is_alive():
@@ -166,7 +175,7 @@ class TaskThread(threading.Thread):
         Returns:
             bool: If _thread_proc is currently running
         """
-        could_acquire = self._running_lock.acquire(0)
+        could_acquire = self._running_lock.acquire(False)  # skipcq: PYL-E1111
         if could_acquire:
             self._running_lock.release()
             return False

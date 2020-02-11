@@ -15,6 +15,11 @@ def create_app(
     handle_cors: bool = True,
     flask_kwargs: dict = {},
 ):
+    # Handle arguments
+    if flask_kwargs is None:
+        flask_kwargs = {}
+
+    # Create Flask app
     app = Flask(import_name, **flask_kwargs)
     app.url_map.strict_slashes = False
 

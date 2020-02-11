@@ -1,8 +1,9 @@
 from flask.views import MethodView
 from flask import request
 from werkzeug.wrappers import Response as ResponseBase
+from werkzeug.exceptions import MethodNotAllowed
 
-from labthings.core.utilities import OrderedDict
+from collections import OrderedDict
 
 from labthings.server.utilities import unpack
 from labthings.server.representations import DEFAULT_REPRESENTATIONS
@@ -10,8 +11,8 @@ from labthings.server.representations import DEFAULT_REPRESENTATIONS
 
 class View(MethodView):
     """
-    A LabThing Resource class should make use of functions get(), put(), post(), and delete() 
-    corresponding to HTTP methods.
+    A LabThing Resource class should make use of functions
+    get(), put(), post(), and delete(), corresponding to HTTP methods.
 
     These functions will allow for automated documentation generation
     """
@@ -45,7 +46,8 @@ class View(MethodView):
         if meth is None and request.method == "HEAD":
             meth = getattr(self, "get", None)
 
-        assert meth is not None, "Unimplemented method %r" % request.method
+        if meth is None:
+            raise MethodNotAllowed(f"Unimplemented method {request.method}")
 
         # Generate basic response
         resp = meth(*args, **kwargs)

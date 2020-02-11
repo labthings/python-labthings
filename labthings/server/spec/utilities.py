@@ -41,13 +41,15 @@ def convert_schema(schema, spec: APISpec):
         return field_to_property(schema, spec)
     else:
         raise TypeError(
-            f"Unsupported schema type {schema}. Ensure schema is a Schema class, or dictionary of Field objects"
+            f"Unsupported schema type {schema}. "
+            "Ensure schema is a Schema class, or dictionary of Field objects"
         )
 
 
 def map_to_properties(schema, spec: APISpec):
     """
-    Recursively convert any dictionary-like map of Marshmallow fields into a dictionary describing it's JSON schema
+    Recursively convert any dictionary-like map of Marshmallow fields
+    into a dictionary describing it's JSON schema
     """
     marshmallow_plugin = next(
         plugin for plugin in spec.plugins if isinstance(plugin, MarshmallowPlugin)
@@ -81,8 +83,9 @@ def field_to_property(field, spec: APISpec):
 def schema_to_json(schema, spec: APISpec):
     """
     Convert any Marshmallow schema stright to a fully expanded JSON schema.
-    This should not be used when generating APISpec documentation, otherwise schemas wont
-    be listed in the "schemas" list. This is used, for example, in the Thing Description.
+    This should not be used when generating APISpec documentation,
+    otherwise schemas wont be listed in the "schemas" list.
+    This is used, for example, in the Thing Description.
     """
 
     if isinstance(schema, BaseSchema):
@@ -119,15 +122,18 @@ def expand_refs(schema_dict, spec: APISpec):
     """
     Expand out all schema $ref values where possible.
 
-    Uses the $ref value to look up a particular schema in `spec.components._schemas`
+    Uses the $ref value to look up a particular schema in spec schemas
     """
     if "$ref" not in schema_dict:
         return schema_dict
 
     name = schema_dict.get("$ref").split("/")[-1]
 
-    if name in spec.components._schemas:
-        schema_dict.update(spec.components._schemas.get(name))
+    # Get the list of all schemas registered with APISpec
+    spec_schemas = spec.to_dict().get("components", {}).get("schemas", {})
+
+    if name in spec_schemas:
+        schema_dict.update(spec_schemas.get(name))
         del schema_dict["$ref"]
 
     return schema_dict

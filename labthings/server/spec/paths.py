@@ -37,7 +37,9 @@ def rule_to_params(rule, overrides=None):
 def argument_to_param(argument, rule, override=None):
     param = {"in": "path", "name": argument, "required": True}
     type_, format_ = CONVERTER_MAPPING.get(
-        type(rule._converters[argument]), DEFAULT_TYPE
+        # skipcq: PYL-W0212
+        type(rule._converters[argument]),
+        DEFAULT_TYPE,
     )
     param["schema"] = {}
     param["schema"]["type"] = type_

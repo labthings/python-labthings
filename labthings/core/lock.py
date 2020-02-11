@@ -5,14 +5,15 @@ from .exceptions import LockError
 
 class StrictLock(object):
     """
-    Class that behaves like a Python RLock, but with stricter timeout conditions and custom exceptions.
+    Class that behaves like a Python RLock,
+    but with stricter timeout conditions and custom exceptions.
 
     Args:
-        timeout (int): Time, in seconds, lock acquisition will wait before raising an exception
+        timeout (int): Time in seconds acquisition will wait before raising an exception
 
     Attributes:
         _lock (:py:class:`threading.RLock`): Parent RLock object
-        timeout (int): Time, in seconds, lock acquisition will wait before raising an exception
+        timeout (int): Time in seconds acquisition will wait before raising an exception
     """
 
     def __init__(self, timeout=1):
@@ -46,11 +47,11 @@ class CompositeLock(object):
 
     Args:
         locks (list): List of parent RLock objects
-        timeout (int): Time, in seconds, lock acquisition will wait before raising an exception
+        timeout (int): Time in seconds acquisition will wait before raising an exception
 
     Attributes:
         locks (list): List of parent RLock objects
-        timeout (int): Time, in seconds, lock acquisition will wait before raising an exception
+        timeout (int): Time in seconds acquisition will wait before raising an exception
     """
 
     def __init__(self, locks, timeout=1):
