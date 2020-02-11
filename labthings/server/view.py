@@ -3,7 +3,7 @@ from flask import request
 from werkzeug.wrappers import Response as ResponseBase
 from werkzeug.exceptions import MethodNotAllowed
 
-from labthings.core.utilities import OrderedDict
+from collections import OrderedDict
 
 from labthings.server.utilities import unpack
 from labthings.server.representations import DEFAULT_REPRESENTATIONS
