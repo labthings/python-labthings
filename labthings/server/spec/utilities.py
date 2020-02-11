@@ -122,7 +122,7 @@ def expand_refs(schema_dict, spec: APISpec):
     """
     Expand out all schema $ref values where possible.
 
-    Uses the $ref value to look up a particular schema in `spec.components._schemas`
+    Uses the $ref value to look up a particular schema in spec schemas
     """
     if "$ref" not in schema_dict:
         return schema_dict

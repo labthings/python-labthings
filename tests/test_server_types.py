@@ -41,6 +41,7 @@ def test_value_to_field():
     gen_field = types.value_to_field(d1)
     expected_field = fields.List(fields.Int())
 
+    # skipcq: PYL-W0212
     assert gen_field._serialize(d1, None, None) == expected_field._serialize(
         d1, None, None
     )
@@ -50,6 +51,7 @@ def test_value_to_field():
     gen_field_2 = types.value_to_field(d2)
     expected_field_2 = fields.String(example="String")
 
+    # skipcq: PYL-W0212
     assert gen_field_2._serialize(d2, None, None) == expected_field_2._serialize(
         d2, None, None
     )

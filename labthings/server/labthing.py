@@ -222,7 +222,9 @@ class LabThing(object):
             # Add the url to the application or blueprint
             app.add_url_rule(rule, view_func=resource_func, **kwargs)
 
-        flask_rules = app.url_map._rules_by_endpoint.get(endpoint)
+        # There might be a better way to do this than _rules_by_endpoint,
+        # but I can't find one so this will do for now. Skipping PYL-W0212
+        flask_rules = app.url_map._rules_by_endpoint.get(endpoint)  # skipcq: PYL-W0212
         for flask_rule in flask_rules:
             self.spec.path(**rule_to_apispec_path(flask_rule, view, self.spec))
 
