@@ -97,7 +97,7 @@ def cleanup_tasks():
 
 def remove_task(task_id: str):
     """Remove a particular task from the task list
-    
+
     Arguments:
         task_id {str} -- ID of the target task
     """
@@ -112,7 +112,7 @@ def current_task():
     """Return the Task instance in which the caller is currently running.
 
     If this function is called from outside a Task thread, it will return None.
-    
+
     Returns:
         TaskThread -- Currently running Task thread.
     """
@@ -126,7 +126,7 @@ def update_task_progress(progress: int):
     """Update the progress of the Task in which the caller is currently running.
 
     If this function is called from outside a Task thread, it will do nothing.
-    
+
     Arguments:
         progress {int} -- Current progress, in percent (0-100)
     """
@@ -140,7 +140,7 @@ def update_task_data(data: dict):
     """Update the data of the Task in which the caller is currently running.
 
     If this function is called from outside a Task thread, it will do nothing.
-    
+
     Arguments:
         data {dict} -- Additional data to merge with the Task data
     """

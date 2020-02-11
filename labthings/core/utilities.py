@@ -9,11 +9,11 @@ PY3 = sys.version_info > (3,)
 
 def get_docstring(obj, remove_newlines=True):
     """Return the docstring of an object
-    
+
     Args:
         obj: Any Python object
         remove_newlines (bool): Remove newlines from the docstring (default: {True})
-    
+
     Returns:
         str: Object docstring
     """
@@ -28,10 +28,10 @@ def get_docstring(obj, remove_newlines=True):
 
 def get_summary(obj):
     """Return the first line of the dosctring of an object
-    
+
     Args:
         obj: Any Python object
-    
+
     Returns:
         str: First line of object docstring
     """
@@ -48,7 +48,7 @@ def rupdate(destination_dict, update_dict):
     Args:
         destination_dict (dict): Original dictionary
         update_dict (dict): New data dictionary
-    
+
     Returns:
         dict: Merged dictionary
     """
@@ -130,7 +130,7 @@ def create_from_path(items):
     
     Args:
         items (list): Key path
-    
+
     Returns:
         dict: Nested dictionary of key path
     """
@@ -142,10 +142,10 @@ def create_from_path(items):
 
 def camel_to_snake(name):
     """Convert a CamelCase string into snake_case
-    
+
     Args:
         name (str): CamelCase string
-    
+
     Returns:
         str: snake_case string
     """
@@ -155,10 +155,10 @@ def camel_to_snake(name):
 
 def camel_to_spine(name):
     """Convert a CamelCase string into spine-case
-    
+
     Args:
         name (str): CamelCase string
-    
+
     Returns:
         str: spine-case string
     """
@@ -168,10 +168,10 @@ def camel_to_spine(name):
 
 def snake_to_spine(name):
     """Convert a snake_case string into spine-case
-    
+
     Args:
         name (str): snake_case string
-    
+
     Returns:
         str: spine-case string
     """
