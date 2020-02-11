@@ -31,7 +31,7 @@ class BaseExtension:
         self.properties = []
 
         self._name = name
-        self.description = get_docstring(self)
+        self.description = description or get_docstring(self)
         self.version = str(version)
 
         self.methods = {}
