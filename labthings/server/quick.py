@@ -13,7 +13,7 @@ def create_app(
     version: str = "0.0.0",
     handle_errors: bool = True,
     handle_cors: bool = True,
-    flask_kwargs: dict = {},
+    flask_kwargs: dict = None,
 ):
     """QUick-create a LabThings-enabled Flask app
     
