@@ -9,13 +9,27 @@ from marshmallow import Schema as BaseSchema
 from collections import Mapping
 
 
-def update_spec(obj, spec):
+def update_spec(obj, spec: dict):
+    """Add API spec data to an object
+
+    Args:
+        obj: Python object
+        spec (dict): Dictionary of API spec data to add
+    """
     obj.__apispec__ = obj.__dict__.get("__apispec__", {})
     rupdate(obj.__apispec__, spec)
     return obj.__apispec__ or {}
 
 
 def get_spec(obj):
+    """Get the __apispec__ dictionary created by LabThings decorators for a particular object
+
+    Args:
+        obj: Python object
+
+    Returns:
+        dict: API spec dictionary. Returns empty dictionary if no spec is found.
+    """
     obj.__apispec__ = obj.__dict__.get("__apispec__", {})
     return obj.__apispec__ or {}
 
