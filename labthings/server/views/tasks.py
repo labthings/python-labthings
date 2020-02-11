@@ -18,29 +18,29 @@ class TaskList(View):
 @Tag(["properties", "tasks"])
 class TaskView(View):
     @marshal_with(TaskSchema())
-    def get(self, id):
+    def get(self, task_id):
         """
         Show status of a session task
 
         Includes progress and intermediate data.
         """
-        try:
-            task = tasks.dict()[id]
-        except KeyError:
+
+        task = tasks.dictionary().get(task_id)
+        if not task:
             return abort(404)  # 404 Not Found
 
         return task
 
     @marshal_with(TaskSchema())
-    def delete(self, id):
+    def delete(self, task_id):
         """
         Terminate a running task.
 
         If the task is finished, deletes its entry.
         """
-        try:
-            task = tasks.dict()[id]
-        except KeyError:
+
+        task = tasks.dictionary().get(task_id)
+        if not task:
             return abort(404)  # 404 Not Found
 
         task.terminate()

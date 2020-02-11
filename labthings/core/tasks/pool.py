@@ -67,7 +67,7 @@ def tasks():
     return DEFAULT_TASK_MASTER.tasks
 
 
-def dict():
+def dictionary():
     """
     Dictionary of tasks in default taskmaster
     Returns:
