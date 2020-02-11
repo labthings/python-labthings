@@ -7,7 +7,7 @@ authors = ["jtc42 <jtc9242@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.6"
 Flask = "^1.1.1"
-marshmallow = "^3.3.0"
+marshmallow = "^3.4.0"
 webargs = "^5.5.3"
 apispec = "^3.2.0"
 flask-cors = "^3.0.8"
