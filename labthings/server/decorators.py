@@ -36,7 +36,7 @@ def unpack(value):
     return value, 200, {}
 
 
-class marshal_with(object):
+class marshal_with:
     def __init__(self, schema, code=200):
         """Decorator to format the response of a View with a Marshmallow schema
 
@@ -129,7 +129,7 @@ def ThingProperty(viewcls):
 thing_property = ThingProperty
 
 
-class PropertySchema(object):
+class PropertySchema:
     def __init__(self, schema, code=200):
         """
         :param schema: a dict of whose keys will make up the final
@@ -155,7 +155,7 @@ class PropertySchema(object):
         return viewcls
 
 
-class use_body(object):
+class use_body:
     """
     Gets the request body as a single value and adds it as a positional argument
     """
@@ -197,7 +197,7 @@ class use_body(object):
         return wrapper
 
 
-class use_args(object):
+class use_args:
     """
     Equivalent to webargs.flask_parser.use_args
     """
@@ -218,7 +218,7 @@ class use_args(object):
         return self.wrapper(f)
 
 
-class Doc(object):
+class Doc:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
 
@@ -231,7 +231,7 @@ class Doc(object):
 doc = Doc
 
 
-class Tag(object):
+class Tag:
     def __init__(self, tags):
         if isinstance(tags, str):
             self.tags = [tags]
@@ -249,7 +249,7 @@ class Tag(object):
 tag = Tag
 
 
-class doc_response(object):
+class doc_response:
     def __init__(self, code, description=None, mimetype=None, **kwargs):
         self.code = code
         self.description = description

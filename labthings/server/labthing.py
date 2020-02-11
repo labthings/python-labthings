@@ -20,7 +20,7 @@ from ..core.utilities import get_docstring
 import logging
 
 
-class LabThing(object):
+class LabThing:
     def __init__(
         self,
         app=None,

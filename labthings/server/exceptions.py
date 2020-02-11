@@ -3,7 +3,7 @@ from werkzeug.exceptions import default_exceptions
 from werkzeug.exceptions import HTTPException
 
 
-class JSONExceptionHandler(object):
+class JSONExceptionHandler:
 
     """
     A class to be registered as a Flask error handler,

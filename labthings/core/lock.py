@@ -3,7 +3,7 @@ from threading import RLock
 from .exceptions import LockError
 
 
-class StrictLock(object):
+class StrictLock:
     """
     Class that behaves like a Python RLock,
     but with stricter timeout conditions and custom exceptions.
@@ -40,7 +40,7 @@ class StrictLock(object):
         self._lock.release()
 
 
-class CompositeLock(object):
+class CompositeLock:
     """
     Class that behaves like a :py:class:`labthings.core.lock.StrictLock`,
     but allows multiple locks to be acquired and released.
