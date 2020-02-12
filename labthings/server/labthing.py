@@ -238,11 +238,11 @@ class LabThing:
 
     # Utilities
 
-    def url_for(self, view, **values):
+    def url_for(self, view, external=True, **values):
         """Generates a URL to the given resource.
         Works like :func:`flask.url_for`."""
         endpoint = view.endpoint
-        return url_for(endpoint, **values)
+        return url_for(endpoint, **values, _external=external)
 
     def owns_endpoint(self, endpoint):
         return endpoint in self.endpoints
