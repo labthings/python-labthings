@@ -103,7 +103,7 @@ class TaskSchema(Schema):
     def generate_links(self, data, **kwargs):
         data.links = {
             "self": {
-                "href": url_for(TASK_ENDPOINT, id=data.id, _external=True),
+                "href": url_for(TASK_ENDPOINT, task_id=data.id, _external=True),
                 "mimetype": "application/json",
                 **description_from_view(view_class_from_endpoint(TASK_ENDPOINT)),
             }

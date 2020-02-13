@@ -118,7 +118,7 @@ class LabThing:
         self.add_view(ExtensionList, "/extensions", endpoint=EXTENSION_LIST_ENDPOINT)
         # Add task routes
         self.add_view(TaskList, "/tasks", endpoint=TASK_LIST_ENDPOINT)
-        self.add_view(TaskView, "/tasks/<id>", endpoint=TASK_ENDPOINT)
+        self.add_view(TaskView, "/tasks/<task_id>", endpoint=TASK_ENDPOINT)
 
     # Device stuff
 
