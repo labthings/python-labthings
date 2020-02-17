@@ -35,7 +35,6 @@ def get_summary(obj):
     Returns:
         str: First line of object docstring
     """
-    print(get_docstring(obj, remove_newlines=False))
     return get_docstring(obj, remove_newlines=False).partition("\n")[0].strip()
 
 
