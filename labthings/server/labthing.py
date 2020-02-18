@@ -125,6 +125,16 @@ class LabThing:
     def add_component(self, device_object, device_name: str):
         self.components[device_name] = device_object
 
+        for extension_object in self.extensions.values():
+            # For each on_component function
+            for com_func in extension_object._on_components:
+                # If the component matches
+                if com_func.get("component", "") == device_name:
+                    # Call the function
+                    com_func.get("function")(
+                        device_object, *com_func.get("args"), **com_func.get("kwargs")
+                    )
+
     # Extension stuff
 
     def register_extension(self, extension_object):
@@ -140,6 +150,23 @@ class LabThing:
                 "/extensions" + extension_view["rule"],
                 **extension_view["kwargs"],
             )
+
+        # For each on_register function
+        for reg_func in extension_object._on_registers:
+            # Call the function
+            reg_func.get("function")(*reg_func.get("args"), **reg_func.get("kwargs"))
+
+        # For each on_component function
+        for com_func in extension_object._on_components:
+            key = com_func.get("component", "")
+            # If the component has already been added
+            if key in self.components:
+                # Call the function
+                com_func.get("function")(
+                    self.components.get(key),
+                    *com_func.get("args"),
+                    **com_func.get("kwargs"),
+                )
 
     # Resource stuff
 

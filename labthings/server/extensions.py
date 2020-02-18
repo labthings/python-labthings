@@ -25,6 +25,14 @@ class BaseExtension:
         self._rules = {}  # Key: Original rule. Val: View class
         self._meta = {}  # Extra metadata to add to the extension description
 
+        self._on_registers = (
+            []
+        )  # List of dictionaries of functions to run on registration
+
+        self._on_components = (
+            []
+        )  # List of dictionaries of functions to run as components are added
+
         self._cls = str(self)  # String description of extension instance
 
         self.actions = []
@@ -58,6 +66,27 @@ class BaseExtension:
         self._views[view_id] = d
         # Store the rule expansion information
         self._rules[rule] = self._views[view_id]
+
+    def on_register(self, function, args=None, kwargs=None):
+        if not callable(function):
+            raise TypeError("Function must be a callable")
+
+        self._on_registers.append(
+            {"function": function, "args": args or (), "kwargs": kwargs or {}}
+        )
+
+    def on_component(self, component_name: str, function, args=None, kwargs=None):
+        if not callable(function):
+            raise TypeError("Function must be a callable")
+
+        self._on_components.append(
+            {
+                "component": component_name,
+                "function": function,
+                "args": args or (),
+                "kwargs": kwargs or {},
+            }
+        )
 
     @property
     def meta(self):
