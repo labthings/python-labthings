@@ -108,5 +108,5 @@ labthing.add_view(gen_property(my_component, "magic_denoise"), "/denoise")
 labthing.add_view(gen_property(my_component, "magic_dictionary"), "/dictionary")
 
 # Start the app
-# if __name__ == "__main__":
-#    app.run(host="0.0.0.0", port="5000", threaded=True, debug=True, use_reloader=False)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port="5000", threaded=True, debug=True, use_reloader=False)
