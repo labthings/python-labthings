@@ -13,6 +13,14 @@ class PdfComponent:
         self.x_range = range(-100, 100)
         self.magic_denoise = 200
 
+        self.magic_dictionary = {
+            "voltage": 5,
+            "volume": [5, 10],
+            "mode": "spectrum",
+            "light_on": True,
+            "user": {"name": "Squidward", "id": 1},
+        }
+
     def noisy_pdf(self, x, mu=0.0, sigma=25.0):
         """
         Generate a noisy gaussian function (to act as some pretend data)
