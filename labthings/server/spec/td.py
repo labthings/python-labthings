@@ -66,7 +66,8 @@ class ThingDescription:
         prop_description = {
             "title": view.__name__,
             "description": (
-                get_docstring(view)
+                get_spec(view).get("description")
+                or get_docstring(view)
                 or (get_docstring(view.get) if hasattr(view, "get") else "")
             ),
             "readOnly": not (
@@ -111,7 +112,8 @@ class ThingDescription:
         # Basic description
         action_description = {
             "title": view.__name__,
-            "description": get_docstring(view)
+            "description": get_spec(view).get("description")
+            or get_docstring(view)
             or (get_docstring(view.post) if hasattr(view, "post") else ""),
             # TODO: Make URLs absolute
             "links": [{"href": f"{url}"} for url in action_urls],
