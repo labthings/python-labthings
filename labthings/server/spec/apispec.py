@@ -20,10 +20,21 @@ def rule_to_apispec_path(rule: Rule, view: View, spec: APISpec):
     Returns:
         dict: APISpec `path` funtion argument dictionary
     """
+    if hasattr(view, "__apispec__"):
+        description = getattr(view, "__apispec__").get(  # Look for view class API spec
+            "description"
+        ) or get_docstring(  # Or view class docstring
+            view
+        )
+    else:
+        description = get_docstring(view)  # Or view class docstring
+
     params = {
         "path": rule_to_path(rule),
-        "operations": view_to_apispec_operations(view, spec),
-        "description": get_docstring(view),
+        "operations": view_to_apispec_operations(
+            view, spec, view_description=description
+        ),
+        "description": description,
         "summary": get_summary(view),
     }
 
@@ -40,7 +51,7 @@ def rule_to_apispec_path(rule: Rule, view: View, spec: APISpec):
     return params
 
 
-def view_to_apispec_operations(view: View, spec: APISpec):
+def view_to_apispec_operations(view: View, spec: APISpec, view_description=None):
     """Generate APISpec `operations` argument from a flask View
     
     Args:
@@ -60,19 +71,25 @@ def view_to_apispec_operations(view: View, spec: APISpec):
     for method in View.methods:
         if hasattr(view, method):
             ops[method] = {}
+            method_function = getattr(view, method)
+            description = (
+                getattr(method_function, "__apispec__").get(
+                    "description"
+                )  # Look for APISpec
+                or get_docstring(method_function)  # Or function docstring
+                or view_description  # Or inherit from view class
+            )
 
             rupdate(
                 ops[method],
                 {
-                    "description": get_docstring(getattr(view, method)),
-                    "summary": get_summary(getattr(view, method)),
+                    "description": description,
+                    "summary": get_summary(method_function),
                     "tags": inherited_tags,
                 },
             )
 
-            rupdate(
-                ops[method], method_to_apispec_operation(getattr(view, method), spec)
-            )
+            rupdate(ops[method], method_to_apispec_operation(method_function, spec))
 
     return ops
 
