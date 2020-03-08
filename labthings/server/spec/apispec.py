@@ -3,10 +3,40 @@ from apispec import APISpec
 
 from ...core.utilities import get_docstring, get_summary, rupdate
 from .paths import rule_to_path, rule_to_params
-from .utilities import convert_schema
+from .utilities import convert_schema, update_spec
 
 from werkzeug.routing import Rule
 from http import HTTPStatus
+
+
+def build_spec(view, inherit_from=None):
+    # Create empty spec if missing so we can work safely with it
+    if not hasattr(view, "__apispec__"):
+        view.__apispec__ = {}
+    # Check for a spec to inherit from
+    inherited_spec = getattr(inherit_from, "__apispec__", {})
+
+    # Build a description
+    description = (
+        getattr(view, "__apispec__").get("description")
+        or get_docstring(view)
+        or inherited_spec.get("description")
+    )
+
+    # Build a summary
+    summary = (
+        getattr(view, "__apispec__").get("summary")
+        or inherited_spec.get("summary")
+        or description
+    )
+
+    # Build tags
+    tags = getattr(view, "__apispec__").get("tags", [])
+    tags.extend(inherited_spec.get("tags", []))
+
+    return update_spec(
+        view, {"description": description, "summary": summary, "tags": tags}
+    )
 
 
 def rule_to_apispec_path(rule: Rule, view: View, spec: APISpec):
@@ -20,22 +50,15 @@ def rule_to_apispec_path(rule: Rule, view: View, spec: APISpec):
     Returns:
         dict: APISpec `path` funtion argument dictionary
     """
-    if hasattr(view, "__apispec__"):
-        description = getattr(view, "__apispec__").get(  # Look for view class API spec
-            "description"
-        ) or get_docstring(  # Or view class docstring
-            view
-        )
-    else:
-        description = get_docstring(view)  # Or view class docstring
+
+    # Populate missing spec parameters
+    build_spec(view)
 
     params = {
         "path": rule_to_path(rule),
-        "operations": view_to_apispec_operations(
-            view, spec, view_description=description
-        ),
-        "description": description,
-        "summary": get_summary(view),
+        "operations": view_to_apispec_operations(view, spec),
+        "description": getattr(view, "__apispec__").get("description"),
+        "summary": getattr(view, "__apispec__").get("summary"),
     }
 
     # Add URL arguments
@@ -51,7 +74,7 @@ def rule_to_apispec_path(rule: Rule, view: View, spec: APISpec):
     return params
 
 
-def view_to_apispec_operations(view: View, spec: APISpec, view_description=None):
+def view_to_apispec_operations(view: View, spec: APISpec):
     """Generate APISpec `operations` argument from a flask View
     
     Args:
@@ -61,10 +84,6 @@ def view_to_apispec_operations(view: View, spec: APISpec, view_description=None)
     Returns:
         dict: APISpec `operations` dictionary
     """
-    # Operations inherit tags from parent
-    inherited_tags = []
-    if hasattr(view, "__apispec__"):
-        inherited_tags = getattr(view, "__apispec__").get("tags", [])
 
     # Build dictionary of operations (HTTP methods)
     ops = {}
@@ -72,20 +91,18 @@ def view_to_apispec_operations(view: View, spec: APISpec, view_description=None)
         if hasattr(view, method):
             ops[method] = {}
             method_function = getattr(view, method)
-            description = (
-                getattr(method_function, "__apispec__").get(
-                    "description"
-                )  # Look for APISpec
-                or get_docstring(method_function)  # Or function docstring
-                or view_description  # Or inherit from view class
-            )
+
+            # Populate missing spec parameters
+            build_spec(method_function, inherit_from=view)
 
             rupdate(
                 ops[method],
                 {
-                    "description": description,
-                    "summary": get_summary(method_function),
-                    "tags": inherited_tags,
+                    "description": getattr(method_function, "__apispec__").get(
+                        "description"
+                    ),
+                    "summary": getattr(method_function, "__apispec__").get("summary"),
+                    "tags": getattr(method_function, "__apispec__").get("tags"),
                 },
             )
 
