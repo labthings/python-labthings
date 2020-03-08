@@ -4,78 +4,48 @@ import functools
 
 from labthings.server.quick import create_app
 from labthings.server.view import View
-from labthings.server.decorators import (
-    ThingProperty,
-    PropertySchema,
-    use_args,
-)
+from labthings.server.decorators import ThingProperty, PropertySchema, use_args
 
 from labthings.server.types import value_to_field, data_dict_to_schema
 
 from components.pdf_component import PdfComponent
 
 
-def copy_func(f):
-    """Based on http://stackoverflow.com/a/6528148/190597 (Glenn Maynard)"""
-    g = types.FunctionType(
-        f.__code__,
-        f.__globals__,
-        name=f.__name__,
-        argdefs=f.__defaults__,
-        closure=f.__closure__,
-    )
-    g = functools.update_wrapper(g, f)
-    g.__kwdefaults__ = f.__kwdefaults__
-    return g
-
-
-class BasePropertyResource(View):
-    def __init__(self):
-        super().__init__()
-        """
-        Properties to be added by constructor function:
-        property_object: Object containing the property
-        property_name: String name of property of object
-        """
-
-    def _get(self):
-        return getattr(self.property_object, self.property_name)
-
-    def _post(self, args):
-        setattr(self.property_object, self.property_name, args)
-        return getattr(self.property_object, self.property_name)
-
-    def _put(self, args):
-        if type(getattr(self.property_object, self.property_name)) != dict:
-            raise TypeError("Cannot PUT to a property that isn't an object/dictionary")
-        getattr(self.property_object, self.property_name).update(args)
-        return getattr(self.property_object, self.property_name)
-
-
-def gen_property(property_object, property_name, name: str = None, post=True):
+def gen_property(property_object, property_name, name: str = None, readonly=False):
 
     # Create a class name
     if not name:
         name = type(property_object).__name__ + f"_{property_name}"
 
+    # Create inner functions
+    def _get(self):
+        return getattr(property_object, property_name)
+
+    def _post(self, args):
+        setattr(property_object, property_name, args)
+        return getattr(property_object, property_name)
+
+    def _put(self, args):
+        getattr(property_object, property_name).update(args)
+        return getattr(property_object, property_name)
+
     # Generate a basic property class
     generated_class = type(
         name,
-        (BasePropertyResource, object),
+        (View, object),
         {
             "property_object": property_object,
             "property_name": property_name,
-            "get": copy_func(BasePropertyResource._get),
+            "get": _get,
         },
     )
 
-    # Enable PUT requests for dictionaries
-    if type(getattr(property_object, property_name)) == dict:
-        generated_class.put = copy_func(BasePropertyResource._put)
-
     # Override read-write capabilities
-    if post:
-        generated_class.post = copy_func(BasePropertyResource._post)
+    if not readonly:
+        generated_class.post = _post
+        # Enable PUT requests for dictionaries
+        if type(getattr(property_object, property_name)) == dict:
+            generated_class.put = _put
 
     # Add decorators for arguments etc
     initial_property_value = getattr(property_object, property_name)
