@@ -37,8 +37,6 @@ class LabThing:
 
         self.views = []
 
-        self.custom_root_links = {}
-
         self.endpoints = set()
 
         self.url_prefix = prefix
@@ -287,7 +285,6 @@ class LabThing:
             kwargs = {}
         if params is None:
             params = {}
-        self.custom_root_links[rel] = (view, params)
         self.thing_description.add_link(view, rel, kwargs=kwargs, params=params)
 
     # Description
