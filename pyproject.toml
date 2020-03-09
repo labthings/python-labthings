@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "labthings"
-version = "0.1.0"
+version = "0.2.0"
 description = "Python implementation of LabThings, based on the Flask microframework"
 authors = ["jtc42 <jtc9242@gmail.com>"]
 
@@ -11,6 +11,7 @@ marshmallow = "^3.4.0"
 webargs = "^5.5.3"
 apispec = "^3.2.0"
 flask-cors = "^3.0.8"
+gevent = "^1.4.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
