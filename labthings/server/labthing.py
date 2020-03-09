@@ -13,7 +13,7 @@ from .decorators import tag
 
 from .views.extensions import ExtensionList
 from .views.tasks import TaskList, TaskView
-from .views.docs import docs_blueprint, SwaggerUIView, W3CThingDescriptionView
+from .views.docs import docs_blueprint, SwaggerUIView
 
 from ..core.utilities import get_docstring
 
@@ -110,14 +110,19 @@ class LabThing:
 
     def _create_base_routes(self):
         # Add root representation
-        self.app.add_url_rule(self._complete_url("/", ""), "rootrep", self.rootrep)
+        self.app.add_url_rule(self._complete_url("/", ""), "root", self.root)
         # Add thing descriptions
-        self.app.register_blueprint(docs_blueprint, url_prefix=self.url_prefix)
+        self.app.register_blueprint(
+            docs_blueprint, url_prefix=f"{self.url_prefix}/docs"
+        )
+        self.add_root_link(SwaggerUIView, "docs")
 
         # Add extension overview
         self.add_view(ExtensionList, "/extensions", endpoint=EXTENSION_LIST_ENDPOINT)
+        self.add_root_link(ExtensionList, "extensions")
         # Add task routes
         self.add_view(TaskList, "/tasks", endpoint=TASK_LIST_ENDPOINT)
+        self.add_root_link(TaskList, "tasks")
         self.add_view(TaskView, "/tasks/<task_id>", endpoint=TASK_ENDPOINT)
 
     # Device stuff
@@ -277,44 +282,15 @@ class LabThing:
     def owns_endpoint(self, endpoint):
         return endpoint in self.endpoints
 
-    def add_root_link(self, view, title, kwargs=None):
+    def add_root_link(self, view, rel, kwargs=None, params=None):
         if kwargs is None:
             kwargs = {}
-        self.custom_root_links[title] = (view, kwargs)
+        if params is None:
+            params = {}
+        self.custom_root_links[rel] = (view, params)
+        self.thing_description.add_link(view, rel, kwargs=kwargs, params=params)
 
     # Description
-    def rootrep(self):
+    def root(self):
         """Root representation"""
-        # TODO: Allow custom root representations
-
-        rr = {
-            "id": url_for("rootrep", _external=True),
-            "title": self.title,
-            "description": self.description,
-            "links": {
-                "thingDescription": {
-                    "href": url_for("labthings_docs.w3c_td", _external=True),
-                    "description": get_docstring(W3CThingDescriptionView),
-                },
-                "swaggerUI": {
-                    "href": url_for("labthings_docs.swagger_ui", _external=True),
-                    **description_from_view(SwaggerUIView),
-                },
-                "extensions": {
-                    "href": self.url_for(ExtensionList, _external=True),
-                    **description_from_view(ExtensionList),
-                },
-                "tasks": {
-                    "href": self.url_for(TaskList, _external=True),
-                    **description_from_view(TaskList),
-                },
-            },
-        }
-
-        for title, (view, kwargs) in self.custom_root_links.items():
-            rr["links"][title] = {
-                "href": self.url_for(view, **kwargs, _external=True),
-                **description_from_view(view),
-            }
-
-        return jsonify(rr)
+        return self.thing_description.to_dict()

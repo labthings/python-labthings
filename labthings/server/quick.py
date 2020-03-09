@@ -11,7 +11,7 @@ from .decorators import ThingProperty, PropertySchema, Doc
 
 def create_app(
     import_name,
-    prefix: str = "/api",
+    prefix: str = "",
     title: str = "",
     description: str = "",
     version: str = "0.0.0",

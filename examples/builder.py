@@ -10,8 +10,7 @@ from components.pdf_component import PdfComponent
 # Create LabThings Flask app
 app, labthing = create_app(
     __name__,
-    prefix="/api",
-    title=f"My Lab Device API",
+    title="My Lab Device API",
     description="Test LabThing-based API",
     version="0.1.0",
 )

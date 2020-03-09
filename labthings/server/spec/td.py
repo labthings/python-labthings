@@ -47,16 +47,44 @@ class ThingDescription:
         self.properties = []
         self.actions = []
         self.events = []
+        self._links = []
         super().__init__()
+
+    @property
+    def links(self):
+        td_links = []
+        for link_description in self._links:
+            td_links.append(
+                {
+                    "rel": link_description.get("rel"),
+                    "href": current_labthing().url_for(
+                        link_description.get("view"),
+                        **link_description.get("params"),
+                        _external=True,
+                    ),
+                    **link_description.get("kwargs"),
+                }
+            )
+        return td_links
+
+    def add_link(self, view, rel, kwargs=None, params=None):
+        if kwargs is None:
+            kwargs = {}
+        if params is None:
+            params = {}
+        self._links.append(
+            {"rel": rel, "view": view, "params": params, "kwargs": kwargs}
+        )
 
     def to_dict(self):
         return {
             "@context": "https://www.w3.org/2019/wot/td/v1",
-            "id": url_for("labthings_docs.w3c_td", _external=True),
+            "id": url_for("root", _external=True),
             "title": current_labthing().title,
             "description": current_labthing().description,
             "properties": self.properties,
             "actions": self.actions,
+            "links": self.links,
         }
 
     def view_to_thing_property(self, rules: list, view: View):
