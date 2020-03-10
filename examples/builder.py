@@ -36,7 +36,6 @@ labthing.add_view(
 
 # Start the app
 if __name__ == "__main__":
-    import logging
     from labthings.server.wsgi import Server
 
     server = Server(app)
