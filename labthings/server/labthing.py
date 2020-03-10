@@ -10,7 +10,7 @@ from .spec.apispec import rule_to_apispec_path
 from .spec.utilities import get_spec
 from .spec.td import ThingDescription
 from .decorators import tag
-from .sockets import Sockets
+from .sockets import Sockets, SocketSubscriber
 
 from .views.extensions import ExtensionList
 from .views.tasks import TaskList, TaskView
@@ -38,6 +38,10 @@ class LabThing:
         self.extensions = {}
 
         self.views = []
+        self._property_views = {}
+        self._action_views = {}
+
+        self.subscribers = set()
 
         self.endpoints = set()
 
@@ -133,9 +137,15 @@ class LabThing:
         self.sockets.add_url_rule("/", self._socket_handler)
 
     def _socket_handler(self, ws):
+        wssub = SocketSubscriber(ws)
+        self.subscribers.add(wssub)
+        logging.info(f"Added subscriber {wssub}")
+        logging.debug(list(self.subscribers))
         while not ws.closed:
             message = ws.receive()
-            ws.send("Web sockets not yet implemented")
+        self.subscribers.remove(wssub)
+        logging.info(f"Removed subscriber {wssub}")
+        logging.debug(list(self.subscribers))
 
     # Device stuff
 
@@ -277,8 +287,10 @@ class LabThing:
         view_groups = view_spec.get("_groups", {})
         if "actions" in view_groups:
             self.thing_description.action(flask_rules, view)
+            self._action_views[view.endpoint] = view
         if "properties" in view_groups:
             self.thing_description.property(flask_rules, view)
+            self._property_views[view.endpoint] = view
 
     # Utilities
 

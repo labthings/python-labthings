@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 from werkzeug.routing import Map, Rule
 from werkzeug.exceptions import NotFound
 from werkzeug.http import parse_cookie
-from flask import request
-
+from flask import request, current_app
+import logging
 
 try:
     from geventwebsocket.gunicorn.workers import GeventWebSocketWorker as Worker
@@ -24,6 +24,27 @@ try:
     import gevent
 except ImportError:
     pass
+
+from .representations import encode_json
+
+
+class SocketSubscriber:
+    def __init__(self, ws):
+        self.ws = ws
+
+    def property_notify(self, viewcls):
+        if hasattr(viewcls, "get_value") and callable(viewcls.get_value):
+            property_value = viewcls().get_value()
+        else:
+            property_value = None
+
+        property_name = str(getattr(viewcls, "endpoint", "unknown"))
+
+        response = encode_json(
+            {"messageType": "propertyStatus", "data": {property_name: property_value},}
+        )
+
+        self.ws.send(response)
 
 
 class SocketMiddleware(object):

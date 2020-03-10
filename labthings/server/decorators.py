@@ -1,6 +1,7 @@
 from webargs import flaskparser
 from functools import wraps, update_wrapper
 from flask import make_response, abort, request
+from werkzeug.wrappers import Response as ResponseBase
 from http import HTTPStatus
 from marshmallow.exceptions import ValidationError
 from collections import Mapping
@@ -9,6 +10,7 @@ from .spec.utilities import update_spec
 from .schema import TaskSchema, Schema, FieldSchema
 from .fields import Field
 from .view import View
+from .find import current_labthing
 
 import logging
 
@@ -102,7 +104,7 @@ def ThingAction(viewcls: View):
     Returns:
         View: View class with Action spec tags
     """
-    # Pass params to call function attribute for external access
+    # Update Views API spec
     update_spec(viewcls, {"tags": ["actions"]})
     update_spec(viewcls, {"_groups": ["actions"]})
     return viewcls
@@ -120,7 +122,28 @@ def ThingProperty(viewcls):
     Returns:
         View: View class with Property spec tags
     """
-    # Pass params to call function attribute for external access
+
+    def property_notify(func):
+        @wraps(func)
+        def wrapped(*args, **kwargs):
+            # Call the update function first to update property value
+            original_response = func(*args, **kwargs)
+
+            # Once updated, then notify all subscribers
+            subscribers = getattr(current_labthing(), "subscribers", [])
+            for sub in subscribers:
+                sub.property_notify(viewcls)
+            return original_response
+
+        return wrapped
+
+    if hasattr(viewcls, "post") and callable(viewcls.post):
+        viewcls.post = property_notify(viewcls.post)
+
+    if hasattr(viewcls, "put") and callable(viewcls.put):
+        viewcls.put = property_notify(viewcls.put)
+
+    # Update Views API spec
     update_spec(viewcls, {"tags": ["properties"]})
     update_spec(viewcls, {"_groups": ["properties"]})
     return viewcls
