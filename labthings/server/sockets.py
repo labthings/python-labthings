@@ -74,15 +74,15 @@ class Sockets(object):
         app.wsgi_app = SocketMiddleware(app.wsgi_app, app, self)
 
     def route(self, rule, **options):
-        def decorator(f):
+        def decorator(view_func):
             endpoint = options.pop("endpoint", None)
-            self.add_url_rule(rule, endpoint, f, **options)
-            return f
+            self.add_url_rule(rule, view_func, **options)
+            return view_func
 
         return decorator
 
-    def add_url_rule(self, rule, _, f, **options):
-        self.url_map.add(Rule(rule, endpoint=f))
+    def add_url_rule(self, rule, view_func, **options):
+        self.url_map.add(Rule(rule, endpoint=view_func))
 
     def register_blueprint(self, blueprint, **options):
         """

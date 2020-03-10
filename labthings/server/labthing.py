@@ -10,6 +10,7 @@ from .spec.apispec import rule_to_apispec_path
 from .spec.utilities import get_spec
 from .spec.td import ThingDescription
 from .decorators import tag
+from .sockets import Sockets
 
 from .views.extensions import ExtensionList
 from .views.tasks import TaskList, TaskView
@@ -29,7 +30,8 @@ class LabThing:
         description: str = "",
         version: str = "0.0.0",
     ):
-        self.app = app
+        self.app = app  # Becomes a Flask app
+        self.sockets = None  # Becomes a Socket(app) websocket handler
 
         self.components = {}
 
@@ -103,6 +105,10 @@ class LabThing:
         # Create base routes
         self._create_base_routes()
 
+        # Create socket handler
+        self.sockets = Sockets(app)
+        self._create_base_sockets()
+
     def teardown(self, exception):
         pass
 
@@ -122,6 +128,14 @@ class LabThing:
         self.add_view(TaskList, "/tasks", endpoint=TASK_LIST_ENDPOINT)
         self.add_root_link(TaskList, "tasks")
         self.add_view(TaskView, "/tasks/<task_id>", endpoint=TASK_ENDPOINT)
+
+    def _create_base_sockets(self):
+        self.sockets.add_url_rule("/", self._socket_handler)
+
+    def _socket_handler(self, ws):
+        while not ws.closed:
+            message = ws.receive()
+            ws.send("Web sockets not yet implemented")
 
     # Device stuff
 
