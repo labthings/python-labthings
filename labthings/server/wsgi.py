@@ -3,6 +3,7 @@ from geventwebsocket.handler import WebSocketHandler
 import logging
 import sys
 import os
+from werkzeug.debug import DebuggedApplication
 
 
 class Server:
@@ -14,11 +15,17 @@ class Server:
         port = int(port)
         host = str(host)
 
+        # Unmodified version of app
+        app_to_run = self.app
+
         # Handle logging
         if not log:
             log = logging.getLogger()
+
+        # Handle debug mode
         if debug:
             log.setLevel(logging.DEBUG)
+            app_to_run = DebuggedApplication(self.app)
 
         friendlyhost = "localhost" if host == "0.0.0.0" else host
         logging.info("Starting LabThings WSGI Server")
@@ -27,7 +34,7 @@ class Server:
 
         # Create WSGIServer
         wsgi_server = pywsgi.WSGIServer(
-            (host, port), self.app, handler_class=WebSocketHandler, log=log
+            (host, port), app_to_run, handler_class=WebSocketHandler, log=log
         )
 
         # Serve
