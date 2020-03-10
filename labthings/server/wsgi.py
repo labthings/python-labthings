@@ -1,8 +1,9 @@
-from gevent import pywsgi
 from geventwebsocket.handler import WebSocketHandler
+import gevent
 import logging
 import sys
 import os
+import signal
 from werkzeug.debug import DebuggedApplication
 
 
@@ -10,7 +11,7 @@ class Server:
     def __init__(self, app):
         self.app = app
 
-    def run(self, host="0.0.0.0", port=5000, log=None, debug=False):
+    def run(self, host="0.0.0.0", port=5000, log=None, debug=False, stop_timeout=1):
         # Type checks
         port = int(port)
         host = str(host)
@@ -33,16 +34,18 @@ class Server:
         logging.info(f"Running on http://{friendlyhost}:{port} (Press CTRL+C to quit)")
 
         # Create WSGIServer
-        wsgi_server = pywsgi.WSGIServer(
+        wsgi_server = gevent.pywsgi.WSGIServer(
             (host, port), app_to_run, handler_class=WebSocketHandler, log=log
         )
 
+        def stop():
+            wsgi_server.stop(timeout=stop_timeout)
+
         # Serve
+        gevent.signal(signal.SIGTERM, stop)
+
         try:
             wsgi_server.serve_forever()
-        except KeyboardInterrupt:
-            logging.warning("Terminating by KeyboardInterrupt")
-            try:
-                sys.exit(0)
-            except SystemExit:
-                os._exit(0)
+        except (KeyboardInterrupt, SystemExit):
+            logging.warning("Terminating by KeyboardInterrupt or SystemExit")
+            stop()
