@@ -1,10 +1,16 @@
 import uuid
 import types
 import functools
+import atexit
+import logging
 
 from labthings.server.quick import create_app, property_of
 
 from components.pdf_component import PdfComponent
+
+
+def cleanup():
+    logging.info("Exiting. Running any cleanup code here...")
 
 
 # Create LabThings Flask app
@@ -33,6 +39,8 @@ labthing.add_view(
     ),
     "/dictionary",
 )
+
+atexit.register(cleanup)
 
 # Start the app
 if __name__ == "__main__":
