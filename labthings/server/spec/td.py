@@ -8,7 +8,7 @@ from .paths import rule_to_params, rule_to_path
 
 from ..find import current_labthing
 
-from labthings.core.utilities import get_docstring
+from labthings.core.utilities import get_docstring, snake_to_camel
 
 
 def find_schema_for_view(view: View):
@@ -44,9 +44,9 @@ def find_schema_for_view(view: View):
 class ThingDescription:
     def __init__(self, apispec: APISpec):
         self.apispec = apispec
-        self.properties = []
-        self.actions = []
-        self.events = []
+        self.properties = {}
+        self.actions = {}
+        self.events = {}
         self._links = []
         super().__init__()
 
@@ -150,7 +150,9 @@ class ThingDescription:
         return action_description
 
     def property(self, rules: list, view: View):
-        self.properties.append(self.view_to_thing_property(rules, view))
+        key = snake_to_camel(view.endpoint)
+        self.properties[key] = self.view_to_thing_property(rules, view)
 
     def action(self, rules: list, view: View):
-        self.actions.append(self.view_to_thing_action(rules, view))
+        key = snake_to_camel(view.endpoint)
+        self.actions[key] = self.view_to_thing_action(rules, view)

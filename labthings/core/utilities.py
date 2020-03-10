@@ -175,3 +175,17 @@ def snake_to_spine(name):
         str: spine-case string
     """
     return name.replace("_", "-")
+
+
+def snake_to_camel(snake_str):
+    """Convert a snake_case string into lowerCamelCase
+
+    Args:
+        name (str): snake_case string
+
+    Returns:
+        str: lowerCamelCase string
+    """
+    components = snake_str.split("_")
+    return components[0] + "".join(x.title() for x in components[1:])
+
