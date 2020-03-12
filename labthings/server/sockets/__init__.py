@@ -1,2 +1,2 @@
 from .base import SocketSubscriber
-from .eventlet import Sockets, socket_handler_loop
+from .gevent import Sockets, socket_handler_loop

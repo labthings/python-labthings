@@ -12,6 +12,8 @@ webargs = "^5.5.3"
 apispec = "^3.2.0"
 flask-cors = "^3.0.8"
 eventlet = "^0.25.1"
+gevent = "^1.4.0"
+gevent-websocket = "^0.10.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
