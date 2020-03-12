@@ -86,4 +86,7 @@ class BaseSockets(ABC):
 
 
 def process_socket_message(message: str):
-    return f"Recieved: {message}"
+    if message:
+        return f"Recieved: {message}"
+    else:
+        return None

@@ -57,4 +57,5 @@ def socket_handler_loop(ws):
         if message is None:
             break
         response = process_socket_message(message)
-        ws.send(response)
+        if response:
+            ws.send(response)
