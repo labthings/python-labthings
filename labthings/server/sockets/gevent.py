@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 from werkzeug.exceptions import NotFound
 from werkzeug.http import parse_cookie
 from flask import request
+import gevent
 import time
 import logging
 
@@ -55,4 +56,4 @@ def socket_handler_loop(ws):
         message = ws.receive()
         response = process_socket_message(message)
         ws.send(response)
-        time.sleep(0.1)
+        gevent.sleep(0.1)
