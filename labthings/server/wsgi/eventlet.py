@@ -6,6 +6,9 @@ import os
 import signal
 from werkzeug.debug import DebuggedApplication
 
+# Monkey patching is bad and should never be done
+eventlet.monkey_patch()
+
 
 class Server:
     def __init__(self, app):

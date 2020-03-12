@@ -6,6 +6,11 @@ import os
 import signal
 from werkzeug.debug import DebuggedApplication
 
+from gevent import monkey
+
+# Monkey patching is bad and should never be done
+monkey.patch_all()
+
 
 class Server:
     def __init__(self, app):
