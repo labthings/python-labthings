@@ -10,7 +10,7 @@ from .spec.apispec import rule_to_apispec_path
 from .spec.utilities import get_spec
 from .spec.td import ThingDescription
 from .decorators import tag
-from .sockets import Sockets, SocketSubscriber
+from .sockets import Sockets, SocketSubscriber, socket_handler_loop
 
 from .views.extensions import ExtensionList
 from .views.tasks import TaskList, TaskView
@@ -137,12 +137,14 @@ class LabThing:
         self.sockets.add_url_rule("/", self._socket_handler)
 
     def _socket_handler(self, ws):
+        # Create a socket subscriber
         wssub = SocketSubscriber(ws)
         self.subscribers.add(wssub)
         logging.info(f"Added subscriber {wssub}")
         logging.debug(list(self.subscribers))
-        while not ws.closed:
-            message = ws.receive()
+        # Start the socket connection handler loop
+        socket_handler_loop(ws)
+        # Remove the subscriber once the loop returns
         self.subscribers.remove(wssub)
         logging.info(f"Removed subscriber {wssub}")
         logging.debug(list(self.subscribers))
