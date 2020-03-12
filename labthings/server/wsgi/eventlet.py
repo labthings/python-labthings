@@ -26,11 +26,6 @@ class Server:
         if not log:
             log = logging.getLogger()
 
-        # Handle debug mode
-        # if debug:
-        #    log.setLevel(logging.DEBUG)
-        #    app_to_run = DebuggedApplication(self.app)
-
         friendlyhost = "localhost" if host == "0.0.0.0" else host
         logging.info("Starting LabThings WSGI Server")
         logging.info(f"Debug mode: {debug}")
@@ -41,6 +36,6 @@ class Server:
         eventlet_socket = eventlet.listen(addresses[0][4], addresses[0][0])
 
         try:
-            eventlet.wsgi.server(eventlet_socket, app_to_run)
+            eventlet.wsgi.server(eventlet_socket, app_to_run, log=log, debug=debug)
         except (KeyboardInterrupt, SystemExit):
             logging.warning("Terminating by KeyboardInterrupt or SystemExit")
