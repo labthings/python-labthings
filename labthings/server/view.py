@@ -27,16 +27,14 @@ class View(MethodView):
         # TODO: Inherit from parent LabThing. See original flask_restful implementation
         self.representations = OrderedDict(DEFAULT_REPRESENTATIONS)
 
-    def doc(self):
-        docs = {"operations": {}}
-        if hasattr(self, "__apispec__"):
-            docs.update(self.__apispec__)
-
-        for meth in View.methods:
-            if hasattr(self, meth) and hasattr(getattr(self, meth), "__apispec__"):
-                docs["operations"][meth] = {}
-                docs["operations"][meth] = getattr(self, meth).__apispec__
-        return docs
+    def get_value(self):
+        get_method = getattr(self, "get", None)  # Look for this views GET method
+        if callable(get_method):  # Check it's callable
+            response = get_method()  # pylint: disable=not-callable
+        if isinstance(response, ResponseBase):  # Pluck useful data out of HTTP response
+            return response.json if response.json else response.data.decode()
+        else:  # Unless somehow an HTTP response isn't returned...
+            return response
 
     def dispatch_request(self, *args, **kwargs):
         meth = getattr(self, request.method.lower(), None)

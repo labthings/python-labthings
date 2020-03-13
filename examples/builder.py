@@ -16,6 +16,7 @@ def cleanup():
 # Create LabThings Flask app
 app, labthing = create_app(
     __name__,
+    prefix="/api",
     title="My Lab Device API",
     description="Test LabThing-based API",
     version="0.1.0",
@@ -46,5 +47,8 @@ atexit.register(cleanup)
 if __name__ == "__main__":
     from labthings.server.wsgi import Server
 
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+
     server = Server(app)
-    server.run(host="0.0.0.0", port=5000, debug=True)
+    server.run(host="0.0.0.0", port=5000, debug=False)
