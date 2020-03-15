@@ -170,4 +170,7 @@ labthing.add_view(MeasurementAction, "/actions/measure")
 
 # Start the app
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port="5000", threaded=True, debug=True, use_reloader=False)
+    from labthings.server.wsgi import Server
+
+    server = Server(app)
+    server.run(host="0.0.0.0", port=5000, debug=False)
