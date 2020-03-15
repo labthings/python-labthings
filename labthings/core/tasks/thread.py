@@ -4,7 +4,12 @@ import logging
 import traceback
 import uuid
 
-import threading
+from gevent.monkey import get_original
+
+# Guarantee that Task threads will always be proper system threads, regardless of Gevent patches
+Thread = get_original("threading", "Thread")
+Event = get_original("threading", "Event")
+Lock = get_original("threading", "Lock")
 
 _LOG = logging.getLogger(__name__)
 
@@ -13,9 +18,9 @@ class ThreadTerminationError(SystemExit):
     """Sibling of SystemExit, but specific to thread termination."""
 
 
-class TaskThread(threading.Thread):
+class TaskThread(Thread):
     def __init__(self, target=None, name=None, args=None, kwargs=None, daemon=True):
-        threading.Thread.__init__(
+        Thread.__init__(
             self,
             group=None,
             target=target,
@@ -52,12 +57,8 @@ class TaskThread(threading.Thread):
         self.data = {}  # Dictionary of custom data added during the task
 
         # Stuff for handling termination
-        self._running_lock = (
-            threading.Lock()
-        )  # Lock obtained while self._target is running
-        self._killed = (
-            threading.Event()
-        )  # Event triggered when thread is manually terminated
+        self._running_lock = Lock()  # Lock obtained while self._target is running
+        self._killed = Event()  # Event triggered when thread is manually terminated
 
     @property
     def id(self):
