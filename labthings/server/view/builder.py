@@ -2,7 +2,7 @@ from labthings.server.types import value_to_field, data_dict_to_schema
 from labthings.server.decorators import ThingProperty, PropertySchema, Doc
 from . import View
 
-from flask import send_from_directory
+from flask import send_from_directory, abort
 import uuid
 
 
@@ -74,6 +74,9 @@ def static_from(static_folder: str, name=None):
         return send_from_directory(static_folder, path)
 
     # Generate a basic property class
-    generated_class = type(name, (View, object), {"get": _get,},)
+    generated_class = type(name, (View, object), {},)
+
+    if static_folder:
+        generated_class.get = _get
 
     return generated_class
