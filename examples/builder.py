@@ -4,7 +4,8 @@ import functools
 import atexit
 import logging
 
-from labthings.server.quick import create_app, property_of
+from labthings.server.quick import create_app
+from labthings.server.view.builder import property_of
 
 from components.pdf_component import PdfComponent
 

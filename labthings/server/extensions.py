@@ -6,6 +6,7 @@ import sys
 import os
 import glob
 
+from .view.builder import static_from
 from ..core.utilities import get_docstring, camel_to_snake, snake_to_spine
 
 
@@ -18,7 +19,14 @@ class BaseExtension:
 
     # TODO: Allow adding components to extensions
 
-    def __init__(self, name: str, description="", version="0.0.0"):
+    def __init__(
+        self,
+        name: str,
+        description="",
+        version="0.0.0",
+        static_url_path="/static",
+        static_folder=None,
+    ):
         self._views = (
             {}
         )  # Key: Full, Python-safe ID. Val: Original rule, and view class
@@ -43,6 +51,12 @@ class BaseExtension:
         self.version = str(version)
 
         self.methods = {}
+
+        if static_folder:
+            self.static_view_class = static_from(static_folder)
+            self.add_view(self.static_view_class, f"{static_url_path}/<path:path>")
+        else:
+            self.static_view_class = None
 
     @property
     def views(self):
