@@ -1,5 +1,6 @@
 import logging
 import traceback
+from flask import url_for
 
 from importlib import util
 import sys
@@ -52,18 +53,16 @@ class BaseExtension:
 
         self.methods = {}
 
-        if static_folder:
-            print(f"Adding route for {static_folder}")
-            self.static_view_class = static_from(static_folder)
-            self.add_view(self.static_view_class, f"{static_url_path}/<path:path>")
-        else:
-            self.static_view_class = None
+        self.static_view_class = static_from(static_folder)
+        self.add_view(
+            self.static_view_class, f"{static_url_path}/<path:path>", view_id="static",
+        )
 
     @property
     def views(self):
         return self._views
 
-    def add_view(self, view_class, rule, **kwargs):
+    def add_view(self, view_class, rule, view_id=None, **kwargs):
         # Remove all leading slashes from view route
         cleaned_rule = rule
         while cleaned_rule[0] == "/":
@@ -72,12 +71,13 @@ class BaseExtension:
         # Expand the rule to include extension name
         full_rule = "/{}/{}".format(self._name_uri_safe, cleaned_rule)
 
-        view_id = (
-            cleaned_rule.replace("/", "_")
-            .replace("<", "")
-            .replace(">", "")
-            .replace(":", "_")
-        )
+        if not view_id:
+            view_id = (
+                cleaned_rule.replace("/", "_")
+                .replace("<", "")
+                .replace(">", "")
+                .replace(":", "_")
+            )
 
         # Store route information in a dictionary
         d = {"rule": full_rule, "view": view_class, "kwargs": kwargs}
@@ -144,6 +144,16 @@ class BaseExtension:
             logging.warning(
                 "Unable to bind method to extension. Method name already exists."
             )
+
+    def static_file_url(self, filename: str):
+        static_repr = self.views.get("static")
+        static_view = static_repr.get("view")
+        static_endpoint = getattr(static_view, "endpoint", None)
+
+        if not static_endpoint:
+            return None
+
+        return url_for(static_endpoint, path=filename, _external=True)
 
 
 def find_instances_in_module(module, class_to_find):
