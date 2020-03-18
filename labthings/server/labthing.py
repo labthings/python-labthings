@@ -235,7 +235,7 @@ class LabThing:
         """
         endpoint = endpoint or resource.__name__.lower()
 
-        logging.debug(f"{endpoint}: {type(resource)}")
+        logging.debug(f"{endpoint}: {type(resource)} @ {urls}")
 
         if self.app is not None:
             self._register_view(self.app, resource, *urls, endpoint=endpoint, **kwargs)
