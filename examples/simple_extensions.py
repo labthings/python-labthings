@@ -17,6 +17,7 @@ from labthings.server.view import View
 from labthings.server.find import find_component
 from labthings.server import fields
 from labthings.core.tasks import taskify
+from labthings.core.utilities import path_relative_to
 import os
 
 from labthings.server.extensions import BaseExtension
@@ -38,7 +39,8 @@ def ext_on_my_component(component):
     logging.info(f"{component} registered and noticed by extension")
 
 
-static_folder = os.path.join(os.path.abspath(os.path.dirname(__file__)), "static")
+static_folder = path_relative_to(__file__, "static")
+print(static_folder)
 
 example_extension = BaseExtension(
     "org.labthings.examples.extension", static_folder=static_folder

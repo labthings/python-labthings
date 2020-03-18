@@ -53,6 +53,7 @@ class BaseExtension:
         self.methods = {}
 
         if static_folder:
+            print(f"Adding route for {static_folder}")
             self.static_view_class = static_from(static_folder)
             self.add_view(self.static_view_class, f"{static_url_path}/<path:path>")
         else:
@@ -71,7 +72,12 @@ class BaseExtension:
         # Expand the rule to include extension name
         full_rule = "/{}/{}".format(self._name_uri_safe, cleaned_rule)
 
-        view_id = cleaned_rule.replace("/", "_").replace("<", "").replace(">", "")
+        view_id = (
+            cleaned_rule.replace("/", "_")
+            .replace("<", "")
+            .replace(">", "")
+            .replace(":", "_")
+        )
 
         # Store route information in a dictionary
         d = {"rule": full_rule, "view": view_class, "kwargs": kwargs}

@@ -2,6 +2,7 @@ import collections.abc
 import re
 import operator
 import sys
+import os
 from functools import reduce
 
 PY3 = sys.version_info > (3,)
@@ -189,3 +190,12 @@ def snake_to_camel(snake_str):
     components = snake_str.split("_")
     return components[0] + "".join(x.title() for x in components[1:])
 
+
+def path_relative_to(source_file, *paths):
+    """Given a python module __file__, return an absolute path relative to its location
+    
+    Args:
+        source_file: Module __file__ attribute
+        paths {str} -- Paths to add to source file location
+    """
+    return os.path.join(os.path.abspath(os.path.dirname(source_file)), *paths)
