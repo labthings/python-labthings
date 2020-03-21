@@ -41,7 +41,11 @@ class Server:
                 "_labthings._tcp.local.",
                 f"{self.labthing.title}._labthings._tcp.local.",
                 port=port,
-                properties={"path": self.labthing.url_prefix},
+                properties={
+                    "path": self.labthing.url_prefix,
+                    "title": self.labthing.title,
+                    "description": self.labthing.description,
+                },
                 addresses=set(
                     [
                         socket.inet_aton(i)
