@@ -4,7 +4,7 @@ from flask import current_app
 from . import EXTENSION_NAME
 
 
-def current_labthing():
+def current_labthing(app=None):
     """The LabThing instance handling current requests.
     
     Searches for a valid LabThing extension attached to the current Flask context.
@@ -12,14 +12,15 @@ def current_labthing():
     # We use _get_current_object so that Task threads can still
     # reach the Flask app object. Just using current_app returns
     # a wrapper, which breaks it's use in Task threads
-    app = current_app._get_current_object()  # skipcq: PYL-W0212
+    if not app:
+        app = current_app._get_current_object()  # skipcq: PYL-W0212
     if not app:
         return None
     logging.debug("Active app extensions:")
     logging.debug(app.extensions)
     logging.debug("Active labthing:")
     logging.debug(app.extensions[EXTENSION_NAME])
-    return app.extensions[EXTENSION_NAME]
+    return app.extensions.get(EXTENSION_NAME, None)
 
 
 def registered_extensions(labthing_instance=None):

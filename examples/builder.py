@@ -21,6 +21,7 @@ app, labthing = create_app(
     title="My Lab Device API",
     description="Test LabThing-based API",
     version="0.1.0",
+    types=["org.labthings.examples.builder"],
 )
 
 # Attach an instance of our component

@@ -11,6 +11,7 @@ def create_app(
     prefix: str = "",
     title: str = "",
     description: str = "",
+    types: list = [],
     version: str = "0.0.0",
     handle_errors: bool = True,
     handle_cors: bool = True,
@@ -52,7 +53,12 @@ def create_app(
 
     # Create a LabThing
     labthing = LabThing(
-        app, prefix=prefix, title=title, description=description, version=str(version)
+        app,
+        prefix=prefix,
+        title=title,
+        description=description,
+        types=types,
+        version=str(version),
     )
 
     # Store references to added-in handlers

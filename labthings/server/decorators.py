@@ -286,7 +286,10 @@ class doc_response:
 
         if self.mimetype:
             self.response_dict.update(
-                {"responses": {self.code: {"content": {self.mimetype: {}}}}}
+                {
+                    "responses": {self.code: {"content": {self.mimetype: {}}}},
+                    "_content_type": self.mimetype,
+                }
             )
 
     def __call__(self, f):
