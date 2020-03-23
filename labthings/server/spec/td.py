@@ -1,4 +1,4 @@
-from flask import url_for
+from flask import url_for, request
 from apispec import APISpec
 
 from ..view import View
@@ -81,7 +81,7 @@ class ThingDescription:
             "@context": "https://www.w3.org/2019/wot/td/v1",
             "@type": current_labthing().types,
             "id": url_for("root", _external=True),
-            "base": url_for("root", _external=True),
+            "base": request.host_url,
             "title": current_labthing().title,
             "description": current_labthing().description,
             "properties": self.properties,
