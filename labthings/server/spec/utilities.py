@@ -32,8 +32,33 @@ def get_spec(obj):
     Returns:
         dict: API spec dictionary. Returns empty dictionary if no spec is found.
     """
+    if not obj:
+        return {}
     obj.__apispec__ = obj.__dict__.get("__apispec__", {})
     return obj.__apispec__ or {}
+
+
+def get_topmost_spec_attr(view, spec_key: str):
+    """
+    Get the __apispec__ value corresponding to spec_key, from first the root view,
+    falling back to GET, POST, and PUT in that descending order of priority
+
+    Args:
+        obj: Python object
+
+    Returns:
+        spec value corresponding to spec_key
+    """
+    spec = get_spec(view)
+    value = spec.get(spec_key)
+
+    if not value:
+        for meth in ["get", "post", "put"]:
+            spec = get_spec(getattr(view, meth, None))
+            value = spec.get(spec_key)
+            if value:
+                break
+    return value
 
 
 def convert_schema(schema, spec: APISpec):

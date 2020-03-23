@@ -28,6 +28,7 @@ class LabThing:
         prefix: str = "",
         title: str = "",
         description: str = "",
+        types: list = [],
         version: str = "0.0.0",
     ):
         self.app = app  # Becomes a Flask app
@@ -46,6 +47,7 @@ class LabThing:
         self.endpoints = set()
 
         self.url_prefix = prefix
+        self.types = types
         self._description = description
         self._title = title
         self._version = version
