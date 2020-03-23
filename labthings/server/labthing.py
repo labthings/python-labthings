@@ -47,7 +47,14 @@ class LabThing:
         self.endpoints = set()
 
         self.url_prefix = prefix
+
+        for t in types:
+            if ";" in t:
+                raise ValueError(
+                    f'Error in type value "{t}". Thing types cannot contain ; character.'
+                )
         self.types = types
+
         self._description = description
         self._title = title
         self._version = version
