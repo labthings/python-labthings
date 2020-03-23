@@ -45,6 +45,7 @@ class Server:
                     "path": self.labthing.url_prefix,
                     "title": self.labthing.title,
                     "description": self.labthing.description,
+                    "types": ";".join(self.labthing.types),
                 },
                 addresses=set(
                     [
