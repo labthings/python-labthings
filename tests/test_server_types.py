@@ -31,8 +31,8 @@ def types_dict():
     return d, s
 
 
-def test_make_primative():
-    assert types.make_primative(Fraction(5, 2)) == 2.5
+def test_make_primitive():
+    assert types.make_primitive(Fraction(5, 2)) == 2.5
 
 
 def test_value_to_field():
