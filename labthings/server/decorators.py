@@ -12,6 +12,8 @@ from .fields import Field
 from .view import View
 from .find import current_labthing
 
+from labthings.core.tasks.pool import TaskThread
+
 import logging
 
 # Useful externals to have included here
@@ -69,9 +71,10 @@ class marshal_with:
             resp = f(*args, **kwargs)
             if isinstance(resp, tuple):
                 data, code, headers = unpack(resp)
-                return make_response(self.converter(data), code, headers)
             else:
-                return make_response(self.converter(resp))
+                data, code, headers = resp, 200, {}
+
+            return make_response(self.converter(data), code, headers)
 
         return wrapper
 
@@ -88,9 +91,14 @@ def marshal_task(f):
         resp = f(*args, **kwargs)
         if isinstance(resp, tuple):
             data, code, headers = unpack(resp)
-            return make_response(TaskSchema().jsonify(data), code, headers)
         else:
-            return make_response(TaskSchema().jsonify(resp))
+            data, code, headers = resp, 200, {}
+
+        if not isinstance(data, TaskThread):
+            raise TypeError(
+                f"Function {f.__name__} expected to return a TaskThread object, but instead returned a {type(data).__name__}. If it does not return a task, remove the @marshall_task decorator from {f.__name__}.",
+            )
+        return make_response(TaskSchema().jsonify(data), code, headers)
 
     return wrapper
 
