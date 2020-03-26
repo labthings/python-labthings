@@ -70,9 +70,9 @@ class Server:
 
         # Slightly more useful logger output
         friendlyhost = "localhost" if host == "0.0.0.0" else host
-        logging.info("Starting LabThings WSGI Server")
-        logging.info(f"Debug mode: {debug}")
-        logging.info(f"Running on http://{friendlyhost}:{port} (Press CTRL+C to quit)")
+        print("Starting LabThings WSGI Server")
+        print(f"Debug mode: {debug}")
+        print(f"Running on http://{friendlyhost}:{port} (Press CTRL+C to quit)")
 
         # Create WSGIServer
         wsgi_server = gevent.pywsgi.WSGIServer(
