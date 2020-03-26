@@ -55,6 +55,7 @@ class TaskThread(Thread):
         # Public state properties
         self.progress: int = None  # Percent progress of the task
         self.data = {}  # Dictionary of custom data added during the task
+        self.log = [] # The log will hold dictionary objects with log information
 
         # Stuff for handling termination
         self._running_lock = Lock()  # Lock obtained while self._target is running
@@ -95,6 +96,10 @@ class TaskThread(Thread):
         def wrapped(*args, **kwargs):
             nonlocal self
 
+            # Capture just this thread's log messages
+            handler = ThreadLogHandler(thread=self, dest=self.log)
+            logging.getLogger().addHandler(handler)
+
             self._status = "running"
             self._start_time = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
             try:
@@ -107,6 +112,7 @@ class TaskThread(Thread):
                 self._status = "error"
             finally:
                 self._end_time = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+                logging.getLogger().removeHandler(handler) # Stop logging this thread specially
 
         return wrapped
 
@@ -202,3 +208,29 @@ class TaskThread(Thread):
         # Set state to terminated
         self._status = "terminated"
         self.progress = None
+
+class ThreadLogHandler(logging.Handler):
+    def __init__(self, thread=None, dest=[]):
+        logging.Handler.__init__(self)
+        self.thread = thread
+        self.dest = dest
+        self.addFilter(self.check_thread)
+        
+    def check_thread(self, record):
+        """Determine if a thread matches the desired record"""
+        if self.thread is None:
+            return 1
+        if record.thread == self.thread.ident:
+            return 1
+        else:
+            return 0
+        
+    def emit(self, record):
+        """Do something with a logged message"""
+        print("emitting a log")
+        self.dest.append({
+            "time": record.created,
+            "level": record.levelname,
+            "message": record.getMessage(),
+        })
+        
