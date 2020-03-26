@@ -17,6 +17,13 @@ class TaskList(View):
 
 @Tag(["properties", "tasks"])
 class TaskView(View):
+    """
+    Manage a particular background task.
+
+    GET will safely return the current task progress.
+    DELETE will terminate the background task, if running.
+    """
+
     @marshal_with(TaskSchema())
     def get(self, task_id):
         """
