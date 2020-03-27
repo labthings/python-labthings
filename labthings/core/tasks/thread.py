@@ -243,10 +243,11 @@ class ThreadLogHandler(logging.Handler):
     def emit(self, record):
         """Do something with a logged message"""
         print("emitting a log")
-        self.dest.append({
-            "time": record.created,
-            "level": record.levelname,
-            "message": record.getMessage(),
-        })
+        record_dict = {"message": record.getMessage()}
+        for k in ["created", "levelname", "levelno", "lineno", "filename"]:
+            record_dict[k] = getattr(record, k)
+        self.dest.append(record_dict)
         # FIXME: make sure this doesn't become a memory disaster!
         # We probably need to check the size of the list...
+        # TODO: think about whether any of the keys are security flaws
+        # (this is why I don't dump the whole logrecord)
