@@ -55,7 +55,7 @@ class TaskThread(Thread):
         # Public state properties
         self.progress: int = None  # Percent progress of the task
         self.data = {}  # Dictionary of custom data added during the task
-        self.log = [] # The log will hold dictionary objects with log information
+        self.log = []  # The log will hold dictionary objects with log information
 
         # Stuff for handling termination
         self._running_lock = Lock()  # Lock obtained while self._target is running
@@ -112,8 +112,8 @@ class TaskThread(Thread):
                 self._status = "error"
             finally:
                 self._end_time = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
-                logging.getLogger().removeHandler(handler) # Stop logging this thread specially
-
+                logging.getLogger().removeHandler(handler)  # Stop logging this thread
+                    # If we don't remove the handler, it's a memory leak.
         return wrapped
 
     def run(self):
@@ -209,11 +209,27 @@ class TaskThread(Thread):
         self._status = "terminated"
         self.progress = None
 
+
 class ThreadLogHandler(logging.Handler):
-    def __init__(self, thread=None, dest=[]):
+    def __init__(self, thread=None, dest=None):
+        """Set up a log handler that appends messages to a list.
+
+        This log handler will first filter by ``thread``, if one is
+        supplied.  This should be a ``threading.Thread`` object.
+        Only log entries from the specified thread will be
+        saved.
+
+        ``dest`` should specify a list, to which we will append
+        each log entry as it comes in.  If none is specified, a
+        new list will be created.
+
+        NB this log handler does not currently rotate or truncate
+        the list - so if you use it on a thread that produces a
+        lot of log messages, you may run into memory problems.
+        """
         logging.Handler.__init__(self)
         self.thread = thread
-        self.dest = dest
+        self.dest = dest if dest else []
         self.addFilter(self.check_thread)
         
     def check_thread(self, record):
@@ -222,8 +238,7 @@ class ThreadLogHandler(logging.Handler):
             return 1
         if record.thread == self.thread.ident:
             return 1
-        else:
-            return 0
+        return 0
         
     def emit(self, record):
         """Do something with a logged message"""
@@ -233,4 +248,5 @@ class ThreadLogHandler(logging.Handler):
             "level": record.levelname,
             "message": record.getMessage(),
         })
-        
+        # FIXME: make sure this doesn't become a memory disaster!
+        # We probably need to check the size of the list...
