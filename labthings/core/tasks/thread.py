@@ -1,4 +1,4 @@
-from gevent import Greenlet
+from gevent import Greenlet, GreenletExit
 import datetime
 import logging
 import traceback
@@ -88,6 +88,11 @@ class TaskThread(Greenlet):
             try:
                 self._return_value = f(*args, **kwargs)
                 self._status = "success"
+            except (TaskKillException, GreenletExit) as e:
+                logging.error(e)
+                # Set state to terminated
+                self._status = "terminated"
+                self.progress = None
             except Exception as e:  # skipcq: PYL-W0703
                 logging.error(e)
                 logging.error(traceback.format_exc())
@@ -101,9 +106,6 @@ class TaskThread(Greenlet):
     def kill(self, exception=TaskKillException, block=True, timeout=None):
         # Kill the greenlet
         Greenlet.kill(self, exception=exception, block=block, timeout=timeout)
-        # Set state to terminated
-        self._status = "terminated"
-        self.progress = None
 
     def terminate(self):
         return self.kill()
