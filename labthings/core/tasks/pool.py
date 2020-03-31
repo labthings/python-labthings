@@ -1,6 +1,7 @@
 import threading
 import logging
 from functools import wraps
+from gevent import getcurrent
 
 from .thread import TaskThread
 
@@ -114,7 +115,7 @@ def current_task():
     Returns:
         TaskThread -- Currently running Task thread.
     """
-    current_task_thread = threading.current_thread()
+    current_task_thread = getcurrent()
     if not isinstance(current_task_thread, TaskThread):
         return None
     return current_task_thread

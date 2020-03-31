@@ -1,3 +1,11 @@
+#!/usr/bin/env python
+from gevent import monkey
+
+# Patch most system modules. Leave threads untouched so we can still use them normally if needed.
+print("Monkey patching with Gevenet")
+monkey.patch_all(thread=False)
+print("Monkey patching successful")
+
 import random
 import math
 import time
@@ -13,13 +21,21 @@ from labthings.server.decorators import (
 from labthings.server.view import View
 from labthings.server.find import find_component
 from labthings.server import fields
-from labthings.core.tasks import taskify
+from labthings.core.tasks import taskify, update_task_data
 
 
 """
 Class for our lab component functionality. This could include serial communication,
 equipment API calls, network requests, or a "virtual" device as seen here.
 """
+
+
+from gevent.monkey import get_original
+
+get_ident = get_original("_thread", "get_ident")
+
+print(f"ROOT IDENT")
+print(get_ident())
 
 
 class MyComponent:
@@ -50,6 +66,7 @@ class MyComponent:
 
         for i in range(n):
             summed_data = [summed_data[i] + el for i, el in enumerate(self.data)]
+            update_task_data({"data": summed_data})
             time.sleep(0.25)
 
         summed_data = [i / n for i in summed_data]
