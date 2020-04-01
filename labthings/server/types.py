@@ -93,8 +93,8 @@ DEFAULT_BUILTIN_CONVERSIONS = {
 }
 
 
-def make_primative(value):
-    """Attempt to convert a value into a primative Python type
+def make_primitive(value):
+    """Attempt to convert a value into a primitive Python type
     
     Args:
         value: Data to convert
@@ -104,7 +104,7 @@ def make_primative(value):
     """
     global DEFAULT_BUILTIN_CONVERSIONS, DEFAULT_TYPE_MAPPING
 
-    logging.debug(f"Converting {value} to primative type...")
+    logging.debug(f"Converting {value} to primitive type...")
     value_typestrings = [
         x.__module__ + "." + x.__name__ for x in inspect.getmro(type(value))
     ]
@@ -114,7 +114,7 @@ def make_primative(value):
             value = DEFAULT_BUILTIN_CONVERSIONS.get(typestring)(value)
             break
 
-    # If the final type is not primative
+    # If the final type is not primitive
     if not type(value) in DEFAULT_TYPE_MAPPING:
         # Fall back to a string representation
         value = str(value)
@@ -158,7 +158,7 @@ def data_dict_to_schema(data_dict: dict):
     """
     working_dict = copy.deepcopy(data_dict)
 
-    working_dict = rapply(working_dict, make_primative)
+    working_dict = rapply(working_dict, make_primitive)
     working_dict = rapply(working_dict, value_to_field, apply_to_iterables=False)
 
     return working_dict
