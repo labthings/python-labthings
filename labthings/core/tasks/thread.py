@@ -44,6 +44,7 @@ class TaskThread(Greenlet):
         # Public state properties
         self.progress: int = None  # Percent progress of the task
         self.data = {}  # Dictionary of custom data added during the task
+        self.log = []  # The log will hold dictionary objects with log information
 
     @property
     def id(self):
@@ -83,6 +84,10 @@ class TaskThread(Greenlet):
         def wrapped(*args, **kwargs):
             nonlocal self
 
+            # Capture just this thread's log messages
+            handler = ThreadLogHandler(thread=self, dest=self.log)
+            logging.getLogger().addHandler(handler)
+
             self._status = "running"
             self._start_time = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
             try:
@@ -100,7 +105,8 @@ class TaskThread(Greenlet):
                 self._status = "error"
             finally:
                 self._end_time = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
-
+                logging.getLogger().removeHandler(handler)  # Stop logging this thread
+                    # If we don't remove the handler, it's a memory leak.
         return wrapped
 
     def kill(self, exception=TaskKillException, block=True, timeout=None):
@@ -109,3 +115,47 @@ class TaskThread(Greenlet):
 
     def terminate(self):
         return self.kill()
+
+
+class ThreadLogHandler(logging.Handler):
+    def __init__(self, thread=None, dest=None):
+        """Set up a log handler that appends messages to a list.
+
+        This log handler will first filter by ``thread``, if one is
+        supplied.  This should be a ``threading.Thread`` object.
+        Only log entries from the specified thread will be
+        saved.
+
+        ``dest`` should specify a list, to which we will append
+        each log entry as it comes in.  If none is specified, a
+        new list will be created.
+
+        NB this log handler does not currently rotate or truncate
+        the list - so if you use it on a thread that produces a
+        lot of log messages, you may run into memory problems.
+        """
+        logging.Handler.__init__(self)
+        self.thread = thread
+        self.dest = dest if dest else []
+        self.addFilter(self.check_thread)
+        
+    def check_thread(self, record):
+        """Determine if a thread matches the desired record"""
+        if self.thread is None:
+            return 1
+        if record.thread == self.thread.ident:
+            return 1
+        return 0
+        
+    def emit(self, record):
+        """Do something with a logged message"""
+        print("emitting a log")
+        record_dict = {"message": record.getMessage()}
+        for k in ["created", "levelname", "levelno", "lineno", "filename"]:
+            record_dict[k] = getattr(record, k)
+        self.dest.append(record_dict)
+        # FIXME: make sure this doesn't become a memory disaster!
+        # We probably need to check the size of the list...
+        # TODO: think about whether any of the keys are security flaws
+        # (this is why I don't dump the whole logrecord)
+

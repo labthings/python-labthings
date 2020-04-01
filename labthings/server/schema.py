@@ -96,6 +96,7 @@ class TaskSchema(Schema):
     _return_value = fields.Raw(data_key="return")
     _start_time = fields.String(data_key="start_time")
     _end_time = fields.String(data_key="end_time")
+    log = fields.List(fields.Dict())
 
     links = fields.Dict()
 
