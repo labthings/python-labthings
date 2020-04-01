@@ -336,14 +336,6 @@ version = "2020.2.20"
 
 [[package]]
 category = "main"
-description = "Simple, fast, extensible JSON encoder/decoder for Python"
-name = "simplejson"
-optional = false
-python-versions = ">=2.5, !=3.0.*, !=3.1.*, !=3.2.*"
-version = "3.17.0"
-
-[[package]]
-category = "main"
 description = "Python 2 and 3 compatibility utilities"
 name = "six"
 optional = false
@@ -379,19 +371,18 @@ category = "main"
 description = "Declarative parsing and validation of HTTP request objects, with built-in support for popular web frameworks, including Flask, Django, Bottle, Tornado, Pyramid, webapp2, Falcon, and aiohttp."
 name = "webargs"
 optional = false
-python-versions = "*"
-version = "5.5.3"
+python-versions = ">=3.5"
+version = "6.0.0"
 
 [package.dependencies]
 marshmallow = ">=2.15.2"
-simplejson = ">=2.1.0"
 
 [package.extras]
-dev = ["pytest", "mock", "webtest (2.0.33)", "Flask (>=0.12.2)", "Django (>=1.11.16)", "bottle (>=0.12.13)", "tornado (>=4.5.2)", "pyramid (>=1.9.1)", "webapp2 (>=3.0.0b1)", "falcon (>=1.4.0,<2.0)", "flake8 (3.7.8)", "pre-commit (>=1.17,<2.0)", "tox", "webtest-aiohttp (2.0.0)", "pytest-aiohttp (>=0.3.0)", "aiohttp (>=3.0.0)", "mypy (0.730)", "flake8-bugbear (19.8.0)"]
-docs = ["Sphinx (2.2.0)", "sphinx-issues (1.2.0)", "sphinx-typlog-theme (0.7.3)", "Flask (>=0.12.2)", "Django (>=1.11.16)", "bottle (>=0.12.13)", "tornado (>=4.5.2)", "pyramid (>=1.9.1)", "webapp2 (>=3.0.0b1)", "falcon (>=1.4.0,<2.0)", "aiohttp (>=3.0.0)"]
-frameworks = ["Flask (>=0.12.2)", "Django (>=1.11.16)", "bottle (>=0.12.13)", "tornado (>=4.5.2)", "pyramid (>=1.9.1)", "webapp2 (>=3.0.0b1)", "falcon (>=1.4.0,<2.0)", "aiohttp (>=3.0.0)"]
-lint = ["flake8 (3.7.8)", "pre-commit (>=1.17,<2.0)", "mypy (0.730)", "flake8-bugbear (19.8.0)"]
-tests = ["pytest", "mock", "webtest (2.0.33)", "Flask (>=0.12.2)", "Django (>=1.11.16)", "bottle (>=0.12.13)", "tornado (>=4.5.2)", "pyramid (>=1.9.1)", "webapp2 (>=3.0.0b1)", "falcon (>=1.4.0,<2.0)", "webtest-aiohttp (2.0.0)", "pytest-aiohttp (>=0.3.0)", "aiohttp (>=3.0.0)"]
+dev = ["pytest", "webtest (2.0.34)", "webtest-aiohttp (2.0.0)", "pytest-aiohttp (>=0.3.0)", "Flask (>=0.12.2)", "Django (>=1.11.16)", "bottle (>=0.12.13)", "tornado (>=4.5.2)", "pyramid (>=1.9.1)", "webapp2 (>=3.0.0b1)", "falcon (>=2.0.0)", "aiohttp (>=3.0.0)", "mypy (0.761)", "flake8 (3.7.9)", "flake8-bugbear (20.1.4)", "pre-commit (>=1.20,<3.0)", "tox", "mock"]
+docs = ["Sphinx (2.4.3)", "sphinx-issues (1.2.0)", "sphinx-typlog-theme (0.8.0)", "Flask (>=0.12.2)", "Django (>=1.11.16)", "bottle (>=0.12.13)", "tornado (>=4.5.2)", "pyramid (>=1.9.1)", "webapp2 (>=3.0.0b1)", "falcon (>=2.0.0)", "aiohttp (>=3.0.0)"]
+frameworks = ["Flask (>=0.12.2)", "Django (>=1.11.16)", "bottle (>=0.12.13)", "tornado (>=4.5.2)", "pyramid (>=1.9.1)", "webapp2 (>=3.0.0b1)", "falcon (>=2.0.0)", "aiohttp (>=3.0.0)"]
+lint = ["mypy (0.761)", "flake8 (3.7.9)", "flake8-bugbear (20.1.4)", "pre-commit (>=1.20,<3.0)"]
+tests = ["pytest", "webtest (2.0.34)", "webtest-aiohttp (2.0.0)", "pytest-aiohttp (>=0.3.0)", "Flask (>=0.12.2)", "Django (>=1.11.16)", "bottle (>=0.12.13)", "tornado (>=4.5.2)", "pyramid (>=1.9.1)", "webapp2 (>=3.0.0b1)", "falcon (>=2.0.0)", "aiohttp (>=3.0.0)", "mock"]
 
 [[package]]
 category = "main"
@@ -399,10 +390,10 @@ description = "The comprehensive WSGI web application library."
 name = "werkzeug"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "1.0.0"
+version = "1.0.1"
 
 [package.extras]
-dev = ["pytest", "coverage", "tox", "sphinx", "pallets-sphinx-themes", "sphinx-issues"]
+dev = ["pytest", "pytest-timeout", "coverage", "tox", "sphinx", "pallets-sphinx-themes", "sphinx-issues"]
 watchdog = ["watchdog"]
 
 [[package]]
@@ -430,7 +421,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "cd172c72eed4e2c7386562fdae39220a65aa224edc1325487815d1bbb2e30010"
+content-hash = "ca2289be162b2ce4535477d90b8b7e6d232c3831b680bb1e3ecf27e2451ca866"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -657,36 +648,6 @@ regex = [
     {file = "regex-2020.2.20-cp38-cp38-win_amd64.whl", hash = "sha256:7f78f963e62a61e294adb6ff5db901b629ef78cb2a1cfce3cf4eeba80c1c67aa"},
     {file = "regex-2020.2.20.tar.gz", hash = "sha256:9e9624440d754733eddbcd4614378c18713d2d9d0dc647cf9c72f64e39671be5"},
 ]
-simplejson = [
-    {file = "simplejson-3.17.0-cp27-cp27m-macosx_10_13_x86_64.whl", hash = "sha256:87d349517b572964350cc1adc5a31b493bbcee284505e81637d0174b2758ba17"},
-    {file = "simplejson-3.17.0-cp27-cp27m-win32.whl", hash = "sha256:1d1e929cdd15151f3c0b2efe953b3281b2fd5ad5f234f77aca725f28486466f6"},
-    {file = "simplejson-3.17.0-cp27-cp27m-win_amd64.whl", hash = "sha256:1ea59f570b9d4916ae5540a9181f9c978e16863383738b69a70363bc5e63c4cb"},
-    {file = "simplejson-3.17.0-cp33-cp33m-win32.whl", hash = "sha256:8027bd5f1e633eb61b8239994e6fc3aba0346e76294beac22a892eb8faa92ba1"},
-    {file = "simplejson-3.17.0-cp33-cp33m-win_amd64.whl", hash = "sha256:22a7acb81968a7c64eba7526af2cf566e7e2ded1cb5c83f0906b17ff1540f866"},
-    {file = "simplejson-3.17.0-cp34-cp34m-win32.whl", hash = "sha256:17163e643dbf125bb552de17c826b0161c68c970335d270e174363d19e7ea882"},
-    {file = "simplejson-3.17.0-cp34-cp34m-win_amd64.whl", hash = "sha256:0fe3994207485efb63d8f10a833ff31236ed27e3b23dadd0bf51c9900313f8f2"},
-    {file = "simplejson-3.17.0-cp35-cp35m-win32.whl", hash = "sha256:4cf91aab51b02b3327c9d51897960c554f00891f9b31abd8a2f50fd4a0071ce8"},
-    {file = "simplejson-3.17.0-cp35-cp35m-win_amd64.whl", hash = "sha256:fc9051d249dd5512e541f20330a74592f7a65b2d62e18122ca89bf71f94db748"},
-    {file = "simplejson-3.17.0-cp36-cp36m-macosx_10_13_x86_64.whl", hash = "sha256:86afc5b5cbd42d706efd33f280fec7bd7e2772ef54e3f34cf6b30777cd19a614"},
-    {file = "simplejson-3.17.0-cp36-cp36m-win32.whl", hash = "sha256:926bcbef9eb60e798eabda9cd0bbcb0fca70d2779aa0aa56845749d973eb7ad5"},
-    {file = "simplejson-3.17.0-cp36-cp36m-win_amd64.whl", hash = "sha256:daaf4d11db982791be74b23ff4729af2c7da79316de0bebf880fa2d60bcc8c5a"},
-    {file = "simplejson-3.17.0-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:9a126c3a91df5b1403e965ba63b304a50b53d8efc908a8c71545ed72535374a3"},
-    {file = "simplejson-3.17.0-cp37-cp37m-win32.whl", hash = "sha256:fc046afda0ed8f5295212068266c92991ab1f4a50c6a7144b69364bdee4a0159"},
-    {file = "simplejson-3.17.0-cp37-cp37m-win_amd64.whl", hash = "sha256:7cce4bac7e0d66f3a080b80212c2238e063211fe327f98d764c6acbc214497fc"},
-    {file = "simplejson-3.17.0.tar.gz", hash = "sha256:2b4b2b738b3b99819a17feaf118265d0753d5536049ea570b3c43b51c4701e81"},
-    {file = "simplejson-3.17.0.win-amd64-py2.7.exe", hash = "sha256:1d346c2c1d7dd79c118f0cc7ec5a1c4127e0c8ffc83e7b13fc5709ff78c9bb84"},
-    {file = "simplejson-3.17.0.win-amd64-py3.3.exe", hash = "sha256:5cfd495527f8b85ce21db806567de52d98f5078a8e9427b18e251c68bd573a26"},
-    {file = "simplejson-3.17.0.win-amd64-py3.4.exe", hash = "sha256:8de378d589eccbc75941e480b4d5b4db66f22e4232f87543b136b1f093fff342"},
-    {file = "simplejson-3.17.0.win-amd64-py3.5.exe", hash = "sha256:f4b64a1031acf33e281fd9052336d6dad4d35eee3404c95431c8c6bc7a9c0588"},
-    {file = "simplejson-3.17.0.win-amd64-py3.6.exe", hash = "sha256:ad8dd3454d0c65c0f92945ac86f7b9efb67fa2040ba1b0189540e984df904378"},
-    {file = "simplejson-3.17.0.win-amd64-py3.7.exe", hash = "sha256:229edb079d5dd81bf12da952d4d825bd68d1241381b37d3acf961b384c9934de"},
-    {file = "simplejson-3.17.0.win32-py2.7.exe", hash = "sha256:4fd5f79590694ebff8dc980708e1c182d41ce1fda599a12189f0ca96bf41ad70"},
-    {file = "simplejson-3.17.0.win32-py3.3.exe", hash = "sha256:d140e9376e7f73c1f9e0a8e3836caf5eec57bbafd99259d56979da05a6356388"},
-    {file = "simplejson-3.17.0.win32-py3.4.exe", hash = "sha256:da00675e5e483ead345429d4f1374ab8b949fba4429d60e71ee9d030ced64037"},
-    {file = "simplejson-3.17.0.win32-py3.5.exe", hash = "sha256:7739940d68b200877a15a5ff5149e1599737d6dd55e302625650629350466418"},
-    {file = "simplejson-3.17.0.win32-py3.6.exe", hash = "sha256:60aad424e47c5803276e332b2a861ed7a0d46560e8af53790c4c4fb3420c26c2"},
-    {file = "simplejson-3.17.0.win32-py3.7.exe", hash = "sha256:1fbba86098bbfc1f85c5b69dc9a6d009055104354e0d9880bb00b692e30e0078"},
-]
 six = [
     {file = "six-1.14.0-py2.py3-none-any.whl", hash = "sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c"},
     {file = "six-1.14.0.tar.gz", hash = "sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a"},
@@ -724,13 +685,12 @@ wcwidth = [
     {file = "wcwidth-0.1.9.tar.gz", hash = "sha256:ee73862862a156bf77ff92b09034fc4825dd3af9cf81bc5b360668d425f3c5f1"},
 ]
 webargs = [
-    {file = "webargs-5.5.3-py2-none-any.whl", hash = "sha256:fc81c9f9d391acfbce406a319217319fd8b2fd862f7fdb5319ad06944f36ed25"},
-    {file = "webargs-5.5.3-py3-none-any.whl", hash = "sha256:4f04918864c7602886335d8099f9b8960ee698b6b914f022736ed50be6b71235"},
-    {file = "webargs-5.5.3.tar.gz", hash = "sha256:871642a2e0c62f21d5b78f357750ac7a87e6bc734c972f633aa5fb6204fbf29a"},
+    {file = "webargs-6.0.0-py2.py3-none-any.whl", hash = "sha256:dfe01cd3711cee9a3651bfd5ca67770ace4a6f35f3cae583aa8400bbf7706bb4"},
+    {file = "webargs-6.0.0.tar.gz", hash = "sha256:d66a056b3a40c5a3774a650fd349db5970cd91fa8f04ac50d00582c949b45b26"},
 ]
 werkzeug = [
-    {file = "Werkzeug-1.0.0-py2.py3-none-any.whl", hash = "sha256:6dc65cf9091cf750012f56f2cad759fa9e879f511b5ff8685e456b4e3bf90d16"},
-    {file = "Werkzeug-1.0.0.tar.gz", hash = "sha256:169ba8a33788476292d04186ab33b01d6add475033dfc07215e6d219cc077096"},
+    {file = "Werkzeug-1.0.1-py2.py3-none-any.whl", hash = "sha256:2de2a5db0baeae7b2d2664949077c2ac63fbd16d98da0ff71837f7d1dea3fd43"},
+    {file = "Werkzeug-1.0.1.tar.gz", hash = "sha256:6c80b1e5ad3665290ea39320b91e1be1e0d5f60652b964a3070216de83d2e47c"},
 ]
 zeroconf = [
     {file = "zeroconf-0.24.5-py3-none-any.whl", hash = "sha256:83c4f611338096cafea46509d08e26891800b75abdead43d13bb13094c459187"},
