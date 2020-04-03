@@ -43,7 +43,9 @@ labthing.add_view(
     "/dictionary",
 )
 labthing.add_view(
-    action_from(my_component.average_data, description="Take an averaged measurement"),
+    action_from(
+        my_component.average_data, description="Take an averaged measurement", task=True
+    ),
     "/average",
 )
 
