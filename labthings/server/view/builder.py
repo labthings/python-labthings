@@ -1,5 +1,15 @@
-from labthings.server.types import value_to_field, data_dict_to_schema
-from labthings.server.decorators import ThingProperty, PropertySchema, Doc
+from labthings.server.types import (
+    value_to_field,
+    data_dict_to_schema,
+    function_signature_to_schema,
+)
+from labthings.server.decorators import (
+    ThingProperty,
+    PropertySchema,
+    ThingAction,
+    use_args,
+    Doc,
+)
 from . import View
 
 from flask import send_from_directory, abort
@@ -62,6 +72,33 @@ def property_of(
     return generated_class
 
 
+def action_from(function, name: str = None, description=None):
+
+    # Create a class name
+    if not name:
+        name = f"Action_{function.__name__}"
+
+    # Create inner functions
+    def _post(self, args):
+        return function(**args)
+
+    # Generate a basic property class
+    generated_class = type(name, (View, object), {"post": _post})
+
+    # Add decorators for arguments etc
+    action_schema = function_signature_to_schema(function)
+    generated_class.post = use_args(action_schema)(generated_class.post)
+
+    generated_class = ThingAction(generated_class)
+
+    if description:
+        generated_class = Doc(description=description, summary=description)(
+            generated_class
+        )
+
+    return generated_class
+
+
 def static_from(static_folder: str, name=None):
 
     # Create a class name
@@ -74,7 +111,7 @@ def static_from(static_folder: str, name=None):
         return send_from_directory(static_folder, path)
 
     # Generate a basic property class
-    generated_class = type(name, (View, object), {},)
+    generated_class = type(name, (View, object), {})
 
     if static_folder:
         generated_class.get = _get

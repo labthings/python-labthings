@@ -5,7 +5,7 @@ import atexit
 import logging
 
 from labthings.server.quick import create_app
-from labthings.server.view.builder import property_of
+from labthings.server.view.builder import property_of, action_from
 
 from components.pdf_component import PdfComponent
 
@@ -41,6 +41,10 @@ labthing.add_view(
         description="A big dictionary of little properties",
     ),
     "/dictionary",
+)
+labthing.add_view(
+    action_from(my_component.average_data, description="Take an averaged measurement"),
+    "/average",
 )
 
 atexit.register(cleanup)
