@@ -1,4 +1,5 @@
 from gevent import Greenlet, GreenletExit
+from gevent.thread import get_ident
 import datetime
 import logging
 import traceback
@@ -54,7 +55,7 @@ class TaskThread(Greenlet):
     @property
     def ident(self):
         """Compatibility with threading interface. A small, unique non-negative integer that identifies this object."""
-        return self.minimal_ident
+        return get_ident(self)
 
     @property
     def state(self):
@@ -124,7 +125,7 @@ class TaskThread(Greenlet):
 
 
 class ThreadLogHandler(logging.Handler):
-    def __init__(self, thread=None, dest=None):
+    def __init__(self, thread=None, dest=None, level=logging.WARNING):
         """Set up a log handler that appends messages to a list.
 
         This log handler will first filter by ``thread``, if one is
@@ -141,8 +142,9 @@ class ThreadLogHandler(logging.Handler):
         lot of log messages, you may run into memory problems.
         """
         logging.Handler.__init__(self)
+        self.setLevel(level)
         self.thread = thread
-        self.dest = dest if dest else []
+        self.dest = dest if dest is not None else []
         self.addFilter(self.check_thread)
 
     def check_thread(self, record):
@@ -150,8 +152,7 @@ class ThreadLogHandler(logging.Handler):
         if self.thread is None:
             return 1
 
-        thread_ident = getattr(record.thread, "ident", None)
-        if record.thread == self.thread.ident:
+        if get_ident() == get_ident(self.thread):
             return 1
         return 0
 
@@ -162,6 +163,7 @@ class ThreadLogHandler(logging.Handler):
         for k in ["created", "levelname", "levelno", "lineno", "filename"]:
             record_dict[k] = getattr(record, k)
         self.dest.append(record_dict)
+        print(self.thread.log)
         # FIXME: make sure this doesn't become a memory disaster!
         # We probably need to check the size of the list...
         # TODO: think about whether any of the keys are security flaws
