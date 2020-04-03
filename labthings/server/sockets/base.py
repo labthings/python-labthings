@@ -23,8 +23,13 @@ class SocketSubscriber:
         property_name = str(getattr(viewcls, "endpoint", "unknown"))
 
         response = encode_json(
-            {"messageType": "propertyStatus", "data": {property_name: property_value},}
+            {"messageType": "propertyStatus", "data": {property_name: property_value}}
         )
+
+        self.ws.send(response)
+
+    def event_notify(self, event_dict: dict):
+        response = encode_json({"messageType": "event", "data": event_dict})
 
         self.ws.send(response)
 
@@ -87,7 +92,6 @@ class BaseSockets(ABC):
 
 def process_socket_message(message: str):
     if message:
-        # return f"Recieved: {message}"
         return None
     else:
         return None

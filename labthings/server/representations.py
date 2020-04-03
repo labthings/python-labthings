@@ -1,11 +1,30 @@
 from flask import make_response, current_app
-from json import dumps
+from json import dumps, JSONEncoder
 
 from ..core.utilities import PY3
 
 
-def encode_json(data):
-    """Makes JSON encoded data using the current Flask apps JSON settings"""
+class LabThingsJSONEncoder(JSONEncoder):
+    """
+    A custom JSON encoder, with type conversions for PiCamera fractions, Numpy integers, and Numpy arrays
+    """
+
+    def default(self, o):
+        return JSONEncoder.default(self, o)
+
+
+def encode_json(data, encoder=LabThingsJSONEncoder, **settings):
+    """Makes JSON encoded data using the LabThings JSON encoder"""
+
+    # always end the json dumps with a new line
+    # see https://github.com/mitsuhiko/flask/pull/1262
+    dumped = dumps(data, cls=encoder, **settings) + "\n"
+
+    return dumped
+
+
+def output_json(data, code, headers=None):
+    """Makes a Flask response with a JSON encoded body, using app JSON settings"""
 
     settings = current_app.config.get("LABTHINGS_JSON", {})
     encoder = current_app.json_encoder
@@ -17,17 +36,7 @@ def encode_json(data):
         settings.setdefault("indent", 4)
         settings.setdefault("sort_keys", not PY3)
 
-    # always end the json dumps with a new line
-    # see https://github.com/mitsuhiko/flask/pull/1262
-    dumped = dumps(data, cls=encoder, **settings) + "\n"
-
-    return dumped
-
-
-def output_json(data, code, headers=None):
-    """Makes a Flask response with a JSON encoded body"""
-
-    dumped = encode_json(data) + "\n"
+    dumped = encode_json(data, encoder=encoder, **settings)
 
     resp = make_response(dumped, code)
     resp.headers.extend(headers or {})

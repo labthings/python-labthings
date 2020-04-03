@@ -52,6 +52,11 @@ class TaskThread(Greenlet):
         return self._ID
 
     @property
+    def ident(self):
+        """Compatibility with threading interface. A small, unique non-negative integer that identifies this object."""
+        return self.minimal_ident
+
+    @property
     def state(self):
         return {
             "function": self.target_string,
@@ -106,7 +111,8 @@ class TaskThread(Greenlet):
             finally:
                 self._end_time = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
                 logging.getLogger().removeHandler(handler)  # Stop logging this thread
-                    # If we don't remove the handler, it's a memory leak.
+                # If we don't remove the handler, it's a memory leak.
+
         return wrapped
 
     def kill(self, exception=TaskKillException, block=True, timeout=None):
@@ -138,15 +144,17 @@ class ThreadLogHandler(logging.Handler):
         self.thread = thread
         self.dest = dest if dest else []
         self.addFilter(self.check_thread)
-        
+
     def check_thread(self, record):
         """Determine if a thread matches the desired record"""
         if self.thread is None:
             return 1
+
+        thread_ident = getattr(record.thread, "ident", None)
         if record.thread == self.thread.ident:
             return 1
         return 0
-        
+
     def emit(self, record):
         """Do something with a logged message"""
         print("emitting a log")
@@ -158,4 +166,3 @@ class ThreadLogHandler(logging.Handler):
         # We probably need to check the size of the list...
         # TODO: think about whether any of the keys are security flaws
         # (this is why I don't dump the whole logrecord)
-

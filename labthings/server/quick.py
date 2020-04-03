@@ -46,11 +46,6 @@ def create_app(
     if handle_cors:
         cors_handler = CORS(app, resources=f"{prefix}/*")
 
-    # Handle errors
-    if handle_errors:
-        error_handler = JSONExceptionHandler()
-        error_handler.init_app(app)
-
     # Create a LabThing
     labthing = LabThing(
         app,
@@ -59,13 +54,7 @@ def create_app(
         description=description,
         types=types,
         version=str(version),
+        format_flask_exceptions=handle_errors,
     )
 
-    # Store references to added-in handlers
-    if cors_handler:
-        labthing.handlers["cors"] = cors_handler
-    if error_handler:
-        labthing.handlers["error"] = error_handler
-
     return app, labthing
-

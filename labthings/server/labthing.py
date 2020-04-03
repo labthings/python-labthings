@@ -6,6 +6,9 @@ from . import EXTENSION_NAME  # TODO: Move into .names
 from .names import TASK_ENDPOINT, TASK_LIST_ENDPOINT, EXTENSION_LIST_ENDPOINT
 from .extensions import BaseExtension
 from .utilities import description_from_view
+from .exceptions import JSONExceptionHandler
+from .logging import LabThingLogger
+from .representations import LabThingsJSONEncoder
 from .spec.apispec import rule_to_apispec_path
 from .spec.utilities import get_spec
 from .spec.td import ThingDescription
@@ -30,6 +33,7 @@ class LabThing:
         description: str = "",
         types: list = [],
         version: str = "0.0.0",
+        format_flask_exceptions: bool = True,
     ):
         self.app = app  # Becomes a Flask app
         self.sockets = None  # Becomes a Socket(app) websocket handler
@@ -59,8 +63,13 @@ class LabThing:
         self._title = title
         self._version = version
 
-        # Store handlers for things like errors and CORS
-        self.handlers = {}
+        # Flags for error handling
+        self.format_flask_exceptions = format_flask_exceptions
+
+        # Logging handler
+        # TODO: Add cleanup code
+        self.log_handler = LabThingLogger(self)
+        logging.getLogger().addHandler(self.log_handler)
 
         self.spec = APISpec(
             title=self.title,
@@ -110,6 +119,14 @@ class LabThing:
         app.extensions = getattr(app, "extensions", {})
         app.extensions[EXTENSION_NAME] = self
 
+        # Flask error formatter
+        if self.format_flask_exceptions:
+            error_handler = JSONExceptionHandler()
+            error_handler.init_app(app)
+
+        # Custom JSON encoder
+        app.json_encoder = LabThingsJSONEncoder
+
         # Add resources, if registered before tying to a Flask app
         if len(self.views) > 0:
             for resource, urls, endpoint, kwargs in self.views:
@@ -150,7 +167,6 @@ class LabThing:
         wssub = SocketSubscriber(ws)
         self.subscribers.add(wssub)
         logging.info(f"Added subscriber {wssub}")
-        logging.debug(list(self.subscribers))
         # Start the socket connection handler loop
         socket_handler_loop(ws)
         # Remove the subscriber once the loop returns

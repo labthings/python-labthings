@@ -9,6 +9,7 @@ print("Monkey patching successful")
 import random
 import math
 import time
+import logging
 
 from labthings.server.quick import create_app
 from labthings.server.decorators import (
@@ -64,6 +65,7 @@ class MyComponent:
         """Average n-sets of data. Emulates a measurement that may take a while."""
         summed_data = self.data
 
+        logging.warning("Starting an averaged measurement. This may take a while...")
         for i in range(n):
             summed_data = [summed_data[i] + el for i, el in enumerate(self.data)]
             update_task_data({"data": summed_data})
@@ -190,4 +192,4 @@ if __name__ == "__main__":
     from labthings.server.wsgi import Server
 
     server = Server(app)
-    server.run(host="0.0.0.0", port=5000, debug=False)
+    server.run(host="0.0.0.0", port=5000, debug=False, zeroconf=False)
