@@ -47,7 +47,7 @@ labthing.add_view(
         my_component.average_data,
         description="Take an averaged measurement",
         task=True,  # Is the action a long-running task?
-        safe=True,  # Is the state of the Thing changed by calling the action?
+        safe=True,  # Is the state of the Thing unchanged by calling the action?
         idempotent=True,  # Can the action be called repeatedly with the same result?
     ),
     "/average",
