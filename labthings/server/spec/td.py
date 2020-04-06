@@ -168,6 +168,16 @@ class ThingDescription:
             "forms": self.view_to_thing_action_forms(rules, view),
         }
 
+        # Look for a _propertySchema in the Property classes API SPec
+        action_schema = get_spec(view.post).get("_params")
+
+        if action_schema:
+            # Ensure valid schema type
+            action_schema = convert_schema(action_schema, self.apispec)
+
+            # Add schema to prop description
+            action_description["input"] = schema_to_json(action_schema, self.apispec)
+
         return action_description
 
     def view_to_thing_action_forms(self, rules: list, view: View):
