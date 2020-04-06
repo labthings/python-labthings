@@ -15,9 +15,9 @@ from .spec.td import ThingDescription
 from .decorators import tag
 from .sockets import Sockets, SocketSubscriber, socket_handler_loop
 
-from .views.extensions import ExtensionList
-from .views.tasks import TaskList, TaskView
-from .views.docs import docs_blueprint, SwaggerUIView
+from .default_views.extensions import ExtensionList
+from .default_views.tasks import TaskList, TaskView
+from .default_views.docs import docs_blueprint, SwaggerUIView
 
 from ..core.utilities import get_docstring
 

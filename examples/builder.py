@@ -1,17 +1,15 @@
-import uuid
-import types
-import functools
-import atexit
+# Monkey patch for easy concurrency
+from labthings.server.monkey import patch_all
+
+patch_all()
+
+# Import requirements
 import logging
 
 from labthings.server.quick import create_app
 from labthings.server.view.builder import property_of, action_from
 
 from components.pdf_component import PdfComponent
-
-
-def cleanup():
-    logging.info("Exiting. Running any cleanup code here...")
 
 
 # Create LabThings Flask app
@@ -53,7 +51,6 @@ labthing.add_view(
     "/average",
 )
 
-atexit.register(cleanup)
 
 # Start the app
 if __name__ == "__main__":
