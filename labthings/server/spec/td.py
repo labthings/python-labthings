@@ -157,6 +157,15 @@ class ThingDescription:
     def view_to_thing_action(self, rules: list, view: View):
         action_urls = [rule_to_path(rule) for rule in rules]
 
+        # Check if action is safe
+        is_safe = get_spec(view.post).get("_safe", False) or get_spec(view).get(
+            "_safe", False
+        )
+
+        is_idempotent = get_spec(view.post).get("_idempotent", False) or get_spec(
+            view
+        ).get("_idempotent", False)
+
         # Basic description
         action_description = {
             "title": view.__name__,
@@ -166,6 +175,8 @@ class ThingDescription:
             # TODO: Make URLs absolute
             "links": [{"href": f"{url}"} for url in action_urls],
             "forms": self.view_to_thing_action_forms(rules, view),
+            "safe": is_safe,
+            "idempotent": is_idempotent,
         }
 
         # Look for a _propertySchema in the Property classes API SPec

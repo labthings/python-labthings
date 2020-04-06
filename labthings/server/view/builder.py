@@ -11,6 +11,8 @@ from labthings.server.decorators import (
     marshal_task,
     use_args,
     Doc,
+    Safe,
+    Idempotent,
 )
 from . import View
 
@@ -74,7 +76,14 @@ def property_of(
     return generated_class
 
 
-def action_from(function, name: str = None, description=None, task=False):
+def action_from(
+    function,
+    name: str = None,
+    description=None,
+    task=False,
+    safe=False,
+    idempotent=False,
+):
 
     # Create a class name
     if not name:
@@ -107,6 +116,12 @@ def action_from(function, name: str = None, description=None, task=False):
         generated_class = Doc(description=description, summary=description)(
             generated_class
         )
+
+    if safe:
+        generated_class = Safe(generated_class)
+
+    if idempotent:
+        generated_class = Idempotent(generated_class)
 
     return generated_class
 

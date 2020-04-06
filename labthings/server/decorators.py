@@ -96,7 +96,7 @@ def marshal_task(f):
 
         if not isinstance(data, TaskThread):
             raise TypeError(
-                f"Function {f.__name__} expected to return a TaskThread object, but instead returned a {type(data).__name__}. If it does not return a task, remove the @marshall_task decorator from {f.__name__}.",
+                f"Function {f.__name__} expected to return a TaskThread object, but instead returned a {type(data).__name__}. If it does not return a task, remove the @marshall_task decorator from {f.__name__}."
             )
         return make_response(TaskSchema().jsonify(data), code, headers)
 
@@ -119,6 +119,40 @@ def ThingAction(viewcls: View):
 
 
 thing_action = ThingAction
+
+
+def Safe(viewcls: View):
+    """Decorator to tag a view or function as being safe
+
+    Args:
+        viewcls (View): View class to tag as Safe
+
+    Returns:
+        View: View class with Safe spec tags
+    """
+    # Update Views API spec
+    update_spec(viewcls, {"_safe": True})
+    return viewcls
+
+
+safe = Safe
+
+
+def Idempotent(viewcls: View):
+    """Decorator to tag a view or function as being idempotent
+
+    Args:
+        viewcls (View): View class to tag as idempotent
+
+    Returns:
+        View: View class with idempotent spec tags
+    """
+    # Update Views API spec
+    update_spec(viewcls, {"_idempotent": True})
+    return viewcls
+
+
+idempotent = Idempotent
 
 
 def ThingProperty(viewcls):
