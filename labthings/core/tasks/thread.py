@@ -78,7 +78,7 @@ class TaskThread(Greenlet):
         # Store data to be used before task finishes (eg for real-time plotting)
         self.data.update(data)
 
-    def _run(self):
+    def _run(self):  # pylint: disable=E0202
         return self._thread_proc(self._target)(*self._args, **self._kwargs)
 
     def _thread_proc(self, f):
@@ -158,12 +158,10 @@ class ThreadLogHandler(logging.Handler):
 
     def emit(self, record):
         """Do something with a logged message"""
-        print("emitting a log")
         record_dict = {"message": record.getMessage()}
         for k in ["created", "levelname", "levelno", "lineno", "filename"]:
             record_dict[k] = getattr(record, k)
         self.dest.append(record_dict)
-        print(self.thread.log)
         # FIXME: make sure this doesn't become a memory disaster!
         # We probably need to check the size of the list...
         # TODO: think about whether any of the keys are security flaws

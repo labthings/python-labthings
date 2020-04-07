@@ -10,6 +10,7 @@ import random
 import math
 import time
 import logging
+import atexit
 
 from labthings.server.quick import create_app
 from labthings.server.decorators import (
@@ -168,6 +169,13 @@ class MeasurementAction(View):
         # Return the task information
         return task
 
+
+# Handle exit cleanup
+def cleanup():
+    logging.info("Exiting. Running any cleanup code here...")
+
+
+atexit.register(cleanup)
 
 # Create LabThings Flask app
 app, labthing = create_app(

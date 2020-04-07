@@ -9,7 +9,6 @@ class LabThingLogger(StreamHandler):
 
     def emit(self, record):
         log_event = self.rest_format_record(record)
-        print(log_event)
 
         # Broadcast to subscribers
         subscribers = getattr(self.labthing, "subscribers", [])

@@ -1,17 +1,15 @@
-import uuid
-import types
-import functools
-import atexit
+# Monkey patch for easy concurrency
+from labthings.server.monkey import patch_all
+
+patch_all()
+
+# Import requirements
 import logging
 
 from labthings.server.quick import create_app
-from labthings.server.view.builder import property_of
+from labthings.server.view.builder import property_of, action_from
 
 from components.pdf_component import PdfComponent
-
-
-def cleanup():
-    logging.info("Exiting. Running any cleanup code here...")
 
 
 # Create LabThings Flask app
@@ -42,8 +40,17 @@ labthing.add_view(
     ),
     "/dictionary",
 )
+labthing.add_view(
+    action_from(
+        my_component.average_data,
+        description="Take an averaged measurement",
+        task=True,  # Is the action a long-running task?
+        safe=True,  # Is the state of the Thing unchanged by calling the action?
+        idempotent=True,  # Can the action be called repeatedly with the same result?
+    ),
+    "/average",
+)
 
-atexit.register(cleanup)
 
 # Start the app
 if __name__ == "__main__":

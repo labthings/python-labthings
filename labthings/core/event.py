@@ -1,11 +1,13 @@
 from gevent.hub import getcurrent
 import gevent
 import time
+import logging
 
 from gevent.monkey import get_original
 
 # Guarantee that Task threads will always be proper system threads, regardless of Gevent patches
 Event = get_original("threading", "Event")
+
 
 class ClientEvent(object):
     """

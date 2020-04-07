@@ -40,7 +40,6 @@ def ext_on_my_component(component):
 
 
 static_folder = path_relative_to(__file__, "static")
-print(static_folder)
 
 example_extension = BaseExtension(
     "org.labthings.examples.extension", static_folder=static_folder

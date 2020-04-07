@@ -55,7 +55,7 @@ class BaseExtension:
 
         self.static_view_class = static_from(static_folder)
         self.add_view(
-            self.static_view_class, f"{static_url_path}/<path:path>", view_id="static",
+            self.static_view_class, f"{static_url_path}/<path:path>", view_id="static"
         )
 
     @property
