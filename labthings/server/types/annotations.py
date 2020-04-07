@@ -69,9 +69,3 @@ def function_signature_to_schema(function: callable):
         schema_dict[k] = converter.convert(p)
 
     return schema_dict
-
-
-def param_to_field(value):
-    converter = AnnotationConverter()
-
-    return converter.convert(value)
