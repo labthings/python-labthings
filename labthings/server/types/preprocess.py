@@ -1,7 +1,7 @@
 # Functions to handle conversion of common Python types into serialisable Python types
 import inspect
 
-from .registry import TypeRegistry
+from .registry import PRIMITIVE_TYPES
 
 
 def ndarray_to_list(o):
@@ -55,7 +55,7 @@ def to_string(o):
 # Map of Python type conversions
 DEFAULT_BUILTIN_CONVERSIONS = {
     "numpy.ndarray": ndarray_to_list,
-    "numpy.int": to_int,
+    "numpy.integer": to_int,
     "fractions.Fraction": to_float,
 }
 
@@ -69,24 +69,26 @@ def make_primitive(value):
     Returns:
         Converted data if possible, otherwise original data
     """
-    # FIXME: Better handling of type registries
-    _primitives = TypeRegistry()._registry.keys()
+    # Return if already primitive
+    if type(value) in PRIMITIVE_TYPES:
+        return value
 
     value_typestrings = [
         x.__module__ + "." + x.__name__ for x in inspect.getmro(type(value))
     ]
 
+    return_value = None
     for typestring in value_typestrings:
         if typestring in DEFAULT_BUILTIN_CONVERSIONS:
-            value = DEFAULT_BUILTIN_CONVERSIONS.get(typestring)(value)
+            return_value = DEFAULT_BUILTIN_CONVERSIONS.get(typestring)(value)
             break
 
     # If the final type is not primitive
-    if not type(value) in _primitives:
+    if not type(return_value) in PRIMITIVE_TYPES:
         # Fall back to a string representation
-        value = str(value)
+        return_value = to_string(value)
 
-    return value
+    return return_value
 
 
 # TODO: Deserialiser with inverse defaults

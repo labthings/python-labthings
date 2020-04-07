@@ -3,9 +3,27 @@ from labthings.server import fields
 from marshmallow.base import FieldABC
 from datetime import date, datetime, time, timedelta
 from decimal import Decimal
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List
 from uuid import UUID
 from inspect import _empty
+
+
+PRIMITIVE_TYPES = [
+    bool,
+    date,
+    datetime,
+    Decimal,
+    float,
+    int,
+    str,
+    time,
+    timedelta,
+    UUID,
+    dict,
+    Dict,
+    List,
+    list,
+]
 
 
 def _field_factory(field: FieldABC):
