@@ -41,4 +41,12 @@ jobs:
         run: poetry run black . --check
 
       - name: Test with pytest
-        run: poetry run pytest --cov-report term-missing --cov=labthings ./tests
+        run: poetry run pytest --cov-report --cov-report=xml term-missing --cov=labthings ./tests
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
