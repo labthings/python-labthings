@@ -1,4 +1,5 @@
 from labthings.server import types, fields
+from labthings.server.types.registry import TypeRegistry, _field_factory
 import pytest
 
 from fractions import Fraction
@@ -108,3 +109,12 @@ def test_function_signature_to_schema():
         "untyped": True,
     }
     assert gen_schema.dump(data) == expected_schema.dump(data)
+
+
+def test_type_registry():
+    registry = TypeRegistry()
+
+    assert registry.has(str) == True
+
+    with pytest.raises(TypeError):
+        registry.get(object)
