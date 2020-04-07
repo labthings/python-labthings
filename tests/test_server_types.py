@@ -118,3 +118,23 @@ def test_type_registry():
 
     with pytest.raises(TypeError):
         registry.get(object)
+
+
+def test_annotation_converter():
+    from inspect import Parameter
+
+    converter = types.AnnotationConverter()
+
+    test_parameter = Parameter(
+        "test", Parameter.KEYWORD_ONLY, annotation=int, default=1
+    )
+    test_parameter_field = converter.convert(test_parameter)
+    assert isinstance(test_parameter_field, fields.Field)
+
+    test_type = int
+    test_type_field = converter.convert(test_type)
+    assert isinstance(test_type_field, fields.Field)
+
+    test_value = 5
+    test_value_field = converter.convert(test_value)
+    assert isinstance(test_value_field, fields.Field)
