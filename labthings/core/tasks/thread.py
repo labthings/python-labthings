@@ -78,7 +78,7 @@ class TaskThread(Greenlet):
         # Store data to be used before task finishes (eg for real-time plotting)
         self.data.update(data)
 
-    def _run(self):
+    def _run(self):  # pylint: disable=E0202
         return self._thread_proc(self._target)(*self._args, **self._kwargs)
 
     def _thread_proc(self, f):
