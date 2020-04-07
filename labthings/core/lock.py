@@ -15,12 +15,7 @@ class RLock(object):
     Instances are context managers.
     """
 
-    __slots__ = (
-        '_block',
-        '_owner',
-        '_count',
-        '__weakref__',
-    )
+    __slots__ = ("_block", "_owner", "_count", "__weakref__")
 
     def __init__(self):
         self._block = Semaphore(1)
@@ -33,7 +28,8 @@ class RLock(object):
             id(self),
             self._block,
             self._count,
-            self._owner)
+            self._owner,
+        )
 
     def acquire(self, blocking=True, timeout=None):
         """

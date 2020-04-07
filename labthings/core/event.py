@@ -7,6 +7,7 @@ from gevent.monkey import get_original
 # Guarantee that Task threads will always be proper system threads, regardless of Gevent patches
 Event = get_original("threading", "Event")
 
+
 class ClientEvent(object):
     """
     An event-signaller object with per-client setting and waiting.

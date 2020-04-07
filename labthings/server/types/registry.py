@@ -1,4 +1,3 @@
-
 from labthings.server import fields
 
 from marshmallow.base import FieldABC
@@ -7,6 +6,7 @@ from decimal import Decimal
 from typing import Dict, List, Tuple, Union
 from uuid import UUID
 from inspect import _empty
+
 
 def _field_factory(field: FieldABC):
     """
@@ -41,7 +41,7 @@ class TypeRegistry:
                 UUID: fields.UUID,
                 dict: fields.Dict,
                 Dict: fields.Dict,
-                _empty: fields.Field
+                _empty: fields.Field,
             }.items()
         }
 
@@ -57,4 +57,3 @@ class TypeRegistry:
 
     def has(self, target: type) -> bool:
         return target in self._registry
-
