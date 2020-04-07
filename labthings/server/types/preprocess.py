@@ -1,5 +1,4 @@
 # Functions to handle conversion of common Python types into serialisable Python types
-from apispec.ext.marshmallow.field_converter import DEFAULT_FIELD_MAPPING
 import inspect
 
 from .registry import TypeRegistry

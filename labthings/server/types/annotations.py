@@ -1,7 +1,7 @@
 from .registry import TypeRegistry
 from labthings.server import fields
 
-from typing import Dict, List, Tuple, Union
+from typing import List, Tuple
 from inspect import Parameter
 from marshmallow.base import FieldABC
 

@@ -1,4 +1,4 @@
-from flask import abort, url_for
+from flask import abort
 
 from ..decorators import marshal_with, Tag
 from ..view import View

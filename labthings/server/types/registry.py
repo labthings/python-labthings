@@ -3,7 +3,7 @@ from labthings.server import fields
 from marshmallow.base import FieldABC
 from datetime import date, datetime, time, timedelta
 from decimal import Decimal
-from typing import Dict, List, Tuple, Union
+from typing import Dict, Tuple
 from uuid import UUID
 from inspect import _empty
 

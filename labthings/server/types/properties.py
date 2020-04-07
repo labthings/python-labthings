@@ -5,7 +5,7 @@ from labthings.server import fields
 from labthings.core.utilities import rapply
 
 from marshmallow.base import FieldABC
-from typing import Dict, List, Tuple, Union
+from typing import List, Tuple, Union
 import copy
 
 
