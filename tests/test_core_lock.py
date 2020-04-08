@@ -5,28 +5,12 @@ from gevent.hub import getcurrent
 # Fixtures
 
 
-@pytest.fixture
-def rlock():
-    return lock.RLock()
-
-
-@pytest.fixture
-def strictlock():
-    return lock.StrictLock()
-
-
-@pytest.fixture
-def compositelock():
-    return lock.CompositeLock([lock.StrictLock(), lock.StrictLock()])
-
-
 @pytest.fixture(
     params=[
-        lock.RLock(),
         lock.StrictLock(),
         lock.CompositeLock([lock.StrictLock(), lock.StrictLock()]),
     ],
-    ids=["RLock", "StrictLock", "CompositeLock"],
+    ids=["StrictLock", "CompositeLock"],
 )
 def this_lock(request):
     return request.param
@@ -77,6 +61,8 @@ def test_rlock_reentry(this_lock):
 
 
 def test_rlock_block(this_lock):
+    from labthings.core.exceptions import LockError
+
     # Acquire lock
     assert this_lock.acquire()
 
@@ -87,7 +73,8 @@ def test_rlock_block(this_lock):
     assert not this_lock._is_owned()
 
     # Assert acquisition fails
-    assert not this_lock.acquire(blocking=True, timeout=0.01)
+    with pytest.raises(LockError):
+        this_lock.acquire(blocking=True, timeout=0.01)
 
     # Ensure an unheld lock cannot be released
     with pytest.raises(RuntimeError):

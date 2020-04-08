@@ -96,20 +96,20 @@ class StrictLock:
     def locked(self):
         return self._lock.locked()
 
-    def acquire(self, blocking=True, timeout=None):
+    def acquire(self, blocking=True, timeout=None, _strict=True):
         if not timeout:
             timeout = self.timeout
-        return self._lock.acquire(blocking, timeout=timeout)
+        result = self._lock.acquire(blocking, timeout=timeout)
+        if _strict and not result:
+            raise LockError("ACQUIRE_ERROR", self)
+        else:
+            return result
 
     def __enter__(self):
-        result = self._lock.acquire(blocking=True, timeout=self.timeout)
-        if result:
-            return result
-        else:
-            raise LockError("ACQUIRE_ERROR", self)
+        return self.acquire(blocking=True, timeout=self.timeout)
 
     def __exit__(self, *args):
-        self._lock.release()
+        self.release()
 
     def release(self):
         self._lock.release()
@@ -149,25 +149,23 @@ class CompositeLock:
             timeout = self.timeout
 
         lock_all = all(
-            [lock.acquire(blocking=blocking, timeout=timeout) for lock in self.locks]
+            [
+                lock.acquire(blocking=blocking, timeout=timeout, _strict=False)
+                for lock in self.locks
+            ]
         )
 
         if not lock_all:
             self._emergency_release()
-            return False
+            raise LockError("ACQUIRE_ERROR", self)
 
         return True
 
     def __enter__(self):
-        result = (lock.acquire(blocking=True) for lock in self.locks)
-        if all(result):
-            return result
-        else:
-            raise LockError("ACQUIRE_ERROR", self)
+        return self.acquire(blocking=True, timeout=self.timeout)
 
     def __exit__(self, *args):
-        for lock in self.locks:
-            lock.release()
+        return self.release()
 
     def release(self):
         # If not all child locks are owner by caller
