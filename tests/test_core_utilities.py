@@ -166,12 +166,24 @@ def test_create_from_path():
 
 
 def test_camel_to_snake():
-    assert utilities.camel_to_snake("SomeCamelString") == "some_camel_string"
+    assert utilities.camel_to_snake("someCamelString") == "some_camel_string"
 
 
 def test_camel_to_spine():
-    assert utilities.camel_to_spine("SomeCamelString") == "some-camel-string"
+    assert utilities.camel_to_spine("someCamelString") == "some-camel-string"
 
 
-def test_snake_to_spinee():
+def test_snake_to_spine():
     assert utilities.snake_to_spine("some_snake_string") == "some-snake-string"
+
+
+def test_snake_to_camel():
+    assert utilities.snake_to_camel("some_snake_string") == "someSnakeString"
+
+
+def test_path_relative_to():
+    import os
+
+    assert utilities.path_relative_to(
+        "/path/to/file.extension", "joinpath", "joinfile.extension"
+    ) == os.path.abspath("/path/to/joinpath/joinfile.extension")
