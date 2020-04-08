@@ -47,19 +47,6 @@ def test_get_summary(example_class):
     assert utilities.get_summary(example_class.class_method_no_docstring) == ""
 
 
-# def test_rupdate():
-#    d1 = {"a": "String", "b": 5, "c": [], "d": {"a": "String", "b": 5, "c": []}}
-#
-#    d2 = {
-#        "a": "String 2",
-#        "b": 50,
-#        "c": [10, 20, 30, 40, 50],
-#        "d": {"a": "String 2d", "b": 50, "c": [10, 20, 30, 40, 50], "e": ["New list"]},
-#    }
-#
-#    assert utilities.rupdate(d1, d2) == d2
-
-
 def test_rupdate_granular():
     # Update string value
     s1 = {
