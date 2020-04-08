@@ -113,7 +113,7 @@ def test_camel_to_snake():
 
 
 def camel_to_spine():
-    assert utilities.camel_to_snake("SomeCamelString") == "some-camel-string"
+    assert utilities.camel_to_spine("SomeCamelString") == "some-camel-string"
 
 
 def test_snake_to_spinee():
