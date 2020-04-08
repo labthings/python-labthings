@@ -47,17 +47,74 @@ def test_get_summary(example_class):
     assert utilities.get_summary(example_class.class_method_no_docstring) == ""
 
 
-def test_rupdate():
-    d1 = {"a": "String", "b": 5, "c": [], "d": {"a": "String", "b": 5, "c": []}}
+# def test_rupdate():
+#    d1 = {"a": "String", "b": 5, "c": [], "d": {"a": "String", "b": 5, "c": []}}
+#
+#    d2 = {
+#        "a": "String 2",
+#        "b": 50,
+#        "c": [10, 20, 30, 40, 50],
+#        "d": {"a": "String 2d", "b": 50, "c": [10, 20, 30, 40, 50], "e": ["New list"]},
+#    }
+#
+#    assert utilities.rupdate(d1, d2) == d2
 
-    d2 = {
-        "a": "String 2",
-        "b": 50,
-        "c": [10, 20, 30, 40, 50],
-        "d": {"a": "String 2d", "b": 50, "c": [10, 20, 30, 40, 50]},
+
+def test_rupdate_granular():
+    # Update string value
+    s1 = {
+        "a": "String",
     }
+    s2 = {
+        "a": "String 2",
+    }
+    assert utilities.rupdate(s1, s2) == s2
 
+    # Update int value
+    i1 = {
+        "b": 5,
+    }
+    i2 = {"b": 50}
+    assert utilities.rupdate(i1, i2) == i2
+
+    # Update list elements
+    l1 = {"c": []}
+    l2 = {"c": [1, 2, 3, 4]}
+    assert utilities.rupdate(l1, l2) == l2
+
+    # Extend list elements
+    l1 = {"c": [1, 2, 3]}
+    l2 = {"c": [4, 5, 6]}
+    assert utilities.rupdate(l1, l2)["c"] == [1, 2, 3, 4, 5, 6]
+
+    # Merge dictionaries
+    d1 = {"d": {"a": "String", "b": 5, "c": []}}
+    d2 = {
+        "d": {"a": "String 2", "b": 50, "c": [1, 2, 3, 4, 5]},
+    }
     assert utilities.rupdate(d1, d2) == d2
+
+    # Replace value with list
+    ml1 = {"k": True}
+    ml2 = {"k": [1, 2, 3]}
+    assert utilities.rupdate(ml1, ml2) == ml2
+
+    # Create missing value
+    ms1 = {}
+    ms2 = {"k": "v"}
+    assert utilities.rupdate(ms1, ms2) == ms2
+
+    # Create missing list
+    ml1 = {}
+    ml2 = {"k": [1, 2, 3]}
+    assert utilities.rupdate(ml1, ml2) == ml2
+
+    # Create missing dictionary
+    md1 = {}
+    md2 = {
+        "d": {"a": "String 2", "b": 50, "c": [1, 2, 3, 4, 5]},
+    }
+    assert utilities.rupdate(md1, md2) == md2
 
 
 def test_rapply():
@@ -112,7 +169,7 @@ def test_camel_to_snake():
     assert utilities.camel_to_snake("SomeCamelString") == "some_camel_string"
 
 
-def camel_to_spine():
+def test_camel_to_spine():
     assert utilities.camel_to_spine("SomeCamelString") == "some-camel-string"
 
 
