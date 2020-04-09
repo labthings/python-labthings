@@ -193,3 +193,23 @@ def test_recursive_expand_refs_schema_in(spec):
 
 
 ### TODO: Test expand_refs
+
+
+def test_expand_refs_no_refs(spec):
+    input_dict = {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string"},
+            "email": {"type": "string", "format": "email"},
+        },
+    }
+
+    assert utilities.expand_refs(input_dict, spec) == input_dict
+
+
+def test_expand_refs_missing_schema(spec):
+    input_dict = {
+        "$ref": "MissingRef",
+    }
+
+    assert utilities.expand_refs(input_dict, spec) == input_dict
