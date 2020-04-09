@@ -2,6 +2,7 @@
 branch = True
 source = ./labthings
 omit = .venv/*
+concurrency = greenlet
 
 [report]
 # Regexes for lines to exclude from consideration
