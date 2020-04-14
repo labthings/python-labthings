@@ -55,10 +55,15 @@ def rupdate(destination_dict, update_dict):
     for k, v in update_dict.items():
         # Merge lists if they're present in both objects
         if isinstance(v, list):
+            # If key is missing from destination, create the list
             if k not in destination_dict:
                 destination_dict[k] = []
+            # If destination value is also a list, merge
             if isinstance(destination_dict[k], list):
                 destination_dict[k].extend(v)
+            # If destination exists but isn't a list, replace
+            else:
+                destination_dict[k] = v
         # Recursively merge dictionaries if the element is a dictionary
         elif isinstance(v, collections.abc.Mapping):
             if k not in destination_dict:
