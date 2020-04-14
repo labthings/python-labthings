@@ -69,5 +69,5 @@ def test_rule_to_param_overrides_invalid(app):
     rule = make_rule(app, "/path/<id>/")
     overrides = {"override_key": {"in": "invalid", "name": "header_param"}}
     assert paths.rule_to_params(rule, overrides=overrides) == [
-        {"in": "path", "name": "id", "required": True, "schema": {"type": "string"}},
+        {"in": "path", "name": "id", "required": True, "schema": {"type": "string"}}
     ]

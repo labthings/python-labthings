@@ -3,6 +3,7 @@ from flask import Flask
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 
+
 @pytest.fixture
 def spec():
     return APISpec(

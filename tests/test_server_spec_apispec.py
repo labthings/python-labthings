@@ -230,7 +230,7 @@ def test_rule_to_apispec_path_extra_method_params(app, spec):
                 "summary": "A GET summary",
                 "tags": [],
                 "responses": {200: {"description": "OK"}},
-            },
+            }
         },
         "description": None,
         "summary": None,
