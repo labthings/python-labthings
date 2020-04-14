@@ -208,8 +208,6 @@ def test_expand_refs_no_refs(spec):
 
 
 def test_expand_refs_missing_schema(spec):
-    input_dict = {
-        "$ref": "MissingRef",
-    }
+    input_dict = {"$ref": "MissingRef"}
 
     assert utilities.expand_refs(input_dict, spec) == input_dict

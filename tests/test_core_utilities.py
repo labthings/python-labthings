@@ -49,18 +49,12 @@ def test_get_summary(example_class):
 
 def test_rupdate_granular():
     # Update string value
-    s1 = {
-        "a": "String",
-    }
-    s2 = {
-        "a": "String 2",
-    }
+    s1 = {"a": "String"}
+    s2 = {"a": "String 2"}
     assert utilities.rupdate(s1, s2) == s2
 
     # Update int value
-    i1 = {
-        "b": 5,
-    }
+    i1 = {"b": 5}
     i2 = {"b": 50}
     assert utilities.rupdate(i1, i2) == i2
 
@@ -76,9 +70,7 @@ def test_rupdate_granular():
 
     # Merge dictionaries
     d1 = {"d": {"a": "String", "b": 5, "c": []}}
-    d2 = {
-        "d": {"a": "String 2", "b": 50, "c": [1, 2, 3, 4, 5]},
-    }
+    d2 = {"d": {"a": "String 2", "b": 50, "c": [1, 2, 3, 4, 5]}}
     assert utilities.rupdate(d1, d2) == d2
 
     # Replace value with list
@@ -98,9 +90,7 @@ def test_rupdate_granular():
 
     # Create missing dictionary
     md1 = {}
-    md2 = {
-        "d": {"a": "String 2", "b": 50, "c": [1, 2, 3, 4, 5]},
-    }
+    md2 = {"d": {"a": "String 2", "b": 50, "c": [1, 2, 3, 4, 5]}}
     assert utilities.rupdate(md1, md2) == md2
 
 

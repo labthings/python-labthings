@@ -102,12 +102,7 @@ def test_function_signature_to_schema():
         }
     )()
 
-    data = {
-        "positional": 10,
-        "n": 50,
-        "optlist": [4, 5, 6],
-        "untyped": True,
-    }
+    data = {"positional": 10, "n": 50, "optlist": [4, 5, 6], "untyped": True}
     assert gen_schema.dump(data) == expected_schema.dump(data)
 
 
