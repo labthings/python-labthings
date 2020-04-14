@@ -1,7 +1,19 @@
-from ..core.utilities import get_summary
+from labthings.core.utilities import get_summary
 
 from werkzeug.http import HTTP_STATUS_CODES
 from flask import current_app
+
+
+http_method_funcs = [
+    "get",
+    "post",
+    "put",
+    "delete",
+    "patch",
+    "head",
+    "options",
+    "trace",
+]
 
 
 def http_status_message(code):
@@ -21,7 +33,7 @@ def description_from_view(view_class):
     summary = get_summary(view_class)
 
     methods = []
-    for method_key in view_class.methods:
+    for method_key in http_method_funcs:
         if hasattr(view_class, method_key):
             methods.append(method_key.upper())
 
