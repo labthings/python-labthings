@@ -6,7 +6,7 @@ from ...core.utilities import rupdate
 from ..fields import Field
 from marshmallow import Schema as BaseSchema
 
-from collections import Mapping
+from collections.abc import Mapping
 
 
 def update_spec(obj, spec: dict):

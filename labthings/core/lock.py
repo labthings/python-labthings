@@ -31,6 +31,9 @@ class RLock(object):
             self._owner,
         )
 
+    def locked(self):
+        return self._block.locked()
+
     def acquire(self, blocking=True, timeout=None):
         """
         Acquire the mutex, blocking if *blocking* is true, for up to
@@ -68,22 +71,6 @@ class RLock(object):
     def __exit__(self, typ, value, tb):
         self.release()
 
-    # Internal methods used by condition variables
-
-    def _acquire_restore(self, count_owner):
-        count, owner = count_owner
-        self._block.acquire()
-        self._count = count
-        self._owner = owner
-
-    def _release_save(self):
-        count = self._count
-        self._count = 0
-        owner = self._owner
-        self._owner = None
-        self._block.release()
-        return (count, owner)
-
     def _is_owned(self):
         return self._owner is getcurrent()
 
@@ -109,21 +96,34 @@ class StrictLock:
     def locked(self):
         return self._lock.locked()
 
-    def acquire(self, blocking=True):
-        return self._lock.acquire(blocking, timeout=self.timeout)
+    def acquire(self, blocking=True, timeout=None, _strict=True):
+        if not timeout:
+            timeout = self.timeout
+        result = self._lock.acquire(blocking, timeout=timeout)
+        if _strict and not result:
+            raise LockError("ACQUIRE_ERROR", self)
+        else:
+            return result
 
     def __enter__(self):
-        result = self._lock.acquire(blocking=True, timeout=self.timeout)
-        if result:
-            return result
-        else:
-            raise LockError("ACQUIRE_ERROR", self)
+        return self.acquire(blocking=True, timeout=self.timeout)
 
     def __exit__(self, *args):
-        self._lock.release()
+        self.release()
 
     def release(self):
         self._lock.release()
+
+    @property
+    def _owner(self):
+        return self._lock._owner
+
+    @_owner.setter
+    def _owner(self, new_owner):
+        self._lock._owner = new_owner
+
+    def _is_owned(self):
+        return self._lock._is_owned()
 
 
 class CompositeLock:
@@ -144,20 +144,53 @@ class CompositeLock:
         self.locks = locks
         self.timeout = timeout
 
-    def acquire(self, blocking=True):
-        return (lock.acquire(blocking=blocking) for lock in self.locks)
+    def acquire(self, blocking=True, timeout=None):
+        if not timeout:
+            timeout = self.timeout
 
-    def __enter__(self):
-        result = (lock.acquire(blocking=True) for lock in self.locks)
-        if all(result):
-            return result
-        else:
+        lock_all = all(
+            [
+                lock.acquire(blocking=blocking, timeout=timeout, _strict=False)
+                for lock in self.locks
+            ]
+        )
+
+        if not lock_all:
+            self._emergency_release()
             raise LockError("ACQUIRE_ERROR", self)
 
+        return True
+
+    def __enter__(self):
+        return self.acquire(blocking=True, timeout=self.timeout)
+
     def __exit__(self, *args):
-        for lock in self.locks:
-            lock.release()
+        return self.release()
 
     def release(self):
+        # If not all child locks are owner by caller
+        if not all([owner is getcurrent() for owner in self._owner]):
+            raise RuntimeError("cannot release un-acquired lock")
         for lock in self.locks:
-            lock.release()
+            if lock.locked():
+                lock.release()
+
+    def _emergency_release(self):
+        for lock in self.locks:
+            if lock.locked() and lock._is_owned():
+                lock.release()
+
+    def locked(self):
+        return any([lock.locked() for lock in self.locks])
+
+    @property
+    def _owner(self):
+        return [lock._owner for lock in self.locks]
+
+    @_owner.setter
+    def _owner(self, new_owner):
+        for lock in self.locks:
+            lock._owner = new_owner
+
+    def _is_owned(self):
+        return all([lock._is_owned() for lock in self.locks])
