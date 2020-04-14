@@ -24,3 +24,6 @@ numpy = "^1.18.2"
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+
+[tool.black]
+exclude = '(\.eggs|\.git|\.venv)'
