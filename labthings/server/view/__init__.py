@@ -17,7 +17,6 @@ class View(MethodView):
     These functions will allow for automated documentation generation
     """
 
-    methods = ["get", "post", "put", "delete"]
     endpoint = None
 
     def __init__(self, *args, **kwargs):
