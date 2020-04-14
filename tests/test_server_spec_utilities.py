@@ -1,7 +1,5 @@
 from labthings.server.spec import utilities
 import json
-from apispec import APISpec
-from apispec.ext.marshmallow import MarshmallowPlugin
 from marshmallow import fields
 import pytest
 
@@ -22,16 +20,6 @@ def view_class():
             pass
 
     return ViewClass
-
-
-@pytest.fixture
-def spec():
-    return APISpec(
-        title="Python-LabThings PyTest",
-        version="1.0.0",
-        openapi_version="3.0.2",
-        plugins=[MarshmallowPlugin()],
-    )
 
 
 def test_initial_update_spec(view_class):

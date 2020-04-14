@@ -1,5 +1,16 @@
 import pytest
 from flask import Flask
+from apispec import APISpec
+from apispec.ext.marshmallow import MarshmallowPlugin
+
+@pytest.fixture
+def spec():
+    return APISpec(
+        title="Python-LabThings PyTest",
+        version="1.0.0",
+        openapi_version="3.0.2",
+        plugins=[MarshmallowPlugin()],
+    )
 
 
 @pytest.fixture()
