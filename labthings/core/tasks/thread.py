@@ -1,5 +1,6 @@
 from gevent import Greenlet, GreenletExit
 from gevent.thread import get_ident
+from gevent.event import Event
 import datetime
 import logging
 import traceback
@@ -27,6 +28,9 @@ class TaskThread(Greenlet):
 
         # A UUID for the TaskThread (not the same as the threading.Thread ident)
         self._ID = uuid.uuid4()  # Task ID
+
+        # Event to track if the task has started
+        self.started_event = Event()
 
         # Make _target, _args, and _kwargs available to the subclass
         self._target = target
@@ -96,6 +100,7 @@ class TaskThread(Greenlet):
 
             self._status = "running"
             self._start_time = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+            self.started_event.set()
             try:
                 self._return_value = f(*args, **kwargs)
                 self._status = "success"
