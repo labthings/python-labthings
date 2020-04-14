@@ -89,25 +89,24 @@ def view_to_apispec_operations(view: View, spec: APISpec):
     ops = {}
     for method in view.methods:
         method = str(method).lower()
-        if hasattr(view, method):
-            ops[method] = {}
-            method_function = getattr(view, method)
+        ops[method] = {}
+        method_function = getattr(view, method)
 
-            # Populate missing spec parameters
-            build_spec(method_function, inherit_from=view)
+        # Populate missing spec parameters
+        build_spec(method_function, inherit_from=view)
 
-            rupdate(
-                ops[method],
-                {
-                    "description": getattr(method_function, "__apispec__").get(
-                        "description"
-                    ),
-                    "summary": getattr(method_function, "__apispec__").get("summary"),
-                    "tags": getattr(method_function, "__apispec__").get("tags"),
-                },
-            )
+        rupdate(
+            ops[method],
+            {
+                "description": getattr(method_function, "__apispec__").get(
+                    "description"
+                ),
+                "summary": getattr(method_function, "__apispec__").get("summary"),
+                "tags": getattr(method_function, "__apispec__").get("tags"),
+            },
+        )
 
-            rupdate(ops[method], method_to_apispec_operation(method_function, spec))
+        rupdate(ops[method], method_to_apispec_operation(method_function, spec))
 
     return ops
 
