@@ -87,7 +87,7 @@ def view_to_apispec_operations(view: View, spec: APISpec):
 
     # Build dictionary of operations (HTTP methods)
     ops = {}
-    for method in View.methods:
+    for method in view.methods:
         if hasattr(view, method):
             ops[method] = {}
             method_function = getattr(view, method)
