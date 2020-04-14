@@ -28,8 +28,11 @@ class View(MethodView):
 
     def get_value(self):
         get_method = getattr(self, "get", None)  # Look for this views GET method
-        if callable(get_method):  # Check it's callable
-            response = get_method()  # pylint: disable=not-callable
+        if get_method is None:
+            return None
+        if not callable(get_method):
+            raise TypeError("Attribute 'get' of View must be a callable")
+        response = get_method()  # pylint: disable=not-callable
         if isinstance(response, ResponseBase):  # Pluck useful data out of HTTP response
             return response.json if response.json else response.data.decode()
         else:  # Unless somehow an HTTP response isn't returned...
@@ -43,8 +46,8 @@ class View(MethodView):
         if meth is None and request.method == "HEAD":
             meth = getattr(self, "get", None)
 
-        if meth is None:
-            raise MethodNotAllowed(f"Unimplemented method {request.method}")
+        # Flask should ensure this is assersion never fails
+        assert meth is not None, f"Unimplemented method {request.method!r}"
 
         # Generate basic response
         resp = meth(*args, **kwargs)
