@@ -1,4 +1,5 @@
 import pytest
+import os
 from flask import Flask
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
@@ -84,3 +85,8 @@ def req_ctx(app):
 @pytest.fixture
 def client(app):
     return app.test_client()
+
+
+@pytest.fixture
+def static_path(app):
+    return os.path.join(os.path.dirname(__file__), "static")
