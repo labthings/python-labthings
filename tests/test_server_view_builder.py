@@ -7,10 +7,6 @@ def test_property_of(app):
     obj = type("obj", (object,), {"property_name": "propertyValue"})
 
     GeneratedClass = builder.property_of(obj, "property_name")
-
-    assert callable(GeneratedClass.get)
-    assert callable(GeneratedClass.post)
-
     app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
 
     with app.test_client() as c:
@@ -32,11 +28,6 @@ def test_property_of_dict(app):
     )
 
     GeneratedClass = builder.property_of(obj, "properties")
-
-    assert callable(GeneratedClass.get)
-    assert callable(GeneratedClass.post)
-    assert callable(GeneratedClass.put)
-
     app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
 
     with app.test_client() as c:
@@ -65,10 +56,64 @@ def test_property_of_readonly():
 
 def test_property_of_name_description():
     obj = type("obj", (object,), {"property_name": "propertyValue"})
-
     GeneratedClass = builder.property_of(
         obj, "property_name", name="property_name", description="property description"
     )
 
     assert GeneratedClass.__apispec__.get("description") == "property description"
     assert GeneratedClass.__apispec__.get("summary") == "property description"
+
+
+def test_action_from(app):
+    def f(arg: int, kwarg: str = "default"):
+        return {"arg": arg, "kwarg": kwarg}
+
+    GeneratedClass = builder.action_from(f)
+    app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
+
+    with app.test_client() as c:
+        assert c.post("/", json={"arg": 5}).data == b'{"arg":5,"kwarg":"default"}\n'
+
+
+def test_action_from_task(app):
+    def f(arg: int, kwarg: str = "default"):
+        return {"arg": arg, "kwarg": kwarg}
+
+    GeneratedClass = builder.action_from(f, task=True,)
+    app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
+
+    with app.test_client() as c:
+        response = c.post("/", json={"arg": 5}).json
+        # Check we get back a Task representation
+        assert isinstance(response, dict)
+        assert isinstance(response.get("id"), str)
+        assert isinstance(response.get("function"), str)
+
+
+def test_action_from_options(app):
+    def f(arg: int, kwarg: str = "default"):
+        return {"arg": arg, "kwarg": kwarg}
+
+    assert builder.action_from(
+        f,
+        name="action_name",
+        description="action_description",
+        safe=True,
+        idempotent=True,
+    )
+
+
+def test_static_from(app, app_ctx, static_path):
+
+    GeneratedClass = builder.static_from(static_path,)
+    app.add_url_rule("/static", view_func=GeneratedClass.as_view("index"))
+
+    with app_ctx.test_request_context():
+        assert GeneratedClass().get("text").status_code == 200
+
+    with app.test_client() as c:
+        assert c.get("/static/text").data == b"text"
+
+
+def test_static_from_options(app, app_ctx, static_path):
+    assert builder.static_from(static_path, name="static_name")
