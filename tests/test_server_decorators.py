@@ -344,4 +344,3 @@ def test_doc_response(empty_cls):
 def test_doc_response_no_mimetype(empty_cls):
     wrapped_cls = decorators.doc_response(200)(empty_cls)
     assert wrapped_cls.__apispec__ == {"responses": {200: {"description": "OK"}}}
-

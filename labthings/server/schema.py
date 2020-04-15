@@ -141,10 +141,7 @@ class ExtensionSchema(Schema):
             except BuildError:
                 url = None
             # Make links dictionary if it doesn't yet exist
-            d[view_id] = {
-                "href": url,
-                **description_from_view(view_cls),
-            }
+            d[view_id] = {"href": url, **description_from_view(view_cls)}
 
         data.links = d
 
