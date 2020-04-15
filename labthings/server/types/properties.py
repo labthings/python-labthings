@@ -10,18 +10,20 @@ import copy
 
 
 class PropertyConverter:
-    def __init__(self):
+    def __init__(self, required=True, allow_none=False):
         self._registry = TypeRegistry()
         self._registry.register(List, self._list_converter)
         self._registry.register(list, self._list_converter)
+
+        self._required = required
+        self._allow_none = allow_none
 
     def _list_converter(self, subtypes: Tuple[type], **opts) -> FieldABC:
         return fields.List(subtypes[0], **opts)
 
     def convert(self, value, **kwargs) -> FieldABC:
-        # sane defaults
-        allow_none = False
-        required = True
+        allow_none = self._allow_none
+        required = self._required
         example = value
 
         # set this after optional check
@@ -49,7 +51,7 @@ def data_dict_to_schema(data_dict: dict):
     Returns:
         dict: Dictionary of Marshmallow fields matching input data types
     """
-    converter = PropertyConverter()
+    converter = PropertyConverter(required=False)
 
     working_dict = copy.deepcopy(data_dict)
 
