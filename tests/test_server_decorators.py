@@ -5,6 +5,7 @@ from flask import make_response
 
 from labthings.server.schema import Schema
 from labthings.server import fields
+from labthings.server.view import View
 from labthings.core.tasks.thread import TaskThread
 
 from labthings.server import decorators
@@ -134,3 +135,213 @@ def test_safe(empty_cls):
 def test_idempotent(empty_cls):
     wrapped_cls = decorators.idempotent(empty_cls)
     assert wrapped_cls.__apispec__["_idempotent"] == True
+
+
+def test_thing_property(view_cls):
+    wrapped_cls = decorators.thing_property(view_cls)
+    assert wrapped_cls.__apispec__["tags"] == ["properties"]
+    assert wrapped_cls.__apispec__["_groups"] == ["properties"]
+
+
+def test_thing_property_empty_class(empty_cls, app_ctx):
+    wrapped_cls = decorators.thing_property(empty_cls)
+    assert wrapped_cls.__apispec__["tags"] == ["properties"]
+    assert wrapped_cls.__apispec__["_groups"] == ["properties"]
+
+
+def test_thing_property_property_notify(view_cls, app_ctx):
+    wrapped_cls = decorators.thing_property(view_cls)
+
+    with app_ctx.test_request_context():
+        wrapped_cls().post()
+
+
+def test_property_schema(app, client):
+    class Index(View):
+        def get(self):
+            obj = type("obj", (object,), {"integer": 1})
+            return obj
+
+        def post(self, args):
+            i = args.get("integer")
+            obj = type("obj", (object,), {"integer": i})
+            return obj
+
+        def put(self, args):
+            i = args.get("integer")
+            obj = type("obj", (object,), {"integer": i})
+            return obj
+
+    schema = _Schema.from_dict({"integer": fields.Int()})()
+    WrappedCls = decorators.PropertySchema(schema)(Index)
+
+    assert WrappedCls.__apispec__.get("_propertySchema") == schema
+
+    app.add_url_rule("/", view_func=WrappedCls.as_view("index"))
+
+    with app.test_client() as c:
+        assert c.get("/").data == b'{"integer":1}\n'
+        assert c.post("/", json={"integer": 5}).data == b'{"integer":5}\n'
+        assert c.put("/", json={"integer": 5}).data == b'{"integer":5}\n'
+
+
+def test_property_schema_empty_class(empty_cls):
+    schema = _Schema.from_dict({"integer": fields.Int()})()
+    WrappedCls = decorators.PropertySchema(schema)(empty_cls)
+
+    assert WrappedCls.__apispec__.get("_propertySchema") == schema
+
+
+def test_use_body(app, client):
+    class Index(View):
+        def post(self, data):
+            return str(data)
+
+    schema = fields.Int()
+    Index.post = decorators.use_body(schema)(Index.post)
+
+    assert Index.post.__apispec__.get("_params") == schema
+
+    app.add_url_rule("/", view_func=Index.as_view("index"))
+
+    with app.test_client() as c:
+        assert c.post("/", data=b"5\n").data == b"5"
+
+
+def test_use_body_required_no_data(app, client):
+    class Index(View):
+        def post(self, data):
+            return {}
+
+    schema = fields.Int(required=True)
+    Index.post = decorators.use_body(schema)(Index.post)
+
+    assert Index.post.__apispec__.get("_params") == schema
+
+    app.add_url_rule("/", view_func=Index.as_view("index"))
+
+    with app.test_client() as c:
+        assert c.post("/").status_code == 400
+
+
+def test_use_body_no_data(app, client):
+    class Index(View):
+        def post(self, data):
+            assert data is None
+            return {}
+
+    schema = fields.Int()
+    Index.post = decorators.use_body(schema)(Index.post)
+
+    assert Index.post.__apispec__.get("_params") == schema
+
+    app.add_url_rule("/", view_func=Index.as_view("index"))
+
+    with app.test_client() as c:
+        assert c.post("/").status_code == 200
+
+
+def test_use_body_no_data_missing_given(app, client):
+    class Index(View):
+        def post(self, data):
+            return str(data)
+
+    schema = fields.Int(missing=5)
+    Index.post = decorators.use_body(schema)(Index.post)
+
+    assert Index.post.__apispec__.get("_params") == schema
+
+    app.add_url_rule("/", view_func=Index.as_view("index"))
+
+    with app.test_client() as c:
+        assert c.post("/").data == b"5"
+
+
+def test_use_body_malformed(app, client):
+    class Index(View):
+        def post(self, data):
+            return {}
+
+    schema = fields.Int(required=True)
+    Index.post = decorators.use_body(schema)(Index.post)
+
+    assert Index.post.__apispec__.get("_params") == schema
+
+    app.add_url_rule("/", view_func=Index.as_view("index"))
+
+    with app.test_client() as c:
+        assert c.post("/", data=b"{}").status_code == 400
+
+
+def test_use_args(app, client):
+    class Index(View):
+        def post(self, data):
+            return str(data)
+
+    schema = _Schema.from_dict({"integer": fields.Int()})()
+    Index.post = decorators.use_args(schema)(Index.post)
+
+    assert Index.post.__apispec__.get("_params") == schema
+
+    app.add_url_rule("/", view_func=Index.as_view("index"))
+
+    with app.test_client() as c:
+        assert c.post("/", json={"integer": 5}).data == b"{'integer': 5}"
+
+
+def test_use_args_field(app, client):
+    class Index(View):
+        def post(self, data):
+            return str(data)
+
+    schema = fields.Int(missing=5)
+    Index.post = decorators.use_args(schema)(Index.post)
+
+    assert Index.post.__apispec__.get("_params") == schema
+
+    app.add_url_rule("/", view_func=Index.as_view("index"))
+
+    with app.test_client() as c:
+        assert c.post("/").data == b"5"
+
+
+def test_doc(empty_cls):
+    wrapped_cls = decorators.doc(key="value")(empty_cls)
+    assert wrapped_cls.__apispec__["key"] == "value"
+
+
+def test_tag(empty_cls):
+    wrapped_cls = decorators.tag(["tag", "tag2"])(empty_cls)
+    assert wrapped_cls.__apispec__["tags"] == ["tag", "tag2"]
+
+
+def test_tag_single(empty_cls):
+    wrapped_cls = decorators.tag("tag")(empty_cls)
+    assert wrapped_cls.__apispec__["tags"] == ["tag"]
+
+
+def test_tag_invalid(empty_cls):
+    with pytest.raises(TypeError):
+        decorators.tag(object())(empty_cls)
+
+
+def test_doc_response(empty_cls):
+    wrapped_cls = decorators.doc_response(
+        200, description="description", mimetype="text/plain", key="value"
+    )(empty_cls)
+    assert wrapped_cls.__apispec__ == {
+        "responses": {
+            200: {
+                "description": "description",
+                "key": "value",
+                "content": {"text/plain": {}},
+            }
+        },
+        "_content_type": "text/plain",
+    }
+
+
+def test_doc_response_no_mimetype(empty_cls):
+    wrapped_cls = decorators.doc_response(200)(empty_cls)
+    assert wrapped_cls.__apispec__ == {"responses": {200: {"description": "OK"}}}
+
