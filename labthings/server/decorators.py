@@ -16,6 +16,7 @@ from .find import current_labthing
 from .utilities import unpack
 
 from labthings.core.tasks.pool import TaskThread
+from labthings.core.utilities import rupdate
 
 import logging
 
@@ -313,11 +314,12 @@ class doc_response:
         }
 
         if self.mimetype:
-            self.response_dict.update(
+            rupdate(
+                self.response_dict,
                 {
                     "responses": {self.code: {"content": {self.mimetype: {}}}},
                     "_content_type": self.mimetype,
-                }
+                },
             )
 
     def __call__(self, f):
