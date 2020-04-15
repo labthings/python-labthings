@@ -10,6 +10,14 @@ from labthings.core.tasks.thread import TaskThread
 from labthings.server import decorators
 
 
+@pytest.fixture
+def empty_cls():
+    class Index:
+        pass
+
+    return Index
+
+
 def common_task_test(marshaled_task: dict):
     assert isinstance(marshaled_task, dict)
     assert isinstance(marshaled_task.get("id"), str)
@@ -110,3 +118,19 @@ def test_marshal_task_response_invalid(app_ctx):
 
     with app_ctx.test_request_context(), pytest.raises(TypeError):
         wrapped_func()
+
+
+def test_thing_action(empty_cls):
+    wrapped_cls = decorators.thing_action(empty_cls)
+    assert wrapped_cls.__apispec__["tags"] == ["actions"]
+    assert wrapped_cls.__apispec__["_groups"] == ["actions"]
+
+
+def test_safe(empty_cls):
+    wrapped_cls = decorators.safe(empty_cls)
+    assert wrapped_cls.__apispec__["_safe"] == True
+
+
+def test_idempotent(empty_cls):
+    wrapped_cls = decorators.idempotent(empty_cls)
+    assert wrapped_cls.__apispec__["_idempotent"] == True
