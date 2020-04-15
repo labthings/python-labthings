@@ -75,6 +75,9 @@ class FieldSchema:
 
         return self.field.serialize("value", obj)
 
+    def dump(self, value):
+        return self.serialize(value)
+
     def jsonify(self, value):
         """Serialize a value to JSON
 
