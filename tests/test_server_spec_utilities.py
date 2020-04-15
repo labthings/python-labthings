@@ -71,6 +71,7 @@ def test_convert_schema_schema(spec):
     from marshmallow import Schema
 
     schema = Schema()
+    schema.integer = fields.Int()
     assert utilities.convert_schema(schema, spec) is schema
 
 
