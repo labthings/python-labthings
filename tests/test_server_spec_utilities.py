@@ -4,63 +4,45 @@ from marshmallow import fields
 import pytest
 
 
-@pytest.fixture
-def view_class():
-    class ViewClass:
-        def get(self):
-            pass
-
-        def post(self):
-            pass
-
-        def put(self):
-            pass
-
-        def delete(self):
-            pass
-
-    return ViewClass
-
-
-def test_initial_update_spec(view_class):
+def test_initial_update_spec(view_cls):
     initial_spec = {"key": "value"}
-    utilities.update_spec(view_class, initial_spec)
+    utilities.update_spec(view_cls, initial_spec)
 
-    assert view_class.__apispec__ == initial_spec
+    assert view_cls.__apispec__ == initial_spec
 
 
-def test_update_spec(view_class):
+def test_update_spec(view_cls):
     initial_spec = {"key": {"subkey": "value"}}
-    utilities.update_spec(view_class, initial_spec)
+    utilities.update_spec(view_cls, initial_spec)
 
     new_spec = {"key": {"new_subkey": "new_value"}}
-    utilities.update_spec(view_class, new_spec)
+    utilities.update_spec(view_cls, new_spec)
 
-    assert view_class.__apispec__ == {
+    assert view_cls.__apispec__ == {
         "key": {"subkey": "value", "new_subkey": "new_value"}
     }
 
 
-def test_get_spec(view_class):
+def test_get_spec(view_cls):
     assert utilities.get_spec(None) == {}
-    assert utilities.get_spec(view_class) == {}
+    assert utilities.get_spec(view_cls) == {}
 
     initial_spec = {"key": {"subkey": "value"}}
-    view_class.__apispec__ = initial_spec
+    view_cls.__apispec__ = initial_spec
 
-    assert utilities.get_spec(view_class) == initial_spec
+    assert utilities.get_spec(view_cls) == initial_spec
 
 
-def test_get_topmost_spec_attr(view_class):
-    assert not utilities.get_topmost_spec_attr(view_class, "key")
+def test_get_topmost_spec_attr(view_cls):
+    assert not utilities.get_topmost_spec_attr(view_cls, "key")
 
     # Root value missing, fall back to GET
-    view_class.get.__apispec__ = {"key": "get_value"}
-    assert utilities.get_topmost_spec_attr(view_class, "key") == "get_value"
+    view_cls.get.__apispec__ = {"key": "get_value"}
+    assert utilities.get_topmost_spec_attr(view_cls, "key") == "get_value"
 
     # Root value present, return root value
-    view_class.__apispec__ = {"key": "class_value"}
-    assert utilities.get_topmost_spec_attr(view_class, "key") == "class_value"
+    view_cls.__apispec__ = {"key": "class_value"}
+    assert utilities.get_topmost_spec_attr(view_cls, "key") == "class_value"
 
 
 def test_convert_schema_none(spec):

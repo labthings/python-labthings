@@ -5,6 +5,24 @@ from apispec.ext.marshmallow import MarshmallowPlugin
 
 
 @pytest.fixture
+def view_cls():
+    class ViewClass:
+        def get(self):
+            pass
+
+        def post(self):
+            pass
+
+        def put(self):
+            pass
+
+        def delete(self):
+            pass
+
+    return ViewClass
+
+
+@pytest.fixture
 def spec():
     return APISpec(
         title="Python-LabThings PyTest",
