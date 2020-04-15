@@ -19,7 +19,7 @@ def current_labthing(app=None):
     logging.debug("Active app extensions:")
     logging.debug(app.extensions)
     logging.debug("Active labthing:")
-    logging.debug(app.extensions[EXTENSION_NAME])
+    logging.debug(app.extensions.get(EXTENSION_NAME))
     return app.extensions.get(EXTENSION_NAME, None)
 
 
