@@ -55,7 +55,7 @@ def view_class_from_endpoint(endpoint: str):
     Returns:
         View: View class attached to the specified endpoint
     """
-    return current_app.view_functions[endpoint].view_class
+    return getattr(current_app.view_functions.get(endpoint), "view_class", None)
 
 
 def unpack(value):
