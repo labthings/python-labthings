@@ -4,7 +4,7 @@ from flask import make_response, abort, request
 from werkzeug.wrappers import Response as ResponseBase
 from http import HTTPStatus
 from marshmallow.exceptions import ValidationError
-from collections import Mapping
+from collections.abc import Mapping
 
 from .spec.utilities import update_spec
 from .schema import TaskSchema, Schema, FieldSchema
