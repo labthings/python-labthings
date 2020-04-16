@@ -329,7 +329,9 @@ class LabThing:
     def url_for(self, view, **values):
         """Generates a URL to the given resource.
         Works like :func:`flask.url_for`."""
-        endpoint = view.endpoint
+        endpoint = getattr(view, "endpoint", None)
+        if not endpoint:
+            return ""
         # Default to external links
         if "_external" not in values:
             values["_external"] = True
