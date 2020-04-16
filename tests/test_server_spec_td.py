@@ -4,6 +4,7 @@ import os
 import json
 import jsonschema
 from labthings.server import fields
+from labthings.server.view import View
 from labthings.server.spec import td
 
 
@@ -123,4 +124,68 @@ def test_td_action_with_schema(app, thing_description, view_cls, app_ctx, schema
             "type": "object",
             "properties": {"integer": {"type": "integer", "format": "int32"}},
         }
+        validate_thing_description(thing_description, app_ctx, schemas_path)
+
+
+def test_td_property(app, thing_description, app_ctx, schemas_path):
+    class Index(View):
+        def get(self):
+            return "GET"
+
+    app.add_url_rule("/", view_func=Index.as_view("index"))
+    rules = app.url_map._rules_by_endpoint["index"]
+
+    thing_description.property(rules, Index)
+
+    with app_ctx.test_request_context():
+        assert "index" in thing_description.to_dict().get("properties")
+        validate_thing_description(thing_description, app_ctx, schemas_path)
+
+
+def test_td_property_with_schema(app, thing_description, app_ctx, schemas_path):
+    class Index(View):
+        def get(self):
+            return "GET"
+
+    Index.__apispec__ = {"_propertySchema": {"integer": fields.Int()}}
+
+    app.add_url_rule("/", view_func=Index.as_view("index"))
+    rules = app.url_map._rules_by_endpoint["index"]
+
+    thing_description.property(rules, Index)
+
+    with app_ctx.test_request_context():
+        assert "index" in thing_description.to_dict().get("properties")
+        validate_thing_description(thing_description, app_ctx, schemas_path)
+
+
+def test_td_property_with_url_param(app, thing_description, app_ctx, schemas_path):
+    class Index(View):
+        def get(self):
+            return "GET"
+
+    app.add_url_rule("/path/<int:id>/", view_func=Index.as_view("index"))
+    rules = app.url_map._rules_by_endpoint["index"]
+
+    thing_description.property(rules, Index)
+
+    with app_ctx.test_request_context():
+        assert "index" in thing_description.to_dict().get("properties")
+        validate_thing_description(thing_description, app_ctx, schemas_path)
+
+
+def test_td_property_write_only(app, thing_description, app_ctx, schemas_path):
+    class Index(View):
+        def post(self):
+            return "POST"
+
+    Index.__apispec__ = {"_propertySchema": fields.Int()}
+
+    app.add_url_rule("/", view_func=Index.as_view("index"))
+    rules = app.url_map._rules_by_endpoint["index"]
+
+    thing_description.property(rules, Index)
+
+    with app_ctx.test_request_context():
+        assert "index" in thing_description.to_dict().get("properties")
         validate_thing_description(thing_description, app_ctx, schemas_path)
