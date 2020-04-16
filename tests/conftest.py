@@ -104,3 +104,8 @@ def static_path(app):
 @pytest.fixture
 def schemas_path(app):
     return os.path.join(os.path.dirname(__file__), "schemas")
+
+
+@pytest.fixture
+def extensions_path(app):
+    return os.path.join(os.path.dirname(__file__), "extensions")
