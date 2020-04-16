@@ -134,7 +134,13 @@ class ThingDescription:
         for prop_rule in rules:
             params_dict = {}
             for param in rule_to_params(prop_rule):
-                params_dict.update({param.get("name"): {"type": param.get("type")}})
+                params_dict.update(
+                    {
+                        param.get("name"): {
+                            "type": param.get("type") or param.get("schema").get("type")
+                        }
+                    }
+                )
             prop_description["uriVariables"].update(params_dict)
         if not prop_description["uriVariables"]:
             del prop_description["uriVariables"]
