@@ -141,7 +141,7 @@ def test_find_instances_in_module(lt_extension):
 
 
 def test_find_extensions_in_file(extensions_path):
-    test_file = os.path.join(extensions_path, "test_extension.py")
+    test_file = os.path.join(extensions_path, "extension.py")
 
     found_extensions = extensions.find_extensions_in_file(test_file)
     assert len(found_extensions) == 1
@@ -149,7 +149,7 @@ def test_find_extensions_in_file(extensions_path):
 
 
 def test_find_extensions_in_file_explicit_list(extensions_path):
-    test_file = os.path.join(extensions_path, "test_extension_explicit_list.py")
+    test_file = os.path.join(extensions_path, "extension_explicit_list.py")
 
     found_extensions = extensions.find_extensions_in_file(test_file)
     assert len(found_extensions) == 1
@@ -157,7 +157,7 @@ def test_find_extensions_in_file_explicit_list(extensions_path):
 
 
 def test_find_extensions_in_file_exception(extensions_path):
-    test_file = os.path.join(extensions_path, "test_extension_exception.py")
+    test_file = os.path.join(extensions_path, "extension_exception.py")
 
     found_extensions = extensions.find_extensions_in_file(test_file)
     assert found_extensions == []
