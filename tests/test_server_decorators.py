@@ -179,7 +179,7 @@ def test_property_schema(app, client):
 
     app.add_url_rule("/", view_func=WrappedCls.as_view("index"))
 
-    with app.test_client() as c:
+    with client as c:
         assert c.get("/").data == b'{"integer":1}\n'
         assert c.post("/", json={"integer": 5}).data == b'{"integer":5}\n'
         assert c.put("/", json={"integer": 5}).data == b'{"integer":5}\n'
@@ -204,7 +204,7 @@ def test_use_body(app, client):
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
 
-    with app.test_client() as c:
+    with client as c:
         assert c.post("/", data=b"5\n").data == b"5"
 
 
@@ -220,7 +220,7 @@ def test_use_body_required_no_data(app, client):
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
 
-    with app.test_client() as c:
+    with client as c:
         assert c.post("/").status_code == 400
 
 
@@ -237,7 +237,7 @@ def test_use_body_no_data(app, client):
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
 
-    with app.test_client() as c:
+    with client as c:
         assert c.post("/").status_code == 200
 
 
@@ -253,7 +253,7 @@ def test_use_body_no_data_missing_given(app, client):
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
 
-    with app.test_client() as c:
+    with client as c:
         assert c.post("/").data == b"5"
 
 
@@ -269,7 +269,7 @@ def test_use_body_malformed(app, client):
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
 
-    with app.test_client() as c:
+    with client as c:
         assert c.post("/", data=b"{}").status_code == 400
 
 
@@ -285,7 +285,7 @@ def test_use_args(app, client):
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
 
-    with app.test_client() as c:
+    with client as c:
         assert c.post("/", json={"integer": 5}).data == b"{'integer': 5}"
 
 
@@ -301,7 +301,7 @@ def test_use_args_field(app, client):
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
 
-    with app.test_client() as c:
+    with client as c:
         assert c.post("/").data == b"5"
 
 

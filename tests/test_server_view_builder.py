@@ -3,19 +3,19 @@ import pytest
 from labthings.server.view import builder
 
 
-def test_property_of(app):
+def test_property_of(app, client):
     obj = type("obj", (object,), {"property_name": "propertyValue"})
 
     GeneratedClass = builder.property_of(obj, "property_name")
     app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
 
-    with app.test_client() as c:
+    with client as c:
         assert c.get("/").data == b"propertyValue"
         assert c.post("/", data=b"newPropertyValue").data == b"newPropertyValue"
         assert c.get("/").data == b"newPropertyValue"
 
 
-def test_property_of_dict(app):
+def test_property_of_dict(app, client):
     obj = type(
         "obj",
         (object,),
@@ -30,7 +30,7 @@ def test_property_of_dict(app):
     GeneratedClass = builder.property_of(obj, "properties")
     app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
 
-    with app.test_client() as c:
+    with client as c:
         assert (
             c.get("/").data
             == b'{"property_name":"propertyValue","property_name_2":"propertyValue2"}\n'
@@ -64,25 +64,25 @@ def test_property_of_name_description():
     assert GeneratedClass.__apispec__.get("summary") == "property description"
 
 
-def test_action_from(app):
+def test_action_from(app, client):
     def f(arg: int, kwarg: str = "default"):
         return {"arg": arg, "kwarg": kwarg}
 
     GeneratedClass = builder.action_from(f)
     app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
 
-    with app.test_client() as c:
+    with client as c:
         assert c.post("/", json={"arg": 5}).data == b'{"arg":5,"kwarg":"default"}\n'
 
 
-def test_action_from_task(app):
+def test_action_from_task(app, client):
     def f(arg: int, kwarg: str = "default"):
         return {"arg": arg, "kwarg": kwarg}
 
     GeneratedClass = builder.action_from(f, task=True,)
     app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
 
-    with app.test_client() as c:
+    with client as c:
         response = c.post("/", json={"arg": 5}).json
         # Check we get back a Task representation
         assert isinstance(response, dict)
@@ -103,7 +103,7 @@ def test_action_from_options(app):
     )
 
 
-def test_static_from(app, app_ctx, static_path):
+def test_static_from(app, client, app_ctx, static_path):
 
     GeneratedClass = builder.static_from(static_path,)
     app.add_url_rule("/static", view_func=GeneratedClass.as_view("index"))
@@ -111,7 +111,7 @@ def test_static_from(app, app_ctx, static_path):
     with app_ctx.test_request_context():
         assert GeneratedClass().get("text").status_code == 200
 
-    with app.test_client() as c:
+    with client as c:
         assert c.get("/static/text").data == b"text"
 
 
