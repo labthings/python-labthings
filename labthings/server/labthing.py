@@ -160,7 +160,7 @@ class LabThing:
         self.add_view(TaskView, "/tasks/<task_id>", endpoint=TASK_ENDPOINT)
 
     def _create_base_sockets(self):
-        self.sockets.add_url_rule(f"{self.url_prefix}", self._socket_handler)
+        self.sockets.add_url_rule(self._complete_url("", ""), self._socket_handler)
 
     def _socket_handler(self, ws):
         # Create a socket subscriber
@@ -232,7 +232,12 @@ class LabThing:
             blueprint.  Generally speaking, BlueprintSetupState.url_prefix
         """
         parts = [registration_prefix, self.url_prefix, url_part]
-        return "".join([part for part in parts if part])
+        u = "".join([part for part in parts if part])
+        if u == "":
+            u = "/"
+        if u[0] != "/":
+            u = f"/{u}"
+        return u
 
     def add_view(self, resource, *urls, endpoint=None, **kwargs):
         """Adds a view to the api.
