@@ -287,18 +287,6 @@ class LabThing:
         resource_class_args = kwargs.pop("resource_class_args", ())
         resource_class_kwargs = kwargs.pop("resource_class_kwargs", {})
 
-        # NOTE: 'view_functions' is cleaned up from Blueprint class in Flask 1.0
-        if endpoint in getattr(app, "view_functions", {}):
-            previous_view_class = app.view_functions[endpoint].__dict__["view_class"]
-
-            # If you override the endpoint with a different class,
-            # avoid the collision by raising an exception
-            if previous_view_class != view:
-                raise ValueError(
-                    "This endpoint (%s) is already set to the class %s."
-                    % (endpoint, previous_view_class.__name__)
-                )
-
         view.endpoint = endpoint
         resource_func = view.as_view(
             endpoint, *resource_class_args, **resource_class_kwargs
