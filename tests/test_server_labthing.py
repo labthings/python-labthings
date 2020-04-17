@@ -39,7 +39,7 @@ def test_add_view(thing, view_cls, client):
     thing.add_view(view_cls, "/index", endpoint="index")
 
     with client as c:
-        assert c.get("/index").data == b"GET"
+        assert c.get("/index").data == b"GET\n"
 
 
 def test_add_view_endpoint_clash(thing, view_cls, client):
@@ -55,7 +55,7 @@ def test_view_decorator(thing, client):
             return "GET"
 
     with client as c:
-        assert c.get("/index").data == b"GET"
+        assert c.get("/index").data == b"GET\n"
 
 
 def test_add_view_action(thing, view_cls, client):
@@ -77,7 +77,7 @@ def test_init_app_early_views(app, view_cls, client):
     thing.init_app(app)
 
     with client as c:
-        assert c.get("/index").data == b"GET"
+        assert c.get("/index").data == b"GET\n"
 
 
 def test_register_extension(thing):
