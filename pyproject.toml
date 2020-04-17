@@ -21,6 +21,7 @@ black = {version = "^19.10b0",allow-prereleases = true}
 pytest-cov = "^2.8.1"
 numpy = "^1.18.2"
 jsonschema = "^3.2.0"
+pytest-xdist = "^1.31.0"
 
 [tool.black]
 exclude = '(\.eggs|\.git|\.venv)'
