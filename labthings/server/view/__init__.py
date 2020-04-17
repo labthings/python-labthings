@@ -58,7 +58,9 @@ class View(MethodView):
         representations = self.representations or OrderedDict()
 
         # noinspection PyUnresolvedReferences
-        mediatype = request.accept_mimetypes.best_match(representations, default=None)
+        mediatype = request.accept_mimetypes.best_match(
+            representations, default="application/json"
+        )
         if mediatype in representations:
             data, code, headers = unpack(resp)
             resp = representations[mediatype](data, code, headers)
