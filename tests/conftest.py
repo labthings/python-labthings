@@ -127,3 +127,38 @@ def schemas_path(app):
 @pytest.fixture
 def extensions_path(app):
     return os.path.join(os.path.dirname(__file__), "extensions")
+
+
+class FakeWebsocket:
+    def __init__(self, message: str, recieve_once=True):
+        self.message = message
+        self.response = None
+        self.closed = False
+        self.recieve_once = recieve_once
+
+    def receive(self):
+        # Get message
+        message_to_send = self.message
+        # If only sending a message to the server once
+        if self.recieve_once:
+            # Clear our message
+            self.message = None
+        return message_to_send
+
+    def send(self, response):
+        self.response = response
+        self.closed = True
+        return response
+
+
+@pytest.fixture
+def fake_websocket():
+    """
+    Return a fake websocket client 
+    that sends a given message, waits for a response, then closes
+    """
+
+    def _foo(msg, recieve_once=True):
+        return FakeWebsocket(msg, recieve_once=recieve_once)
+
+    return _foo
