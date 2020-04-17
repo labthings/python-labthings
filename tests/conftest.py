@@ -9,7 +9,7 @@ from labthings.server.view import View
 
 @pytest.fixture
 def view_cls():
-    class ViewClass(View):
+    class EmptyViewClass(View):
         def get(self):
             pass
 
@@ -21,6 +21,24 @@ def view_cls():
 
         def delete(self):
             pass
+
+    return EmptyViewClass
+
+
+@pytest.fixture
+def view_cls():
+    class ViewClass(View):
+        def get(self):
+            return "GET"
+
+        def post(self):
+            return "POST"
+
+        def put(self):
+            return "PUT"
+
+        def delete(self):
+            return "DELETE"
 
     return ViewClass
 
