@@ -30,11 +30,15 @@ class ClientEvent(object):
             self.events[ident] = [Event(), time.time()]
 
         # We have to reimplement event waiting here as we need native thread events to allow gevent context switching
+        wait_start = time.time()
         while not self.events[ident][0].is_set():
-            gevent.time.sleep(0)
+            now = time.time()
+            if now - wait_start > timeout:
+                return False
+            gevent.sleep(0)
         return True
 
-    def set(self):
+    def set(self, timeout=5):
         """Signal that a new frame is available."""
         now = time.time()
         remove = None
@@ -47,9 +51,9 @@ class ClientEvent(object):
             else:
                 # if the client's event is already set, it means the client
                 # did not process a previous frame
-                # if the event stays set for more than 5 seconds, then assume
+                # if the event stays set for more than `timeout` seconds, then assume
                 # the client is gone and remove it
-                if now - event[1] > 5:
+                if now - event[1] >= timeout:
                     remove = ident
         if remove:
             del self.events[remove]
@@ -60,4 +64,6 @@ class ClientEvent(object):
         if ident not in self.events:
             logging.error(f"Mismatched ident. Current: {ident}, available:")
             logging.error(self.events.keys())
+            return False
         self.events[id(getcurrent())][0].clear()
+        return True
