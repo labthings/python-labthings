@@ -77,3 +77,10 @@ def test_unpack_data_code_headers():
         201,
         {"header": "header_value"},
     )
+
+
+def test_clean_url_string():
+    assert utilities.clean_url_string(None) == "/"
+    assert utilities.clean_url_string("path") == "/path"
+    assert utilities.clean_url_string("/path") == "/path"
+    assert utilities.clean_url_string("//path") == "//path"

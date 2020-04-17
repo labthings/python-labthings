@@ -76,3 +76,12 @@ def unpack(value):
         pass
 
     return value, 200, {}
+
+
+def clean_url_string(url: str):
+    if not url:
+        return "/"
+    if url[0] != "/":
+        return "/" + url
+    else:
+        return url
