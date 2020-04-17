@@ -1,7 +1,7 @@
 import logging
 from flask import current_app
 
-from . import EXTENSION_NAME
+from .names import EXTENSION_NAME
 
 
 def current_labthing(app=None):

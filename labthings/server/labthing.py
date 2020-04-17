@@ -2,10 +2,14 @@ from flask import url_for, jsonify
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 
-from . import EXTENSION_NAME  # TODO: Move into .names
-from .names import TASK_ENDPOINT, TASK_LIST_ENDPOINT, EXTENSION_LIST_ENDPOINT
+from .names import (
+    EXTENSION_NAME,
+    TASK_ENDPOINT,
+    TASK_LIST_ENDPOINT,
+    EXTENSION_LIST_ENDPOINT,
+)
 from .extensions import BaseExtension
-from .utilities import description_from_view
+from .utilities import description_from_view, clean_url_string
 from .exceptions import JSONExceptionHandler
 from .logging import LabThingLogger
 from .representations import LabThingsJSONEncoder
@@ -113,6 +117,8 @@ class LabThing:
     # Flask stuff
 
     def init_app(self, app):
+        self.app = app
+
         app.teardown_appcontext(self.teardown)
 
         # Register Flask extension
@@ -231,13 +237,9 @@ class LabThing:
         :param registration_prefix: The part of the url contributed by the
             blueprint.  Generally speaking, BlueprintSetupState.url_prefix
         """
-        parts = [registration_prefix, self.url_prefix, url_part]
-        u = "".join([part for part in parts if part])
-        if u == "":
-            u = "/"
-        if u[0] != "/":
-            u = f"/{u}"
-        return u
+        parts = [self.url_prefix, registration_prefix, url_part]
+        u = "".join([clean_url_string(part) for part in parts if part])
+        return u if u else "/"
 
     def add_view(self, resource, *urls, endpoint=None, **kwargs):
         """Adds a view to the api.
