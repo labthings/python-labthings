@@ -35,7 +35,8 @@ def registered_extensions(labthing_instance=None):
     """
     if not labthing_instance:
         labthing_instance = current_labthing()
-    return labthing_instance.extensions
+
+    return getattr(labthing_instance, "extensions", {})
 
 
 def registered_components(labthing_instance=None):
