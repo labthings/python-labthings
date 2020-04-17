@@ -6,6 +6,18 @@ from apispec.ext.marshmallow import MarshmallowPlugin
 from labthings.server.labthing import LabThing
 from labthings.server.view import View
 
+from flask.testing import FlaskClient
+
+
+class JsonClient(FlaskClient):
+    def open(self, *args, **kwargs):
+        kwargs.setdefault(
+            "headers",
+            {"Content-Type": "application/json", "Accept": "application/json"},
+        )
+        kwargs.setdefault("content_type", "application/json")
+        return super().open(*args, **kwargs)
+
 
 @pytest.fixture
 def view_cls():
@@ -111,11 +123,13 @@ def req_ctx(app):
 
 @pytest.fixture
 def client(app):
+    app.test_client_class = JsonClient
     return app.test_client()
 
 
 @pytest.fixture
 def thing_client(thing):
+    thing.app.test_client_class = JsonClient
     return thing.app.test_client()
 
 

@@ -1,5 +1,5 @@
 from flask.views import MethodView
-from flask import request
+from flask import request, make_response
 from werkzeug.wrappers import Response as ResponseBase
 from werkzeug.exceptions import MethodNotAllowed
 
@@ -58,9 +58,7 @@ class View(MethodView):
         representations = self.representations or OrderedDict()
 
         # noinspection PyUnresolvedReferences
-        mediatype = request.accept_mimetypes.best_match(
-            representations, default="application/json"
-        )
+        mediatype = request.accept_mimetypes.best_match(representations, default=None)
         if mediatype in representations:
             data, code, headers = unpack(resp)
             resp = representations[mediatype](data, code, headers)

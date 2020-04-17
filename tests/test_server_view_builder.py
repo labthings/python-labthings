@@ -10,9 +10,9 @@ def test_property_of(app, client):
     app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
 
     with client as c:
-        assert c.get("/").data == b"propertyValue"
-        assert c.post("/", data=b"newPropertyValue").data == b"newPropertyValue"
-        assert c.get("/").data == b"newPropertyValue"
+        assert c.get("/").data == b'"propertyValue"\n'
+        assert c.post("/", data=b"newPropertyValue").data == b'"newPropertyValue"\n'
+        assert c.get("/").data == b'"newPropertyValue"\n'
 
 
 def test_property_of_dict(app, client):
@@ -31,18 +31,17 @@ def test_property_of_dict(app, client):
     app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
 
     with client as c:
-        assert (
-            c.get("/").data
-            == b'{"property_name":"propertyValue","property_name_2":"propertyValue2"}\n'
-        )
-        assert (
-            c.put("/", json={"property_name": "newPropertyValue"}).data
-            == b'{"property_name":"newPropertyValue","property_name_2":"propertyValue2"}\n'
-        )
-        assert (
-            c.post("/", json={"property_name": "newPropertyValue"}).data
-            == b'{"property_name":"newPropertyValue"}\n'
-        )
+        assert c.get("/").json == {
+            "property_name": "propertyValue",
+            "property_name_2": "propertyValue2",
+        }
+        assert c.put("/", json={"property_name": "newPropertyValue"}).json == {
+            "property_name": "newPropertyValue",
+            "property_name_2": "propertyValue2",
+        }
+        assert c.post("/", json={"property_name": "newPropertyValue"}).json == {
+            "property_name": "newPropertyValue"
+        }
 
 
 def test_property_of_readonly():
@@ -72,7 +71,7 @@ def test_action_from(app, client):
     app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
 
     with client as c:
-        assert c.post("/", json={"arg": 5}).data == b'{"arg":5,"kwarg":"default"}\n'
+        assert c.post("/", json={"arg": 5}).json == {"arg": 5, "kwarg": "default"}
 
 
 def test_action_from_task(app, client):

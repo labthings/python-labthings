@@ -17,4 +17,4 @@ class ExtensionList(View):
         Returns a list of Extension representations, including basic documentation.
         Describes server methods, web views, and other relevant Lab Things metadata.
         """
-        return registered_extensions().values()
+        return registered_extensions().values() or []
