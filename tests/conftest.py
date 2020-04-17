@@ -115,6 +115,11 @@ def client(app):
 
 
 @pytest.fixture
+def thing_client(thing):
+    return thing.app.test_client()
+
+
+@pytest.fixture
 def static_path(app):
     return os.path.join(os.path.dirname(__file__), "static")
 
