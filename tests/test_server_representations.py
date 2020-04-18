@@ -3,47 +3,6 @@ from flask import Flask, Response
 import pytest
 
 
-@pytest.fixture()
-def app(request):
-
-    app = Flask(__name__)
-
-    # pushes an application context manually
-    ctx = app.app_context()
-    ctx.push()
-
-    # bind the test life with the context through the
-    request.addfinalizer(ctx.pop)
-    return app
-
-
-@pytest.fixture()
-def debug_app(request):
-
-    app = Flask(__name__)
-    app.debug = True
-
-    # pushes an application context manually
-    ctx = app.app_context()
-    ctx.push()
-
-    # bind the test life with the context through the
-    request.addfinalizer(ctx.pop)
-    return app
-
-
-@pytest.fixture()
-def app_context(app):
-    with app.app_context():
-        yield app
-
-
-@pytest.fixture()
-def app_context_debug(debug_app):
-    with debug_app.app_context():
-        yield debug_app
-
-
 @pytest.fixture
 def labthings_json_encoder():
     return representations.LabThingsJSONEncoder
@@ -67,7 +26,7 @@ def test_encode_json(labthings_json_encoder):
     )
 
 
-def test_output_json(app_context):
+def test_output_json(app_ctx):
     data = {
         "a": "String",
         "b": 5,
@@ -75,7 +34,7 @@ def test_output_json(app_context):
         "d": {"a": "String", "b": 5, "c": [10, 20, 30, 40, 50]},
     }
 
-    with app_context.test_request_context():
+    with app_ctx.test_request_context():
         response = representations.output_json(data, 200)
         assert isinstance(response, Response)
         assert response.status_code == 200
@@ -85,7 +44,7 @@ def test_output_json(app_context):
         )
 
 
-def test_pretty_output_json(app_context_debug):
+def test_pretty_output_json(app_ctx_debug):
     data = {
         "a": "String",
         "b": 5,
@@ -93,7 +52,7 @@ def test_pretty_output_json(app_context_debug):
         "d": {"a": "String", "b": 5, "c": [10, 20, 30, 40, 50]},
     }
 
-    with app_context_debug.test_request_context():
+    with app_ctx_debug.test_request_context():
         response = representations.output_json(data, 200)
         assert isinstance(response, Response)
         assert response.status_code == 200

@@ -88,7 +88,7 @@ class Server:
             wsgi_server.stop(timeout=stop_timeout)
 
         # Serve
-        gevent.signal(signal.SIGTERM, stop)
+        signal.signal(signal.SIGTERM, stop)
 
         try:
             wsgi_server.serve_forever()

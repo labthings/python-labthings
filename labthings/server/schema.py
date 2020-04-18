@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import jsonify, url_for
+from werkzeug.routing import BuildError
 import marshmallow
 
 from .names import TASK_ENDPOINT, TASK_LIST_ENDPOINT, EXTENSION_LIST_ENDPOINT
@@ -75,6 +76,9 @@ class FieldSchema:
 
         return self.field.serialize("value", obj)
 
+    def dump(self, value):
+        return self.serialize(value)
+
     def jsonify(self, value):
         """Serialize a value to JSON
 
@@ -102,9 +106,13 @@ class TaskSchema(Schema):
 
     @marshmallow.pre_dump
     def generate_links(self, data, **kwargs):
+        try:
+            url = url_for(TASK_ENDPOINT, task_id=data.id, _external=True)
+        except BuildError:
+            url = None
         data.links = {
             "self": {
-                "href": url_for(TASK_ENDPOINT, task_id=data.id, _external=True),
+                "href": url,
                 "mimetype": "application/json",
                 **description_from_view(view_class_from_endpoint(TASK_ENDPOINT)),
             }
@@ -127,11 +135,13 @@ class ExtensionSchema(Schema):
         for view_id, view_data in data.views.items():
             view_cls = view_data["view"]
             view_rule = view_data["rule"]
+            # Try to build a URL
+            try:
+                url = url_for(EXTENSION_LIST_ENDPOINT, _external=True) + view_rule
+            except BuildError:
+                url = None
             # Make links dictionary if it doesn't yet exist
-            d[view_id] = {
-                "href": url_for(EXTENSION_LIST_ENDPOINT, _external=True) + view_rule,
-                **description_from_view(view_cls),
-            }
+            d[view_id] = {"href": url, **description_from_view(view_cls)}
 
         data.links = d
 

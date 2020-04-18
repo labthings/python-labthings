@@ -4,15 +4,19 @@ from flask import make_response, abort, request
 from werkzeug.wrappers import Response as ResponseBase
 from http import HTTPStatus
 from marshmallow.exceptions import ValidationError
-from collections import Mapping
+from collections.abc import Mapping
+
+from marshmallow import Schema as _Schema
 
 from .spec.utilities import update_spec
 from .schema import TaskSchema, Schema, FieldSchema
 from .fields import Field
 from .view import View
 from .find import current_labthing
+from .utilities import unpack
 
 from labthings.core.tasks.pool import TaskThread
+from labthings.core.utilities import rupdate
 
 import logging
 
@@ -20,29 +24,9 @@ import logging
 from marshmallow import pre_dump, pre_load
 
 
-def unpack(value):
-    """Return a three tuple of data, code, and headers"""
-    if not isinstance(value, tuple):
-        return value, 200, {}
-
-    try:
-        data, code, headers = value
-        return data, code, headers
-    except ValueError:
-        pass
-
-    try:
-        data, code = value
-        return data, code, {}
-    except ValueError:
-        pass
-
-    return value, 200, {}
-
-
 class marshal_with:
     def __init__(self, schema, code=200):
-        """Decorator to format the response of a View with a Marshmallow schema
+        """Decorator to format the return of a function with a Marshmallow schema
 
         Args:
             schema: Marshmallow schema, field, or dict of Fields, describing
@@ -52,11 +36,11 @@ class marshal_with:
         self.code = code
 
         if isinstance(self.schema, Mapping):
-            self.converter = Schema.from_dict(self.schema)().jsonify
+            self.converter = Schema.from_dict(self.schema)().dump
         elif isinstance(self.schema, Field):
-            self.converter = FieldSchema(self.schema).jsonify
-        elif isinstance(self.schema, Schema):
-            self.converter = self.schema.jsonify
+            self.converter = FieldSchema(self.schema).dump
+        elif isinstance(self.schema, _Schema):
+            self.converter = self.schema.dump
         else:
             raise TypeError(
                 f"Unsupported schema type {type(self.schema)} for marshal_with"
@@ -69,12 +53,15 @@ class marshal_with:
         @wraps(f)
         def wrapper(*args, **kwargs):
             resp = f(*args, **kwargs)
-            if isinstance(resp, tuple):
-                data, code, headers = unpack(resp)
+            if isinstance(resp, ResponseBase):
+                resp.data = self.converter(resp.data)
+                return resp
+            elif isinstance(resp, tuple):
+                resp, code, headers = unpack(resp)
+                return (self.converter(resp), code, headers)
             else:
-                data, code, headers = resp, 200, {}
-
-            return make_response(self.converter(data), code, headers)
+                resp, code, headers = resp, 200, {}
+            return (self.converter(resp), code, headers)
 
         return wrapper
 
@@ -90,15 +77,15 @@ def marshal_task(f):
     def wrapper(*args, **kwargs):
         resp = f(*args, **kwargs)
         if isinstance(resp, tuple):
-            data, code, headers = unpack(resp)
+            resp, code, headers = unpack(resp)
         else:
-            data, code, headers = resp, 200, {}
+            resp, code, headers = resp, 201, {}
 
-        if not isinstance(data, TaskThread):
+        if not isinstance(resp, TaskThread):
             raise TypeError(
-                f"Function {f.__name__} expected to return a TaskThread object, but instead returned a {type(data).__name__}. If it does not return a task, remove the @marshall_task decorator from {f.__name__}."
+                f"Function {f.__name__} expected to return a TaskThread object, but instead returned a {type(resp).__name__}. If it does not return a task, remove the @marshall_task decorator from {f.__name__}."
             )
-        return make_response(TaskSchema().jsonify(data), code, headers)
+        return (TaskSchema().dump(resp), code, headers)
 
     return wrapper
 
@@ -327,11 +314,12 @@ class doc_response:
         }
 
         if self.mimetype:
-            self.response_dict.update(
+            rupdate(
+                self.response_dict,
                 {
                     "responses": {self.code: {"content": {self.mimetype: {}}}},
                     "_content_type": self.mimetype,
-                }
+                },
             )
 
     def __call__(self, f):

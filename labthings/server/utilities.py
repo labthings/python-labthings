@@ -1,7 +1,19 @@
-from ..core.utilities import get_summary
+from labthings.core.utilities import get_summary
 
 from werkzeug.http import HTTP_STATUS_CODES
 from flask import current_app
+
+
+http_method_funcs = [
+    "get",
+    "post",
+    "put",
+    "delete",
+    "patch",
+    "head",
+    "options",
+    "trace",
+]
 
 
 def http_status_message(code):
@@ -21,7 +33,7 @@ def description_from_view(view_class):
     summary = get_summary(view_class)
 
     methods = []
-    for method_key in view_class.methods:
+    for method_key in http_method_funcs:
         if hasattr(view_class, method_key):
             methods.append(method_key.upper())
 
@@ -43,7 +55,7 @@ def view_class_from_endpoint(endpoint: str):
     Returns:
         View: View class attached to the specified endpoint
     """
-    return current_app.view_functions[endpoint].view_class
+    return getattr(current_app.view_functions.get(endpoint), "view_class", None)
 
 
 def unpack(value):
@@ -64,3 +76,12 @@ def unpack(value):
         pass
 
     return value, 200, {}
+
+
+def clean_url_string(url: str):
+    if not url:
+        return "/"
+    if url[0] != "/":
+        return "/" + url
+    else:
+        return url

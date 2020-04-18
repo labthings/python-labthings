@@ -65,7 +65,7 @@ class BaseExtension:
     def add_view(self, view_class, rule, view_id=None, **kwargs):
         # Remove all leading slashes from view route
         cleaned_rule = rule
-        while cleaned_rule[0] == "/":
+        while cleaned_rule and cleaned_rule[0] == "/":
             cleaned_rule = cleaned_rule[1:]
 
         # Expand the rule to include extension name
@@ -141,7 +141,7 @@ class BaseExtension:
         if not hasattr(self, method_name):
             setattr(self, method_name, method)
         else:
-            logging.warning(
+            raise NameError(
                 "Unable to bind method to extension. Method name already exists."
             )
 

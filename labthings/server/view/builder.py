@@ -54,9 +54,11 @@ def property_of(
     # Override read-write capabilities
     if not readonly:
         generated_class.post = _post
+        generated_class.methods.add("POST")
         # Enable PUT requests for dictionaries
         if type(getattr(property_object, property_name)) == dict:
             generated_class.put = _put
+            generated_class.methods.add("PUT")
 
     # Add decorators for arguments etc
     initial_property_value = getattr(property_object, property_name)
@@ -138,9 +140,6 @@ def static_from(static_folder: str, name=None):
         return send_from_directory(static_folder, path)
 
     # Generate a basic property class
-    generated_class = type(name, (View, object), {})
-
-    if static_folder:
-        generated_class.get = _get
+    generated_class = type(name, (View, object), {"get": _get})
 
     return generated_class

@@ -2,10 +2,14 @@ from flask import url_for, jsonify
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 
-from . import EXTENSION_NAME  # TODO: Move into .names
-from .names import TASK_ENDPOINT, TASK_LIST_ENDPOINT, EXTENSION_LIST_ENDPOINT
+from .names import (
+    EXTENSION_NAME,
+    TASK_ENDPOINT,
+    TASK_LIST_ENDPOINT,
+    EXTENSION_LIST_ENDPOINT,
+)
 from .extensions import BaseExtension
-from .utilities import description_from_view
+from .utilities import description_from_view, clean_url_string
 from .exceptions import JSONExceptionHandler
 from .logging import LabThingLogger
 from .representations import LabThingsJSONEncoder
@@ -113,6 +117,8 @@ class LabThing:
     # Flask stuff
 
     def init_app(self, app):
+        self.app = app
+
         app.teardown_appcontext(self.teardown)
 
         # Register Flask extension
@@ -160,7 +166,7 @@ class LabThing:
         self.add_view(TaskView, "/tasks/<task_id>", endpoint=TASK_ENDPOINT)
 
     def _create_base_sockets(self):
-        self.sockets.add_url_rule(f"{self.url_prefix}", self._socket_handler)
+        self.sockets.add_url_rule(self._complete_url("", ""), self._socket_handler)
 
     def _socket_handler(self, ws):
         # Create a socket subscriber
@@ -231,8 +237,9 @@ class LabThing:
         :param registration_prefix: The part of the url contributed by the
             blueprint.  Generally speaking, BlueprintSetupState.url_prefix
         """
-        parts = [registration_prefix, self.url_prefix, url_part]
-        return "".join([part for part in parts if part])
+        parts = [self.url_prefix, registration_prefix, url_part]
+        u = "".join([clean_url_string(part) for part in parts if part])
+        return u if u else "/"
 
     def add_view(self, resource, *urls, endpoint=None, **kwargs):
         """Adds a view to the api.
@@ -280,18 +287,6 @@ class LabThing:
         resource_class_args = kwargs.pop("resource_class_args", ())
         resource_class_kwargs = kwargs.pop("resource_class_kwargs", {})
 
-        # NOTE: 'view_functions' is cleaned up from Blueprint class in Flask 1.0
-        if endpoint in getattr(app, "view_functions", {}):
-            previous_view_class = app.view_functions[endpoint].__dict__["view_class"]
-
-            # If you override the endpoint with a different class,
-            # avoid the collision by raising an exception
-            if previous_view_class != view:
-                raise ValueError(
-                    "This endpoint (%s) is already set to the class %s."
-                    % (endpoint, previous_view_class.__name__)
-                )
-
         view.endpoint = endpoint
         resource_func = view.as_view(
             endpoint, *resource_class_args, **resource_class_kwargs
@@ -311,7 +306,7 @@ class LabThing:
 
         # Handle resource groups listed in API spec
         view_spec = get_spec(view)
-        view_groups = view_spec.get("_groups", {})
+        view_groups = view_spec.get("_groups", [])
         if "actions" in view_groups:
             self.thing_description.action(flask_rules, view)
             self._action_views[view.endpoint] = view
@@ -324,7 +319,9 @@ class LabThing:
     def url_for(self, view, **values):
         """Generates a URL to the given resource.
         Works like :func:`flask.url_for`."""
-        endpoint = view.endpoint
+        endpoint = getattr(view, "endpoint", None)
+        if not endpoint:
+            return ""
         # Default to external links
         if "_external" not in values:
             values["_external"] = True

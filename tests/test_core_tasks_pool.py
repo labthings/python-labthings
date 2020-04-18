@@ -1,28 +1,7 @@
 from labthings.core import tasks
-from flask import Flask, Response
 import pytest
 
 import gevent
-
-
-@pytest.fixture()
-def app(request):
-
-    app = Flask(__name__)
-
-    # pushes an application context manually
-    ctx = app.app_context()
-    ctx.push()
-
-    # bind the test life with the context through the
-    request.addfinalizer(ctx.pop)
-    return app
-
-
-@pytest.fixture()
-def app_context(app):
-    with app.app_context():
-        yield app
 
 
 def test_taskify_without_context():
@@ -33,11 +12,11 @@ def test_taskify_without_context():
     assert isinstance(task_obj, gevent.Greenlet)
 
 
-def test_taskify_with_context(app_context):
+def test_taskify_with_context(app_ctx):
     def task_func():
         pass
 
-    with app_context.test_request_context():
+    with app_ctx.test_request_context():
         task_obj = tasks.taskify(task_func)()
         assert isinstance(task_obj, gevent.Greenlet)
 

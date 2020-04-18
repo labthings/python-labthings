@@ -1,7 +1,7 @@
 import logging
 from flask import current_app
 
-from . import EXTENSION_NAME
+from .names import EXTENSION_NAME
 
 
 def current_labthing(app=None):
@@ -19,7 +19,7 @@ def current_labthing(app=None):
     logging.debug("Active app extensions:")
     logging.debug(app.extensions)
     logging.debug("Active labthing:")
-    logging.debug(app.extensions[EXTENSION_NAME])
+    logging.debug(app.extensions.get(EXTENSION_NAME))
     return app.extensions.get(EXTENSION_NAME, None)
 
 
@@ -35,7 +35,8 @@ def registered_extensions(labthing_instance=None):
     """
     if not labthing_instance:
         labthing_instance = current_labthing()
-    return labthing_instance.extensions
+
+    return getattr(labthing_instance, "extensions", {})
 
 
 def registered_components(labthing_instance=None):
