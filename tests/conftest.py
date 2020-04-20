@@ -32,7 +32,10 @@ class FakeWebsocket:
 
     @property
     def response(self):
-        return self.responses[-1]
+        if len(self.responses) >= 1:
+            return self.responses[-1]
+        else:
+            return None
 
     def send(self, response):
         self.responses.append(response)
