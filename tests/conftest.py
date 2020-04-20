@@ -1,6 +1,7 @@
 import pytest
 import os
 from flask import Flask
+from flask.views import MethodView
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from labthings.server.labthing import LabThing
@@ -20,7 +21,7 @@ class JsonClient(FlaskClient):
 
 
 @pytest.fixture
-def view_cls():
+def empty_view_cls():
     class EmptyViewClass(View):
         def get(self):
             pass
@@ -35,6 +36,24 @@ def view_cls():
             pass
 
     return EmptyViewClass
+
+
+@pytest.fixture
+def flask_view_cls():
+    class ViewClass(MethodView):
+        def get(self):
+            return "GET"
+
+        def post(self):
+            return "POST"
+
+        def put(self):
+            return "PUT"
+
+        def delete(self):
+            return "DELETE"
+
+    return ViewClass
 
 
 @pytest.fixture
