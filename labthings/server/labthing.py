@@ -166,7 +166,7 @@ class LabThing:
         self.add_view(TaskView, "/tasks/<task_id>", endpoint=TASK_ENDPOINT)
 
     def _create_base_sockets(self):
-        self.sockets.add_url_rule(self._complete_url("", ""), self._socket_handler)
+        self.sockets.add_view(self._complete_url("", ""), self._socket_handler)
 
     def _socket_handler(self, ws):
         # Create a socket subscriber

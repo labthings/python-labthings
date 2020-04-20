@@ -69,6 +69,9 @@ class BaseSockets(ABC):
     def add_url_rule(self, rule, _, f, **options):
         self.url_map.add(Rule(rule, endpoint=f))
 
+    def add_view(self, rule, f, **options):
+        return self.add_url_rule(rule, None, f, **options)
+
     def register_blueprint(self, blueprint, **options):
         """
         Registers a blueprint for web sockets like for 'Flask' application.
