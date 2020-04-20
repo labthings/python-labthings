@@ -96,6 +96,55 @@ def test_sockets_flask_blueprint(app):
     socket.register_blueprint(bp, url_prefix="/")
 
 
+def test_socket_middleware_http(app, client):
+    socket = gsocket.Sockets(app)
+
+    @socket.route("/")
+    def ws_view_func(ws):
+        ws.send("WS")
+
+    @app.route("/")
+    def http_view_func():
+        return "GET"
+
+    # Assert ws_view_func was added to the Sockets URL map
+    with client as c:
+        assert c.get("/").data == b"GET"
+
+
+def test_socket_middleware_ws(app, ws_client):
+    socket = gsocket.Sockets(app)
+
+    @socket.route("/")
+    def ws_view_func(ws):
+        msg = ws.recieve()
+        ws.send(msg)
+
+    @app.route("/")
+    def http_view_func():
+        return "GET"
+
+    # Assert ws_view_func was added to the Sockets URL map
+    with ws_client as c:
+        assert c.connect("/", message="hello") == ["hello"]
+
+
+def test_socket_middleware_http_fallback(app, ws_client):
+    @app.route("/")
+    def http_view_func():
+        return "GET"
+
+    # Assert ws_view_func was added to the Sockets URL map
+    with ws_client as c:
+        assert c.get("/").data == b"GET"
+
+
+def test_socket_handler_loop(fake_websocket):
+    ws = fake_websocket("hello", recieve_once=True)
+
+    gsocket.socket_handler_loop(ws)
+
+
 ### Will need regular updating as new message handlers are added
 def test_process_socket_message():
     assert base.process_socket_message("message") is None
