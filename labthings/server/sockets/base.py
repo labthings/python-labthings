@@ -20,7 +20,9 @@ class SocketSubscriber:
         else:
             property_value = None
 
-        property_name = str(getattr(viewcls, "endpoint", "unknown"))
+        property_name = getattr(viewcls, "endpoint", None) or getattr(
+            viewcls, "__name__", "unknown"
+        )
 
         response = encode_json(
             {"messageType": "propertyStatus", "data": {property_name: property_value}}
@@ -54,18 +56,18 @@ class BaseSockets(ABC):
 
     @abstractmethod
     def init_app(self, app):
-        pass
+        "Registers Flask middleware"
 
     def route(self, rule, **options):
-        def decorator(view_func):
-            options.pop("endpoint", None)
-            self.add_url_rule(rule, view_func, **options)
-            return view_func
+        def decorator(f):
+            endpoint = options.pop("endpoint", None)
+            self.add_url_rule(rule, endpoint, f, **options)
+            return f
 
         return decorator
 
-    def add_url_rule(self, rule, view_func, **options):
-        self.url_map.add(Rule(rule, endpoint=view_func))
+    def add_url_rule(self, rule, _, f, **options):
+        self.url_map.add(Rule(rule, endpoint=f))
 
     def register_blueprint(self, blueprint, **options):
         """
