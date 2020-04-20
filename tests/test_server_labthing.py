@@ -247,4 +247,5 @@ def test_version(thing):
 def test_socket_handler(thing, fake_websocket):
     ws = fake_websocket("", recieve_once=True)
     thing._socket_handler(ws)
-    assert ws.response is None
+    # Expect no response
+    assert ws.responses == []
