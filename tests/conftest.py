@@ -191,6 +191,12 @@ def thing(app):
 
 
 @pytest.fixture()
+def thing_ctx(thing):
+    with thing.app.app_context():
+        yield thing.app
+
+
+@pytest.fixture()
 def debug_app(request):
 
     app = Flask(__name__)

@@ -1,5 +1,6 @@
 import logging
 from flask import current_app
+import weakref
 
 from .names import EXTENSION_NAME
 
@@ -13,14 +14,15 @@ def current_labthing(app=None):
     # reach the Flask app object. Just using current_app returns
     # a wrapper, which breaks it's use in Task threads
     if not app:
-        app = current_app._get_current_object()  # skipcq: PYL-W0212
-    if not app:
-        return None
-    logging.debug("Active app extensions:")
-    logging.debug(app.extensions)
-    logging.debug("Active labthing:")
-    logging.debug(app.extensions.get(EXTENSION_NAME))
-    return app.extensions.get(EXTENSION_NAME, None)
+        try:
+            app = current_app._get_current_object()  # skipcq: PYL-W0212
+        except RuntimeError:
+            return None
+    ext = app.extensions.get(EXTENSION_NAME, None)
+    if isinstance(ext, weakref.ref):
+        return ext()
+    else:
+        return ext
 
 
 def registered_extensions(labthing_instance=None):

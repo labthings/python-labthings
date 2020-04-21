@@ -24,7 +24,9 @@ def test_init_app(app):
     thing = labthing.LabThing()
     thing.init_app(app)
 
-    assert app.extensions.get(EXTENSION_NAME) == thing
+    # Check weakref
+    assert app.extensions.get(EXTENSION_NAME)() == thing
+
     assert app.json_encoder == LabThingsJSONEncoder
     assert 400 in app.error_handler_spec.get(None)
 
@@ -218,11 +220,6 @@ def test_td_add_link_options(thing, view_cls):
     } in thing.thing_description._links
 
 
-def test_root_rep(thing, app_ctx):
-    with app_ctx.test_request_context():
-        assert thing.root() == thing.thing_description.to_dict()
-
-
 def test_description(thing):
     assert thing.description == ""
     thing.description = "description"
@@ -242,10 +239,3 @@ def test_version(thing):
     thing.version = "x.x.x"
     assert thing.version == "x.x.x"
     assert thing.spec.version == "x.x.x"
-
-
-def test_socket_handler(thing, fake_websocket):
-    ws = fake_websocket("", recieve_once=True)
-    thing._socket_handler(ws)
-    # Expect no response
-    assert ws.responses == []
