@@ -111,8 +111,6 @@ class Server:
         self.started_event.set()
         try:
             self.wsgi_server.serve_forever()
-        # Ignore the exit lines in coverage
-        # as I can't find a way to test a KeyboardInterrupt...
         except (KeyboardInterrupt, SystemExit):  # pragma: no cover
             logging.warning(
                 "Terminating by KeyboardInterrupt or SystemExit"
