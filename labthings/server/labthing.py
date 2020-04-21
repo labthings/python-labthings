@@ -97,13 +97,22 @@ class LabThing:
         self.spec.description = description
 
     @property
-    def title(self,):
+    def title(self):
         return self._title
 
     @title.setter
     def title(self, title: str):
         self._title = title
         self.spec.title = title
+
+    @property
+    def safe_title(self):
+        title = self.title
+        if not title:
+            title = "unknown"
+        title = title.replace(" ", "")
+        title = title.lower()
+        return title
 
     @property
     def version(self,):
