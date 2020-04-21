@@ -7,10 +7,6 @@ from .names import TASK_ENDPOINT, TASK_LIST_ENDPOINT, EXTENSION_LIST_ENDPOINT
 from .utilities import view_class_from_endpoint, description_from_view
 from . import fields
 
-MARSHMALLOW_VERSION_INFO = tuple(
-    [int(part) for part in marshmallow.__version__.split(".") if part.isdigit()]
-)
-
 sentinel = object()
 
 
@@ -26,21 +22,10 @@ class Schema(marshmallow.Schema):
             or as a collection. If unset, defaults to the value of the
             `many` attribute on this Schema.
         :param kwargs: Additional keyword arguments passed to `flask.jsonify`.
-        .. versionchanged:: 0.6.0
-            Takes the same arguments as `marshmallow.Schema.dump`. Additional
-            keyword arguments are passed to `flask.jsonify`.
-        .. versionchanged:: 0.6.3
-            The `many` argument for this method defaults to the value of
-            the `many` attribute on the Schema. Previously, the `many`
-            argument of this method defaulted to False, regardless of the
-            value of `Schema.many`.
         """
         if many is sentinel:
             many = self.many
-        if MARSHMALLOW_VERSION_INFO[0] >= 3:
-            data = self.dump(obj, many=many)
-        else:
-            data = self.dump(obj, many=many).data
+        data = self.dump(obj, many=many)
         return jsonify(data, *args, **kwargs)
 
 
