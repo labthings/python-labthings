@@ -129,7 +129,23 @@ def test_socket_middleware_ws(app, ws_client):
         assert c.connect("/", message="hello") == ["hello"]
 
 
+def test_socket_middleware_add_view(app, ws_client):
+    socket = gsocket.Sockets(app)
+
+    def ws_view_func(ws):
+        msg = ws.recieve()
+        ws.send(msg)
+
+    socket.add_view("/", ws_view_func)
+
+    # Assert ws_view_func was added to the Sockets URL map
+    with ws_client as c:
+        assert c.connect("/", message="hello") == ["hello"]
+
+
 def test_socket_middleware_http_fallback(app, ws_client):
+    gsocket.Sockets(app)
+
     @app.route("/")
     def http_view_func():
         return "GET"
@@ -137,6 +153,20 @@ def test_socket_middleware_http_fallback(app, ws_client):
     # Assert ws_view_func was added to the Sockets URL map
     with ws_client as c:
         assert c.get("/").data == b"GET"
+
+
+def test_socket_middleware_ws_http_cookie(app, ws_client):
+    socket = gsocket.Sockets(app)
+
+    @socket.route("/")
+    def ws_view_func(ws):
+        msg = ws.recieve()
+        ws.send(msg)
+
+    # Assert ws_view_func was added to the Sockets URL map
+    with ws_client as c:
+        c.environ_base["HTTP_COOKIE"] = {"key": "value"}
+        assert c.connect("/", message="hello") == ["hello"]
 
 
 def test_socket_handler_loop(fake_websocket):
