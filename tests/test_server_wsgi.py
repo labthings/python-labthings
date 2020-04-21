@@ -38,7 +38,7 @@ def test_server_run(thing):
 
 
 def test_server_start_no_labthing(app):
-    server = wsgi.Server(app, host="127.0.0.1", port=5555)
+    server = wsgi.Server(app, host="127.0.0.1", port=5557)
 
     def start_server():
         server.run()
@@ -49,5 +49,5 @@ def test_server_start_no_labthing(app):
 
 
 def test_server_stop_before_run(thing):
-    server = wsgi.Server(thing.app, host="127.0.0.1", port=5555,)
+    server = wsgi.Server(thing.app, host="127.0.0.1", port=5558,)
     server.stop()
