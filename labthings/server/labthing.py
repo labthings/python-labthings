@@ -163,7 +163,7 @@ class LabThing:
 
     def _create_base_routes(self):
         # Add root representation
-        self.add_view(RootView, self._complete_url("/", ""), endpoint="root")
+        self.add_view(RootView, "/", endpoint="root")
         # Add thing descriptions
         self.app.register_blueprint(
             docs_blueprint, url_prefix=f"{self.url_prefix}/docs"
