@@ -22,7 +22,6 @@ def test_tasks_list(thing_client):
 
     with thing_client as c:
         response = c.get("/tasks").json
-        assert len(response) == 1
         assert response[0].get("id") == str(task_obj.id)
 
 
