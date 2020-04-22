@@ -22,7 +22,8 @@ def test_tasks_list(thing_client):
 
     with thing_client as c:
         response = c.get("/tasks").json
-        assert response[0].get("id") == str(task_obj.id)
+        ids = [task.get("id") for task in response]
+        assert str(task_obj.id) in ids
 
 
 def test_task_representation(thing_client):
