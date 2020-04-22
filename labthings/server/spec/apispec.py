@@ -168,8 +168,8 @@ def build_spec(view, inherit_from=None):
     )
 
     # Build tags
-    tags = getattr(view, "__apispec__").get("tags", [])
-    tags.extend(inherited_spec.get("tags", []))
+    tags = getattr(view, "__apispec__").get("tags", set())
+    tags = tags.union(inherited_spec.get("tags", set()))
 
     return update_spec(
         view, {"description": description, "summary": summary, "tags": tags}

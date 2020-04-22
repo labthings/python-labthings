@@ -94,13 +94,13 @@ def test_view_to_apispec_operations(spec):
         "post": {
             "description": None,
             "summary": None,
-            "tags": [],
+            "tags": set(),
             "responses": {200: {"description": "OK"}},
         },
         "get": {
             "description": None,
             "summary": None,
-            "tags": [],
+            "tags": set(),
             "responses": {200: {"description": "OK"}},
         },
     }
@@ -122,19 +122,19 @@ def test_rule_to_apispec_path(app, spec):
             "get": {
                 "description": None,
                 "summary": None,
-                "tags": [],
+                "tags": set(),
                 "responses": {200: {"description": "OK"}},
             },
             "post": {
                 "description": None,
                 "summary": None,
-                "tags": [],
+                "tags": set(),
                 "responses": {200: {"description": "OK"}},
             },
         },
         "description": None,
         "summary": None,
-        "tags": [],
+        "tags": set(),
     }
 
 
@@ -154,7 +154,7 @@ def test_rule_to_apispec_path_params(app, spec):
             "get": {
                 "description": None,
                 "summary": None,
-                "tags": [],
+                "tags": set(),
                 "responses": {200: {"description": "OK"}},
                 "parameters": [
                     {
@@ -168,7 +168,7 @@ def test_rule_to_apispec_path_params(app, spec):
             "post": {
                 "description": None,
                 "summary": None,
-                "tags": [],
+                "tags": set(),
                 "responses": {200: {"description": "OK"}},
                 "parameters": [
                     {
@@ -182,7 +182,7 @@ def test_rule_to_apispec_path_params(app, spec):
         },
         "description": None,
         "summary": None,
-        "tags": [],
+        "tags": set(),
     }
 
 
@@ -202,13 +202,13 @@ def test_rule_to_apispec_path_extra_class_params(app, spec):
             "get": {
                 "description": None,
                 "summary": "A class summary",
-                "tags": [],
+                "tags": set(),
                 "responses": {200: {"description": "OK"}},
             }
         },
         "description": None,
         "summary": "A class summary",
-        "tags": [],
+        "tags": set(),
     }
 
 
@@ -228,11 +228,11 @@ def test_rule_to_apispec_path_extra_method_params(app, spec):
             "get": {
                 "description": None,
                 "summary": "A GET summary",
-                "tags": [],
+                "tags": set(),
                 "responses": {200: {"description": "OK"}},
             }
         },
         "description": None,
         "summary": None,
-        "tags": [],
+        "tags": set(),
     }

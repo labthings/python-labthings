@@ -1,5 +1,6 @@
 from flask import url_for, request
 from apispec import APISpec
+import weakref
 
 from ..view import View
 
@@ -44,12 +45,16 @@ def find_schema_for_view(view: View):
 
 class ThingDescription:
     def __init__(self, apispec: APISpec):
-        self.apispec = apispec
+        self._apispec = weakref.ref(apispec)
         self.properties = {}
         self.actions = {}
         self.events = {}
         self._links = []
         super().__init__()
+
+    @property
+    def apispec(self):
+        return self._apispec()
 
     @property
     def links(self):

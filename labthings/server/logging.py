@@ -1,17 +1,18 @@
+from .find import current_labthing
+
 from logging import StreamHandler
 import datetime
 
 
 class LabThingLogger(StreamHandler):
-    def __init__(self, labthing):
-        StreamHandler.__init__(self)
-        self.labthing = labthing
+    def __init__(self, *args, **kwargs):
+        StreamHandler.__init__(self, *args, **kwargs)
 
     def emit(self, record):
         log_event = self.rest_format_record(record)
 
         # Broadcast to subscribers
-        subscribers = getattr(self.labthing, "subscribers", [])
+        subscribers = getattr(current_labthing(), "subscribers", [])
         for sub in subscribers:
             sub.event_notify(log_event)
 

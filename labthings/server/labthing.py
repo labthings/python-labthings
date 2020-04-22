@@ -17,14 +17,17 @@ from .spec.apispec import rule_to_apispec_path
 from .spec.utilities import get_spec
 from .spec.td import ThingDescription
 from .decorators import tag
-from .sockets import Sockets, SocketSubscriber, socket_handler_loop
+from .sockets import Sockets
 
 from .default_views.extensions import ExtensionList
 from .default_views.tasks import TaskList, TaskView
 from .default_views.docs import docs_blueprint, SwaggerUIView
+from .default_views.root import RootView
+from .default_views.sockets import socket_handler
 
 from ..core.utilities import get_docstring
 
+import weakref
 import logging
 
 
@@ -72,7 +75,7 @@ class LabThing:
 
         # Logging handler
         # TODO: Add cleanup code
-        self.log_handler = LabThingLogger(self)
+        self.log_handler = LabThingLogger()
         logging.getLogger().addHandler(self.log_handler)
 
         self.spec = APISpec(
@@ -97,13 +100,22 @@ class LabThing:
         self.spec.description = description
 
     @property
-    def title(self,):
+    def title(self):
         return self._title
 
     @title.setter
     def title(self, title: str):
         self._title = title
         self.spec.title = title
+
+    @property
+    def safe_title(self):
+        title = self.title
+        if not title:
+            title = "unknown"
+        title = title.replace(" ", "")
+        title = title.lower()
+        return title
 
     @property
     def version(self,):
@@ -119,11 +131,9 @@ class LabThing:
     def init_app(self, app):
         self.app = app
 
-        app.teardown_appcontext(self.teardown)
-
         # Register Flask extension
         app.extensions = getattr(app, "extensions", {})
-        app.extensions[EXTENSION_NAME] = self
+        app.extensions[EXTENSION_NAME] = weakref.ref(self)
 
         # Flask error formatter
         if self.format_flask_exceptions:
@@ -145,12 +155,9 @@ class LabThing:
         self.sockets = Sockets(app)
         self._create_base_sockets()
 
-    def teardown(self, exception):
-        pass
-
     def _create_base_routes(self):
         # Add root representation
-        self.app.add_url_rule(self._complete_url("/", ""), "root", self.root)
+        self.add_view(RootView, "/", endpoint="root")
         # Add thing descriptions
         self.app.register_blueprint(
             docs_blueprint, url_prefix=f"{self.url_prefix}/docs"
@@ -166,19 +173,7 @@ class LabThing:
         self.add_view(TaskView, "/tasks/<task_id>", endpoint=TASK_ENDPOINT)
 
     def _create_base_sockets(self):
-        self.sockets.add_url_rule(self._complete_url("", ""), self._socket_handler)
-
-    def _socket_handler(self, ws):
-        # Create a socket subscriber
-        wssub = SocketSubscriber(ws)
-        self.subscribers.add(wssub)
-        logging.info(f"Added subscriber {wssub}")
-        # Start the socket connection handler loop
-        socket_handler_loop(ws)
-        # Remove the subscriber once the loop returns
-        self.subscribers.remove(wssub)
-        logging.info(f"Removed subscriber {wssub}")
-        logging.debug(list(self.subscribers))
+        self.sockets.add_view(self._complete_url("", ""), socket_handler)
 
     # Device stuff
 
@@ -300,17 +295,19 @@ class LabThing:
 
         # There might be a better way to do this than _rules_by_endpoint,
         # but I can't find one so this will do for now. Skipping PYL-W0212
+        # FIXME: There is a MASSIVE memory leak or something going on in APISpec!
+        # This is grinding tests to a halt, and is really annoying... Should be fixed.
         flask_rules = app.url_map._rules_by_endpoint.get(endpoint)  # skipcq: PYL-W0212
         for flask_rule in flask_rules:
             self.spec.path(**rule_to_apispec_path(flask_rule, view, self.spec))
 
         # Handle resource groups listed in API spec
         view_spec = get_spec(view)
-        view_groups = view_spec.get("_groups", [])
-        if "actions" in view_groups:
+        view_tags = view_spec.get("tags", set())
+        if "actions" in view_tags:
             self.thing_description.action(flask_rules, view)
             self._action_views[view.endpoint] = view
-        if "properties" in view_groups:
+        if "properties" in view_tags:
             self.thing_description.property(flask_rules, view)
             self._property_views[view.endpoint] = view
 
@@ -336,8 +333,3 @@ class LabThing:
         if params is None:
             params = {}
         self.thing_description.add_link(view, rel, kwargs=kwargs, params=params)
-
-    # Description
-    def root(self):
-        """Root representation"""
-        return self.thing_description.to_dict()

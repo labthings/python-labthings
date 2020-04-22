@@ -8,7 +8,7 @@ from collections.abc import Mapping
 
 from marshmallow import Schema as _Schema
 
-from .spec.utilities import update_spec
+from .spec.utilities import update_spec, tag_spec
 from .schema import TaskSchema, Schema, FieldSchema
 from .fields import Field
 from .view import View
@@ -100,8 +100,7 @@ def ThingAction(viewcls: View):
         View: View class with Action spec tags
     """
     # Update Views API spec
-    update_spec(viewcls, {"tags": ["actions"]})
-    update_spec(viewcls, {"_groups": ["actions"]})
+    tag_spec(viewcls, "actions")
     return viewcls
 
 
@@ -173,8 +172,7 @@ def ThingProperty(viewcls):
         viewcls.put = property_notify(viewcls.put)
 
     # Update Views API spec
-    update_spec(viewcls, {"tags": ["properties"]})
-    update_spec(viewcls, {"_groups": ["properties"]})
+    tag_spec(viewcls, "properties")
     return viewcls
 
 
@@ -281,16 +279,11 @@ doc = Doc
 
 class Tag:
     def __init__(self, tags):
-        if isinstance(tags, str):
-            self.tags = [tags]
-        elif isinstance(tags, list) and all([isinstance(e, str) for e in tags]):
-            self.tags = tags
-        else:
-            raise TypeError("Tags must be a string or list of strings")
+        self.tags = tags
 
     def __call__(self, f):
         # Pass params to call function attribute for external access
-        update_spec(f, {"tags": self.tags})
+        tag_spec(f, self.tags)
         return f
 
 

@@ -21,6 +21,22 @@ def update_spec(obj, spec: dict):
     return obj.__apispec__ or {}
 
 
+def tag_spec(obj, tags, add_group: bool = True):
+    obj.__apispec__ = obj.__dict__.get("__apispec__", {})
+
+    if "tags" not in obj.__apispec__:
+        obj.__apispec__["tags"] = set()
+
+    if isinstance(tags, set) or isinstance(tags, list):
+        if not all([isinstance(e, str) for e in tags]):
+            raise TypeError("All tags must be strings")
+        obj.__apispec__["tags"] = obj.__apispec__["tags"].union(tags)
+    elif isinstance(tags, str):
+        obj.__apispec__["tags"].add(tags)
+    else:
+        raise TypeError("All tags must be strings")
+
+
 def get_spec(obj):
     """
     Get the __apispec__ dictionary, created by LabThings decorators,
