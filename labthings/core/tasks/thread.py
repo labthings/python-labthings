@@ -252,4 +252,3 @@ class ThreadLogHandler(logging.Handler):
         # We probably need to check the size of the list...
         # TODO: think about whether any of the keys are security flaws
         # (this is why I don't dump the whole logrecord)
-        print(f"log is now {self.dest}")
