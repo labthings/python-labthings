@@ -4,7 +4,7 @@ from functools import wraps
 
 from .thread import TaskThread
 
-from flask import copy_current_request_context
+from flask import copy_current_request_context, has_request_context
 
 
 class TaskMaster:
@@ -37,8 +37,11 @@ class TaskMaster:
 
     def new(self, f, *args, **kwargs):
         # copy_current_request_context allows threads to access flask current_app
+        if has_request_context():
+            # The if block stops this failing if we're outside a Flask app.
+            f = copy_current_request_context(f)
         task = TaskThread(
-            target=copy_current_request_context(f), args=args, kwargs=kwargs
+            target=f, args=args, kwargs=kwargs
         )
         self._tasks.append(task)
         return task

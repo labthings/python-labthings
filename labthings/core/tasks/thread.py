@@ -229,7 +229,7 @@ class ThreadLogHandler(logging.Handler):
         """
         logging.Handler.__init__(self)
         self.thread = thread
-        self.dest = dest if dest else []
+        self.dest = [] if dest is None else dest
         self.addFilter(self.check_thread)
         
     def check_thread(self, record):
@@ -238,11 +238,12 @@ class ThreadLogHandler(logging.Handler):
             return 1
         if record.thread == self.thread.ident:
             return 1
+        if record.threadName == self.thread.name:
+            return 1  # TODO: check if this is unsafe, or better with greenlets
         return 0
         
     def emit(self, record):
         """Do something with a logged message"""
-        print("emitting a log")
         record_dict = {"message": record.getMessage()}
         for k in ["created", "levelname", "levelno", "lineno", "filename"]:
             record_dict[k] = getattr(record, k)
@@ -251,3 +252,4 @@ class ThreadLogHandler(logging.Handler):
         # We probably need to check the size of the list...
         # TODO: think about whether any of the keys are security flaws
         # (this is why I don't dump the whole logrecord)
+        print(f"log is now {self.dest}")
