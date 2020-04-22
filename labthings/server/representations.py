@@ -10,6 +10,8 @@ class LabThingsJSONEncoder(JSONEncoder):
     """
 
     def default(self, o):
+        if isinstance(o, set):
+            return list(o)
         return JSONEncoder.default(self, o)
 
 
