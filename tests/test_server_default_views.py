@@ -3,9 +3,13 @@ from labthings.core.tasks import taskify, dictionary
 import gevent
 
 
-def test_docs(thing, thing_client):
+def test_docs(thing, thing_client, schemas_path):
+
     with thing_client as c:
-        assert c.get("/docs/swagger").json == thing.spec.to_dict()
+        json_out = c.get("/docs/swagger").json
+        assert "openapi" in json_out
+        assert "paths" in json_out
+        assert "info" in json_out
         assert c.get("/docs/swagger-ui").status_code == 200
 
 
