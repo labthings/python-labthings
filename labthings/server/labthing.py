@@ -303,11 +303,11 @@ class LabThing:
 
         # Handle resource groups listed in API spec
         view_spec = get_spec(view)
-        view_groups = view_spec.get("_groups", [])
-        if "actions" in view_groups:
+        view_tags = view_spec.get("tags", set())
+        if "actions" in view_tags:
             self.thing_description.action(flask_rules, view)
             self._action_views[view.endpoint] = view
-        if "properties" in view_groups:
+        if "properties" in view_tags:
             self.thing_description.property(flask_rules, view)
             self._property_views[view.endpoint] = view
 
