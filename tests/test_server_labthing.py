@@ -234,6 +234,13 @@ def test_title(thing):
     assert thing.spec.title == "title"
 
 
+def test_safe_title(thing):
+    assert thing.title == ""
+    assert thing.safe_title == "unknown"
+    thing.title = "Example LabThing 001"
+    assert thing.safe_title == "examplelabthing001"
+
+
 def test_version(thing):
     assert thing.version == "0.0.0"
     thing.version = "x.x.x"
