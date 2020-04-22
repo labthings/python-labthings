@@ -90,12 +90,6 @@ class LabThing:
         if app is not None:
             self.init_app(app)
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args, **kwargs):
-        self.app = None
-
     @property
     def description(self,):
         return self._description
