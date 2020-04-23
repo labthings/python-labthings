@@ -28,7 +28,7 @@ def tag_spec(obj, tags, add_group: bool = True):
         obj.__apispec__["tags"] = set()
 
     if isinstance(tags, set) or isinstance(tags, list):
-        if not all([isinstance(e, str) for e in tags]):
+        if not all(isinstance(e, str) for e in tags):
             raise TypeError("All tags must be strings")
         obj.__apispec__["tags"] = obj.__apispec__["tags"].union(tags)
     elif isinstance(tags, str):

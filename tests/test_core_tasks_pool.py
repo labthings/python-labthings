@@ -50,15 +50,15 @@ def test_update_task_progress_main_thread():
 
 
 def test_tasks_list():
-    assert all([isinstance(task_obj, gevent.Greenlet) for task_obj in tasks.tasks()])
+    assert all(isinstance(task_obj, gevent.Greenlet) for task_obj in tasks.tasks())
 
 
 def test_tasks_dict():
     assert all(
-        [isinstance(task_obj, gevent.Greenlet) for task_obj in tasks.to_dict().values()]
+        isinstance(task_obj, gevent.Greenlet) for task_obj in tasks.to_dict().values()
     )
 
-    assert all([k == str(t.id) for k, t in tasks.to_dict().items()])
+    assert all(k == str(t.id) for k, t in tasks.to_dict().items())
 
 
 def test_task_states():
