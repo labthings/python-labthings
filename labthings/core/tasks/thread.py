@@ -130,7 +130,7 @@ class TaskThread(Greenlet):
 
 
 class ThreadLogHandler(logging.Handler):
-    def __init__(self, thread=None, dest=None, level=logging.WARNING):
+    def __init__(self, thread=None, dest=None, level=logging.INFO):
         """Set up a log handler that appends messages to a list.
 
         This log handler will first filter by ``thread``, if one is
