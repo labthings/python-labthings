@@ -26,6 +26,8 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+# We use poetry, so should ignore the generated setup.py
+/setup.py
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
