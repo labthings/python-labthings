@@ -1,4 +1,4 @@
-from labthings.core.tasks import taskify, dictionary
+from labthings.core import tasks
 
 import gevent
 
@@ -22,7 +22,7 @@ def test_tasks_list(thing_client):
     def task_func():
         pass
 
-    task_obj = taskify(task_func)()
+    task_obj = tasks.taskify(task_func)()
 
     with thing_client as c:
         response = c.get("/tasks").json
@@ -34,7 +34,7 @@ def test_task_representation(thing_client):
     def task_func():
         pass
 
-    task_obj = taskify(task_func)()
+    task_obj = tasks.taskify(task_func)()
     task_id = str(task_obj.id)
 
     with thing_client as c:
@@ -52,12 +52,12 @@ def test_task_kill(thing_client):
         while True:
             gevent.sleep(0)
 
-    task_obj = taskify(task_func)()
+    task_obj = tasks.taskify(task_func)()
     task_id = str(task_obj.id)
 
     # Wait for task to start
     task_obj.started_event.wait()
-    assert task_id in dictionary()
+    assert task_id in tasks.to_dict()
 
     # Send a DELETE request to terminate the task
     with thing_client as c:

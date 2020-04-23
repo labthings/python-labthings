@@ -55,13 +55,10 @@ def test_tasks_list():
 
 def test_tasks_dict():
     assert all(
-        [
-            isinstance(task_obj, gevent.Greenlet)
-            for task_obj in tasks.dictionary().values()
-        ]
+        [isinstance(task_obj, gevent.Greenlet) for task_obj in tasks.to_dict().values()]
     )
 
-    assert all([k == str(t.id) for k, t in tasks.dictionary().items()])
+    assert all([k == str(t.id) for k, t in tasks.to_dict().items()])
 
 
 def test_task_states():
@@ -80,16 +77,16 @@ def test_task_states():
         assert all(k in state for k in state_keys)
 
 
-def test_remove_task():
+def test_discard_id():
     def task_func():
         pass
 
     task_obj = tasks.taskify(task_func)()
-    assert str(task_obj.id) in tasks.dictionary()
+    assert str(task_obj.id) in tasks.to_dict()
     task_obj.join()
 
-    tasks.remove_task(task_obj.id)
-    assert not str(task_obj.id) in tasks.dictionary()
+    tasks.discard_id(task_obj.id)
+    assert not str(task_obj.id) in tasks.to_dict()
 
 
 def test_cleanup_task():
@@ -105,5 +102,5 @@ def test_cleanup_task():
     gevent.joinall(tasks.tasks())
 
     assert len(tasks.tasks()) > 0
-    tasks.cleanup_tasks()
+    tasks.cleanup()
     assert len(tasks.tasks()) == 0

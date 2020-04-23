@@ -1,111 +1,71 @@
 import logging
 from functools import wraps
 from gevent import getcurrent
+from gevent.pool import Pool as _Pool, PoolFull
 
 from .thread import TaskThread
 
-from flask import copy_current_request_context, has_request_context
 
+class Pool(_Pool):
+    def __init__(self, size=None):
+        _Pool.__init__(self, size=size, greenlet_class=TaskThread)
 
-class TaskMaster:
-    def __init__(self, *args, **kwargs):
-        self._tasks = []
+    def add(self, greenlet, blocking=True, timeout=None):
+        """
+        Override the default Gevent pool `add` method so that
+        tasks are not discarded as soon as they finish.
+        """
+        if not self._semaphore.acquire(blocking=blocking, timeout=timeout):
+            # We failed to acquire the semaphore.
+            # If blocking was True, then there was a timeout. If blocking was
+            # False, then there was no capacity. Either way, raise PoolFull.
+            raise PoolFull()
 
-    @property
+        try:
+            self.greenlets.add(greenlet)
+            self._empty_event.clear()
+        except:
+            self._semaphore.release()
+            raise
+
     def tasks(self):
         """
         Returns:
             list: List of TaskThread objects.
         """
-        return self._tasks
+        return list(self.greenlets)
 
-    @property
-    def dict(self):
-        """
-        Returns:
-            dict: Dictionary of TaskThread objects. Key is TaskThread ID.
-        """
-        return {str(t.id): t for t in self._tasks}
-
-    @property
     def states(self):
         """
         Returns:
             dict: Dictionary of TaskThread.state dictionaries. Key is TaskThread ID.
         """
-        return {str(t.id): t.state for t in self._tasks}
+        return {str(t.id): t.state for t in self.greenlets}
 
-    def new(self, f, *args, **kwargs):
-        # copy_current_request_context allows threads to access flask current_app
-        if has_request_context():
-            target = copy_current_request_context(f)
-        else:
-            target = f
-        task = TaskThread(target=target, args=args, kwargs=kwargs)
-        self._tasks.append(task)
-        return task
+    def to_dict(self):
+        """
+        Returns:
+            dict: Dictionary of TaskThread objects. Key is TaskThread ID.
+        """
+        return {str(t.id): t for t in self.greenlets}
 
-    def remove(self, task_id):
-        for task in self._tasks:
+    def discard_id(self, task_id):
+        marked_for_discard = set()
+        for task in self.greenlets:
             if (str(task.id) == str(task_id)) and task.dead:
-                self._tasks.remove(task)
+                marked_for_discard.add(task)
+
+        for greenlet in marked_for_discard:
+            self.discard(greenlet)
 
     def cleanup(self):
-        for i, task in enumerate(self._tasks):
+        marked_for_discard = set()
+        for task in self.greenlets:
             if task.dead:
-                # Mark for delection
-                self._tasks[i] = None
-        # Remove items marked for deletion
-        self._tasks = [t for t in self._tasks if t]
+                marked_for_discard.add(task)
 
-
-# Task management
-
-
-def tasks():
-    """
-    List of tasks in default taskmaster
-    Returns:
-        list: List of tasks in default taskmaster
-    """
-    global DEFAULT_TASK_MASTER
-    return DEFAULT_TASK_MASTER.tasks
-
-
-def dictionary():
-    """
-    Dictionary of tasks in default taskmaster
-    Returns:
-        dict: Dictionary of tasks in default taskmaster
-    """
-    global DEFAULT_TASK_MASTER
-    return DEFAULT_TASK_MASTER.dict
-
-
-def states():
-    """
-    Dictionary of TaskThread.state dictionaries. Key is TaskThread ID.
-    Returns:
-        dict: Dictionary of task states in default taskmaster
-    """
-    global DEFAULT_TASK_MASTER
-    return DEFAULT_TASK_MASTER.states
-
-
-def cleanup_tasks():
-    """Remove all finished tasks from the task list"""
-    global DEFAULT_TASK_MASTER
-    return DEFAULT_TASK_MASTER.cleanup()
-
-
-def remove_task(task_id: str):
-    """Remove a particular task from the task list
-
-    Arguments:
-        task_id {str} -- ID of the target task
-    """
-    global DEFAULT_TASK_MASTER
-    return DEFAULT_TASK_MASTER.remove(task_id)
+        for greenlet in marked_for_discard:
+            self.discard(greenlet)
 
 
 # Operations on the current task
@@ -161,17 +121,23 @@ def taskify(f):
     A decorator that wraps the passed in function
     and surpresses exceptions should one occur
     """
+    global default_pool
 
     @wraps(f)
     def wrapped(*args, **kwargs):
-        task = DEFAULT_TASK_MASTER.new(
+        task = default_pool.spawn(
             f, *args, **kwargs
         )  # Append to parent object's task list
-        task.start()  # Start the function
         return task
 
     return wrapped
 
 
 # Create our default, protected, module-level task pool
-DEFAULT_TASK_MASTER = TaskMaster()
+default_pool = Pool()
+
+tasks = default_pool.tasks
+to_dict = default_pool.to_dict
+states = default_pool.states
+cleanup = default_pool.cleanup
+discard_id = default_pool.discard_id

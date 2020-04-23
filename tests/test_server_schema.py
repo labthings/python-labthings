@@ -55,7 +55,7 @@ def test_field_schema(app_ctx):
 
 def test_task_schema(app_ctx):
     test_schema = schema.TaskSchema()
-    test_task_thread = TaskThread()
+    test_task_thread = TaskThread(None)
 
     with app_ctx.test_request_context():
         d = test_schema.dump(test_task_thread)

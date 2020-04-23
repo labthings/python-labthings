@@ -23,6 +23,23 @@ def test_update_spec(view_cls):
     }
 
 
+def test_tag_spec(view_cls):
+    utilities.tag_spec(view_cls, set(["tag1"]))
+    assert view_cls.__apispec__.get("tags") == set(["tag1"])
+    utilities.tag_spec(view_cls, set(["tag2"]))
+    assert view_cls.__apispec__.get("tags") == set(["tag1", "tag2"])
+
+
+def test_tag_spec_string(view_cls):
+    utilities.tag_spec(view_cls, "tag1")
+    assert view_cls.__apispec__.get("tags") == set(["tag1"])
+
+
+def test_tag_spec_invalid(view_cls):
+    with pytest.raises(TypeError):
+        utilities.tag_spec(view_cls, set([object(), "tag"]))
+
+
 def test_get_spec(view_cls):
     assert utilities.get_spec(None) == {}
     assert utilities.get_spec(view_cls) == {}

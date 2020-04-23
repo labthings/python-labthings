@@ -91,7 +91,7 @@ def test_marshal_with_invalid_schema():
 
 def test_marshal_task(app_ctx):
     def func():
-        return TaskThread()
+        return TaskThread(None)
 
     wrapped_func = decorators.marshal_task(func)
 
@@ -102,7 +102,7 @@ def test_marshal_task(app_ctx):
 
 def test_marshal_task_response_tuple(app_ctx):
     def func():
-        return (TaskThread(), 201, {})
+        return (TaskThread(None), 201, {})
 
     wrapped_func = decorators.marshal_task(func)
 
