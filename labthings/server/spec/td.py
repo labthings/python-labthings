@@ -217,7 +217,8 @@ class ThingDescription:
         NB at present this will fail for any view that doesn't support POST
         requests.
         """
-        assert hasattr(view, "post"), "Thing actions must have a POST method!"
+        if not hasattr(view, "post"):
+            raise AttributeError(f"The API View '{view}' was added as an Action, but it does not have a POST method.")
         endpoint = getattr(view, "endpoint") or getattr(rules[0], "endpoint")
         key = snake_to_camel(endpoint)
         self.actions[key] = self.view_to_thing_action(rules, view)
