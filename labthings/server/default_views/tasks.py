@@ -10,7 +10,8 @@ from ...core import tasks
 @Tag("tasks")
 class TaskList(View):
     @marshal_with(TaskSchema(many=True))
-    def get(self):
+    @staticmethod
+    def get():
         """List of all session tasks"""
         return tasks.tasks()
 
@@ -25,7 +26,8 @@ class TaskView(View):
     """
 
     @marshal_with(TaskSchema())
-    def get(self, task_id):
+    @staticmethod
+    def get(task_id):
         """
         Show status of a session task
 
@@ -41,7 +43,8 @@ class TaskView(View):
         return task
 
     @marshal_with(TaskSchema())
-    def delete(self, task_id):
+    @staticmethod
+    def delete(task_id):
         """
         Terminate a running task.
 

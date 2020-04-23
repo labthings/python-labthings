@@ -225,7 +225,8 @@ class ThingDescription:
         key = snake_to_camel(endpoint)
         self.actions[key] = self.view_to_thing_action(rules, view)
 
-    def build_forms_for_view(self, rules: list, view: View, op: list):
+    @staticmethod
+    def build_forms_for_view(rules: list, view: View, op: list):
         forms = []
         prop_urls = [rule_to_path(rule) for rule in rules]
 

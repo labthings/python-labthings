@@ -313,7 +313,8 @@ class LabThing:
 
     # Utilities
 
-    def url_for(self, view, **values):
+    @staticmethod
+    def url_for(view, **values):
         """Generates a URL to the given resource.
         Works like :func:`flask.url_for`."""
         endpoint = getattr(view, "endpoint", None)

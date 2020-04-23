@@ -14,7 +14,8 @@ class JSONExceptionHandler:
         if app:
             self.init_app(app)
 
-    def std_handler(self, error):
+    @staticmethod
+    def std_handler(error):
         if isinstance(error, HTTPException):
             message = error.description
         elif hasattr(error, "message"):

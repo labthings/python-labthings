@@ -125,16 +125,20 @@ def empty_view_cls():
 @pytest.fixture
 def flask_view_cls():
     class ViewClass(MethodView):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
-        def post(self):
+        @staticmethod
+        def post():
             return "POST"
 
-        def put(self):
+        @staticmethod
+        def put():
             return "PUT"
 
-        def delete(self):
+        @staticmethod
+        def delete():
             return "DELETE"
 
     return ViewClass
@@ -143,16 +147,20 @@ def flask_view_cls():
 @pytest.fixture
 def view_cls():
     class ViewClass(View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
-        def post(self):
+        @staticmethod
+        def post():
             return "POST"
 
-        def put(self):
+        @staticmethod
+        def put():
             return "PUT"
 
-        def delete(self):
+        @staticmethod
+        def delete():
             return "DELETE"
 
     return ViewClass

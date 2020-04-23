@@ -129,7 +129,8 @@ def test_td_action_with_schema(app, thing_description, view_cls, app_ctx, schema
 
 def test_td_property(app, thing_description, app_ctx, schemas_path):
     class Index(View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
@@ -144,7 +145,8 @@ def test_td_property(app, thing_description, app_ctx, schemas_path):
 
 def test_td_property_with_schema(app, thing_description, app_ctx, schemas_path):
     class Index(View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
     Index.__apispec__ = {"_propertySchema": {"integer": fields.Int()}}
@@ -161,7 +163,8 @@ def test_td_property_with_schema(app, thing_description, app_ctx, schemas_path):
 
 def test_td_property_with_url_param(app, thing_description, app_ctx, schemas_path):
     class Index(View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
     app.add_url_rule("/path/<int:id>/", view_func=Index.as_view("index"))
@@ -176,7 +179,8 @@ def test_td_property_with_url_param(app, thing_description, app_ctx, schemas_pat
 
 def test_td_property_write_only(app, thing_description, app_ctx, schemas_path):
     class Index(View):
-        def post(self):
+        @staticmethod
+        def post():
             return "POST"
 
     Index.__apispec__ = {"_propertySchema": fields.Int()}

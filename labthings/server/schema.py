@@ -90,7 +90,8 @@ class TaskSchema(Schema):
     links = fields.Dict()
 
     @marshmallow.pre_dump
-    def generate_links(self, data, **kwargs):
+    @staticmethod
+    def generate_links(data, **kwargs):
         try:
             url = url_for(TASK_ENDPOINT, task_id=data.id, _external=True)
         except BuildError:
@@ -115,7 +116,8 @@ class ExtensionSchema(Schema):
     links = fields.Dict()
 
     @marshmallow.pre_dump
-    def generate_links(self, data, **kwargs):
+    @staticmethod
+    def generate_links(data, **kwargs):
         d = {}
         for view_id, view_data in data.views.items():
             view_cls = view_data["view"]

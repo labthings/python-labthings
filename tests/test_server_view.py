@@ -19,10 +19,12 @@ def common_test(app):
 
 def test_method_based_view(app):
     class Index(view.View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
-        def post(self):
+        @staticmethod
+        def post():
             return "POST"
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
@@ -31,10 +33,12 @@ def test_method_based_view(app):
 
 def test_view_patching(app):
     class Index(view.View):
-        def get(self):
+        @staticmethod
+        def get():
             1 // 0
 
-        def post(self):
+        @staticmethod
+        def post():
             1 // 0
 
     class Other(Index):
@@ -52,7 +56,8 @@ def test_view_patching(app):
 
 def test_accept_default_application_json(app, client):
     class Index(view.View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
@@ -65,7 +70,8 @@ def test_accept_default_application_json(app, client):
 
 def test_return_response(app, client):
     class Index(view.View):
-        def get(self):
+        @staticmethod
+        def get():
             return make_response("GET", 200)
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
@@ -78,7 +84,8 @@ def test_return_response(app, client):
 
 def test_missing_method(app, client):
     class Index(view.View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
@@ -90,7 +97,8 @@ def test_missing_method(app, client):
 
 def test_missing_head_method(app, client):
     class Index(view.View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
@@ -102,7 +110,8 @@ def test_missing_head_method(app, client):
 
 def test_get_value_text():
     class Index(view.View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
     assert Index().get_value() == "GET"
@@ -110,7 +119,8 @@ def test_get_value_text():
 
 def test_get_value_missing():
     class Index(view.View):
-        def post(self):
+        @staticmethod
+        def post():
             return "POST"
 
     assert Index().get_value() is None
@@ -118,7 +128,8 @@ def test_get_value_missing():
 
 def test_get_value_raise_if_not_callable():
     class Index(view.View):
-        def post(self):
+        @staticmethod
+        def post():
             return "POST"
 
     Index.get = "GET"
@@ -129,7 +140,8 @@ def test_get_value_raise_if_not_callable():
 
 def test_get_value_response_text(app_ctx):
     class Index(view.View):
-        def get(self):
+        @staticmethod
+        def get():
             return make_response("GET", 200)
 
     with app_ctx.test_request_context():
@@ -140,7 +152,8 @@ def test_get_value_response_text(app_ctx):
 
 def test_get_value_response_json(app_ctx):
     class Index(view.View):
-        def get(self):
+        @staticmethod
+        def get():
             return make_response({"json": "body"}, 200)
 
     with app_ctx.test_request_context():

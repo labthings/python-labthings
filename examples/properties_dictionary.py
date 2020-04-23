@@ -56,7 +56,8 @@ and register is as a Thing property
 class MapProperty(View):
 
     # Main function to handle GET requests (read)
-    def get(self):
+    @staticmethod
+    def get():
         """Show the current magic_denoise value"""
 
         # When a GET request is made, we'll find our attached component
@@ -64,7 +65,8 @@ class MapProperty(View):
         return found_my_component.get_state()
 
     # Main function to handle PUT requests (update)
-    def put(self, new_property_value):
+    @staticmethod
+    def put(new_property_value):
         """Change the current magic_denoise value"""
 
         # Find our attached component

@@ -10,7 +10,8 @@ class ExtensionList(View):
     """List and basic documentation for all enabled Extensions"""
 
     @marshal_with(ExtensionSchema(many=True))
-    def get(self):
+    @staticmethod
+    def get():
         """
         List enabled extensions.
 

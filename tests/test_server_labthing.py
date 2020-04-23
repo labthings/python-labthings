@@ -53,7 +53,8 @@ def test_add_view_endpoint_clash(thing, view_cls, client):
 def test_view_decorator(thing, client):
     @thing.view("/index")
     class ViewClass(View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
     with client as c:

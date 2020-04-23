@@ -18,7 +18,8 @@ class PropertyConverter:
         self._required = required
         self._allow_none = allow_none
 
-    def _list_converter(self, subtypes: Tuple[type], **opts) -> FieldABC:
+    @staticmethod
+    def _list_converter(subtypes: Tuple[type], **opts) -> FieldABC:
         return fields.List(subtypes[0], **opts)
 
     def convert(self, value, **kwargs) -> FieldABC:

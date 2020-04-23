@@ -16,7 +16,8 @@ class LabThingLogger(StreamHandler):
         for sub in subscribers:
             sub.event_notify(log_event)
 
-    def rest_format_record(self, record):
+    @staticmethod
+    def rest_format_record(record):
         data = {
             "data": str(record.msg),
             "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),

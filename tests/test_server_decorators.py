@@ -155,16 +155,19 @@ def test_thing_property_property_notify(view_cls, app_ctx):
 
 def test_property_schema(app, client):
     class Index(View):
-        def get(self):
+        @staticmethod
+        def get():
             obj = type("obj", (object,), {"integer": 1})
             return obj
 
-        def post(self, args):
+        @staticmethod
+        def post(args):
             i = args.get("integer")
             obj = type("obj", (object,), {"integer": i})
             return obj
 
-        def put(self, args):
+        @staticmethod
+        def put(args):
             i = args.get("integer")
             obj = type("obj", (object,), {"integer": i})
             return obj
@@ -191,7 +194,8 @@ def test_property_schema_empty_class(empty_cls):
 
 def test_use_body(app, client):
     class Index(View):
-        def post(self, data):
+        @staticmethod
+        def post(data):
             return str(data)
 
     schema = fields.Int()
@@ -207,7 +211,8 @@ def test_use_body(app, client):
 
 def test_use_body_required_no_data(app, client):
     class Index(View):
-        def post(self, data):
+        @staticmethod
+        def post(data):
             return {}
 
     schema = fields.Int(required=True)
@@ -223,7 +228,8 @@ def test_use_body_required_no_data(app, client):
 
 def test_use_body_no_data(app, client):
     class Index(View):
-        def post(self, data):
+        @staticmethod
+        def post(data):
             assert data is None
             return {}
 
@@ -240,7 +246,8 @@ def test_use_body_no_data(app, client):
 
 def test_use_body_no_data_missing_given(app, client):
     class Index(View):
-        def post(self, data):
+        @staticmethod
+        def post(data):
             return str(data)
 
     schema = fields.Int(missing=5)
@@ -256,7 +263,8 @@ def test_use_body_no_data_missing_given(app, client):
 
 def test_use_body_malformed(app, client):
     class Index(View):
-        def post(self, data):
+        @staticmethod
+        def post(data):
             return {}
 
     schema = fields.Int(required=True)
@@ -272,7 +280,8 @@ def test_use_body_malformed(app, client):
 
 def test_use_args(app, client):
     class Index(View):
-        def post(self, data):
+        @staticmethod
+        def post(data):
             return data
 
     schema = _Schema.from_dict({"integer": fields.Int()})()
@@ -288,7 +297,8 @@ def test_use_args(app, client):
 
 def test_use_args_field(app, client):
     class Index(View):
-        def post(self, data):
+        @staticmethod
+        def post(data):
             return str(data)
 
     schema = fields.Int(missing=5)

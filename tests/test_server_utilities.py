@@ -17,11 +17,13 @@ def test_description_from_view(app):
     class Index(View):
         """Class summary"""
 
-        def get(self):
+        @staticmethod
+        def get():
             """GET summary"""
             return "GET"
 
-        def post(self):
+        @staticmethod
+        def post():
             """POST summary"""
             return "POST"
 
@@ -33,11 +35,13 @@ def test_description_from_view(app):
 
 def test_description_from_view_summary_from_method(app):
     class Index(View):
-        def get(self):
+        @staticmethod
+        def get():
             """GET summary"""
             return "GET"
 
-        def post(self):
+        @staticmethod
+        def post():
             """POST summary"""
             return "POST"
 
@@ -49,10 +53,12 @@ def test_description_from_view_summary_from_method(app):
 
 def test_view_class_from_endpoint(app):
     class Index(View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
-        def post(self):
+        @staticmethod
+        def post():
             return "POST"
 
     app.add_url_rule("/", view_func=Index.as_view("index"))

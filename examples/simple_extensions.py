@@ -98,7 +98,8 @@ Create a view to view and change our magic_denoise value, and register is as a T
 class DenoiseProperty(View):
 
     # Main function to handle GET requests (read)
-    def get(self):
+    @staticmethod
+    def get():
         """Show the current magic_denoise value"""
 
         # When a GET request is made, we'll find our attached component
@@ -106,7 +107,8 @@ class DenoiseProperty(View):
         return my_component.magic_denoise
 
     # Main function to handle POST requests (write)
-    def post(self, new_property_value):
+    @staticmethod
+    def post(new_property_value):
         """Change the current magic_denoise value"""
 
         # Find our attached component
@@ -127,7 +129,8 @@ Create a view to quickly get some noisy data, and register is as a Thing propert
 @PropertySchema(fields.List(fields.Float()))
 class QuickDataProperty(View):
     # Main function to handle GET requests
-    def get(self):
+    @staticmethod
+    def get():
         """Show the current data value"""
 
         # Find our attached component

@@ -3,5 +3,6 @@ from ..view import View
 
 
 class RootView(View):
-    def get(self):
+    @staticmethod
+    def get():
         return current_labthing().thing_description.to_dict()

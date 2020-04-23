@@ -7,7 +7,8 @@ from ...find import current_labthing
 class APISpecView(View):
     """OpenAPI v3 documentation"""
 
-    def get(self):
+    @staticmethod
+    def get():
         """OpenAPI v3 documentation"""
         return current_labthing().spec.to_dict()
 
@@ -15,7 +16,8 @@ class APISpecView(View):
 class SwaggerUIView(View):
     """Swagger UI documentation"""
 
-    def get(self):
+    @staticmethod
+    def get():
         return make_response(render_template("swagger-ui.html"))
 
 

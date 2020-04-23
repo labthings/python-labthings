@@ -8,10 +8,12 @@ from labthings.server import fields
 
 def test_method_to_apispec_operation_no_spec(spec):
     class Index(View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
-        def post(self):
+        @staticmethod
+        def post():
             return "POST"
 
     assert apispec.method_to_apispec_operation(Index.get, spec) == {
@@ -21,7 +23,8 @@ def test_method_to_apispec_operation_no_spec(spec):
 
 def test_method_to_apispec_operation_params(spec):
     class Index(View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
     Index.get.__apispec__ = {"_params": {"integer": fields.Int()}}
@@ -45,7 +48,8 @@ def test_method_to_apispec_operation_params(spec):
 
 def test_method_to_apispec_operation_schema(spec):
     class Index(View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
     Index.get.__apispec__ = {"_schema": {200: {"integer": fields.Int()}}}
@@ -71,7 +75,8 @@ def test_method_to_apispec_operation_schema(spec):
 
 def test_method_to_apispec_operation_extra_fields(spec):
     class Index(View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
     Index.get.__apispec__ = {"summary": "A summary"}
@@ -84,10 +89,12 @@ def test_method_to_apispec_operation_extra_fields(spec):
 
 def test_view_to_apispec_operations(spec):
     class Index(View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
-        def post(self):
+        @staticmethod
+        def post():
             return "POST"
 
     assert apispec.view_to_apispec_operations(Index, spec) == {
@@ -108,10 +115,12 @@ def test_view_to_apispec_operations(spec):
 
 def test_rule_to_apispec_path(app, spec):
     class Index(View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
-        def post(self):
+        @staticmethod
+        def post():
             return "POST"
 
     app.add_url_rule("/path", view_func=Index.as_view("index"))
@@ -140,10 +149,12 @@ def test_rule_to_apispec_path(app, spec):
 
 def test_rule_to_apispec_path_params(app, spec):
     class Index(View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
-        def post(self):
+        @staticmethod
+        def post():
             return "POST"
 
     app.add_url_rule("/path/<id>/", view_func=Index.as_view("index"))
@@ -188,7 +199,8 @@ def test_rule_to_apispec_path_params(app, spec):
 
 def test_rule_to_apispec_path_extra_class_params(app, spec):
     class Index(View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
     Index.__apispec__ = {"summary": "A class summary"}
@@ -214,7 +226,8 @@ def test_rule_to_apispec_path_extra_class_params(app, spec):
 
 def test_rule_to_apispec_path_extra_method_params(app, spec):
     class Index(View):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
     Index.get.__apispec__ = {"summary": "A GET summary"}
