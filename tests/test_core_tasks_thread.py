@@ -106,7 +106,9 @@ def test_task_log_list():
     assert task_obj.log[0]["filename"] == os.path.basename(__file__)
 
     task_obj.join()
-    assert len(task_obj.log) == 11, "Didn't get the right number of log entries - are INFO entries being logged?"
+    assert (
+        len(task_obj.log) == 11
+    ), "Didn't get the right number of log entries - are INFO entries being logged?"
 
 
 def test_task_log_without_thread():
