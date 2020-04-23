@@ -88,6 +88,8 @@ def test_task_log_list():
     import logging
     import os
 
+    logging.getLogger().setLevel("INFO")
+
     def task_func():
         logging.warning("Task warning")
         for i in range(10):
