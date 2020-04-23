@@ -159,8 +159,6 @@ class ThreadLogHandler(logging.Handler):
 
         if get_ident() == get_ident(self.thread):
             return 1
-        if record.threadName == self.thread.name:
-            return 1  # TODO: check if this is unsafe, or better with greenlets
         return 0
 
     def emit(self, record):
