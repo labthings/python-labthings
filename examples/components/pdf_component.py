@@ -40,8 +40,10 @@ class PdfComponent:
         """Return a 1D data trace."""
         return [self.noisy_pdf(x) for x in self.x_range]
 
-    def average_data(self, n: int = 10, optlist: List[int] = [1, 2, 3]):
+    def average_data(self, n: int = 10, optlist: List[int] = None):
         """Average n-sets of data. Emulates a measurement that may take a while."""
+        if optlist is None:
+            optlist = [1, 2, 3]
         summed_data = self.data
 
         for i in range(n):
