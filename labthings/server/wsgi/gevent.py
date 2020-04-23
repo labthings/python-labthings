@@ -13,34 +13,34 @@ from ..find import current_labthing
 
 
 class Server:
-    def __init__(self, app):
+    def __init__(
+        self, app, host="0.0.0.0", port=5000, log=None, debug=False, zeroconf=True
+    ):
         self.app = app
         # Find LabThing attached to app
         self.labthing = current_labthing(app)
 
-    def run(
-        self,
-        host="0.0.0.0",
-        port=5000,
-        log=None,
-        debug=False,
-        stop_timeout=1,
-        zeroconf=True,
-    ):
-        # Type checks
-        port = int(port)
-        host = str(host)
+        # Server properties
+        self.host = host
+        self.port = port
+        self.log = log
+        self.debug = debug
+        self.zeroconf = zeroconf
 
-        # Unmodified version of app
-        app_to_run = self.app
+        # Servers
+        self.wsgi_server = None
+        self.zeroconf_server = None
+        self.service_info = None
 
-        # Handle zeroconf
-        zeroconf_server = None
-        if zeroconf and self.labthing:
-            service_info = ServiceInfo(
+        # Events
+        self.started_event = gevent.event.Event()
+
+    def register_zeroconf(self):
+        if self.labthing:
+            self.service_info = ServiceInfo(
                 "_labthings._tcp.local.",
-                f"{self.labthing.title}._labthings._tcp.local.",
-                port=port,
+                f"{self.labthing.safe_title}._labthings._tcp.local.",
+                port=self.port,
                 properties={
                     "path": self.labthing.url_prefix,
                     "title": self.labthing.title,
@@ -55,43 +55,94 @@ class Server:
                     ]
                 ),
             )
-            zeroconf_server = Zeroconf(ip_version=IPVersion.V4Only)
-            zeroconf_server.register_service(service_info)
+            self.zeroconf_server = Zeroconf(ip_version=IPVersion.V4Only)
+            self.zeroconf_server.register_service(self.service_info)
+
+    def stop(self, timeout=1):
+        # Unregister zeroconf service
+        if self.zeroconf_server:
+            self.zeroconf_server.unregister_service(self.service_info)
+            self.zeroconf_server.close()
+            self.zeroconf_server = None
+        # Stop WSGI server with timeout
+        if self.wsgi_server:
+            self.wsgi_server.stop(timeout=timeout)
+            self.wsgi_server = None
+        # Clear started event
+        if self.started_event.is_set():
+            self.started_event.clear()
+
+    def start(self):
+        # Unmodified version of app
+        app_to_run = self.app
+
+        # Handle zeroconf
+        if self.zeroconf:
+            self.register_zeroconf()
 
         # Handle logging
-        if not log:
-            log = logging.getLogger()
+        if not self.log:
+            self.log = logging.getLogger()
 
         # Handle debug mode
-        if debug:
-            log.setLevel(logging.DEBUG)
+        if self.debug:
+            self.log.setLevel(logging.DEBUG)
             app_to_run = DebuggedApplication(self.app)
             logging.getLogger("zeroconf").setLevel(logging.DEBUG)
 
         # Slightly more useful logger output
-        friendlyhost = "localhost" if host == "0.0.0.0" else host
-        logging.info("Starting LabThings WSGI Server")
-        logging.info(f"Debug mode: {debug}")
-        logging.info(f"Running on http://{friendlyhost}:{port} (Press CTRL+C to quit)")
+        friendlyhost = "localhost" if self.host == "0.0.0.0" else self.host
+        print("Starting LabThings WSGI Server")
+        print(f"Debug mode: {self.debug}")
+        print(f"Running on http://{friendlyhost}:{self.port} (Press CTRL+C to quit)")
 
         # Create WSGIServer
-        wsgi_server = gevent.pywsgi.WSGIServer(
-            (host, port), app_to_run, handler_class=WebSocketHandler, log=log
+        self.wsgi_server = gevent.pywsgi.WSGIServer(
+            (self.host, self.port),
+            app_to_run,
+            handler_class=WebSocketHandler,
+            log=self.log,
         )
 
-        def stop():
-            # Unregister zeroconf service
-            if zeroconf_server:
-                zeroconf_server.unregister_service(service_info)
-                zeroconf_server.close()
-            # Stop WSGI server with timeout
-            wsgi_server.stop(timeout=stop_timeout)
-
         # Serve
-        gevent.signal(signal.SIGTERM, stop)
+        signal.signal(signal.SIGTERM, self.stop)
 
+        # Set started event
+        self.started_event.set()
         try:
-            wsgi_server.serve_forever()
-        except (KeyboardInterrupt, SystemExit):
-            logging.warning("Terminating by KeyboardInterrupt or SystemExit")
-            stop()
+            self.wsgi_server.serve_forever()
+        except (KeyboardInterrupt, SystemExit):  # pragma: no cover
+            logging.warning(
+                "Terminating by KeyboardInterrupt or SystemExit"
+            )  # pragma: no cover
+            self.stop()  # pragma: no cover
+
+    def run(
+        self, host=None, port=None, log=None, debug=None, zeroconf=None,
+    ):
+        """Starts the server allowing for runtime parameters. Designed to immitate
+        the old Flask app.run style of starting an app
+
+        Args:
+            host (string, optional): Host IP address. Defaults to None.
+            port (int, optional): Host port. Defaults to None.
+            log (optional): Logger to log to. Defaults to None.
+            debug (bool, optional): Enable server debug mode. Defaults to None.
+            zeroconf (bool, optional): Enable the zeroconf server. Defaults to None.
+        """
+        if port is not None:
+            self.port = int(port)
+
+        if host is not None:
+            self.host = str(host)
+
+        if log is not None:
+            self.log = log
+
+        if debug is not None:
+            self.debug = debug
+
+        if zeroconf is not None:
+            self.zeroconf = zeroconf
+
+        self.start()

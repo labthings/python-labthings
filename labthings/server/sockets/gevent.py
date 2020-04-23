@@ -59,6 +59,5 @@ def socket_handler_loop(ws):
             break
         response = process_socket_message(message)
         if response:
-            logging.info(response)
             ws.send(response)
         gevent.sleep(0.1)

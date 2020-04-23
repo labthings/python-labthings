@@ -55,7 +55,7 @@ class BaseExtension:
 
         self.static_view_class = static_from(static_folder)
         self.add_view(
-            self.static_view_class, f"{static_url_path}/<path:path>", view_id="static",
+            self.static_view_class, f"{static_url_path}/<path:path>", view_id="static"
         )
 
     @property
@@ -65,7 +65,7 @@ class BaseExtension:
     def add_view(self, view_class, rule, view_id=None, **kwargs):
         # Remove all leading slashes from view route
         cleaned_rule = rule
-        while cleaned_rule[0] == "/":
+        while cleaned_rule and cleaned_rule[0] == "/":
             cleaned_rule = cleaned_rule[1:]
 
         # Expand the rule to include extension name
@@ -141,7 +141,7 @@ class BaseExtension:
         if not hasattr(self, method_name):
             setattr(self, method_name, method)
         else:
-            logging.warning(
+            raise NameError(
                 "Unable to bind method to extension. Method name already exists."
             )
 
@@ -221,6 +221,7 @@ def find_extensions(extension_dir: str, module_name="extensions") -> list:
 
     extensions = []
     extension_paths = glob.glob(os.path.join(extension_dir, "*.py"))
+    extension_paths.extend(glob.glob(os.path.join(extension_dir, "*", "__init__.py")))
 
     for extension_path in extension_paths:
         extensions.extend(

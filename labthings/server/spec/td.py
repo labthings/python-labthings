@@ -1,5 +1,6 @@
 from flask import url_for, request
 from apispec import APISpec
+import weakref
 
 from ..view import View
 
@@ -14,8 +15,7 @@ from labthings.core.utilities import get_docstring, snake_to_camel
 def find_schema_for_view(view: View):
     """Find the broadest available data schema for a Flask view
 
-    First looks for class-level, then GET, POST, and PUT methods depending on if the
-    view is read/write only
+    Looks for GET, POST, and PUT methods depending on if the view is read/write only
     
     Args:
         view (View): View to search for schema
@@ -34,21 +34,27 @@ def find_schema_for_view(view: View):
         if hasattr(view, "post"):
             # Use POST schema
             prop_schema = get_spec(view.post).get("_params")
-        elif hasattr(view, "put"):
+        else:
             # Use PUT schema
             prop_schema = get_spec(view.put).get("_params")
+    else:
+        prop_schema = {}
 
     return prop_schema
 
 
 class ThingDescription:
     def __init__(self, apispec: APISpec):
-        self.apispec = apispec
+        self._apispec = weakref.ref(apispec)
         self.properties = {}
         self.actions = {}
         self.events = {}
         self._links = []
         super().__init__()
+
+    @property
+    def apispec(self):
+        return self._apispec()
 
     @property
     def links(self):
@@ -133,7 +139,13 @@ class ThingDescription:
         for prop_rule in rules:
             params_dict = {}
             for param in rule_to_params(prop_rule):
-                params_dict.update({param.get("name"): {"type": param.get("type")}})
+                params_dict.update(
+                    {
+                        param.get("name"): {
+                            "type": param.get("type") or param.get("schema").get("type")
+                        }
+                    }
+                )
             prop_description["uriVariables"].update(params_dict)
         if not prop_description["uriVariables"]:
             del prop_description["uriVariables"]
@@ -157,6 +169,15 @@ class ThingDescription:
     def view_to_thing_action(self, rules: list, view: View):
         action_urls = [rule_to_path(rule) for rule in rules]
 
+        # Check if action is safe
+        is_safe = get_spec(view.post).get("_safe", False) or get_spec(view).get(
+            "_safe", False
+        )
+
+        is_idempotent = get_spec(view.post).get("_idempotent", False) or get_spec(
+            view
+        ).get("_idempotent", False)
+
         # Basic description
         action_description = {
             "title": view.__name__,
@@ -166,7 +187,19 @@ class ThingDescription:
             # TODO: Make URLs absolute
             "links": [{"href": f"{url}"} for url in action_urls],
             "forms": self.view_to_thing_action_forms(rules, view),
+            "safe": is_safe,
+            "idempotent": is_idempotent,
         }
+
+        # Look for a _propertySchema in the Property classes API SPec
+        action_schema = get_spec(view.post).get("_params")
+
+        if action_schema:
+            # Ensure valid schema type
+            action_schema = convert_schema(action_schema, self.apispec)
+
+            # Add schema to prop description
+            action_description["input"] = schema_to_json(action_schema, self.apispec)
 
         return action_description
 
@@ -174,11 +207,13 @@ class ThingDescription:
         return self.build_forms_for_view(rules, view, op=["invokeaction"])
 
     def property(self, rules: list, view: View):
-        key = snake_to_camel(view.endpoint)
+        endpoint = getattr(view, "endpoint") or getattr(rules[0], "endpoint")
+        key = snake_to_camel(endpoint)
         self.properties[key] = self.view_to_thing_property(rules, view)
 
     def action(self, rules: list, view: View):
-        key = snake_to_camel(view.endpoint)
+        endpoint = getattr(view, "endpoint") or getattr(rules[0], "endpoint")
+        key = snake_to_camel(endpoint)
         self.actions[key] = self.view_to_thing_action(rules, view)
 
     def build_forms_for_view(self, rules: list, view: View, op: list):

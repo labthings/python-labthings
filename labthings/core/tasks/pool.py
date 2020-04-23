@@ -1,6 +1,6 @@
-import threading
 import logging
 from functools import wraps
+from gevent import getcurrent
 
 from .thread import TaskThread
 
@@ -38,23 +38,25 @@ class TaskMaster:
     def new(self, f, *args, **kwargs):
         # copy_current_request_context allows threads to access flask current_app
         if has_request_context():
-            # The if block stops this failing if we're outside a Flask app.
-            f = copy_current_request_context(f)
-        task = TaskThread(
-            target=f, args=args, kwargs=kwargs
-        )
+            target = copy_current_request_context(f)
+        else:
+            target = f
+        task = TaskThread(target=target, args=args, kwargs=kwargs)
         self._tasks.append(task)
         return task
 
     def remove(self, task_id):
         for task in self._tasks:
-            if (task.id == task_id) and not task.isAlive():
-                del task
+            if (str(task.id) == str(task_id)) and task.dead:
+                self._tasks.remove(task)
 
     def cleanup(self):
-        for task in self._tasks:
-            if not task.isAlive():
-                del task
+        for i, task in enumerate(self._tasks):
+            if task.dead:
+                # Mark for delection
+                self._tasks[i] = None
+        # Remove items marked for deletion
+        self._tasks = [t for t in self._tasks if t]
 
 
 # Task management
@@ -117,7 +119,7 @@ def current_task():
     Returns:
         TaskThread -- Currently running Task thread.
     """
-    current_task_thread = threading.current_thread()
+    current_task_thread = getcurrent()
     if not isinstance(current_task_thread, TaskThread):
         return None
     return current_task_thread

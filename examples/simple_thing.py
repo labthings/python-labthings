@@ -1,6 +1,16 @@
+#!/usr/bin/env python
+from gevent import monkey
+
+# Patch most system modules. Leave threads untouched so we can still use them normally if needed.
+print("Monkey patching with Gevenet")
+monkey.patch_all(thread=False)
+print("Monkey patching successful")
+
 import random
 import math
 import time
+import logging
+import atexit
 
 from labthings.server.quick import create_app
 from labthings.server.decorators import (
@@ -13,13 +23,21 @@ from labthings.server.decorators import (
 from labthings.server.view import View
 from labthings.server.find import find_component
 from labthings.server import fields
-from labthings.core.tasks import taskify
+from labthings.core.tasks import taskify, update_task_data
 
 
 """
 Class for our lab component functionality. This could include serial communication,
 equipment API calls, network requests, or a "virtual" device as seen here.
 """
+
+
+from gevent.monkey import get_original
+
+get_ident = get_original("_thread", "get_ident")
+
+print(f"ROOT IDENT")
+print(get_ident())
 
 
 class MyComponent:
@@ -48,8 +66,10 @@ class MyComponent:
         """Average n-sets of data. Emulates a measurement that may take a while."""
         summed_data = self.data
 
+        logging.warning("Starting an averaged measurement. This may take a while...")
         for i in range(n):
             summed_data = [summed_data[i] + el for i, el in enumerate(self.data)]
+            update_task_data({"data": summed_data})
             time.sleep(0.25)
 
         summed_data = [i / n for i in summed_data]
@@ -150,6 +170,13 @@ class MeasurementAction(View):
         return task
 
 
+# Handle exit cleanup
+def cleanup():
+    logging.info("Exiting. Running any cleanup code here...")
+
+
+atexit.register(cleanup)
+
 # Create LabThings Flask app
 app, labthing = create_app(
     __name__,
@@ -173,4 +200,4 @@ if __name__ == "__main__":
     from labthings.server.wsgi import Server
 
     server = Server(app)
-    server.run(host="0.0.0.0", port=5000, debug=False)
+    server.run(host="0.0.0.0", port=5000, debug=False, zeroconf=False)

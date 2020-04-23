@@ -9,36 +9,6 @@ from werkzeug.routing import Rule
 from http import HTTPStatus
 
 
-def build_spec(view, inherit_from=None):
-    # Create empty spec if missing so we can work safely with it
-    if not hasattr(view, "__apispec__"):
-        view.__apispec__ = {}
-    # Check for a spec to inherit from
-    inherited_spec = getattr(inherit_from, "__apispec__", {})
-
-    # Build a description
-    description = (
-        getattr(view, "__apispec__").get("description")
-        or get_docstring(view)
-        or inherited_spec.get("description")
-    )
-
-    # Build a summary
-    summary = (
-        getattr(view, "__apispec__").get("summary")
-        or inherited_spec.get("summary")
-        or description
-    )
-
-    # Build tags
-    tags = getattr(view, "__apispec__").get("tags", [])
-    tags.extend(inherited_spec.get("tags", []))
-
-    return update_spec(
-        view, {"description": description, "summary": summary, "tags": tags}
-    )
-
-
 def rule_to_apispec_path(rule: Rule, view: View, spec: APISpec):
     """Generate APISpec Path arguments from a flask Rule and View
     
@@ -67,9 +37,8 @@ def rule_to_apispec_path(rule: Rule, view: View, spec: APISpec):
             params["operations"][op].update({"parameters": rule_to_params(rule)})
 
     # Add extra parameters
-    if hasattr(view, "__apispec__"):
-        # Recursively update params
-        rupdate(params, view.__apispec__)
+    # build_spec(view) guarantees view.__apispec__ exists
+    rupdate(params, view.__apispec__)
 
     return params
 
@@ -87,26 +56,26 @@ def view_to_apispec_operations(view: View, spec: APISpec):
 
     # Build dictionary of operations (HTTP methods)
     ops = {}
-    for method in View.methods:
-        if hasattr(view, method):
-            ops[method] = {}
-            method_function = getattr(view, method)
+    for method in view.methods:
+        method = str(method).lower()
+        ops[method] = {}
+        method_function = getattr(view, method)
 
-            # Populate missing spec parameters
-            build_spec(method_function, inherit_from=view)
+        # Populate missing spec parameters
+        build_spec(method_function, inherit_from=view)
 
-            rupdate(
-                ops[method],
-                {
-                    "description": getattr(method_function, "__apispec__").get(
-                        "description"
-                    ),
-                    "summary": getattr(method_function, "__apispec__").get("summary"),
-                    "tags": getattr(method_function, "__apispec__").get("tags"),
-                },
-            )
+        rupdate(
+            ops[method],
+            {
+                "description": getattr(method_function, "__apispec__").get(
+                    "description"
+                ),
+                "summary": getattr(method_function, "__apispec__").get("summary"),
+                "tags": getattr(method_function, "__apispec__").get("tags"),
+            },
+        )
 
-            rupdate(ops[method], method_to_apispec_operation(method_function, spec))
+        rupdate(ops[method], method_to_apispec_operation(method_function, spec))
 
     return ops
 
@@ -175,3 +144,33 @@ def method_to_apispec_operation(method: callable, spec: APISpec):
             rupdate(op, {key: val})
 
     return op
+
+
+def build_spec(view, inherit_from=None):
+    # Create empty spec if missing so we can work safely with it
+    if not hasattr(view, "__apispec__"):
+        view.__apispec__ = {}
+    # Check for a spec to inherit from
+    inherited_spec = getattr(inherit_from, "__apispec__", {})
+
+    # Build a description
+    description = (
+        getattr(view, "__apispec__").get("description")
+        or get_docstring(view)
+        or inherited_spec.get("description")
+    )
+
+    # Build a summary
+    summary = (
+        getattr(view, "__apispec__").get("summary")
+        or inherited_spec.get("summary")
+        or description
+    )
+
+    # Build tags
+    tags = getattr(view, "__apispec__").get("tags", set())
+    tags = tags.union(inherited_spec.get("tags", set()))
+
+    return update_spec(
+        view, {"description": description, "summary": summary, "tags": tags}
+    )

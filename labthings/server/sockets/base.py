@@ -20,11 +20,18 @@ class SocketSubscriber:
         else:
             property_value = None
 
-        property_name = str(getattr(viewcls, "endpoint", "unknown"))
+        property_name = getattr(viewcls, "endpoint", None) or getattr(
+            viewcls, "__name__", "unknown"
+        )
 
         response = encode_json(
-            {"messageType": "propertyStatus", "data": {property_name: property_value},}
+            {"messageType": "propertyStatus", "data": {property_name: property_value}}
         )
+
+        self.ws.send(response)
+
+    def event_notify(self, event_dict: dict):
+        response = encode_json({"messageType": "event", "data": event_dict})
 
         self.ws.send(response)
 
@@ -49,18 +56,21 @@ class BaseSockets(ABC):
 
     @abstractmethod
     def init_app(self, app):
-        pass
+        "Registers Flask middleware"
 
     def route(self, rule, **options):
-        def decorator(view_func):
-            options.pop("endpoint", None)
-            self.add_url_rule(rule, view_func, **options)
-            return view_func
+        def decorator(f):
+            endpoint = options.pop("endpoint", None)
+            self.add_url_rule(rule, endpoint, f, **options)
+            return f
 
         return decorator
 
-    def add_url_rule(self, rule, view_func, **options):
-        self.url_map.add(Rule(rule, endpoint=view_func))
+    def add_url_rule(self, rule, _, f, **options):
+        self.url_map.add(Rule(rule, endpoint=f))
+
+    def add_view(self, rule, f, **options):
+        return self.add_url_rule(rule, None, f, **options)
 
     def register_blueprint(self, blueprint, **options):
         """
@@ -87,7 +97,6 @@ class BaseSockets(ABC):
 
 def process_socket_message(message: str):
     if message:
-        # return f"Recieved: {message}"
         return None
     else:
         return None
