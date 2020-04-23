@@ -1,5 +1,4 @@
 from labthings.server.spec import utilities
-import json
 from marshmallow import fields
 import pytest
 

@@ -2,7 +2,6 @@ from labthings.server.sockets import base, gevent as gsocket
 
 import json
 from flask import Blueprint
-from werkzeug.routing import Map
 
 
 def test_socket_subscriber_property_notify(view_cls, fake_websocket):

@@ -1,4 +1,3 @@
-import pytest
 
 from labthings.server.view import builder
 

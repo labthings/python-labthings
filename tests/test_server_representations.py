@@ -1,5 +1,5 @@
 from labthings.server import representations
-from flask import Flask, Response
+from flask import Response
 import pytest
 
 

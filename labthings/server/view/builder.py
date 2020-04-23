@@ -16,7 +16,7 @@ from labthings.server.decorators import (
 )
 from . import View
 
-from flask import send_from_directory, abort
+from flask import send_from_directory
 import uuid
 
 

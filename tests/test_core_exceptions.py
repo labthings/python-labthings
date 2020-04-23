@@ -1,5 +1,4 @@
 from labthings.core import exceptions
-import pytest
 
 
 def test_lockerror_valid_code():

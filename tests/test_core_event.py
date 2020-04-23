@@ -1,6 +1,4 @@
-import pytest
 import gevent
-from gevent.hub import getcurrent
 
 from labthings.core import event
 

@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from werkzeug.routing import Map, Rule
-from werkzeug.exceptions import NotFound
-from werkzeug.http import parse_cookie
-from flask import request, current_app
-import logging
 from abc import ABC, abstractmethod
 
 from ..representations import encode_json

@@ -1,4 +1,3 @@
-import pytest
 
 from labthings.server.spec import paths
 

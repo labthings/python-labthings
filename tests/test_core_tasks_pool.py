@@ -1,5 +1,4 @@
 from labthings.core import tasks
-import pytest
 
 import gevent
 

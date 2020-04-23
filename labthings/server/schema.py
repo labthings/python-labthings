@@ -3,7 +3,7 @@ from flask import jsonify, url_for
 from werkzeug.routing import BuildError
 import marshmallow
 
-from .names import TASK_ENDPOINT, TASK_LIST_ENDPOINT, EXTENSION_LIST_ENDPOINT
+from .names import TASK_ENDPOINT, EXTENSION_LIST_ENDPOINT
 from .utilities import view_class_from_endpoint, description_from_view
 from . import fields
 

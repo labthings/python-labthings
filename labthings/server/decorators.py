@@ -1,6 +1,6 @@
 from webargs import flaskparser
 from functools import wraps, update_wrapper
-from flask import make_response, abort, request
+from flask import abort, request
 from werkzeug.wrappers import Response as ResponseBase
 from http import HTTPStatus
 from marshmallow.exceptions import ValidationError
@@ -19,9 +19,6 @@ from labthings.core.tasks.pool import TaskThread
 from labthings.core.utilities import rupdate
 
 import logging
-
-# Useful externals to have included here
-from marshmallow import pre_dump, pre_load
 
 
 class marshal_with:

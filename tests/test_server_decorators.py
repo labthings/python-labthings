@@ -2,8 +2,6 @@ import pytest
 
 from marshmallow import Schema as _Schema
 from flask import make_response
-
-from labthings.server.schema import Schema
 from labthings.server import fields
 from labthings.server.view import View
 from labthings.core.tasks.thread import TaskThread
