@@ -1,24 +1,26 @@
 __all__ = [
+    "Pool",
     "taskify",
     "tasks",
-    "dictionary",
+    "to_dict",
     "states",
     "current_task",
     "update_task_progress",
-    "cleanup_tasks",
-    "remove_task",
+    "cleanup",
+    "discard_id",
     "update_task_data",
     "ThreadTerminationError",
 ]
 
 from .pool import (
+    Pool,
     tasks,
-    dictionary,
+    to_dict,
     states,
     current_task,
     update_task_progress,
-    cleanup_tasks,
-    remove_task,
+    cleanup,
+    discard_id,
     update_task_data,
     taskify,
 )

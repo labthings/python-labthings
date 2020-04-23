@@ -31,9 +31,9 @@ class TaskView(View):
 
         Includes progress and intermediate data.
         """
-        task_dict = tasks.dictionary()
+        task_dict = tasks.to_dict()
 
-        if not task_id in task_dict:
+        if task_id not in task_dict:
             return abort(404)  # 404 Not Found
 
         task = task_dict.get(task_id)
@@ -47,9 +47,9 @@ class TaskView(View):
 
         If the task is finished, deletes its entry.
         """
-        task_dict = tasks.dictionary()
+        task_dict = tasks.to_dict()
 
-        if not task_id in task_dict:
+        if task_id not in task_dict:
             return abort(404)  # 404 Not Found
 
         task = task_dict.get(task_id)

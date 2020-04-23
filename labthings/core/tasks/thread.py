@@ -1,6 +1,7 @@
 from gevent import Greenlet, GreenletExit
 from gevent.thread import get_ident
 from gevent.event import Event
+from flask import copy_current_request_context, has_request_context
 import datetime
 import logging
 import traceback
@@ -18,13 +19,8 @@ class TaskKillException(Exception):
 
 
 class TaskThread(Greenlet):
-    def __init__(self, target=None, args=None, kwargs=None):
+    def __init__(self, target, *args, **kwargs):
         Greenlet.__init__(self)
-        # Handle arguments
-        if args is None:
-            args = ()
-        if kwargs is None:
-            kwargs = {}
 
         # A UUID for the TaskThread (not the same as the threading.Thread ident)
         self._ID = uuid.uuid4()  # Task ID
@@ -83,7 +79,12 @@ class TaskThread(Greenlet):
         self.data.update(data)
 
     def _run(self):  # pylint: disable=E0202
-        return self._thread_proc(self._target)(*self._args, **self._kwargs)
+        # copy_current_request_context allows threads to access flask current_app
+        if has_request_context():
+            target = copy_current_request_context(self._target)
+        else:
+            target = self._target
+        return self._thread_proc(target)(*self._args, **self._kwargs)
 
     def _thread_proc(self, f):
         """

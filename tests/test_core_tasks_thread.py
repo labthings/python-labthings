@@ -9,9 +9,7 @@ def test_task_with_args():
     def task_func(arg, kwarg=False):
         pass
 
-    task_obj = thread.TaskThread(
-        target=task_func, args=("String arg",), kwargs={"kwarg": True}
-    )
+    task_obj = thread.TaskThread(task_func, "String arg", kwarg=True)
     assert isinstance(task_obj, gevent.Greenlet)
     assert task_obj._target == task_func
     assert task_obj._args == ("String arg",)
@@ -110,7 +108,7 @@ def test_task_log_without_thread():
 
 def test_task_log_with_incorrect_thread():
 
-    task_obj = thread.TaskThread()
+    task_obj = thread.TaskThread(None)
     task_log_handler = thread.ThreadLogHandler(thread=task_obj)
 
     # Should always return False if called from outside the log handlers thread
