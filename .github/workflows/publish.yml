@@ -31,7 +31,7 @@ jobs:
 
       - name: Set Poetry config
         env:
-          POETRY_PYPI_TOKEN_PYPI: ${{ POETRY_PYPI_TOKEN_PYPI }}
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.POETRY_PYPI_TOKEN_PYPI }}
         run: |
           poetry config virtualenvs.in-project false
           poetry config virtualenvs.path ~/.virtualenvs
