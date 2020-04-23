@@ -1,5 +1,9 @@
 from flask import make_response, current_app
-from json import dumps, JSONEncoder
+
+# Flask JSON encoder so we get UUID, datetime etc support
+from flask.json import JSONEncoder
+from json import dumps
+
 
 from ..core.utilities import PY3
 
