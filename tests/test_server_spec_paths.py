@@ -1,4 +1,3 @@
-
 from labthings.server.spec import paths
 
 

@@ -3,8 +3,7 @@ import math
 import logging
 
 from labthings.server.quick import create_app
-from labthings.server.decorators import (
-    ThingProperty, PropertySchema)
+from labthings.server.decorators import ThingProperty, PropertySchema
 from labthings.server.view import View
 from labthings.server.find import find_component
 from labthings.server import fields

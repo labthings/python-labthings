@@ -1,4 +1,3 @@
-
 from labthings.server import utilities
 from labthings.server.view import View
 

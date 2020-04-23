@@ -1,4 +1,3 @@
-
 from labthings.server import quick
 
 from flask import Flask
