@@ -212,6 +212,12 @@ class ThingDescription:
         self.properties[key] = self.view_to_thing_property(rules, view)
 
     def action(self, rules: list, view: View):
+        """Add a view representing an Action.
+
+        NB at present this will fail for any view that doesn't support POST
+        requests.
+        """
+        assert hasattr(view, "post"), "Thing actions must have a POST method!"
         endpoint = getattr(view, "endpoint") or getattr(rules[0], "endpoint")
         key = snake_to_camel(endpoint)
         self.actions[key] = self.view_to_thing_action(rules, view)
