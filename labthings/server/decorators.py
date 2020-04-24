@@ -20,6 +20,32 @@ from labthings.core.utilities import merge
 
 import logging
 
+# Useful externals to have included here
+from marshmallow import pre_dump, pre_load
+
+__all__ = [
+    "pre_dump",
+    "pre_load",
+    "marshal_with",
+    "marshal_task",
+    "ThingAction",
+    "thing_action",
+    "Safe",
+    "safe",
+    "Idempotent",
+    "idempotent",
+    "ThingProperty",
+    "thing_property",
+    "PropertySchema",
+    "use_body",
+    "use_args",
+    "Doc",
+    "doc",
+    "Tag",
+    "tag",
+    "doc_response",
+]
+
 
 class marshal_with:
     def __init__(self, schema, code=200):
