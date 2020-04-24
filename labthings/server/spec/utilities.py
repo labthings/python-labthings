@@ -1,7 +1,7 @@
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 
-from ...core.utilities import rupdate
+from ...core.utilities import merge
 
 from ..fields import Field
 from marshmallow import Schema as BaseSchema
@@ -17,7 +17,7 @@ def update_spec(obj, spec: dict):
         spec (dict): Dictionary of API spec data to add
     """
     obj.__apispec__ = obj.__dict__.get("__apispec__", {})
-    rupdate(obj.__apispec__, spec)
+    obj.__apispec__ = merge(obj.__apispec__, spec)
     return obj.__apispec__ or {}
 
 

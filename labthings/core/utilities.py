@@ -3,6 +3,7 @@ import re
 import operator
 import sys
 import os
+import copy
 from functools import reduce
 
 PY3 = sys.version_info > (3,)
@@ -39,20 +40,21 @@ def get_summary(obj):
     return get_docstring(obj, remove_newlines=False).partition("\n")[0].strip()
 
 
-def rupdate(destination_dict, update_dict):
+def merge(first: dict, second: dict):
     """Recursively update a dictionary
 
     This will take an "update_dictionary",
     and recursively merge it with "destination_dict".
 
     Args:
-        destination_dict (dict): Original dictionary
-        update_dict (dict): New data dictionary
+        first (dict): Original dictionary
+        second (dict): New data dictionary
 
     Returns:
         dict: Merged dictionary
     """
-    for k, v in update_dict.items():
+    destination_dict = copy.deepcopy(first)
+    for k, v in second.items():
         # Merge lists if they're present in both objects
         if isinstance(v, list):
             # If key is missing from destination, create the list
@@ -68,7 +70,7 @@ def rupdate(destination_dict, update_dict):
         elif isinstance(v, collections.abc.Mapping):
             if k not in destination_dict:
                 destination_dict[k] = {}
-            destination_dict[k] = rupdate(destination_dict.get(k, {}), v)
+            destination_dict[k] = merge(destination_dict.get(k, {}), v)
         # If not a list or dictionary, overwrite old value with new value
         else:
             destination_dict[k] = v

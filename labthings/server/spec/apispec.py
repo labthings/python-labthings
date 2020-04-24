@@ -1,7 +1,7 @@
 from ..view import View
 from apispec import APISpec
 
-from ...core.utilities import get_docstring, get_summary, rupdate
+from ...core.utilities import get_docstring, get_summary, merge
 from .paths import rule_to_path, rule_to_params
 from .utilities import convert_schema, update_spec
 
@@ -38,7 +38,7 @@ def rule_to_apispec_path(rule: Rule, view: View, spec: APISpec):
 
     # Add extra parameters
     # build_spec(view) guarantees view.__apispec__ exists
-    rupdate(params, view.__apispec__)
+    params = merge(params, view.__apispec__)
 
     return params
 
@@ -64,7 +64,7 @@ def view_to_apispec_operations(view: View, spec: APISpec):
         # Populate missing spec parameters
         build_spec(method_function, inherit_from=view)
 
-        rupdate(
+        ops[method] = merge(
             ops[method],
             {
                 "description": getattr(method_function, "__apispec__").get(
@@ -75,7 +75,9 @@ def view_to_apispec_operations(view: View, spec: APISpec):
             },
         )
 
-        rupdate(ops[method], method_to_apispec_operation(method_function, spec))
+        ops[method] = merge(
+            ops[method], method_to_apispec_operation(method_function, spec)
+        )
 
     return ops
 
@@ -97,7 +99,7 @@ def method_to_apispec_operation(method: callable, spec: APISpec):
 
     op = {}
     if "_params" in apispec:
-        rupdate(
+        op = merge(
             op,
             {
                 "requestBody": {
@@ -112,7 +114,7 @@ def method_to_apispec_operation(method: callable, spec: APISpec):
 
     if "_schema" in apispec:
         for code, schema in apispec.get("_schema", {}).items():
-            rupdate(
+            op = merge(
                 op,
                 {
                     "responses": {
@@ -129,7 +131,7 @@ def method_to_apispec_operation(method: callable, spec: APISpec):
             )
     else:
         # If no explicit responses are known, populate with defaults
-        rupdate(
+        op = merge(
             op,
             {
                 "responses": {
@@ -141,7 +143,7 @@ def method_to_apispec_operation(method: callable, spec: APISpec):
     # Bung in any extra swagger fields supplied
     for key, val in apispec.items():
         if key not in ["_params", "_schema"]:
-            rupdate(op, {key: val})
+            op = merge(op, {key: val})
 
     return op
 
