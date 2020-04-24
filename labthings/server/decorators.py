@@ -221,7 +221,7 @@ class use_body:
             # If no data is there
             if not data:
                 # If data is required
-                if self.schema.required == True:
+                if self.schema.required:
                     # Abort
                     return abort(400)
                 # Otherwise, look for the schema fields 'missing' property
