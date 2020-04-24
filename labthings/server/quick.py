@@ -10,7 +10,7 @@ def create_app(
     prefix: str = "",
     title: str = "",
     description: str = "",
-    types: list = [],
+    types: list = None,
     version: str = "0.0.0",
     handle_errors: bool = True,
     handle_cors: bool = True,
@@ -33,6 +33,8 @@ def create_app(
     Returns:
         (Flask app object, LabThings object)
     """
+    if types is None:
+        types = []
     # Handle arguments
     if flask_kwargs is None:
         flask_kwargs = {}

@@ -86,8 +86,10 @@ def test_function_signature_to_schema():
     from marshmallow import Schema
 
     def test_func(
-        positional: int, n: int = 10, optlist: List[int] = [1, 2, 3], untyped="untyped"
+        positional: int, n: int = 10, optlist: List[int] = None, untyped="untyped"
     ):
+        if optlist is None:
+            optlist = [1, 2, 3]
         pass
 
     gen_schema_dict = types.function_signature_to_schema(test_func)

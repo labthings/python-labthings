@@ -36,10 +36,12 @@ class LabThing:
         prefix: str = "",
         title: str = "",
         description: str = "",
-        types: list = [],
+        types: list = None,
         version: str = "0.0.0",
         format_flask_exceptions: bool = True,
     ):
+        if types is None:
+            types = []
         self.app = app  # Becomes a Flask app
         self.sockets = None  # Becomes a Socket(app) websocket handler
 
