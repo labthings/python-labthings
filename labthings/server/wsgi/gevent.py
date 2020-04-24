@@ -45,13 +45,11 @@ class Server:
                     "description": self.labthing.description,
                     "types": ";".join(self.labthing.types),
                 },
-                addresses=set(
-                    [
-                        socket.inet_aton(i)
-                        for i in get_all_addresses()
-                        if i not in ("127.0.0.1", "0.0.0.0")
-                    ]
-                ),
+                addresses={
+                    socket.inet_aton(i)
+                    for i in get_all_addresses()
+                    if i not in ("127.0.0.1", "0.0.0.0")
+                },
             )
             self.zeroconf_server = Zeroconf(ip_version=IPVersion.V4Only)
             self.zeroconf_server.register_service(self.service_info)
