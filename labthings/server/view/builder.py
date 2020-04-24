@@ -56,13 +56,13 @@ def property_of(
         generated_class.post = _post
         generated_class.methods.add("POST")
         # Enable PUT requests for dictionaries
-        if type(getattr(property_object, property_name)) == dict:
+        if type(getattr(property_object, property_name)) is dict:
             generated_class.put = _put
             generated_class.methods.add("PUT")
 
     # Add decorators for arguments etc
     initial_property_value = getattr(property_object, property_name)
-    if type(initial_property_value) == dict:
+    if type(initial_property_value) is dict:
         property_schema = data_dict_to_schema(initial_property_value)
     else:
         property_schema = value_to_field(initial_property_value)

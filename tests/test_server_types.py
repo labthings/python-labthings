@@ -41,7 +41,7 @@ def test_make_primitive():
     assert types.make_primitive(numpy.array([1, 2, 3])) == [1, 2, 3]
     assert types.make_primitive(numpy.int16(10)) == 10
 
-    assert type(types.make_primitive(generic_object)) == str
+    assert type(types.make_primitive(generic_object)) is str
     assert types.make_primitive(generic_object).startswith("<object object at ")
 
     assert types.make_primitive(10) == 10
