@@ -33,6 +33,13 @@ class TaskThread(Greenlet):
         self._args = args
         self._kwargs = kwargs
 
+        # copy_current_request_context allows threads to access flask current_app
+        if has_request_context():
+            logging.debug(f"Copying request context to {self._target}")
+            self._target = copy_current_request_context(self._target)
+        else:
+            logging.debug("No request context to copy")
+
         # Nice string representation of target function
         self.target_string = f"{self._target}(args={self._args}, kwargs={self._kwargs})"
 
@@ -79,12 +86,7 @@ class TaskThread(Greenlet):
         self.data.update(data)
 
     def _run(self):  # pylint: disable=E0202
-        # copy_current_request_context allows threads to access flask current_app
-        if has_request_context():
-            target = copy_current_request_context(self._target)
-        else:
-            target = self._target
-        return self._thread_proc(target)(*self._args, **self._kwargs)
+        return self._thread_proc(self._target)(*self._args, **self._kwargs)
 
     def _thread_proc(self, f):
         """
