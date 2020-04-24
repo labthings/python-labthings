@@ -33,15 +33,15 @@ class TaskThread(Greenlet):
         self._args = args
         self._kwargs = kwargs
 
+        # Nice string representation of target function
+        self.target_string = f"{self._target}(args={self._args}, kwargs={self._kwargs})"
+
         # copy_current_request_context allows threads to access flask current_app
         if has_request_context():
             logging.debug(f"Copying request context to {self._target}")
             self._target = copy_current_request_context(self._target)
         else:
             logging.debug("No request context to copy")
-
-        # Nice string representation of target function
-        self.target_string = f"{self._target}(args={self._args}, kwargs={self._kwargs})"
 
         # Private state properties
         self._status: str = "idle"  # Task status
