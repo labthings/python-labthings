@@ -1,4 +1,4 @@
-from flask import url_for, jsonify
+from flask import url_for
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 
@@ -9,7 +9,7 @@ from .names import (
     EXTENSION_LIST_ENDPOINT,
 )
 from .extensions import BaseExtension
-from .utilities import description_from_view, clean_url_string
+from .utilities import clean_url_string
 from .exceptions import JSONExceptionHandler
 from .logging import LabThingLogger
 from .representations import LabThingsJSONEncoder
@@ -24,8 +24,6 @@ from .default_views.tasks import TaskList, TaskView
 from .default_views.docs import docs_blueprint, SwaggerUIView
 from .default_views.root import RootView
 from .default_views.sockets import socket_handler
-
-from ..core.utilities import get_docstring
 
 import weakref
 import logging

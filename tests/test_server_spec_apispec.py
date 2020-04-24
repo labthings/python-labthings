@@ -1,5 +1,3 @@
-import pytest
-
 from labthings.server.spec import apispec
 from labthings.server.view import View
 

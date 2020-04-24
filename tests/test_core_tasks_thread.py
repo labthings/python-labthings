@@ -1,5 +1,4 @@
 from labthings.core.tasks import thread
-import pytest
 
 import gevent
 from gevent.thread import get_ident

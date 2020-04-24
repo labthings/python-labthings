@@ -2,8 +2,6 @@ from geventwebsocket.handler import WebSocketHandler
 import gevent
 import socket
 import logging
-import sys
-import os
 import signal
 from werkzeug.debug import DebuggedApplication
 

@@ -1,5 +1,5 @@
 from labthings.server import types, fields
-from labthings.server.types.registry import TypeRegistry, _field_factory
+from labthings.server.types.registry import TypeRegistry
 import pytest
 
 from fractions import Fraction

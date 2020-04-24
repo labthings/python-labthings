@@ -7,7 +7,6 @@ from labthings.server.find import find_component
 from labthings.server.types import data_dict_to_schema
 
 import logging
-from pprint import pprint
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)

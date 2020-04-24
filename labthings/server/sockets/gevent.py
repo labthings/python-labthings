@@ -11,8 +11,6 @@ from werkzeug.exceptions import NotFound
 from werkzeug.http import parse_cookie
 from flask import request
 import gevent
-import time
-import logging
 
 from .base import BaseSockets, process_socket_message
 
