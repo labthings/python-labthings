@@ -83,10 +83,8 @@ class CompositeLock:
             timeout = self.timeout
 
         lock_all = all(
-            [
-                lock.acquire(blocking=blocking, timeout=timeout, _strict=False)
+            lock.acquire(blocking=blocking, timeout=timeout, _strict=False)
                 for lock in self.locks
-            ]
         )
 
         if not lock_all:
@@ -103,7 +101,7 @@ class CompositeLock:
 
     def release(self):
         # If not all child locks are owner by caller
-        if not all([owner is getcurrent() for owner in self._owner]):
+        if not all(owner is getcurrent() for owner in self._owner):
             raise RuntimeError("cannot release un-acquired lock")
         for lock in self.locks:
             if lock.locked():
@@ -115,7 +113,7 @@ class CompositeLock:
                 lock.release()
 
     def locked(self):
-        return any([lock.locked() for lock in self.locks])
+        return any(lock.locked() for lock in self.locks)
 
     @property
     def _owner(self):
@@ -127,4 +125,4 @@ class CompositeLock:
             lock._owner = new_owner
 
     def _is_owned(self):
-        return all([lock._is_owned() for lock in self.locks])
+        return all(lock._is_owned() for lock in self.locks)

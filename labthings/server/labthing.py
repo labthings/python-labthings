@@ -233,7 +233,7 @@ class LabThing:
             blueprint.  Generally speaking, BlueprintSetupState.url_prefix
         """
         parts = [self.url_prefix, registration_prefix, url_part]
-        u = "".join([clean_url_string(part) for part in parts if part])
+        u = "".join(clean_url_string(part) for part in parts if part)
         return u if u else "/"
 
     def add_view(self, resource, *urls, endpoint=None, **kwargs):
