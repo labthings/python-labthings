@@ -84,7 +84,7 @@ class CompositeLock:
 
         lock_all = all(
             lock.acquire(blocking=blocking, timeout=timeout, _strict=False)
-                for lock in self.locks
+            for lock in self.locks
         )
 
         if not lock_all:
