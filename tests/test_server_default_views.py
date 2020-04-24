@@ -44,7 +44,7 @@ def test_task_representation(thing_client):
 
 def test_task_representation_missing(thing_client):
     with thing_client as c:
-        assert c.get(f"/tasks/missing_id").status_code == 404
+        assert c.get("/tasks/missing_id").status_code == 404
 
 
 def test_task_kill(thing_client):
@@ -68,4 +68,4 @@ def test_task_kill(thing_client):
 
 def test_task_kill_missing(thing_client):
     with thing_client as c:
-        assert c.delete(f"/tasks/missing_id").status_code == 404
+        assert c.delete("/tasks/missing_id").status_code == 404
