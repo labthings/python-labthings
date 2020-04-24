@@ -59,7 +59,8 @@ class ClientEvent(object):
                     if now - event[1] >= timeout:
                         remove_keys.add(ident)
             if remove_keys:
-                del self.events[ident]
+                for ident in remove_keys:
+                    del self.events[ident]
 
     def clear(self):
         """Clear frame event, once processed."""
