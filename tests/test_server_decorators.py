@@ -121,7 +121,7 @@ def test_marshal_task_response_invalid(app_ctx):
 
 def test_thing_action(empty_cls):
     wrapped_cls = decorators.thing_action(empty_cls)
-    assert wrapped_cls.__apispec__["tags"] == set(["actions"])
+    assert wrapped_cls.__apispec__["tags"] == {"actions"}
 
 
 def test_safe(empty_cls):
@@ -136,12 +136,12 @@ def test_idempotent(empty_cls):
 
 def test_thing_property(view_cls):
     wrapped_cls = decorators.thing_property(view_cls)
-    assert wrapped_cls.__apispec__["tags"] == set(["properties"])
+    assert wrapped_cls.__apispec__["tags"] == {"properties"}
 
 
 def test_thing_property_empty_class(empty_cls, app_ctx):
     wrapped_cls = decorators.thing_property(empty_cls)
-    assert wrapped_cls.__apispec__["tags"] == set(["properties"])
+    assert wrapped_cls.__apispec__["tags"] == {"properties"}
 
 
 def test_thing_property_property_notify(view_cls, app_ctx):
@@ -307,12 +307,12 @@ def test_doc(empty_cls):
 
 def test_tag(empty_cls):
     wrapped_cls = decorators.tag(["tag", "tag2"])(empty_cls)
-    assert wrapped_cls.__apispec__["tags"] == set(["tag", "tag2"])
+    assert wrapped_cls.__apispec__["tags"] == {"tag", "tag2"}
 
 
 def test_tag_single(empty_cls):
     wrapped_cls = decorators.tag("tag")(empty_cls)
-    assert wrapped_cls.__apispec__["tags"] == set(["tag"])
+    assert wrapped_cls.__apispec__["tags"] == {"tag"}
 
 
 def test_tag_invalid(empty_cls):
