@@ -45,7 +45,7 @@ def create_app(
 
     # Handle CORS
     if handle_cors:
-        cors_handler = CORS(app, resources=f"{prefix}/*")
+        CORS(app, resources=f"{prefix}/*")
 
     # Create a LabThing
     labthing = LabThing(

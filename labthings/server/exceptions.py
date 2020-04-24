@@ -36,7 +36,7 @@ class JSONExceptionHandler:
     def init_app(self, app):
         self.app = app
         self.register(HTTPException)
-        for code, v in default_exceptions.items():
+        for code, _ in default_exceptions.items():
             self.register(code)
         self.register(Exception)
 

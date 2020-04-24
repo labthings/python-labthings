@@ -46,7 +46,7 @@ class PdfComponent:
             optlist = [1, 2, 3]
         summed_data = self.data
 
-        for i in range(n):
+        for _ in range(n):
             summed_data = [summed_data[i] + el for i, el in enumerate(self.data)]
             time.sleep(0.25)
 
