@@ -12,7 +12,7 @@ from ..find import current_labthing
 
 class Server:
     def __init__(
-        self, app, host="0.0.0.0", port=5000, log=None, debug=False, zeroconf=True
+        self, app, host="0.0.0.0", port=7485, log=None, debug=False, zeroconf=True
     ):
         self.app = app
         # Find LabThing attached to app

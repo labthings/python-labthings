@@ -60,4 +60,4 @@ if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
 
     server = Server(app)
-    server.run(host="0.0.0.0", port=5000, debug=False)
+    server.run()
