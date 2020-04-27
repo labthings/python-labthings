@@ -1,6 +1,12 @@
-# [](https://github.com/labthings/python-labthings/compare/v0.5.1...v) (2020-04-27)
+# [](https://github.com/labthings/python-labthings/compare/v0.5.2...v) (2020-04-27)
 
 
+
+## [0.5.2](https://github.com/labthings/python-labthings/compare/v0.5.1...v0.5.2) (2020-04-27)
+
+
+* Added changelog ([](https://github.com/labthings/python-labthings/commit/c2232ca))
+* Added changelog notes to readme ([](https://github.com/labthings/python-labthings/commit/0ee591b))
 * Bump zeroconf from 0.25.1 to 0.26.0 ([](https://github.com/labthings/python-labthings/commit/3bff1d0))
 * Code style ([](https://github.com/labthings/python-labthings/commit/e7a53d2))
 * Fixed ClientEvent to use BoundedSemaphore for set lock ([](https://github.com/labthings/python-labthings/commit/8d64364))
