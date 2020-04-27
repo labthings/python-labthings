@@ -119,7 +119,7 @@ class MyComponentProperty(View):
 app, labthing = create_app(
     __name__,
     prefix="/api",
-    title=f"My Lab Device API",
+    title="My Lab Device API",
     description="Test LabThing-based API",
     version="0.1.0",
 )
