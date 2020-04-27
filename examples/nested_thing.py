@@ -1,6 +1,7 @@
 import random
 import math
 import uuid
+import logging
 
 from labthings.server.quick import create_app
 from labthings.server.decorators import ThingProperty, PropertySchema
@@ -118,7 +119,7 @@ class MyComponentProperty(View):
 app, labthing = create_app(
     __name__,
     prefix="/api",
-    title=f"My Lab Device API",
+    title="My Lab Device API",
     description="Test LabThing-based API",
     version="0.1.0",
 )
@@ -133,4 +134,10 @@ labthing.add_view(MyComponentProperty, "/component")
 
 # Start the app
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port="5000", threaded=True, debug=True, use_reloader=False)
+    from labthings.server.wsgi import Server
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+
+    server = Server(app)
+    server.run()
