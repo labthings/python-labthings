@@ -4,7 +4,7 @@ import time
 import logging
 
 from gevent.monkey import get_original
-from gevent.lock import Semaphore
+from gevent.lock import BoundedSemaphore
 
 # Guarantee that Task threads will always be proper system threads, regardless of Gevent patches
 Event = get_original("threading", "Event")
@@ -20,7 +20,7 @@ class ClientEvent(object):
 
     def __init__(self):
         self.events = {}
-        self._setting_lock = Semaphore(value=1)
+        self._setting_lock = BoundedSemaphore()
 
     def wait(self, timeout: int = 5):
         """Wait for the next data frame (invoked from each client's thread)."""
