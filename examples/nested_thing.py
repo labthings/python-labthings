@@ -1,6 +1,7 @@
 import random
 import math
 import uuid
+import logging
 
 from labthings.server.quick import create_app
 from labthings.server.decorators import ThingProperty, PropertySchema
