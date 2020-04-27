@@ -11,3 +11,10 @@ A Python implementation of the LabThings API structure, based on the Flask micro
 ## Acknowledgements
 
 Much of the code surrounding default response formatting has been liberally taken from [Flask-RESTful](https://github.com/flask-restful/flask-restful). The integrated [Marshmallow](https://github.com/marshmallow-code/marshmallow) support was inspired by [Flask-Marshmallow](https://github.com/marshmallow-code/flask-marshmallow) and [Flask-ApiSpec](https://github.com/jmcarp/flask-apispec). 
+
+## Developer notes
+
+### Changelog generation
+
+* `npm install -g conventional-changelog-cli`
+* `conventional-changelog -r 0 --config ./changelog.config.js -i CHANGELOG.md -s`
