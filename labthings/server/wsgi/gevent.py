@@ -12,7 +12,14 @@ from ..find import current_labthing
 
 class Server:
     def __init__(
-        self, app, host="0.0.0.0", port=7485, log=None, debug=False, zeroconf=True
+        self,
+        app,
+        host="0.0.0.0",
+        port=7485,
+        log=None,
+        error_log=None,
+        debug=False,
+        zeroconf=True,
     ):
         self.app = app
         # Find LabThing attached to app
@@ -22,6 +29,7 @@ class Server:
         self.host = host
         self.port = port
         self.log = log
+        self.error_log = error_log
         self.debug = debug
         self.zeroconf = zeroconf
 
@@ -79,6 +87,8 @@ class Server:
         # Handle logging
         if not self.log:
             self.log = logging.getLogger()
+        if not self.error_log:
+            self.error_log = logging.getLogger()
 
         # Handle debug mode
         if self.debug:
@@ -114,7 +124,7 @@ class Server:
             self.stop()  # pragma: no cover
 
     def run(
-        self, host=None, port=None, log=None, debug=None, zeroconf=None,
+        self, host=None, port=None, log=None, error_log=None, debug=None, zeroconf=None,
     ):
         """Starts the server allowing for runtime parameters. Designed to immitate
         the old Flask app.run style of starting an app
@@ -134,6 +144,9 @@ class Server:
 
         if log is not None:
             self.log = log
+
+        if error_log is not None:
+            self.error_log = error_log
 
         if debug is not None:
             self.debug = debug

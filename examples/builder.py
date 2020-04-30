@@ -28,27 +28,25 @@ my_component = PdfComponent()
 labthing.add_component(my_component, "org.labthings.example.mycomponent")
 
 # Add routes for the API views we created
-labthing.add_view(
-    property_of(my_component, "magic_denoise", description="A magic denoise property"),
-    "/denoise",
+
+labthing.build_property(
+    my_component, "magic_denoise", "/denoise", description="A magic denoise property",
 )
-labthing.add_view(
-    property_of(
-        my_component,
-        "magic_dictionary",
-        description="A big dictionary of little properties",
-    ),
+
+labthing.build_property(
+    my_component,
+    "magic_dictionary",
     "/dictionary",
+    description="A big dictionary of little properties",
 )
-labthing.add_view(
-    action_from(
-        my_component.average_data,
-        description="Take an averaged measurement",
-        task=True,  # Is the action a long-running task?
-        safe=True,  # Is the state of the Thing unchanged by calling the action?
-        idempotent=True,  # Can the action be called repeatedly with the same result?
-    ),
+
+labthing.build_action(
+    my_component.average_data,
     "/average",
+    description="Take an averaged measurement",
+    task=True,  # Is the action a long-running task?
+    safe=True,  # Is the state of the Thing unchanged by calling the action?
+    idempotent=True,  # Can the action be called repeatedly with the same result?
 )
 
 
