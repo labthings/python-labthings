@@ -1,7 +1,11 @@
-# [](https://github.com/labthings/python-labthings/compare/v0.5.2...v) (2020-04-27)
+# [](https://github.com/labthings/python-labthings/compare/v0.5.3...v) (2020-04-30)
 
 
+* Added LabThing-level property and action builders ([fe61a29](https://github.com/labthings/python-labthings/commit/fe61a29))
+* Added specific error-log handler to server ([ffe7952](https://github.com/labthings/python-labthings/commit/ffe7952))
+* Fixed changelog format ([4f87c33](https://github.com/labthings/python-labthings/commit/4f87c33))
 * Updated changelog ([4b3afc0](https://github.com/labthings/python-labthings/commit/4b3afc0))
+* Updated version and dependencies ([d051430](https://github.com/labthings/python-labthings/commit/d051430))
 
 
 ## [0.5.2](https://github.com/labthings/python-labthings/compare/v0.5.1...v0.5.2) (2020-04-27)
