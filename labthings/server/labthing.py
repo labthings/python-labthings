@@ -19,11 +19,15 @@ from .spec.td import ThingDescription
 from .decorators import tag
 from .sockets import Sockets
 
+from .view.builder import property_of, action_from
+
 from .default_views.extensions import ExtensionList
 from .default_views.tasks import TaskList, TaskView
 from .default_views.docs import docs_blueprint, SwaggerUIView
 from .default_views.root import RootView
 from .default_views.sockets import socket_handler
+
+from typing import Callable
 
 import weakref
 import logging
@@ -333,3 +337,12 @@ class LabThing:
         if params is None:
             params = {}
         self.thing_description.add_link(view, rel, kwargs=kwargs, params=params)
+
+    # Convenience methods
+    def build_property(
+        self, property_object: object, property_name: str, *urls, **kwargs
+    ):
+        self.add_view(property_of(property_object, property_name, **kwargs), *urls)
+
+    def build_action(self, function: Callable, *urls, **kwargs):
+        self.add_view(action_from(function, **kwargs), *urls)
