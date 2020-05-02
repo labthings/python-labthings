@@ -99,8 +99,12 @@ def rapply(data, func, *args, apply_to_iterables=True, **kwargs):
             )
             for key, val in data.items()
         }
-    # If the object is iterable but NOT a dictionary or a string
-    elif apply_to_iterables and (isinstance(data, typing.List)):
+    # If the object is a list, tuple, or range
+    elif apply_to_iterables and (
+        isinstance(data, typing.List)
+        or isinstance(data, typing.Tuple)
+        or isinstance(data, range)
+    ):
         return [
             rapply(x, func, *args, apply_to_iterables=apply_to_iterables, **kwargs)
             for x in data
