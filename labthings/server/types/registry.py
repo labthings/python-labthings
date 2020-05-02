@@ -23,6 +23,7 @@ PRIMITIVE_TYPES = [
     Dict,
     List,
     list,
+    bytes,
 ]
 
 
@@ -59,6 +60,7 @@ class TypeRegistry:
                 UUID: fields.UUID,
                 dict: fields.Dict,
                 Dict: fields.Dict,
+                bytes: fields.Bytes,
                 _empty: fields.Field,
             }.items()
         }
