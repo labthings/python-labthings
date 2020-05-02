@@ -14,7 +14,7 @@ def test_bytes_encode():
     obj = type("obj", (object,), {"b": pickle.dumps(object())})
 
     assert test_schema.dump(obj) == {
-        "b": b"\x80\x04\x95\x1a\x00\x00\x00\x00\x00\x00\x00\x8c\x08builtins\x94\x8c\x06object\x94\x93\x94)\x81\x94.",
+        "b": obj.b,
     }
 
 

@@ -3,6 +3,8 @@ from flask import Response
 import cbor2
 import pytest
 import pickle
+import json
+from base64 import b64encode
 
 
 @pytest.fixture
@@ -20,10 +22,11 @@ def test_encode_json(labthings_json_encoder):
         "key": "value",
         "blob": pickle.dumps(object()),
     }
-    assert (
-        representations.encode_json(data, encoder=labthings_json_encoder)
-        == '{"key": "value", "blob": "gASVGgAAAAAAAACMCGJ1aWx0aW5zlIwGb2JqZWN0lJOUKYGULg=="}\n'
-    )
+
+    out = representations.encode_json(data, encoder=labthings_json_encoder)
+    out_dict = json.loads(out)
+    assert "blob" in out_dict
+    assert isinstance(out_dict.get("blob"), str)
 
 
 def test_output_json(app_ctx):
