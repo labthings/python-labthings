@@ -3,6 +3,9 @@ from werkzeug.http import parse_set_header
 from werkzeug.wrappers import Response as ResponseBase
 from flask import make_response
 
+import json
+import cbor2
+
 import pytest
 
 
@@ -53,14 +56,29 @@ def test_view_patching(app):
 def test_accept_default_application_json(app, client):
     class Index(view.View):
         def get(self):
-            return "GET"
+            return {"key": "value"}
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
 
     with client:
-        res = client.get("/", headers=[("Accept", "application/json")])
+        res = client.get("/")
         assert res.status_code == 200
         assert res.content_type == "application/json"
+        assert json.loads(res.data) == {"key": "value"}
+
+
+def test_accept_default_application_cbor(app, cbor_client):
+    class Index(view.View):
+        def get(self):
+            return {"key": "value"}
+
+    app.add_url_rule("/", view_func=Index.as_view("index"))
+
+    with cbor_client:
+        res = cbor_client.get("/")
+        assert res.status_code == 200
+        assert res.content_type == "application/cbor"
+        assert cbor2.loads(res.data) == {"key": "value"}
 
 
 def test_return_response(app, client):
@@ -71,7 +89,7 @@ def test_return_response(app, client):
     app.add_url_rule("/", view_func=Index.as_view("index"))
 
     with client:
-        res = client.get("/", headers=[("Accept", "application/json")])
+        res = client.get("/")
         assert res.status_code == 200
         assert res.data == b"GET"
 
@@ -84,7 +102,7 @@ def test_missing_method(app, client):
     app.add_url_rule("/", view_func=Index.as_view("index"))
 
     with client:
-        res = client.post("/", headers=[("Accept", "application/json")])
+        res = client.post("/")
         assert res.status_code == 405
 
 
@@ -105,6 +123,7 @@ def test_get_value_text():
         def get(self):
             return "GET"
 
+    # Main test
     assert Index().get_value() == "GET"
 
 
@@ -113,6 +132,7 @@ def test_get_value_missing():
         def post(self):
             return "POST"
 
+    # Main test
     assert Index().get_value() is None
 
 
@@ -124,6 +144,7 @@ def test_get_value_raise_if_not_callable():
     Index.get = "GET"
 
     with pytest.raises(TypeError):
+        # Main test
         Index().get_value()
 
 
@@ -134,7 +155,8 @@ def test_get_value_response_text(app_ctx):
 
     with app_ctx.test_request_context():
         assert isinstance(Index().get(), ResponseBase)
-        assert Index().get().json is None
+        assert Index().get().headers.get("Content-Type") == "text/html; charset=utf-8"
+        # Main test
         assert Index().get_value() == "GET"
 
 
@@ -145,5 +167,6 @@ def test_get_value_response_json(app_ctx):
 
     with app_ctx.test_request_context():
         assert isinstance(Index().get(), ResponseBase)
-        assert Index().get().json is not None
+        assert Index().get().headers.get("Content-Type") == "application/json"
+        # Main test
         assert Index().get_value() == {"json": "body"}

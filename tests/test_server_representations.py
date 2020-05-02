@@ -1,5 +1,6 @@
 from labthings.server import representations
 from flask import Response
+import cbor2
 import pytest
 
 
@@ -60,3 +61,29 @@ def test_pretty_output_json(app_ctx_debug):
             response.data
             == b'{\n    "a": "String",\n    "b": 5,\n    "c": [\n        10,\n        20,\n        30,\n        40,\n        50\n    ],\n    "d": {\n        "a": "String",\n        "b": 5,\n        "c": [\n            10,\n            20,\n            30,\n            40,\n            50\n        ]\n    }\n}\n'
         )
+
+
+def test_encode_cbor():
+    data = {
+        "a": "String",
+        "b": 5,
+        "c": [10, 20, 30, 40, 50],
+        "d": {"a": "String", "b": 5, "c": [10, 20, 30, 40, 50]},
+    }
+    assert cbor2.loads(representations.encode_cbor(data)) == data
+
+
+def test_output_cbor(app_ctx):
+    data = {
+        "a": "String",
+        "b": 5,
+        "c": [10, 20, 30, 40, 50],
+        "d": {"a": "String", "b": 5, "c": [10, 20, 30, 40, 50]},
+    }
+
+    with app_ctx.test_request_context():
+        response = representations.output_cbor(data, 200)
+        assert isinstance(response, Response)
+        assert response.status_code == 200
+        assert response.headers.get("Content-Type") == "application/cbor"
+        assert cbor2.loads(response.data) == data
