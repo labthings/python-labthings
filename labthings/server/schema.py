@@ -1,32 +1,13 @@
 # -*- coding: utf-8 -*-
-from flask import jsonify, url_for
+from flask import url_for
 from werkzeug.routing import BuildError
-import marshmallow
+from marshmallow import Schema, pre_dump
 
 from .names import TASK_ENDPOINT, EXTENSION_LIST_ENDPOINT
 from .utilities import view_class_from_endpoint, description_from_view
 from . import fields
 
-sentinel = object()
-
-
-class Schema(marshmallow.Schema):
-    """Base serializer with which to define custom serializers.
-    See `marshmallow.Schema` for more details about the `Schema` API.
-    """
-
-    def jsonify(self, obj, *args, many=sentinel, **kwargs):
-        """Return a JSON response containing the serialized data.
-        :param obj: Object to serialize.
-        :param bool many: Whether `obj` should be serialized as an instance
-            or as a collection. If unset, defaults to the value of the
-            `many` attribute on this Schema.
-        :param kwargs: Additional keyword arguments passed to `flask.jsonify`.
-        """
-        if many is sentinel:
-            many = self.many
-        data = self.dump(obj, many=many)
-        return jsonify(data, *args, **kwargs)
+__all__ = ["Schema", "FieldSchema", "TaskSchema", "ExtensionSchema"]
 
 
 class FieldSchema:
@@ -64,17 +45,6 @@ class FieldSchema:
     def dump(self, value):
         return self.serialize(value)
 
-    def jsonify(self, value):
-        """Serialize a value to JSON
-
-        Args:
-            value: Data to serialize
-
-        Returns:
-            Serialized JSON data
-        """
-        return jsonify(self.serialize(value))
-
 
 class TaskSchema(Schema):
     _ID = fields.String(data_key="id")
@@ -89,7 +59,7 @@ class TaskSchema(Schema):
 
     links = fields.Dict()
 
-    @marshmallow.pre_dump
+    @pre_dump
     def generate_links(self, data, **kwargs):
         try:
             url = url_for(TASK_ENDPOINT, task_id=data.id, _external=True)
@@ -114,7 +84,7 @@ class ExtensionSchema(Schema):
 
     links = fields.Dict()
 
-    @marshmallow.pre_dump
+    @pre_dump
     def generate_links(self, data, **kwargs):
         d = {}
         for view_id, view_data in data.views.items():

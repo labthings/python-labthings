@@ -2,6 +2,7 @@ from flask import make_response, current_app
 
 # Flask JSON encoder so we get UUID, datetime etc support
 from flask.json import JSONEncoder
+from base64 import b64encode
 import json
 import cbor2
 
@@ -17,6 +18,8 @@ class LabThingsJSONEncoder(JSONEncoder):
     def default(self, o):
         if isinstance(o, set):
             return list(o)
+        if isinstance(o, bytes):
+            return b64encode(o).decode()
         return JSONEncoder.default(self, o)
 
 
@@ -39,6 +42,7 @@ def output_json(data, code, headers=None):
 
     resp = make_response(dumped, code)
     resp.headers.extend(headers or {})
+    resp.mimetype = "application/json"
     return resp
 
 
