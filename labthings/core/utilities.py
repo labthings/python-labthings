@@ -4,6 +4,7 @@ import operator
 import sys
 import os
 import copy
+import typing
 from functools import reduce
 
 PY3 = sys.version_info > (3,)
@@ -99,11 +100,7 @@ def rapply(data, func, *args, apply_to_iterables=True, **kwargs):
             for key, val in data.items()
         }
     # If the object is iterable but NOT a dictionary or a string
-    elif apply_to_iterables and (
-        isinstance(data, collections.abc.Iterable)
-        and not isinstance(data, collections.abc.Mapping)
-        and not isinstance(data, str)
-    ):
+    elif apply_to_iterables and (isinstance(data, typing.List)):
         return [
             rapply(x, func, *args, apply_to_iterables=apply_to_iterables, **kwargs)
             for x in data
