@@ -7,14 +7,17 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: [3.6, 3.7, 3.8]
 
     steps:
       - uses: actions/checkout@v1
 
-      - name: Set up Python 3.7
+      - name: Set up Python
         uses: actions/setup-python@v1
         with:
-          python-version: 3.7
+          python-version: ${{ matrix.python }}
 
       - name: Install Poetry
         uses: dschep/install-poetry-action@v1.3
@@ -24,12 +27,11 @@ jobs:
           poetry config virtualenvs.in-project false
           poetry config virtualenvs.path ~/.virtualenvs
 
-      - name: Install Dependencies
-        run: poetry install
-        if: steps.cache.outputs.cache-hit != 'true'
+      - name: Install Tox
+        run: pip install tox
 
-      - name: Test with pytest
-        run: poetry run pytest --cov-report term-missing --cov-report=xml --cov=labthings ./tests
+      - name: Run Tox
+        run: tox -e py # Run tox using the version of Python in `PATH`
 
   publish:
     runs-on: ubuntu-latest
