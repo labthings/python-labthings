@@ -319,6 +319,19 @@ class LabThing:
             self.thing_description.property(flask_rules, view)
             self._property_views[view.endpoint] = view
 
+    # Event stuff
+    def emit(self, data: dict, type="event"):
+        """Emit an event to all subscribers
+
+        Arguments:
+            data {dict} -- Event data
+
+        Keyword Arguments:
+            type {str} -- Event type (default: {"event"})
+        """
+        for sub in self.subscribers:
+            sub.emit({"messageType": type, "data": data})
+
     # Utilities
 
     def url_for(self, view, **values):

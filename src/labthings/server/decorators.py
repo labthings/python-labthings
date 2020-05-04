@@ -180,10 +180,20 @@ def ThingProperty(viewcls):
             # Call the update function first to update property value
             original_response = func(*args, **kwargs)
 
-            # Once updated, then notify all subscribers
-            subscribers = getattr(current_labthing(), "subscribers", [])
-            for sub in subscribers:
-                sub.property_notify(viewcls)
+            if hasattr(viewcls, "get_value") and callable(viewcls.get_value):
+                property_value = viewcls().get_value()
+            else:
+                property_value = None
+
+            property_name = getattr(viewcls, "endpoint", None) or getattr(
+                viewcls, "__name__", "unknown"
+            )
+
+            if current_labthing():
+                current_labthing().emit(
+                    {property_name: property_value}, type="propertyStatus"
+                )
+
             return original_response
 
         return wrapped
