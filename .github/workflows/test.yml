@@ -40,5 +40,5 @@ jobs:
         with:
           file: ./coverage.xml
           flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: true
+          name: codecov-umbrella-${{ matrix.python }}
+          fail_ci_if_error: false
