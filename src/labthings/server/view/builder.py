@@ -21,7 +21,11 @@ import uuid
 
 
 def property_of(
-    property_object, property_name, name: str = None, readonly=False, description=None
+    property_object: object,
+    property_name: str,
+    name: str = None,
+    readonly=False,
+    description=None,
 ):
 
     # Create a class name
