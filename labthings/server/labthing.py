@@ -1,6 +1,7 @@
 from flask import url_for
 from apispec import APISpec
-from apispec.ext.marshmallow import MarshmallowPlugin
+
+# from apispec.ext.marshmallow import MarshmallowPlugin
 
 from .names import (
     EXTENSION_NAME,
@@ -14,6 +15,7 @@ from .exceptions import JSONExceptionHandler
 from .logging import LabThingLogger
 from .representations import LabThingsJSONEncoder
 from .spec.apispec import rule_to_apispec_path
+from .spec.apispec_plugins import MarshmallowPlugin
 from .spec.utilities import get_spec
 from .spec.td import ThingDescription
 from .decorators import tag
@@ -82,6 +84,7 @@ class LabThing:
         self.log_handler = LabThingLogger()
         logging.getLogger().addHandler(self.log_handler)
 
+        # API Spec
         self.spec = APISpec(
             title=self.title,
             version=self.version,
@@ -89,6 +92,7 @@ class LabThing:
             plugins=[MarshmallowPlugin()],
         )
 
+        # Thing description
         self.thing_description = ThingDescription(self.spec)
 
         if app is not None:

@@ -1,4 +1,8 @@
 # Marshmallow fields
+from marshmallow import ValidationError
+
+from base64 import b64decode
+
 from marshmallow.fields import (
     Field,
     Raw,
@@ -33,6 +37,7 @@ from marshmallow.fields import (
 )
 
 __all__ = [
+    "Bytes",
     "Field",
     "Raw",
     "Nested",
@@ -64,3 +69,20 @@ __all__ = [
     "Constant",
     "Pluck",
 ]
+
+
+class Bytes(Field):
+    def _validate(self, value):
+        if not isinstance(value, bytes):
+            raise ValidationError("Invalid input type.")
+
+        if value is None or value == b"":
+            raise ValidationError("Invalid value")
+
+    def _deserialize(self, value, attr, data, **kwargs):
+        if isinstance(value, bytes):
+            return value
+        if isinstance(value, str):
+            return b64decode(value)
+        else:
+            raise self.make_error("invalid", input=value)

@@ -67,6 +67,17 @@ d = ["aiohttp (>=3.3.2)", "aiohttp-cors"]
 
 [[package]]
 category = "main"
+description = "Pure Python CBOR (de)serializer with extensive tag support"
+name = "cbor2"
+optional = false
+python-versions = "*"
+version = "5.1.0"
+
+[package.extras]
+test = ["pytest", "pytest-cov"]
+
+[[package]]
+category = "main"
 description = "Foreign Function Interface for Python calling C code."
 marker = "platform_python_implementation == \"CPython\" and sys_platform == \"win32\""
 name = "cffi"
@@ -490,7 +501,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "e4bbab686c78c03cff71b48aafae2d221c0da37fb0fc3bb2b4be2b15adee51b9"
+content-hash = "7e1640b647ee2a92bd6b40c5067427068d438186ed7c44181a6b57fd23b84e12"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -513,6 +524,9 @@ attrs = [
 black = [
     {file = "black-19.10b0-py36-none-any.whl", hash = "sha256:1b30e59be925fafc1ee4565e5e08abef6b03fe455102883820fe5ee2e4734e0b"},
     {file = "black-19.10b0.tar.gz", hash = "sha256:c2edb73a08e9e0e6f65a0e6af18b059b8b1cdd5bef997d7a0b181df93dc81539"},
+]
+cbor2 = [
+    {file = "cbor2-5.1.0.tar.gz", hash = "sha256:43ce11e8c2fe4971d386d1a60cf83bfa0a4a667b97668ba76acbf5e6398821aa"},
 ]
 cffi = [
     {file = "cffi-1.14.0-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:1cae98a7054b5c9391eb3249b86e0e99ab1e02bb0cc0575da191aedadbdf4384"},

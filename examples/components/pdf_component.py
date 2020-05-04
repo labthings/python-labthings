@@ -21,6 +21,7 @@ class PdfComponent:
             "mode": "spectrum",
             "light_on": True,
             "user": {"name": "Squidward", "id": 1},
+            "bytes": b"\x80\x04\x95\x1a\x00\x00\x00\x00\x00\x00\x00\x8c\x08builtins\x94\x8c\x06object\x94\x93\x94)\x81\x94.",
         }
 
     def noisy_pdf(self, x, mu=0.0, sigma=25.0):
