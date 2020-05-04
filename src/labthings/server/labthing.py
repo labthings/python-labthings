@@ -20,6 +20,7 @@ from .spec.utilities import get_spec
 from .spec.td import ThingDescription
 from .decorators import tag
 from .sockets import Sockets
+from .event import Event
 
 from .view.builder import property_of, action_from
 
@@ -54,6 +55,8 @@ class LabThing:
         self.components = {}
 
         self.extensions = {}
+
+        self.events = {}
 
         self.views = []
         self._property_views = {}
@@ -162,6 +165,10 @@ class LabThing:
         # Create socket handler
         self.sockets = Sockets(app)
         self._create_base_sockets()
+
+        # Create base events
+        self.add_event("propertyStatus")
+        self.add_event("logging")
 
     def _create_base_routes(self):
         # Add root representation
@@ -320,17 +327,19 @@ class LabThing:
             self._property_views[view.endpoint] = view
 
     # Event stuff
-    def emit(self, data: dict, type="event"):
-        """Emit an event to all subscribers
+    def add_event(self, name, schema=None):
+        # TODO: Handle schema
+        # TODO: Add view for event, returning list of Event.events
+        self.events[name] = Event(name, schema=schema)
+        self.thing_description.event(self.events[name])
 
-        Arguments:
-            data {dict} -- Event data
-
-        Keyword Arguments:
-            type {str} -- Event type (default: {"event"})
+    def emit(self, event_type: str, data: dict):
         """
+        Emit an event to all subscribers
+        """
+        event_response = self.events[event_type].emit(data)
         for sub in self.subscribers:
-            sub.emit({"messageType": type, "data": data})
+            sub.emit(event_response)
 
     # Utilities
 

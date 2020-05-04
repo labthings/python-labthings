@@ -191,7 +191,7 @@ def ThingProperty(viewcls):
 
             if current_labthing():
                 current_labthing().emit(
-                    {property_name: property_value}, type="propertyStatus"
+                    "propertyStatus", {property_name: property_value},
                 )
 
             return original_response
