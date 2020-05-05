@@ -32,8 +32,8 @@ class PropertyStatusEvent:
 
 
 class ActionStatusEvent:
-    def __init__(self, property_name, schema=None):
-        self.name = property_name
+    def __init__(self, action_name, schema=None):
+        self.name = action_name
 
     def emit(self, data):
         response = {
