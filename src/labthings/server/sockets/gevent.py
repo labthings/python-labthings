@@ -197,7 +197,6 @@ class Sockets:
             handler = self.view_functions[endpoint]
 
             # Handle environment
-            print(environ)
             environment = environ["wsgi.websocket"]
             cookie = None
             if "HTTP_COOKIE" in environ:
