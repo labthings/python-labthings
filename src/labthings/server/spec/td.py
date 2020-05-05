@@ -102,7 +102,7 @@ class ThingDescription:
 
     def event_to_thing_event(self, event: Event):
         # TODO: Include event schema
-        return {"forms": []}
+        return {}
 
     def view_to_thing_property(self, rules: list, view: View):
         prop_urls = [rule_to_path(rule) for rule in rules]

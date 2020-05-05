@@ -167,8 +167,6 @@ class LabThing:
         self._create_base_sockets()
 
         # Create base events
-        self.add_event("propertyStatus")
-        self.add_event("actionStatus")
         self.add_event("logging")
 
     def _create_base_routes(self):
@@ -336,9 +334,16 @@ class LabThing:
 
     def emit(self, event_type: str, data: dict):
         """
-        Emit an event to all subscribers
+        Find a matching event type if one exists, and emit some data to it
         """
-        event_response = self.events[event_type].emit(data)
+        event_object = self.events[event_type]
+        self.message(event_object, data)
+
+    def message(self, event: Event, data: dict):
+        """
+        Emit an event object to all subscribers
+        """
+        event_response = event.emit(data)
         for sub in self.subscribers:
             sub.emit(event_response)
 
