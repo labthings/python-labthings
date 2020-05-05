@@ -190,7 +190,7 @@ class LabThing:
         self.sockets.add_view(
             self._complete_url("/ws", ""), socket_handler, endpoint="ws"
         )
-        self.thing_description.add_link("ws", "alternate")
+        self.thing_description.add_link("ws", "websocket")
 
     # Device stuff
 
