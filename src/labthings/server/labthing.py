@@ -168,6 +168,7 @@ class LabThing:
 
         # Create base events
         self.add_event("propertyStatus")
+        self.add_event("actionStatus")
         self.add_event("logging")
 
     def _create_base_routes(self):
