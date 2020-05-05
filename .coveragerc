@@ -1,7 +1,7 @@
 [run]
 branch = True
-source = ./labthings
-omit = .venv/*, labthings/server/wsgi/*, , labthings/server/monkey.py
+source = ./src/labthings
+omit = .venv/*, ./src/labthings/server/wsgi/*, ./src/labthings/server/monkey.py
 concurrency = greenlet
 
 [report]
