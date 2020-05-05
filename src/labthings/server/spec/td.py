@@ -3,6 +3,7 @@ from apispec import APISpec
 import weakref
 
 from ..view import View
+from ..event import Event
 
 from .utilities import get_spec, convert_schema, schema_to_json, get_topmost_spec_attr
 from .paths import rule_to_params, rule_to_path
@@ -92,11 +93,16 @@ class ThingDescription:
             "description": current_labthing().description,
             "properties": self.properties,
             "actions": self.actions,
+            # "events": self.events,  # TODO: Enable once properly populated
             "links": self.links,
             # TODO: Add proper security schemes
             "securityDefinitions": {"nosec_sc": {"scheme": "nosec"}},
             "security": ["nosec_sc"],
         }
+
+    def event_to_thing_event(self, event: Event):
+        # TODO: Include event schema
+        return {}
 
     def view_to_thing_property(self, rules: list, view: View):
         prop_urls = [rule_to_path(rule) for rule in rules]
@@ -237,3 +243,6 @@ class ThingDescription:
             forms.append({"op": op, "href": url, "contentType": content_type})
 
         return forms
+
+    def event(self, event: Event):
+        self.events[event.name] = self.event_to_thing_event(event)

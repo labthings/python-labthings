@@ -10,25 +10,9 @@ class SocketSubscriber:
     def __init__(self, ws):
         self.ws = ws
 
-    def property_notify(self, viewcls):
-        if hasattr(viewcls, "get_value") and callable(viewcls.get_value):
-            property_value = viewcls().get_value()
-        else:
-            property_value = None
-
-        property_name = getattr(viewcls, "endpoint", None) or getattr(
-            viewcls, "__name__", "unknown"
-        )
-
-        response = encode_json(
-            {"messageType": "propertyStatus", "data": {property_name: property_value}}
-        )
-
-        self.ws.send(response)
-
-    def event_notify(self, event_dict: dict):
-        response = encode_json({"messageType": "event", "data": event_dict})
-
+    def emit(self, event: dict):
+        response = encode_json(event)
+        # TODO: Logic surrounding if this subscriber is subscribed to the requested event type
         self.ws.send(response)
 
 

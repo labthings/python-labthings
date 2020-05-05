@@ -4,39 +4,6 @@ import json
 from flask import Blueprint
 
 
-def test_socket_subscriber_property_notify(view_cls, fake_websocket):
-    setattr(view_cls, "endpoint", "index")
-    ws = fake_websocket("", recieve_once=True)
-    sub = base.SocketSubscriber(ws)
-
-    sub.property_notify(view_cls)
-    assert json.loads(ws.response) == {
-        "messageType": "propertyStatus",
-        "data": {"index": "GET"},
-    }
-
-
-def test_socket_subscriber_property_notify_empty_view(flask_view_cls, fake_websocket):
-    ws = fake_websocket("", recieve_once=True)
-    sub = base.SocketSubscriber(ws)
-
-    sub.property_notify(flask_view_cls)
-    assert json.loads(ws.response) == {
-        "messageType": "propertyStatus",
-        "data": {flask_view_cls.__name__: None},
-    }
-
-
-def test_socket_subscriber_event_notify(fake_websocket):
-    ws = fake_websocket("", recieve_once=True)
-    sub = base.SocketSubscriber(ws)
-
-    data = {"key": "value"}
-
-    sub.event_notify(data)
-    assert json.loads(ws.response) == {"messageType": "event", "data": data}
-
-
 def test_sockets_flask_init(app):
     original_wsgi_app = app.wsgi_app
     socket = gsocket.Sockets(app)

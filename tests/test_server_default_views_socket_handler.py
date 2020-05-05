@@ -7,4 +7,4 @@ def test_socket_handler(thing_ctx, fake_websocket):
         socket_handler(ws)
         # Only responses should be announcing new subscribers
         for response in ws.responses:
-            assert '"data": "Added subscriber' in response
+            assert '"message": "Added subscriber' in response
