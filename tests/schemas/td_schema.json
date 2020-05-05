@@ -1,5 +1,5 @@
 {
-    "title": "WoT TD Schema - 16 October 2019",
+    "title": "WoT TD Schema",
     "description": "JSON Schema for validating TD instances against the TD model. TD instances can be with or without terms that have default values",
     "$schema ": "http://json-schema.org/draft-07/schema#",
     "definitions": {
@@ -25,18 +25,6 @@
                 "type": "string"
             }
         },
-        "security": {
-            "oneOf": [{
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                {
-                    "type": "string"
-                }
-            ]
-        },
         "scopes": {
             "oneOf": [{
                     "type": "array",
@@ -57,17 +45,17 @@
                 "sse"
             ]
         },
-        "thing-context-w3c-uri": {
+        "thing-context-mozilla-uri": {
             "type": "string",
             "enum": [
-                "https://www.w3.org/2019/wot/td/v1"
+                "https://iot.mozilla.org/schemas/"
             ]
         },
         "thing-context": {
             "oneOf": [{
                     "type": "array",
                     "items": [{
-                        "$ref": "#/definitions/thing-context-w3c-uri"
+                        "$ref": "#/definitions/thing-context-mozilla-uri"
                     }],
                     "additionalItems": {
                         "anyOf": [{
@@ -80,7 +68,7 @@
                     }
                 },
                 {
-                    "$ref": "#/definitions/thing-context-w3c-uri"
+                    "$ref": "#/definitions/thing-context-mozilla-uri"
                 }
             ]
         },
@@ -228,9 +216,6 @@
                 "subProtocol": {
                     "$ref": "#/definitions/subProtocol"
                 },
-                "security": {
-                    "$ref": "#/definitions/security"
-                },
                 "scopes": {
                     "$ref": "#/definitions/scopes"
                 },
@@ -280,9 +265,6 @@
                 },
                 "subProtocol": {
                     "$ref": "#/definitions/subProtocol"
-                },
-                "security": {
-                    "$ref": "#/definitions/security"
                 },
                 "scopes": {
                     "$ref": "#/definitions/scopes"
@@ -335,9 +317,6 @@
                 },
                 "subProtocol": {
                     "$ref": "#/definitions/subProtocol"
-                },
-                "security": {
-                    "$ref": "#/definitions/security"
                 },
                 "scopes": {
                     "$ref": "#/definitions/scopes"
@@ -395,9 +374,6 @@
                 "subProtocol": {
                     "$ref": "#/definitions/subProtocol"
                 },
-                "security": {
-                    "$ref": "#/definitions/security"
-                },
                 "scopes": {
                     "$ref": "#/definitions/scopes"
                 },
@@ -432,13 +408,6 @@
                 },
                 "titles": {
                     "$ref": "#/definitions/titles"
-                },
-                "forms": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "$ref": "#/definitions/form_element_property"
-                    }
                 },
                 "uriVariables": {
                     "type": "object",
@@ -523,9 +492,7 @@
                     }
                 }
             },
-            "required": [
-                "forms"
-            ],
+            "required": [],
             "additionalProperties": true
         },
         "action_element": {
@@ -546,13 +513,6 @@
                 "titles": {
                     "$ref": "#/definitions/titles"
                 },
-                "forms": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "$ref": "#/definitions/form_element_action"
-                    }
-                },
                 "uriVariables": {
                     "type": "object",
                     "additionalProperties": {
@@ -572,9 +532,7 @@
                     "type": "boolean"
                 }
             },
-            "required": [
-                "forms"
-            ],
+            "required": [],
             "additionalProperties": true
         },
         "event_element": {
@@ -595,13 +553,6 @@
                 "titles": {
                     "$ref": "#/definitions/titles"
                 },
-                "forms": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "$ref": "#/definitions/form_element_event"
-                    }
-                },
                 "uriVariables": {
                     "type": "object",
                     "additionalProperties": {
@@ -618,9 +569,7 @@
                     "$ref": "#/definitions/dataSchema"
                 }
             },
-            "required": [
-                "forms"
-            ],
+            "required": [],
             "additionalProperties": true
         },
         "link_element": {
@@ -643,285 +592,6 @@
                 "href"
             ],
             "additionalProperties": true
-        },
-        "securityScheme": {
-            "oneOf": [{
-                    "type": "object",
-                    "properties": {
-                        "@type": {
-                            "$ref": "#/definitions/type_declaration"
-                        },
-                        "description": {
-                            "$ref": "#/definitions/description"
-                        },
-                        "descriptions": {
-                            "$ref": "#/definitions/descriptions"
-                        },
-                        "proxy": {
-                            "$ref": "#/definitions/anyUri"
-                        },
-                        "scheme": {
-                            "type": "string",
-                            "enum": [
-                                "nosec"
-                            ]
-                        }
-                    },
-                    "required": [
-                        "scheme"
-                    ]
-                },
-                {
-                    "type": "object",
-                    "properties": {
-                        "@type": {
-                            "$ref": "#/definitions/type_declaration"
-                        },
-                        "description": {
-                            "$ref": "#/definitions/description"
-                        },
-                        "descriptions": {
-                            "$ref": "#/definitions/descriptions"
-                        },
-                        "proxy": {
-                            "$ref": "#/definitions/anyUri"
-                        },
-                        "scheme": {
-                            "type": "string",
-                            "enum": [
-                                "basic"
-                            ]
-                        },
-                        "in": {
-                            "type": "string",
-                            "enum": [
-                                "header",
-                                "query",
-                                "body",
-                                "cookie"
-                            ]
-                        },
-                        "name": {
-                            "type": "string"
-                        }
-                    },
-                    "required": [
-                        "scheme"
-                    ]
-                },
-                {
-                    "type": "object",
-                    "properties": {
-                        "@type": {
-                            "$ref": "#/definitions/type_declaration"
-                        },
-                        "description": {
-                            "$ref": "#/definitions/description"
-                        },
-                        "descriptions": {
-                            "$ref": "#/definitions/descriptions"
-                        },
-                        "proxy": {
-                            "$ref": "#/definitions/anyUri"
-                        },
-                        "scheme": {
-                            "type": "string",
-                            "enum": [
-                                "digest"
-                            ]
-                        },
-                        "qop": {
-                            "type": "string",
-                            "enum": [
-                                "auth",
-                                "auth-int"
-                            ]
-                        },
-                        "in": {
-                            "type": "string",
-                            "enum": [
-                                "header",
-                                "query",
-                                "body",
-                                "cookie"
-                            ]
-                        },
-                        "name": {
-                            "type": "string"
-                        }
-                    },
-                    "required": [
-                        "scheme"
-                    ]
-                },
-                {
-                    "type": "object",
-                    "properties": {
-                        "@type": {
-                            "$ref": "#/definitions/type_declaration"
-                        },
-                        "description": {
-                            "$ref": "#/definitions/description"
-                        },
-                        "descriptions": {
-                            "$ref": "#/definitions/descriptions"
-                        },
-                        "proxy": {
-                            "$ref": "#/definitions/anyUri"
-                        },
-                        "scheme": {
-                            "type": "string",
-                            "enum": [
-                                "apikey"
-                            ]
-                        },
-                        "in": {
-                            "type": "string",
-                            "enum": [
-                                "header",
-                                "query",
-                                "body",
-                                "cookie"
-                            ]
-                        },
-                        "name": {
-                            "type": "string"
-                        }
-                    },
-                    "required": [
-                        "scheme"
-                    ]
-                },
-                {
-                    "type": "object",
-                    "properties": {
-                        "@type": {
-                            "$ref": "#/definitions/type_declaration"
-                        },
-                        "description": {
-                            "$ref": "#/definitions/description"
-                        },
-                        "descriptions": {
-                            "$ref": "#/definitions/descriptions"
-                        },
-                        "proxy": {
-                            "$ref": "#/definitions/anyUri"
-                        },
-                        "scheme": {
-                            "type": "string",
-                            "enum": [
-                                "bearer"
-                            ]
-                        },
-                        "authorization": {
-                            "$ref": "#/definitions/anyUri"
-                        },
-                        "alg": {
-                            "type": "string"
-                        },
-                        "format": {
-                            "type": "string"
-                        },
-                        "in": {
-                            "type": "string",
-                            "enum": [
-                                "header",
-                                "query",
-                                "body",
-                                "cookie"
-                            ]
-                        },
-                        "name": {
-                            "type": "string"
-                        }
-                    },
-                    "required": [
-                        "scheme"
-                    ]
-                },
-                {
-                    "type": "object",
-                    "properties": {
-                        "@type": {
-                            "$ref": "#/definitions/type_declaration"
-                        },
-                        "description": {
-                            "$ref": "#/definitions/description"
-                        },
-                        "descriptions": {
-                            "$ref": "#/definitions/descriptions"
-                        },
-                        "proxy": {
-                            "$ref": "#/definitions/anyUri"
-                        },
-                        "scheme": {
-                            "type": "string",
-                            "enum": [
-                                "psk"
-                            ]
-                        },
-                        "identity": {
-                            "type": "string"
-                        }
-                    },
-                    "required": [
-                        "scheme"
-                    ]
-                },
-                {
-                    "type": "object",
-                    "properties": {
-                        "@type": {
-                            "$ref": "#/definitions/type_declaration"
-                        },
-                        "description": {
-                            "$ref": "#/definitions/description"
-                        },
-                        "descriptions": {
-                            "$ref": "#/definitions/descriptions"
-                        },
-                        "proxy": {
-                            "$ref": "#/definitions/anyUri"
-                        },
-                        "scheme": {
-                            "type": "string",
-                            "enum": [
-                                "oauth2"
-                            ]
-                        },
-                        "authorization": {
-                            "$ref": "#/definitions/anyUri"
-                        },
-                        "token": {
-                            "$ref": "#/definitions/anyUri"
-                        },
-                        "refresh": {
-                            "$ref": "#/definitions/anyUri"
-                        },
-                        "scopes": {
-                            "oneOf": [{
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                },
-                                {
-                                    "type": "string"
-                                }
-                            ]
-                        },
-                        "flow": {
-                            "type": "string",
-                            "enum": [
-                                "code"
-                            ]
-                        }
-                    },
-                    "required": [
-                        "scheme"
-                    ]
-                }
-            ]
         }
     },
     "type": "object",
@@ -977,22 +647,8 @@
                 "$ref": "#/definitions/link_element"
             }
         },
-        "forms": {
-            "type": "array",
-            "minItems": 1,
-            "items": {
-                "$ref": "#/definitions/form_element_root"
-            }
-        },
         "base": {
             "$ref": "#/definitions/anyUri"
-        },
-        "securityDefinitions": {
-            "type": "object",
-            "minProperties": 1,
-            "additionalProperties": {
-                "$ref": "#/definitions/securityScheme"
-            }
         },
         "support": {
             "$ref": "#/definitions/anyUri"
@@ -1005,19 +661,6 @@
             "type": "string",
             "format": "date-time"
         },
-        "security": {
-            "oneOf": [{
-                    "type": "string"
-                },
-                {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            ]
-        },
         "@type": {
             "$ref": "#/definitions/type_declaration"
         },
@@ -1027,8 +670,6 @@
     },
     "required": [
         "title",
-        "security",
-        "securityDefinitions",
         "@context"
     ],
     "additionalProperties": true
