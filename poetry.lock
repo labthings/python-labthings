@@ -452,17 +452,17 @@ description = "Declarative parsing and validation of HTTP request objects, with 
 name = "webargs"
 optional = false
 python-versions = ">=3.5"
-version = "6.0.0"
+version = "6.1.0"
 
 [package.dependencies]
 marshmallow = ">=2.15.2"
 
 [package.extras]
-dev = ["pytest", "webtest (2.0.34)", "webtest-aiohttp (2.0.0)", "pytest-aiohttp (>=0.3.0)", "Flask (>=0.12.2)", "Django (>=1.11.16)", "bottle (>=0.12.13)", "tornado (>=4.5.2)", "pyramid (>=1.9.1)", "webapp2 (>=3.0.0b1)", "falcon (>=2.0.0)", "aiohttp (>=3.0.0)", "mypy (0.761)", "flake8 (3.7.9)", "flake8-bugbear (20.1.4)", "pre-commit (>=1.20,<3.0)", "tox", "mock"]
-docs = ["Sphinx (2.4.3)", "sphinx-issues (1.2.0)", "sphinx-typlog-theme (0.8.0)", "Flask (>=0.12.2)", "Django (>=1.11.16)", "bottle (>=0.12.13)", "tornado (>=4.5.2)", "pyramid (>=1.9.1)", "webapp2 (>=3.0.0b1)", "falcon (>=2.0.0)", "aiohttp (>=3.0.0)"]
+dev = ["pytest", "webtest (2.0.35)", "webtest-aiohttp (2.0.0)", "pytest-aiohttp (>=0.3.0)", "Flask (>=0.12.2)", "Django (>=1.11.16)", "bottle (>=0.12.13)", "tornado (>=4.5.2)", "pyramid (>=1.9.1)", "webapp2 (>=3.0.0b1)", "falcon (>=2.0.0)", "aiohttp (>=3.0.0)", "mypy (0.770)", "flake8 (3.7.9)", "flake8-bugbear (20.1.4)", "pre-commit (>=1.20,<3.0)", "tox", "mock"]
+docs = ["Sphinx (3.0.3)", "sphinx-issues (1.2.0)", "sphinx-typlog-theme (0.8.0)", "Flask (>=0.12.2)", "Django (>=1.11.16)", "bottle (>=0.12.13)", "tornado (>=4.5.2)", "pyramid (>=1.9.1)", "webapp2 (>=3.0.0b1)", "falcon (>=2.0.0)", "aiohttp (>=3.0.0)"]
 frameworks = ["Flask (>=0.12.2)", "Django (>=1.11.16)", "bottle (>=0.12.13)", "tornado (>=4.5.2)", "pyramid (>=1.9.1)", "webapp2 (>=3.0.0b1)", "falcon (>=2.0.0)", "aiohttp (>=3.0.0)"]
-lint = ["mypy (0.761)", "flake8 (3.7.9)", "flake8-bugbear (20.1.4)", "pre-commit (>=1.20,<3.0)"]
-tests = ["pytest", "webtest (2.0.34)", "webtest-aiohttp (2.0.0)", "pytest-aiohttp (>=0.3.0)", "Flask (>=0.12.2)", "Django (>=1.11.16)", "bottle (>=0.12.13)", "tornado (>=4.5.2)", "pyramid (>=1.9.1)", "webapp2 (>=3.0.0b1)", "falcon (>=2.0.0)", "aiohttp (>=3.0.0)", "mock"]
+lint = ["mypy (0.770)", "flake8 (3.7.9)", "flake8-bugbear (20.1.4)", "pre-commit (>=1.20,<3.0)"]
+tests = ["pytest", "webtest (2.0.35)", "webtest-aiohttp (2.0.0)", "pytest-aiohttp (>=0.3.0)", "Flask (>=0.12.2)", "Django (>=1.11.16)", "bottle (>=0.12.13)", "tornado (>=4.5.2)", "pyramid (>=1.9.1)", "webapp2 (>=3.0.0b1)", "falcon (>=2.0.0)", "aiohttp (>=3.0.0)", "mock"]
 
 [[package]]
 category = "main"
@@ -839,8 +839,8 @@ wcwidth = [
     {file = "wcwidth-0.1.9.tar.gz", hash = "sha256:ee73862862a156bf77ff92b09034fc4825dd3af9cf81bc5b360668d425f3c5f1"},
 ]
 webargs = [
-    {file = "webargs-6.0.0-py2.py3-none-any.whl", hash = "sha256:dfe01cd3711cee9a3651bfd5ca67770ace4a6f35f3cae583aa8400bbf7706bb4"},
-    {file = "webargs-6.0.0.tar.gz", hash = "sha256:d66a056b3a40c5a3774a650fd349db5970cd91fa8f04ac50d00582c949b45b26"},
+    {file = "webargs-6.1.0-py2.py3-none-any.whl", hash = "sha256:cf0b5e2fdfb81f28b9332fce15621069d3fbc910a01c7ca8a5e166371699927b"},
+    {file = "webargs-6.1.0.tar.gz", hash = "sha256:ebb47fb35c3c4fc764213a17d1686e82fec54759ebed2b0715907d566668bb3f"},
 ]
 werkzeug = [
     {file = "Werkzeug-1.0.1-py2.py3-none-any.whl", hash = "sha256:2de2a5db0baeae7b2d2664949077c2ac63fbd16d98da0ff71837f7d1dea3fd43"},
