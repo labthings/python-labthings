@@ -154,7 +154,8 @@ class Sockets:
             endpoint = _endpoint_from_view_func(f)
 
         methods = options.pop("methods", None)
-        options.setdefault("defaults", {}).setdefault("ws", None)
+
+        setattr(f, "endpoint", endpoint)
 
         self.url_map.add(Rule(rule, endpoint=endpoint, **options))
         self.view_functions[endpoint] = f
@@ -196,6 +197,7 @@ class Sockets:
             handler = self.view_functions[endpoint]
 
             # Handle environment
+            print(environ)
             environment = environ["wsgi.websocket"]
             cookie = None
             if "HTTP_COOKIE" in environ:
@@ -206,8 +208,6 @@ class Sockets:
                     # add cookie to the request to have correct session handling
                     request.cookie = cookie
                     # Run WebSocket handler
-                    print(environment)
-                    print(values)
                     handler(environment, **values)
                     return []
         except (NotFound, KeyError):

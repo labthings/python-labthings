@@ -78,18 +78,14 @@ def test_socket_middleware_http(app, client):
 def test_socket_middleware_ws(app, ws_client):
     socket = gsocket.Sockets(app)
 
-    @socket.route("/")
-    def ws_view_func(ws):
+    @socket.route("/<param>")
+    def ws_view_func(ws, param):
         msg = ws.recieve()
         ws.send(msg)
 
-    @app.route("/")
-    def http_view_func():
-        return "GET"
-
     # Assert ws_view_func was added to the Sockets URL map
     with ws_client as c:
-        assert c.connect("/", message="hello") == ["hello"]
+        assert c.connect("/test", message="hello") == ["hello"]
 
 
 def test_socket_middleware_add_view(app, ws_client):

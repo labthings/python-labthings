@@ -187,7 +187,10 @@ class LabThing:
         self.add_view(TaskView, "/tasks/<task_id>", endpoint=TASK_ENDPOINT)
 
     def _create_base_sockets(self):
-        self.sockets.add_view(self._complete_url("/ws", ""), socket_handler)
+        self.sockets.add_view(
+            self._complete_url("/ws", ""), socket_handler, endpoint="ws"
+        )
+        self.thing_description.add_link("ws", "alternate")
 
     # Device stuff
 
@@ -352,7 +355,10 @@ class LabThing:
     def url_for(self, view, **values):
         """Generates a URL to the given resource.
         Works like :func:`flask.url_for`."""
-        endpoint = getattr(view, "endpoint", None)
+        if isinstance(view, str):
+            endpoint = view
+        else:
+            endpoint = getattr(view, "endpoint", None)
         if not endpoint:
             return ""
         # Default to external links
