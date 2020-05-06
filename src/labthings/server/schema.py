@@ -93,7 +93,7 @@ class ActionSchema(Schema):
             url = url_for(TASK_ENDPOINT, task_id=data.id, _external=True)
         except BuildError:
             url = None
-        data.url = url
+        data.href = url
         return data
 
 
