@@ -51,7 +51,7 @@ def get_spec(obj):
     """
     if not obj:
         return {}
-    obj.__apispec__ = obj.__dict__.get("__apispec__", {})
+    obj.__apispec__ = getattr(obj, "__apispec__", {})
     return obj.__apispec__ or {}
 
 
