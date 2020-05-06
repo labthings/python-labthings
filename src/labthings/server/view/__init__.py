@@ -72,11 +72,11 @@ class View(MethodView):
         mediatype = request.accept_mimetypes.best_match(representations, default=None)
         if mediatype in representations:
             data, code, headers = unpack(response)
-            resp = representations[mediatype](data, code, headers)
-            resp.headers["Content-Type"] = mediatype
-            return resp
+            response = representations[mediatype](data, code, headers)
+            response.headers["Content-Type"] = mediatype
+            return response
 
-        return resp
+        return response
 
 
 class ActionView(View):
