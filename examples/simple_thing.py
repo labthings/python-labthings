@@ -18,7 +18,6 @@ from labthings.server.decorators import (
     use_args,
     marshal_with,
 )
-from labthings.server.schema import FieldSchema
 from labthings.server.view import View, ActionView, PropertyView
 from labthings.server.find import find_component
 from labthings.server import fields
@@ -145,7 +144,7 @@ class MeasurementAction(ActionView):
         }
     )
     # Output schema
-    @marshal_with(FieldSchema(fields.List(fields.Number)))
+    @marshal_with(fields.List(fields.Number))
     # Main function to handle POST requests
     def post(self, args):
         """Start an averaged measurement"""
