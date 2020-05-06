@@ -14,7 +14,7 @@ from labthings.server.decorators import (
     Safe,
     Idempotent,
 )
-from . import View
+from . import View, ActionView, PropertyView
 
 from flask import send_from_directory
 import uuid
@@ -47,7 +47,7 @@ def property_of(
     # Generate a basic property class
     generated_class = type(
         name,
-        (View, object),
+        (PropertyView, object),
         {
             "property_object": property_object,
             "property_name": property_name,
@@ -72,7 +72,6 @@ def property_of(
         property_schema = value_to_field(initial_property_value)
 
     generated_class = PropertySchema(property_schema)(generated_class)
-    generated_class = ThingProperty(generated_class)
 
     if description:
         generated_class = Doc(description=description, summary=description)(
@@ -83,12 +82,7 @@ def property_of(
 
 
 def action_from(
-    function,
-    name: str = None,
-    description=None,
-    task=False,
-    safe=False,
-    idempotent=False,
+    function, name: str = None, description=None, safe=False, idempotent=False,
 ):
 
     # Create a class name
@@ -98,25 +92,16 @@ def action_from(
     # Create schema
     action_schema = function_signature_to_schema(function)
 
-    # Handle taskification
-    if task:
-        function = taskify(function)
-
     # Create inner functions
     def _post(self, args):
         return function(**args)
 
     # Generate a basic property class
-    generated_class = type(name, (View, object), {"post": _post})
+    generated_class = type(name, (ActionView, object), {"post": _post})
 
     # Add decorators for arguments etc
 
     generated_class.post = use_args(action_schema)(generated_class.post)
-
-    if task:
-        generated_class.post = marshal_task(generated_class.post)
-
-    generated_class = ThingAction(generated_class)
 
     if description:
         generated_class = Doc(description=description, summary=description)(
