@@ -63,7 +63,7 @@ def test_task_kill(thing_client):
     with thing_client as c:
         assert c.delete(f"/tasks/{task_id}").status_code == 200
     # Test task was terminated
-    assert task_obj.state.get("status") == "terminated"
+    assert task_obj._status == "terminated"
 
 
 def test_task_kill_missing(thing_client):

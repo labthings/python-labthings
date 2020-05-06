@@ -26,7 +26,7 @@ def test_update_task_data():
 
     task_obj = tasks.taskify(task_func)()
     task_obj.join()
-    assert task_obj.state.get("data") == {"key": "value"}
+    assert task_obj.data == {"key": "value"}
 
 
 def test_update_task_data_main_thread():
@@ -40,7 +40,7 @@ def test_update_task_progress():
 
     task_obj = tasks.taskify(task_func)()
     task_obj.join()
-    assert task_obj.state.get("progress") == 100
+    assert task_obj.progress == 100
 
 
 def test_update_task_progress_main_thread():
@@ -58,22 +58,6 @@ def test_tasks_dict():
     )
 
     assert all(k == str(t.id) for k, t in tasks.to_dict().items())
-
-
-def test_task_states():
-    state_keys = {
-        "function",
-        "id",
-        "status",
-        "progress",
-        "data",
-        "return",
-        "start_time",
-        "end_time",
-    }
-
-    for state in tasks.states().values():
-        assert all(k in state for k in state_keys)
 
 
 def test_discard_id():

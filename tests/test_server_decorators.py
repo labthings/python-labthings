@@ -21,7 +21,7 @@ def common_task_test(marshaled_task: dict):
     assert isinstance(marshaled_task, dict)
     assert isinstance(marshaled_task.get("id"), str)
     assert marshaled_task.get("function") == "None(args=(), kwargs={})"
-    assert marshaled_task.get("status") == "idle"
+    assert marshaled_task.get("status") == "pending"
 
 
 def test_marshal_with_ma_schema():
@@ -32,7 +32,7 @@ def test_marshal_with_ma_schema():
     schema = _Schema.from_dict({"integer": fields.Int()})()
     wrapped_func = decorators.marshal_with(schema)(func)
 
-    assert wrapped_func() == ({"integer": 1}, 200, {})
+    assert wrapped_func() == {"integer": 1}
 
 
 def test_marshal_with_dict_schema():
@@ -43,7 +43,7 @@ def test_marshal_with_dict_schema():
     schema = {"integer": fields.Int()}
     wrapped_func = decorators.marshal_with(schema)(func)
 
-    assert wrapped_func() == ({"integer": 1}, 200, {})
+    assert wrapped_func() == {"integer": 1}
 
 
 def test_marshal_with_field_schema():
@@ -53,7 +53,7 @@ def test_marshal_with_field_schema():
     schema = fields.String()
     wrapped_func = decorators.marshal_with(schema)(func)
 
-    assert wrapped_func() == ("1", 200, {})
+    assert wrapped_func() == "1"
 
 
 def test_marshal_with_response_tuple_field_schema(app_ctx):
@@ -95,18 +95,7 @@ def test_marshal_task(app_ctx):
 
     with app_ctx.test_request_context():
         out = wrapped_func()
-        common_task_test(out[0])
-
-
-def test_marshal_task_response_tuple(app_ctx):
-    def func():
-        return (TaskThread(None), 201, {})
-
-    wrapped_func = decorators.marshal_task(func)
-
-    with app_ctx.test_request_context():
-        out = wrapped_func()
-        common_task_test(out[0])
+        common_task_test(out)
 
 
 def test_marshal_task_response_invalid(app_ctx):
