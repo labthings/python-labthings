@@ -67,8 +67,7 @@ class MyComponent:
         logging.warning("Starting an averaged measurement. This may take a while...")
         for _ in range(n):
             summed_data = [summed_data[i] + el for i, el in enumerate(self.data)]
-            update_task_data({"data": summed_data})
-            time.sleep(0.25)
+            time.sleep(0.1)
 
         summed_data = [i / n for i in summed_data]
 
