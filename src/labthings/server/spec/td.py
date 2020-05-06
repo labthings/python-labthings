@@ -106,9 +106,9 @@ class ThingDescription:
 
         # Basic description
         prop_description = {
-            "title": view.__name__,
+            "title": get_topmost_spec_attr(view, "title") or view.__name__,
             "description": (
-                get_spec(view).get("description")
+                get_topmost_spec_attr(view, "description")
                 or get_docstring(view)
                 or (get_docstring(view.get) if hasattr(view, "get") else "")
             ),
@@ -168,8 +168,8 @@ class ThingDescription:
 
         # Basic description
         action_description = {
-            "title": view.__name__,
-            "description": get_spec(view).get("description")
+            "title": get_topmost_spec_attr(view, "title") or view.__name__,
+            "description": get_topmost_spec_attr(view, "deescription")
             or get_docstring(view)
             or (get_docstring(view.post) if hasattr(view, "post") else ""),
             # TODO: Make URLs absolute

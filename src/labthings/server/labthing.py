@@ -30,6 +30,8 @@ from .default_views.docs import docs_blueprint, SwaggerUIView
 from .default_views.root import RootView
 from .default_views.sockets import socket_handler
 
+from labthings.core.utilities import camel_to_snake
+
 from typing import Callable
 
 import weakref
@@ -210,16 +212,22 @@ class LabThing:
     # Extension stuff
 
     def register_extension(self, extension_object):
+        # Type check
         if isinstance(extension_object, BaseExtension):
             self.extensions[extension_object.name] = extension_object
         else:
             raise TypeError("Extension object must be an instance of BaseExtension")
 
-        for extension_view_id, extension_view in extension_object.views.items():
+        for extension_view_endpoint, extension_view in extension_object.views.items():
+
+            # Append extension name to endpoint
+            endpoint = f"{extension_object.name}/{extension_view_endpoint}"
+
             # Add route to the extensions blueprint
             self.add_view(
                 tag("extensions")(extension_view["view"]),
                 "/extensions" + extension_view["rule"],
+                endpoint=endpoint,
                 **extension_view["kwargs"],
             )
 
@@ -253,7 +261,7 @@ class LabThing:
         u = "".join(clean_url_string(part) for part in parts if part)
         return u if u else "/"
 
-    def add_view(self, resource, *urls, endpoint=None, **kwargs):
+    def add_view(self, view, *urls, endpoint=None, **kwargs):
         """Adds a view to the api.
         :param resource: the class name of your resource
         :type resource: :class:`Type[Resource]`
@@ -273,18 +281,18 @@ class LabThing:
         Additional keyword arguments not specified above will be passed as-is
         to :meth:`flask.Flask.add_url_rule`.
         Examples::
-            api.add_resource(HelloWorld, '/', '/hello')
-            api.add_resource(Foo, '/foo', endpoint="foo")
-            api.add_resource(FooSpecial, '/special/foo', endpoint="foo")
+            api.add_view(HelloWorld, '/', '/hello')
+            api.add_view(Foo, '/foo', endpoint="foo")
+            api.add_view(FooSpecial, '/special/foo', endpoint="foo")
         """
-        endpoint = endpoint or resource.__name__.lower()
+        endpoint = endpoint or camel_to_snake(view.__name__)
 
-        logging.debug(f"{endpoint}: {type(resource)} @ {urls}")
+        logging.debug(f"{endpoint}: {type(view)} @ {urls}")
 
         if self.app is not None:
-            self._register_view(self.app, resource, *urls, endpoint=endpoint, **kwargs)
+            self._register_view(self.app, view, *urls, endpoint=endpoint, **kwargs)
 
-        self.views.append((resource, urls, endpoint, kwargs))
+        self.views.append((view, urls, endpoint, kwargs))
 
     def view(self, *urls, **kwargs):
         def decorator(cls):
@@ -294,7 +302,7 @@ class LabThing:
         return decorator
 
     def _register_view(self, app, view, *urls, endpoint=None, **kwargs):
-        endpoint = endpoint or view.__name__.lower()
+        endpoint = endpoint or camel_to_snake(view.__name__)
         self.endpoints.add(endpoint)
         resource_class_args = kwargs.pop("resource_class_args", ())
         resource_class_kwargs = kwargs.pop("resource_class_kwargs", {})
@@ -323,6 +331,7 @@ class LabThing:
         view_tags = view_spec.get("tags", set())
         if "actions" in view_tags:
             self.thing_description.action(flask_rules, view)
+            # TODO: Use this for top-level action POST
             self._action_views[view.endpoint] = view
         if "properties" in view_tags:
             self.thing_description.property(flask_rules, view)
