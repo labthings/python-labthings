@@ -1,12 +1,13 @@
 from flask.views import MethodView
-from flask import request, make_response
+from flask import request
 from werkzeug.wrappers import Response as ResponseBase
-from werkzeug.exceptions import MethodNotAllowed
 
 from collections import OrderedDict
 
-from labthings.server.utilities import unpack
-from labthings.server.representations import DEFAULT_REPRESENTATIONS
+from ..utilities import unpack
+from ..representations import DEFAULT_REPRESENTATIONS
+from ..find import current_labthing
+from ..event import PropertyStatusEvent, ActionStatusEvent
 
 
 class View(MethodView):
@@ -18,6 +19,7 @@ class View(MethodView):
     """
 
     endpoint = None
+    __apispec__ = {}
 
     def __init__(self, *args, **kwargs):
         MethodView.__init__(self, *args, **kwargs)
@@ -64,5 +66,32 @@ class View(MethodView):
             resp = representations[mediatype](data, code, headers)
             resp.headers["Content-Type"] = mediatype
             return resp
+
+        return resp
+
+
+class ActionView(View):
+    __apispec__ = {"tags": {"actions"}}
+
+    def dispatch_request(self, *args, **kwargs):
+        # TODO: Add whatever extra logic here
+        return View.dispatch_request(self, *args, **kwargs)
+
+
+class PropertyView(View):
+    __apispec__ = {"tags": {"properties"}}
+
+    def dispatch_request(self, *args, **kwargs):
+        resp = View.dispatch_request(self, *args, **kwargs)
+
+        property_value = self.get_value()
+        property_name = getattr(self, "endpoint", None) or getattr(
+            self, "__name__", "unknown"
+        )
+
+        if current_labthing():
+            current_labthing().message(
+                PropertyStatusEvent(property_name), property_value,
+            )
 
         return resp

@@ -11,7 +11,7 @@ from marshmallow import Schema as _Schema
 from .spec.utilities import update_spec, tag_spec
 from .schema import TaskSchema, Schema, FieldSchema
 from .fields import Field
-from .view import View
+from .view import View, ActionView, PropertyView
 from .find import current_labthing
 from .utilities import unpack
 from .event import PropertyStatusEvent, ActionStatusEvent
@@ -123,7 +123,8 @@ def ThingAction(viewcls: View):
     Returns:
         View: View class with Action spec tags
     """
-    # TODO: Handle actionStatus messages
+    # Set to PropertyView.dispatch_request
+    viewcls.dispatch_request = ActionView.dispatch_request
     # Update Views API spec
     tag_spec(viewcls, "actions")
     return viewcls
@@ -175,37 +176,8 @@ def ThingProperty(viewcls):
     Returns:
         View: View class with Property spec tags
     """
-
-    def property_notify(func):
-        @wraps(func)
-        def wrapped(*args, **kwargs):
-            # Call the update function first to update property value
-            original_response = func(*args, **kwargs)
-
-            if hasattr(viewcls, "get_value") and callable(viewcls.get_value):
-                property_value = viewcls().get_value()
-            else:
-                property_value = None
-
-            property_name = getattr(viewcls, "endpoint", None) or getattr(
-                viewcls, "__name__", "unknown"
-            )
-
-            if current_labthing():
-                current_labthing().message(
-                    PropertyStatusEvent(property_name), property_value,
-                )
-
-            return original_response
-
-        return wrapped
-
-    if hasattr(viewcls, "post") and callable(viewcls.post):
-        viewcls.post = property_notify(viewcls.post)
-
-    if hasattr(viewcls, "put") and callable(viewcls.put):
-        viewcls.put = property_notify(viewcls.put)
-
+    # Set to PropertyView.dispatch_request
+    viewcls.dispatch_request = PropertyView.dispatch_request
     # Update Views API spec
     tag_spec(viewcls, "properties")
     return viewcls
