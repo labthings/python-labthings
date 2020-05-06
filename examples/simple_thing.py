@@ -16,8 +16,9 @@ from labthings.server.quick import create_app
 from labthings.server.decorators import (
     PropertySchema,
     use_args,
-    marshal_task,
+    marshal_with,
 )
+from labthings.server.schema import FieldSchema
 from labthings.server.view import View, ActionView, PropertyView
 from labthings.server.find import find_component
 from labthings.server import fields
@@ -33,9 +34,6 @@ equipment API calls, network requests, or a "virtual" device as seen here.
 from gevent.monkey import get_original
 
 get_ident = get_original("_thread", "get_ident")
-
-print(f"ROOT IDENT")
-print(get_ident())
 
 
 class MyComponent:
@@ -146,6 +144,8 @@ class MeasurementAction(ActionView):
             )
         }
     )
+    # Output schema
+    @marshal_with(FieldSchema(fields.List(fields.Number)))
     # Main function to handle POST requests
     def post(self, args):
         """Start an averaged measurement"""
