@@ -46,7 +46,7 @@ class TaskThread(Greenlet):
         # Private state properties
         self._status: str = "pending"  # Task status
         self._return_value = None  # Return value
-        self._request_time = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+        self._request_time = datetime.datetime.now()
         self._start_time = None  # Task start time
         self._end_time = None  # Task end time
 
@@ -90,7 +90,7 @@ class TaskThread(Greenlet):
             logging.getLogger().addHandler(handler)
 
             self._status = "running"
-            self._start_time = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+            self._start_time = datetime.datetime.now()
             self.started_event.set()
             try:
                 self._return_value = f(*args, **kwargs)
@@ -106,7 +106,7 @@ class TaskThread(Greenlet):
                 self._return_value = str(e)
                 self._status = "error"
             finally:
-                self._end_time = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+                self._end_time = datetime.datetime.now()
                 logging.getLogger().removeHandler(handler)  # Stop logging this thread
                 # If we don't remove the handler, it's a memory leak.
 

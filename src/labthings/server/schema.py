@@ -54,8 +54,8 @@ class TaskSchema(Schema):
     progress = fields.String()
     data = fields.Raw()
     _return_value = fields.Raw(data_key="return")
-    _start_time = fields.String(data_key="start_time")
-    _end_time = fields.String(data_key="end_time")
+    _start_time = fields.DateTime(data_key="start_time")
+    _end_time = fields.DateTime(data_key="end_time")
     log = fields.List(fields.Dict())
 
     links = fields.Dict()
@@ -82,8 +82,8 @@ class ActionSchema(Schema):
     progress = fields.String()
     data = fields.Raw()
     _return_value = fields.Raw(data_key="output")
-    _request_time = fields.String(data_key="timeRequested")
-    _end_time = fields.String(data_key="timeCompleted")
+    _request_time = fields.DateTime(data_key="timeRequested")
+    _end_time = fields.DateTime(data_key="timeCompleted")
     log = fields.List(fields.Dict())
 
     href = fields.String()
