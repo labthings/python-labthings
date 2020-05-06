@@ -75,6 +75,28 @@ class TaskSchema(Schema):
         return data
 
 
+class ActionSchema(Schema):
+    _ID = fields.String(data_key="id")
+    _status = fields.String(data_key="status")
+    progress = fields.String()
+    data = fields.Raw()
+    _return_value = fields.Raw(data_key="output")
+    _request_time = fields.String(data_key="timeRequested")
+    _end_time = fields.String(data_key="timeCompleted")
+    log = fields.List(fields.Dict())
+
+    href = fields.String()
+
+    @pre_dump
+    def generate_links(self, data, **kwargs):
+        try:
+            url = url_for(TASK_ENDPOINT, task_id=data.id, _external=True)
+        except BuildError:
+            url = None
+        data.url = url
+        return data
+
+
 class ExtensionSchema(Schema):
     name = fields.String(data_key="title")
     _name_python_safe = fields.String(data_key="pythonName")

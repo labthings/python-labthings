@@ -59,10 +59,13 @@ class marshal_with:
         self.schema = schema
         self.code = code
 
+        # Case of schema as a dictionary
         if isinstance(self.schema, Mapping):
             self.converter = Schema.from_dict(self.schema)().dump
+        # Case of schema as a single Field
         elif isinstance(self.schema, Field):
             self.converter = FieldSchema(self.schema).dump
+        # Case of schema as a Schema
         elif isinstance(self.schema, _Schema):
             self.converter = self.schema.dump
         else:
@@ -83,15 +86,17 @@ class marshal_with:
             elif isinstance(resp, tuple):
                 resp, code, headers = unpack(resp)
                 return (self.converter(resp), code, headers)
-            else:
-                resp, code, headers = resp, 200, {}
-            return (self.converter(resp), code, headers)
+            return self.converter(resp)
 
         return wrapper
 
 
 def marshal_task(f):
     """Decorator to format the response of a View with the standard Task schema"""
+
+    logging.warning(
+        "marshal_task is deprecated. Please use @ThingAction or the ActionView class"
+    )
 
     # Pass params to call function attribute for external access
     update_spec(f, {"responses": {201: {"description": "Task started successfully"}}})
@@ -100,16 +105,11 @@ def marshal_task(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         resp = f(*args, **kwargs)
-        if isinstance(resp, tuple):
-            resp, code, headers = unpack(resp)
-        else:
-            resp, code, headers = resp, 201, {}
-
         if not isinstance(resp, TaskThread):
             raise TypeError(
                 f"Function {f.__name__} expected to return a TaskThread object, but instead returned a {type(resp).__name__}. If it does not return a task, remove the @marshall_task decorator from {f.__name__}."
             )
-        return (TaskSchema().dump(resp), code, headers)
+        return TaskSchema().dump(resp)
 
     return wrapper
 

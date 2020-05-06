@@ -8,6 +8,11 @@ from ..utilities import unpack
 from ..representations import DEFAULT_REPRESENTATIONS
 from ..find import current_labthing
 from ..event import PropertyStatusEvent, ActionStatusEvent
+from ..schema import ActionSchema
+
+from labthings.core.tasks import taskify
+
+from gevent.timeout import Timeout
 
 
 class View(MethodView):
@@ -52,17 +57,21 @@ class View(MethodView):
         assert meth is not None, f"Unimplemented method {request.method!r}"
 
         # Generate basic response
-        resp = meth(*args, **kwargs)
+        return self.represent_response(meth(*args, **kwargs))
 
-        if isinstance(resp, ResponseBase):  # There may be a better way to test
-            return resp
+    def represent_response(self, response):
+        """
+        Take the return balue of a function and build a representation response
+        """
+        if isinstance(response, ResponseBase):  # There may be a better way to test
+            return response
 
         representations = self.representations or OrderedDict()
 
         # noinspection PyUnresolvedReferences
         mediatype = request.accept_mimetypes.best_match(representations, default=None)
         if mediatype in representations:
-            data, code, headers = unpack(resp)
+            data, code, headers = unpack(response)
             resp = representations[mediatype](data, code, headers)
             resp.headers["Content-Type"] = mediatype
             return resp
@@ -74,8 +83,20 @@ class ActionView(View):
     __apispec__ = {"tags": {"actions"}}
 
     def dispatch_request(self, *args, **kwargs):
-        # TODO: Add whatever extra logic here
-        return View.dispatch_request(self, *args, **kwargs)
+        meth = getattr(self, request.method.lower(), None)
+
+        # Let base View handle non-POST requests
+        if request.method != "POST":
+            return View.dispatch_request(self, *args, **kwargs)
+
+        task = taskify(meth)(*args, **kwargs)
+
+        # Wait up to 2 second for the action to complete
+        try:
+            task.get(block=True, timeout=1)
+        except Timeout:
+            pass
+        return self.represent_response(ActionSchema().dump(task))
 
 
 class PropertyView(View):

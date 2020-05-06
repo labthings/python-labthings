@@ -14,13 +14,11 @@ import atexit
 
 from labthings.server.quick import create_app
 from labthings.server.decorators import (
-    ThingAction,
-    ThingProperty,
     PropertySchema,
     use_args,
     marshal_task,
 )
-from labthings.server.view import View
+from labthings.server.view import View, ActionView, PropertyView
 from labthings.server.find import find_component
 from labthings.server import fields
 from labthings.core.tasks import taskify, update_task_data
@@ -83,8 +81,6 @@ and register is as a Thing property
 """
 
 
-# Register this view as a Thing Property
-@ThingProperty
 # Define the data we're going to output (get), and what to expect in (post)
 @PropertySchema(
     fields.Integer(
@@ -95,7 +91,7 @@ and register is as a Thing property
         description="Value of magic_denoise",
     )
 )
-class DenoiseProperty(View):
+class DenoiseProperty(PropertyView):
 
     # Main function to handle GET requests (read)
     def get(self):
@@ -123,9 +119,8 @@ Create a view to quickly get some noisy data, and register is as a Thing propert
 """
 
 
-@ThingProperty
 @PropertySchema(fields.List(fields.Float()))
-class QuickDataProperty(View):
+class QuickDataProperty(PropertyView):
     # Main function to handle GET requests
     def get(self):
         """Show the current data value"""
@@ -140,21 +135,18 @@ Create a view to start an averaged measurement, and register is as a Thing actio
 """
 
 
-@ThingAction
-class MeasurementAction(View):
+class MeasurementAction(ActionView):
     # Expect JSON parameters in the request body.
     # Pass to post function as dictionary argument.
     @use_args(
         {
             "averages": fields.Integer(
-                missing=10,
-                example=10,
+                missing=20,
+                example=20,
                 description="Number of data sets to average over",
             )
         }
     )
-    # Shorthand to say we're always going to return a Task object
-    @marshal_task
     # Main function to handle POST requests
     def post(self, args):
         """Start an averaged measurement"""
@@ -164,10 +156,9 @@ class MeasurementAction(View):
 
         # Get arguments and start a background task
         n_averages = args.get("averages")
-        task = taskify(my_component.average_data)(n_averages)
 
         # Return the task information
-        return task
+        return my_component.average_data(n_averages)
 
 
 # Handle exit cleanup

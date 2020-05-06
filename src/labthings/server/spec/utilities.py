@@ -16,7 +16,8 @@ def update_spec(obj, spec: dict):
         obj: Python object
         spec (dict): Dictionary of API spec data to add
     """
-    obj.__apispec__ = obj.__dict__.get("__apispec__", {})
+    # obj.__apispec__ = obj.__dict__.get("__apispec__", {})
+    obj.__apispec__ = getattr(obj, "__apispec__", {})
     obj.__apispec__ = merge(obj.__apispec__, spec)
     return obj.__apispec__ or {}
 

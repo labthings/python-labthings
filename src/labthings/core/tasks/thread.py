@@ -44,8 +44,9 @@ class TaskThread(Greenlet):
             logging.debug("No request context to copy")
 
         # Private state properties
-        self._status: str = "idle"  # Task status
+        self._status: str = "pending"  # Task status
         self._return_value = None  # Return value
+        self._request_time = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
         self._start_time = None  # Task start time
         self._end_time = None  # Task end time
 
@@ -63,19 +64,6 @@ class TaskThread(Greenlet):
     def ident(self):
         """Compatibility with threading interface. A small, unique non-negative integer that identifies this object."""
         return get_ident(self)
-
-    @property
-    def state(self):
-        return {
-            "function": self.target_string,
-            "id": self._ID,
-            "status": self._status,
-            "progress": self.progress,
-            "data": self.data,
-            "return": self._return_value,
-            "start_time": self._start_time,
-            "end_time": self._end_time,
-        }
 
     def update_progress(self, progress: int):
         # Update progress of the task
