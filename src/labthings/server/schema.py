@@ -10,7 +10,7 @@ from . import fields
 __all__ = ["Schema", "FieldSchema", "TaskSchema", "ExtensionSchema"]
 
 
-class FieldSchema:
+class FieldSchema(Schema):
     """
     "Virtual schema" for handling individual fields treated as schemas.
 
@@ -24,6 +24,7 @@ class FieldSchema:
         Args:
             field (Field): Marshmallow Field type of data
         """
+        Schema.__init__(self)
         self.field = field
 
     def deserialize(self, value):
