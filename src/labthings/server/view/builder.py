@@ -15,6 +15,7 @@ from labthings.server.decorators import (
     Idempotent,
 )
 from . import View, ActionView, PropertyView
+from ..spec.utilities import compile_view_spec
 
 from flask import send_from_directory
 import uuid
@@ -78,6 +79,10 @@ def property_of(
             generated_class
         )
 
+    # Compile the generated views spec
+    # Useful if its being attached to something other than a LabThing instance
+    compile_view_spec(generated_class)
+
     return generated_class
 
 
@@ -87,7 +92,7 @@ def action_from(
 
     # Create a class name
     if not name:
-        name = f"Action_{function.__name__}"
+        name = f"{function.__name__}Action"
 
     # Create schema
     action_schema = function_signature_to_schema(function)
@@ -113,6 +118,10 @@ def action_from(
 
     if idempotent:
         generated_class = Idempotent(generated_class)
+
+    # Compile the generated views spec
+    # Useful if its being attached to something other than a LabThing instance
+    compile_view_spec(generated_class)
 
     return generated_class
 
