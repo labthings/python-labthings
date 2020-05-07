@@ -178,15 +178,25 @@ class ThingDescription:
             "idempotent": is_idempotent,
         }
 
-        # Look for a _propertySchema in the Property classes API SPec
-        action_schema = get_spec(view.post).get("_params")
-
-        if action_schema:
+        # Look for a _params in the Action classes API Spec
+        action_input_schema = get_spec(view.post).get("_params")
+        if action_input_schema:
             # Ensure valid schema type
-            action_schema = convert_schema(action_schema, self.apispec)
-
+            action_input_schema = convert_schema(action_input_schema, self.apispec)
             # Add schema to prop description
-            action_description["input"] = schema_to_json(action_schema, self.apispec)
+            action_description["input"] = schema_to_json(
+                action_input_schema, self.apispec
+            )
+
+        # Look for a _schema in the Action classes API Spec
+        action_output_schema = get_spec(view.post).get("_schema", {}).get(201)
+        if action_output_schema:
+            # Ensure valid schema type
+            action_output_schema = convert_schema(action_output_schema, self.apispec)
+            # Add schema to prop description
+            action_description["output"] = schema_to_json(
+                action_output_schema, self.apispec
+            )
 
         return action_description
 

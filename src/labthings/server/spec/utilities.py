@@ -1,12 +1,49 @@
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 
-from ...core.utilities import merge
+from ...core.utilities import merge, get_docstring
 
 from ..fields import Field
 from marshmallow import Schema as BaseSchema
 
 from collections.abc import Mapping
+
+
+def compile_view_spec(view):
+    """Compile a complete API Spec of a View and its HTTP methods
+
+    Arguments:
+        view {View} -- LabThings View class
+
+    Returns:
+        [dict] -- Compiled API Spec
+    """
+    # TODO: Build Action 201 response spec
+    spec = get_spec(view)
+
+    spec["description"] = spec.get("description") or get_docstring(view)
+    spec["summary"] = spec.get("summary") or spec["description"]
+    spec["tags"] = spec.get("tags", set())
+
+    spec["_operations"] = {}
+    for operation in ("get", "post", "put", "delete"):
+        meth = getattr(view, operation, None)
+        if meth:
+            meth_spec = get_spec(meth)
+
+            meth_spec["description"] = (
+                meth_spec.get("description")
+                or get_docstring(meth)
+                or spec["description"]
+            )
+
+            meth_spec["summary"] = meth_spec.get("summary") or meth_spec["description"]
+
+            meth_spec["tags"] = meth_spec.get("tags", set())
+            meth_spec["tags"] = meth_spec["tags"].union(spec["tags"])
+
+            spec["_operations"][operation] = meth_spec
+    return spec
 
 
 def update_spec(obj, spec: dict):
