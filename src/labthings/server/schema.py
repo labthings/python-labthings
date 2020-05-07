@@ -100,34 +100,38 @@ class ActionSchema(Schema):
         return data
 
 
-def build_action_schema(data_schema: Schema, name: str = None):
+def build_action_schema(output_schema: Schema, input_schema: Schema, name: str = None):
     # Create a name for the generated schema
     if not name:
-        name = id(data_schema)
+        name = id(output_schema)
     if not name.endswith("Action"):
         name = f"{name}Action"
 
-    # If a real schema, nest it
-    if isinstance(data_schema, Schema):
-        output_schema = fields.Nested(data_schema, data_key="output")
-    # If a dictionary schema, build a real schema then nest it
-    elif isinstance(data_schema, Mapping):
-        output_schema = fields.Nested(Schema.from_dict(data_schema), data_key="output")
-    # If a single field, set it as the output Field, and override its data_key
-    elif isinstance(data_schema, fields.Field):
-        output_schema = data_schema
-        output_schema.data_key = "output"
-    # Otherwise allow any
-    elif data_schema is None:
-        output_schema = fields.Raw(data_key="output")
-    else:
-        raise TypeError(
-            f"Unsupported schema type {data_schema}. "
-            "Ensure schema is a Schema object, Field object, "
-            "or dictionary of Field objects"
-        )
+    class_attrs = {"output": None, "input": None}
+
+    for key, schema in {"output": output_schema, "input": input_schema}.items():
+
+        # If a real schema, nest it
+        if isinstance(schema, Schema):
+            class_attrs[key] = fields.Nested(schema)
+        # If a dictionary schema, build a real schema then nest it
+        elif isinstance(schema, Mapping):
+            class_attrs[key] = fields.Nested(Schema.from_dict(schema))
+        # If a single field, set it as the output Field, and override its data_key
+        elif isinstance(schema, fields.Field):
+            class_attrs[key] = schema
+        # Otherwise allow any
+        elif schema is None:
+            class_attrs[key] = fields.Raw()
+        else:
+            raise TypeError(
+                f"Unsupported schema type {schema}. "
+                "Ensure schema is a Schema object, Field object, "
+                "or dictionary of Field objects"
+            )
+
     # Build a Schema class for the Action
-    return type(name, (ActionSchema,), {"_return_value": output_schema})
+    return type(name, (ActionSchema,), class_attrs)
 
 
 class ExtensionSchema(Schema):
