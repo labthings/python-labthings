@@ -24,10 +24,15 @@ def compile_view_spec(view):
     view_name = snake_to_camel(getattr(view, "endpoint") or getattr(view, "__name__"))
     if issubclass(view, ActionView) and hasattr(view, "post"):
         # Get current 200 response schema, or None if none given
-        current_post_schema = get_spec(view.post).get("_schema", {}).get(200)
+        current_output_schema = get_spec(view.post).get("_schema", {}).get(200)
+        # Get current request input schema, or None if none given
+        current_input_schema = get_spec(view.post).get("_params", {})
         # Build an action schema, and attach it to view.post.__apispec__
         get_spec(view.post).setdefault("_schema", {}).setdefault(
-            201, build_action_schema(current_post_schema, name=view_name)()
+            201,
+            build_action_schema(
+                current_output_schema, current_input_schema, name=view_name
+            )(),
         )
 
     # Get the current view API spec
