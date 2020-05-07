@@ -15,7 +15,7 @@ class TaskList(View):
         return tasks.tasks()
 
 
-@Tag(["properties", "tasks"])
+@Tag(["tasks"])
 class TaskView(View):
     """
     Manage a particular background task.
