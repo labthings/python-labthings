@@ -103,7 +103,7 @@ class ActionSchema(Schema):
 def build_action_schema(output_schema: Schema, input_schema: Schema, name: str = None):
     # Create a name for the generated schema
     if not name:
-        name = id(output_schema)
+        name = str(id(output_schema))
     if not name.endswith("Action"):
         name = f"{name}Action"
 
