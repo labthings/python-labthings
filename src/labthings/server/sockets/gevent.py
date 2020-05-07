@@ -67,36 +67,6 @@ class WsUrlAdapterWrapper(object):
         return fun
 
 
-class SocketMiddleware(object):
-    def __init__(self, wsgi_app, app, socket):
-        self.ws = socket
-        self.app = app
-        self.wsgi_app = wsgi_app
-
-    def __call__(self, environ, start_response):
-        adapter = self.ws.url_map.bind_to_environ(environ)
-
-        if environ.get("HTTP_UPGRADE") == "websocket":
-            try:  # Try matching to a Sockets route
-                handler, values = adapter.match()
-                environment = environ["wsgi.websocket"]
-                cookie = None
-                if "HTTP_COOKIE" in environ:
-                    cookie = parse_cookie(environ["HTTP_COOKIE"])
-
-                with self.app.app_context():
-                    with self.app.request_context(environ):
-                        # add cookie to the request to have correct session handling
-                        request.cookie = cookie
-
-                        handler(environment, **values)
-                        return []
-            except (NotFound, KeyError):
-                return self.wsgi_app(environ, start_response)
-        else:  # If not upgrading to a websocket
-            return self.wsgi_app(environ, start_response)
-
-
 class Sockets:
     def __init__(self, app=None):
         #: Compatibility with 'Flask' application.
