@@ -1,4 +1,4 @@
-from labthings.server.sockets import base, gevent as gsocket
+from labthings.server.sockets import gevent as gsocket
 
 import json
 from flask import Blueprint
@@ -8,10 +8,8 @@ def test_sockets_flask_init(app):
     original_wsgi_app = app.wsgi_app
     socket = gsocket.Sockets(app)
     assert socket
-    # Check new wsgi_app
-    assert isinstance(app.wsgi_app, gsocket.SocketMiddleware)
     # Check "fallback" wsgi_app. This should be the original app.wsgi_app
-    assert app.wsgi_app.wsgi_app == original_wsgi_app
+    assert socket.app_wsgi_app == original_wsgi_app
 
 
 def test_sockets_flask_delayed_init(app):
@@ -19,23 +17,21 @@ def test_sockets_flask_delayed_init(app):
     socket = gsocket.Sockets()
     socket.init_app(app)
     assert socket
-    # Check new wsgi_app
-    assert isinstance(app.wsgi_app, gsocket.SocketMiddleware)
     # Check "fallback" wsgi_app. This should be the original app.wsgi_app
-    assert app.wsgi_app.wsgi_app == original_wsgi_app
+    assert socket.app_wsgi_app == original_wsgi_app
 
 
 def test_sockets_flask_route(app):
     socket = gsocket.Sockets(app)
 
-    @socket.route("/ws")
+    @socket.route("/ws", endpoint="ws")
     def ws_view_func(ws):
         pass
 
     # Assert ws_view_func was added to the Sockets URL map
     passed = False
     for rule in socket.url_map.iter_rules():
-        if rule.endpoint == ws_view_func:
+        if rule.endpoint == "ws":
             passed = True
     assert passed
 
@@ -45,7 +41,7 @@ def test_sockets_flask_blueprint(app):
 
     bp = Blueprint("blueprint", __name__)
 
-    @bp.route("/ws")
+    @bp.route("/ws", endpoint="ws")
     def ws_view_func(ws):
         pass
 
@@ -54,7 +50,8 @@ def test_sockets_flask_blueprint(app):
     # Assert ws_view_func was added to the Sockets URL map
     passed = False
     for rule in socket.url_map.iter_rules():
-        if rule.endpoint == ws_view_func:
+        print(rule.endpoint)
+        if rule.endpoint == "blueprint.ws":
             passed = True
     assert passed
 
@@ -81,18 +78,14 @@ def test_socket_middleware_http(app, client):
 def test_socket_middleware_ws(app, ws_client):
     socket = gsocket.Sockets(app)
 
-    @socket.route("/")
-    def ws_view_func(ws):
+    @socket.route("/<param>")
+    def ws_view_func(ws, param):
         msg = ws.recieve()
         ws.send(msg)
 
-    @app.route("/")
-    def http_view_func():
-        return "GET"
-
     # Assert ws_view_func was added to the Sockets URL map
     with ws_client as c:
-        assert c.connect("/", message="hello") == ["hello"]
+        assert c.connect("/test", message="hello") == ["hello"]
 
 
 def test_socket_middleware_add_view(app, ws_client):
@@ -143,5 +136,5 @@ def test_socket_handler_loop(fake_websocket):
 
 ### Will need regular updating as new message handlers are added
 def test_process_socket_message():
-    assert base.process_socket_message("message") is None
-    assert base.process_socket_message(None) is None
+    assert gsocket.process_socket_message("message") is None
+    assert gsocket.process_socket_message(None) is None

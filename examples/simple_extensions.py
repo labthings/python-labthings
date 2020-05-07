@@ -3,11 +3,19 @@ import math
 import logging
 
 from labthings.server.quick import create_app
-from labthings.server.decorators import ThingProperty, PropertySchema
+from labthings.server.decorators import (
+    ThingProperty,
+    PropertySchema,
+    ThingAction,
+    use_args,
+    marshal_task,
+    doc,
+)
 from labthings.server.view import View
 from labthings.server.find import find_component
 from labthings.server import fields
 from labthings.core.utilities import path_relative_to
+from labthings.core.tasks import taskify
 
 from labthings.server.extensions import BaseExtension
 
@@ -18,6 +26,37 @@ logging.basicConfig(level=logging.DEBUG)
 """
 Make our extension
 """
+
+
+@ThingAction
+class ExtensionMeasurementAction(View):
+    # Expect JSON parameters in the request body.
+    # Pass to post function as dictionary argument.
+    @use_args(
+        {
+            "averages": fields.Integer(
+                missing=10,
+                example=10,
+                description="Number of data sets to average over",
+            )
+        }
+    )
+    # Shorthand to say we're always going to return a Task object
+    @marshal_task
+    @doc(title="Averaged Measurement")
+    # Main function to handle POST requests
+    def post(self, args):
+        """Start an averaged measurement"""
+
+        # Find our attached component
+        my_component = find_component("org.labthings.example.mycomponent")
+
+        # Get arguments and start a background task
+        n_averages = args.get("averages")
+        task = taskify(my_component.average_data)(n_averages)
+
+        # Return the task information
+        return task
 
 
 def ext_on_register():
@@ -33,6 +72,8 @@ static_folder = path_relative_to(__file__, "static")
 example_extension = BaseExtension(
     "org.labthings.examples.extension", static_folder=static_folder
 )
+
+example_extension.add_view(ExtensionMeasurementAction, "/measure", endpoint="measure")
 
 example_extension.on_register(ext_on_register)
 example_extension.on_component("org.labthings.example.mycomponent", ext_on_my_component)

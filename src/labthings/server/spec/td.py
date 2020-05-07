@@ -5,7 +5,12 @@ import weakref
 from ..view import View
 from ..event import Event
 
-from .utilities import get_spec, convert_schema, schema_to_json, get_topmost_spec_attr
+from .utilities import (
+    get_spec,
+    convert_to_schema_or_json,
+    schema_to_json,
+    get_topmost_spec_attr,
+)
 from .paths import rule_to_params, rule_to_path
 
 from ..find import current_labthing
@@ -85,7 +90,7 @@ class ThingDescription:
 
     def to_dict(self):
         return {
-            "@context": "https://www.w3.org/2019/wot/td/v1",
+            "@context": ["https://iot.mozilla.org/schemas/"],
             "@type": current_labthing().types,
             "id": url_for("root", _external=True),
             "base": request.host_url,
@@ -93,11 +98,8 @@ class ThingDescription:
             "description": current_labthing().description,
             "properties": self.properties,
             "actions": self.actions,
-            # "events": self.events,  # TODO: Enable once properly populated
+            "events": self.events,  # TODO: Enable once properly populated
             "links": self.links,
-            # TODO: Add proper security schemes
-            "securityDefinitions": {"nosec_sc": {"scheme": "nosec"}},
-            "security": ["nosec_sc"],
         }
 
     def event_to_thing_event(self, event: Event):
@@ -109,9 +111,9 @@ class ThingDescription:
 
         # Basic description
         prop_description = {
-            "title": view.__name__,
+            "title": get_topmost_spec_attr(view, "title") or view.__name__,
             "description": (
-                get_spec(view).get("description")
+                get_topmost_spec_attr(view, "description")
                 or get_docstring(view)
                 or (get_docstring(view.get) if hasattr(view, "get") else "")
             ),
@@ -121,7 +123,6 @@ class ThingDescription:
             "writeOnly": not hasattr(view, "get"),
             # TODO: Make URLs absolute
             "links": [{"href": f"{url}"} for url in prop_urls],
-            "forms": self.view_to_thing_property_forms(rules, view),
             "uriVariables": {},
         }
 
@@ -133,7 +134,7 @@ class ThingDescription:
 
         if prop_schema:
             # Ensure valid schema type
-            prop_schema = convert_schema(prop_schema, self.apispec)
+            prop_schema = convert_to_schema_or_json(prop_schema, self.apispec)
 
             # Convert schema to JSON
             prop_schema_json = schema_to_json(prop_schema, self.apispec)
@@ -158,20 +159,6 @@ class ThingDescription:
 
         return prop_description
 
-    def view_to_thing_property_forms(self, rules: list, view: View):
-        readable = (
-            hasattr(view, "post") or hasattr(view, "put") or hasattr(view, "delete")
-        )
-        writeable = hasattr(view, "get")
-
-        op = []
-        if readable:
-            op.append("readproperty")
-        if writeable:
-            op.append("writeproperty")
-
-        return self.build_forms_for_view(rules, view, op=op)
-
     def view_to_thing_action(self, rules: list, view: View):
         action_urls = [rule_to_path(rule) for rule in rules]
 
@@ -186,31 +173,41 @@ class ThingDescription:
 
         # Basic description
         action_description = {
-            "title": view.__name__,
-            "description": get_spec(view).get("description")
+            "title": get_topmost_spec_attr(view, "title") or view.__name__,
+            "description": get_topmost_spec_attr(view, "deescription")
             or get_docstring(view)
             or (get_docstring(view.post) if hasattr(view, "post") else ""),
             # TODO: Make URLs absolute
             "links": [{"href": f"{url}"} for url in action_urls],
-            "forms": self.view_to_thing_action_forms(rules, view),
             "safe": is_safe,
             "idempotent": is_idempotent,
         }
 
-        # Look for a _propertySchema in the Property classes API SPec
-        action_schema = get_spec(view.post).get("_params")
-
-        if action_schema:
+        # Look for a _params in the Action classes API Spec
+        action_input_schema = get_spec(view.post).get("_params")
+        if action_input_schema:
             # Ensure valid schema type
-            action_schema = convert_schema(action_schema, self.apispec)
-
+            action_input_schema = convert_to_schema_or_json(
+                action_input_schema, self.apispec
+            )
             # Add schema to prop description
-            action_description["input"] = schema_to_json(action_schema, self.apispec)
+            action_description["input"] = schema_to_json(
+                action_input_schema, self.apispec
+            )
+
+        # Look for a _schema in the Action classes API Spec
+        action_output_schema = get_spec(view.post).get("_schema", {}).get(201)
+        if action_output_schema:
+            # Ensure valid schema type
+            action_output_schema = convert_to_schema_or_json(
+                action_output_schema, self.apispec
+            )
+            # Add schema to prop description
+            action_description["output"] = schema_to_json(
+                action_output_schema, self.apispec
+            )
 
         return action_description
-
-    def view_to_thing_action_forms(self, rules: list, view: View):
-        return self.build_forms_for_view(rules, view, op=["invokeaction"])
 
     def property(self, rules: list, view: View):
         endpoint = getattr(view, "endpoint") or getattr(rules[0], "endpoint")
@@ -230,19 +227,6 @@ class ThingDescription:
         endpoint = getattr(view, "endpoint") or getattr(rules[0], "endpoint")
         key = snake_to_camel(endpoint)
         self.actions[key] = self.view_to_thing_action(rules, view)
-
-    def build_forms_for_view(self, rules: list, view: View, op: list):
-        forms = []
-        prop_urls = [rule_to_path(rule) for rule in rules]
-
-        content_type = (
-            get_topmost_spec_attr(view, "_content_type") or "application/json"
-        )
-
-        for url in prop_urls:
-            forms.append({"op": op, "href": url, "contentType": content_type})
-
-        return forms
 
     def event(self, event: Event):
         self.events[event.name] = self.event_to_thing_event(event)

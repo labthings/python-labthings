@@ -15,7 +15,7 @@ def test_extension_init(lt_extension):
 
 
 def test_add_view(lt_extension, app, view_cls):
-    lt_extension.add_view(view_cls, "/index")
+    lt_extension.add_view(view_cls, "/index", endpoint="index")
 
     assert "index" in lt_extension.views
     assert lt_extension.views.get("index") == {

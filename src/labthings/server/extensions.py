@@ -44,9 +44,6 @@ class BaseExtension:
 
         self._cls = str(self)  # String description of extension instance
 
-        self.actions = []
-        self.properties = []
-
         self._name = name
         self.description = description or get_docstring(self)
         self.version = str(version)
@@ -55,14 +52,14 @@ class BaseExtension:
 
         self.static_view_class = static_from(static_folder)
         self.add_view(
-            self.static_view_class, f"{static_url_path}/<path:path>", view_id="static"
+            self.static_view_class, f"{static_url_path}/<path:path>", endpoint="static"
         )
 
     @property
     def views(self):
         return self._views
 
-    def add_view(self, view_class, rule, view_id=None, **kwargs):
+    def add_view(self, view_class, rule, endpoint=None, **kwargs):
         # Remove all leading slashes from view route
         cleaned_rule = rule
         while cleaned_rule and cleaned_rule[0] == "/":
@@ -71,21 +68,18 @@ class BaseExtension:
         # Expand the rule to include extension name
         full_rule = "/{}/{}".format(self._name_uri_safe, cleaned_rule)
 
-        if not view_id:
-            view_id = (
-                cleaned_rule.replace("/", "_")
-                .replace("<", "")
-                .replace(">", "")
-                .replace(":", "_")
-            )
+        # Build endpoint if none given
+        if not endpoint:
+            endpoint = camel_to_snake(view_class.__name__)
 
         # Store route information in a dictionary
         d = {"rule": full_rule, "view": view_class, "kwargs": kwargs}
 
         # Add view to private views dictionary
-        self._views[view_id] = d
+        self._views[endpoint] = d
+        print(self._views)
         # Store the rule expansion information
-        self._rules[rule] = self._views[view_id]
+        self._rules[rule] = self._views[endpoint]
 
     def on_register(self, function, args=None, kwargs=None):
         if not callable(function):

@@ -16,7 +16,7 @@ from .logging import LabThingLogger
 from .representations import LabThingsJSONEncoder
 from .spec.apispec import rule_to_apispec_path
 from .spec.apispec_plugins import MarshmallowPlugin
-from .spec.utilities import get_spec
+from .spec.utilities import get_spec, compile_view_spec
 from .spec.td import ThingDescription
 from .decorators import tag
 from .sockets import Sockets
@@ -29,6 +29,8 @@ from .default_views.tasks import TaskList, TaskView
 from .default_views.docs import docs_blueprint, SwaggerUIView
 from .default_views.root import RootView
 from .default_views.sockets import socket_handler
+
+from labthings.core.utilities import camel_to_snake
 
 from typing import Callable
 
@@ -187,7 +189,10 @@ class LabThing:
         self.add_view(TaskView, "/tasks/<task_id>", endpoint=TASK_ENDPOINT)
 
     def _create_base_sockets(self):
-        self.sockets.add_view(self._complete_url("", ""), socket_handler)
+        self.sockets.add_view(
+            self._complete_url("/ws", ""), socket_handler, endpoint="ws"
+        )
+        self.thing_description.add_link("ws", "websocket")
 
     # Device stuff
 
@@ -207,16 +212,22 @@ class LabThing:
     # Extension stuff
 
     def register_extension(self, extension_object):
+        # Type check
         if isinstance(extension_object, BaseExtension):
             self.extensions[extension_object.name] = extension_object
         else:
             raise TypeError("Extension object must be an instance of BaseExtension")
 
-        for extension_view_id, extension_view in extension_object.views.items():
+        for extension_view_endpoint, extension_view in extension_object.views.items():
+
+            # Append extension name to endpoint
+            endpoint = f"{extension_object.name}/{extension_view_endpoint}"
+
             # Add route to the extensions blueprint
             self.add_view(
                 tag("extensions")(extension_view["view"]),
                 "/extensions" + extension_view["rule"],
+                endpoint=endpoint,
                 **extension_view["kwargs"],
             )
 
@@ -250,7 +261,7 @@ class LabThing:
         u = "".join(clean_url_string(part) for part in parts if part)
         return u if u else "/"
 
-    def add_view(self, resource, *urls, endpoint=None, **kwargs):
+    def add_view(self, view, *urls, endpoint=None, **kwargs):
         """Adds a view to the api.
         :param resource: the class name of your resource
         :type resource: :class:`Type[Resource]`
@@ -270,18 +281,18 @@ class LabThing:
         Additional keyword arguments not specified above will be passed as-is
         to :meth:`flask.Flask.add_url_rule`.
         Examples::
-            api.add_resource(HelloWorld, '/', '/hello')
-            api.add_resource(Foo, '/foo', endpoint="foo")
-            api.add_resource(FooSpecial, '/special/foo', endpoint="foo")
+            api.add_view(HelloWorld, '/', '/hello')
+            api.add_view(Foo, '/foo', endpoint="foo")
+            api.add_view(FooSpecial, '/special/foo', endpoint="foo")
         """
-        endpoint = endpoint or resource.__name__.lower()
+        endpoint = endpoint or camel_to_snake(view.__name__)
 
-        logging.debug(f"{endpoint}: {type(resource)} @ {urls}")
+        logging.debug(f"{endpoint}: {type(view)} @ {urls}")
 
         if self.app is not None:
-            self._register_view(self.app, resource, *urls, endpoint=endpoint, **kwargs)
+            self._register_view(self.app, view, *urls, endpoint=endpoint, **kwargs)
 
-        self.views.append((resource, urls, endpoint, kwargs))
+        self.views.append((view, urls, endpoint, kwargs))
 
     def view(self, *urls, **kwargs):
         def decorator(cls):
@@ -291,7 +302,7 @@ class LabThing:
         return decorator
 
     def _register_view(self, app, view, *urls, endpoint=None, **kwargs):
-        endpoint = endpoint or view.__name__.lower()
+        endpoint = endpoint or camel_to_snake(view.__name__)
         self.endpoints.add(endpoint)
         resource_class_args = kwargs.pop("resource_class_args", ())
         resource_class_kwargs = kwargs.pop("resource_class_kwargs", {})
@@ -307,19 +318,22 @@ class LabThing:
             # Add the url to the application or blueprint
             app.add_url_rule(rule, view_func=resource_func, **kwargs)
 
+        # Compile the View classes API spec
+        compile_view_spec(view)
+
         # There might be a better way to do this than _rules_by_endpoint,
         # but I can't find one so this will do for now. Skipping PYL-W0212
-        # FIXME: There is a MASSIVE memory leak or something going on in APISpec!
-        # This is grinding tests to a halt, and is really annoying... Should be fixed.
         flask_rules = app.url_map._rules_by_endpoint.get(endpoint)  # skipcq: PYL-W0212
         for flask_rule in flask_rules:
-            self.spec.path(**rule_to_apispec_path(flask_rule, view, self.spec))
+            self.spec.path(
+                **rule_to_apispec_path(flask_rule, get_spec(view), self.spec)
+            )
 
         # Handle resource groups listed in API spec
-        view_spec = get_spec(view)
-        view_tags = view_spec.get("tags", set())
+        view_tags = get_spec(view).get("tags", set())
         if "actions" in view_tags:
             self.thing_description.action(flask_rules, view)
+            # TODO: Use this for top-level action POST
             self._action_views[view.endpoint] = view
         if "properties" in view_tags:
             self.thing_description.property(flask_rules, view)
@@ -352,7 +366,10 @@ class LabThing:
     def url_for(self, view, **values):
         """Generates a URL to the given resource.
         Works like :func:`flask.url_for`."""
-        endpoint = getattr(view, "endpoint", None)
+        if isinstance(view, str):
+            endpoint = view
+        else:
+            endpoint = getattr(view, "endpoint", None)
         if not endpoint:
             return ""
         # Default to external links

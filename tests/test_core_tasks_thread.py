@@ -43,7 +43,7 @@ def test_task_start():
 
     task_obj = thread.TaskThread(target=task_func)
 
-    assert task_obj._status == "idle"
+    assert task_obj._status == "pending"
     assert task_obj._return_value is None
 
     task_obj.start()

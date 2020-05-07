@@ -1,12 +1,18 @@
 from flask.views import MethodView
-from flask import request, make_response
+from flask import request
 from werkzeug.wrappers import Response as ResponseBase
-from werkzeug.exceptions import MethodNotAllowed
 
 from collections import OrderedDict
 
-from labthings.server.utilities import unpack
-from labthings.server.representations import DEFAULT_REPRESENTATIONS
+from ..utilities import unpack
+from ..representations import DEFAULT_REPRESENTATIONS
+from ..find import current_labthing
+from ..event import PropertyStatusEvent, ActionStatusEvent
+from ..schema import ActionSchema
+
+from labthings.core.tasks import taskify
+
+from gevent.timeout import Timeout
 
 
 class View(MethodView):
@@ -18,6 +24,7 @@ class View(MethodView):
     """
 
     endpoint = None
+    __apispec__ = {}
 
     def __init__(self, *args, **kwargs):
         MethodView.__init__(self, *args, **kwargs)
@@ -50,19 +57,72 @@ class View(MethodView):
         assert meth is not None, f"Unimplemented method {request.method!r}"
 
         # Generate basic response
-        resp = meth(*args, **kwargs)
+        return self.represent_response(meth(*args, **kwargs))
 
-        if isinstance(resp, ResponseBase):  # There may be a better way to test
-            return resp
+    def represent_response(self, response):
+        """
+        Take the return balue of a function and build a representation response
+        """
+        if isinstance(response, ResponseBase):  # There may be a better way to test
+            return response
 
         representations = self.representations or OrderedDict()
 
         # noinspection PyUnresolvedReferences
         mediatype = request.accept_mimetypes.best_match(representations, default=None)
         if mediatype in representations:
-            data, code, headers = unpack(resp)
-            resp = representations[mediatype](data, code, headers)
-            resp.headers["Content-Type"] = mediatype
-            return resp
+            data, code, headers = unpack(response)
+            response = representations[mediatype](data, code, headers)
+            response.headers["Content-Type"] = mediatype
+            return response
+
+        return response
+
+
+class ActionView(View):
+    __apispec__ = {"tags": {"actions"}}
+
+    def dispatch_request(self, *args, **kwargs):
+        meth = getattr(self, request.method.lower(), None)
+
+        # Let base View handle non-POST requests
+        if request.method != "POST":
+            return View.dispatch_request(self, *args, **kwargs)
+
+        # Make a task out of the views `post` method
+        task = taskify(meth)(*args, **kwargs)
+
+        # Keep a copy of the raw, unmarshalled JSON input in the task
+        task.input = request.json
+
+        # Get the schema for this action
+        response_schema = (
+            getattr(meth, "__apispec__", {}).get("_schema", {}).get(201, ActionSchema())
+        )
+
+        # Wait up to 2 second for the action to complete or error
+        try:
+            task.get(block=True, timeout=1)
+        except Timeout:
+            pass
+
+        return self.represent_response((response_schema.dump(task), 201))
+
+
+class PropertyView(View):
+    __apispec__ = {"tags": {"properties"}}
+
+    def dispatch_request(self, *args, **kwargs):
+        resp = View.dispatch_request(self, *args, **kwargs)
+
+        property_value = self.get_value()
+        property_name = getattr(self, "endpoint", None) or getattr(
+            self, "__name__", "unknown"
+        )
+
+        if current_labthing():
+            current_labthing().message(
+                PropertyStatusEvent(property_name), property_value,
+            )
 
         return resp

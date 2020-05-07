@@ -44,7 +44,6 @@ labthing.build_action(
     my_component.average_data,
     "/average",
     description="Take an averaged measurement",
-    task=True,  # Is the action a long-running task?
     safe=True,  # Is the state of the Thing unchanged by calling the action?
     idempotent=True,  # Can the action be called repeatedly with the same result?
 )
