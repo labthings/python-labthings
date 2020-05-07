@@ -25,7 +25,7 @@ def rule_to_apispec_path(rule: Rule, spec_dict: dict, apispec: APISpec):
 
     params = {
         "path": rule_to_path(rule),
-        "operations": view_to_apispec_operations(
+        "operations": dict_to_apispec_operations(
             spec_dict.get("_operations", {}), apispec
         ),
     }
@@ -43,7 +43,7 @@ def rule_to_apispec_path(rule: Rule, spec_dict: dict, apispec: APISpec):
     return params
 
 
-def view_to_apispec_operations(operations_spec_dict: dict, apispec: APISpec):
+def dict_to_apispec_operations(operations_spec_dict: dict, apispec: APISpec):
     """Generate APISpec `operations` argument from a flask View
 
     Args:
