@@ -89,14 +89,24 @@ class ActionView(View):
         if request.method != "POST":
             return View.dispatch_request(self, *args, **kwargs)
 
+        # Make a task out of the views `post` method
         task = taskify(meth)(*args, **kwargs)
 
-        # Wait up to 2 second for the action to complete
+        # Keep a copy of the raw, unmarshalled JSON input in the task
+        task.input = request.json
+
+        # Get the schema for this action
+        response_schema = (
+            getattr(meth, "__apispec__", {}).get("_schema", {}).get(201, ActionSchema())
+        )
+
+        # Wait up to 2 second for the action to complete or error
         try:
             task.get(block=True, timeout=1)
         except Timeout:
             pass
-        return self.represent_response(ActionSchema().dump(task))
+
+        return self.represent_response((response_schema.dump(task), 201))
 
 
 class PropertyView(View):
