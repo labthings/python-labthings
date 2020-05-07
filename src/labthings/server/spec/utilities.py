@@ -148,7 +148,7 @@ def convert_to_schema_or_json(schema, spec: APISpec):
         return field_to_property(schema, spec)
     else:
         raise TypeError(
-            f"Unsupported schema type {data_schema}. "
+            f"Unsupported schema type {schema}. "
             "Ensure schema is a Schema object, Field object, "
             "or dictionary of Field objects"
         )
