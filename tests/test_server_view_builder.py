@@ -62,17 +62,17 @@ def test_property_of_name_description():
 
 
 def test_action_from(app, client):
-    def f(arg: int, kwarg: str = "default"):
-        return {"arg": arg, "kwarg": kwarg}
+    def f(arg: int):
+        return {"arg": arg}
 
     GeneratedClass = builder.action_from(f)
     app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
 
     with client as c:
-        assert c.post("/", json={"arg": 5}).json.get("output") == {
-            "arg": 5,
-            "kwarg": "default",
-        }
+        input_json = {"arg": 5}
+        response = c.post("/", json=input_json).json
+        assert "status" in response
+        assert response["input"] == input_json
 
 
 def test_action_from_options(app):
