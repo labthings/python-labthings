@@ -1,7 +1,7 @@
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 
-from ...core.utilities import merge, get_docstring
+from ...core.utilities import merge, get_docstring, get_summary
 
 from ..fields import Field
 from marshmallow import Schema as BaseSchema
@@ -22,7 +22,7 @@ def compile_view_spec(view):
     spec = get_spec(view)
 
     spec["description"] = spec.get("description") or get_docstring(view)
-    spec["summary"] = spec.get("summary") or spec["description"]
+    spec["summary"] = spec.get("summary") or get_summary(view) or spec["description"]
     spec["tags"] = spec.get("tags", set())
 
     spec["_operations"] = {}
@@ -37,7 +37,9 @@ def compile_view_spec(view):
                 or spec["description"]
             )
 
-            meth_spec["summary"] = meth_spec.get("summary") or meth_spec["description"]
+            meth_spec["summary"] = (
+                meth_spec.get("summary") or get_summary(meth) or spec["summary"]
+            )
 
             meth_spec["tags"] = meth_spec.get("tags", set())
             meth_spec["tags"] = meth_spec["tags"].union(spec["tags"])
