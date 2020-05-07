@@ -32,8 +32,8 @@ def rule_to_apispec_path(rule: Rule, spec_dict: dict, apispec: APISpec):
 
     # Add URL arguments to operations
     if rule.arguments:
-        for op in params.get("_operations", {}).keys():
-            params["_operations"][op].update({"parameters": rule_to_params(rule)})
+        for op in spec_dict.get("_operations", {}).keys():
+            params["operations"][op].update({"parameters": rule_to_params(rule)})
 
     # Merge in non-special spec elements
     for k, v in spec_dict.items():
