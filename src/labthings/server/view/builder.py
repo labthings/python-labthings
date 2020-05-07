@@ -3,12 +3,7 @@ from labthings.server.types import (
     data_dict_to_schema,
     function_signature_to_schema,
 )
-from labthings.server.decorators import (
-    PropertySchema,
-    use_args,
-    Doc,
-    Safe,
-    Idempotent)
+from labthings.server.decorators import PropertySchema, use_args, Doc, Safe, Idempotent
 from . import View, ActionView, PropertyView
 from ..spec.utilities import compile_view_spec
 
