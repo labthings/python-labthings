@@ -65,6 +65,14 @@ class TaskThread(Greenlet):
         """Compatibility with threading interface. A small, unique non-negative integer that identifies this object."""
         return get_ident(self)
 
+    @property
+    def output(self):
+        return self._return_value
+
+    @property
+    def status(self):
+        return self._status
+
     def update_progress(self, progress: int):
         # Update progress of the task
         self.progress = progress
@@ -105,6 +113,7 @@ class TaskThread(Greenlet):
                 logging.error(traceback.format_exc())
                 self._return_value = str(e)
                 self._status = "error"
+                raise e
             finally:
                 self._end_time = datetime.datetime.now()
                 logging.getLogger().removeHandler(handler)  # Stop logging this thread
