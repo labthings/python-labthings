@@ -1,10 +1,11 @@
 from labthings.server.spec import apispec
+from labthings.server.spec.utilities import compile_view_spec
 from labthings.server.view import View
 
 from labthings.server import fields
 
 
-def test_method_to_apispec_operation_no_spec(spec):
+def test_dict_to_apispec_operations_no_spec(spec):
     class Index(View):
         def get(self):
             return "GET"
@@ -12,58 +13,66 @@ def test_method_to_apispec_operation_no_spec(spec):
         def post(self):
             return "POST"
 
-    assert apispec.method_to_apispec_operation(Index.get, spec) == {
-        "responses": {200: {"description": "OK"}}
+    spec_dict = compile_view_spec(Index)
+
+    assert apispec.dict_to_apispec_operations(spec_dict["_operations"], spec) == {
+        "get": {
+            "responses": {200: {"description": "OK"}},
+            "description": "",
+            "summary": "",
+            "tags": set(),
+        },
+        "post": {
+            "responses": {200: {"description": "OK"}},
+            "description": "",
+            "summary": "",
+            "tags": set(),
+        },
     }
 
 
-def test_method_to_apispec_operation_params(spec):
+def test_dict_to_apispec_operations_params(spec):
     class Index(View):
         def get(self):
             return "GET"
 
-    Index.get.__apispec__ = {"_params": {"integer": fields.Int()}}
+    spec_dict = compile_view_spec(Index)
+    spec_dict["_operations"]["get"]["_params"] = {"integer": fields.Int()}
 
-    assert apispec.method_to_apispec_operation(Index.get, spec) == {
-        "requestBody": {
-            "content": {
-                "application/json": {
-                    "schema": {
-                        "type": "object",
-                        "properties": {
-                            "integer": {"type": "integer", "format": "int32"}
-                        },
-                    }
+    assert (apispec.dict_to_apispec_operations(spec_dict["_operations"], spec))["get"][
+        "requestBody"
+    ] == {
+        "content": {
+            "application/json": {
+                "schema": {
+                    "type": "object",
+                    "properties": {"integer": {"type": "integer", "format": "int32"}},
+                }
+            }
+        }
+    }
+
+
+def test_dict_to_apispec_operations_schema(spec):
+    class Index(View):
+        def get(self):
+            return "GET"
+
+    spec_dict = compile_view_spec(Index)
+    spec_dict["_operations"]["get"]["_schema"] = {200: {"integer": fields.Int()}}
+
+    assert (apispec.dict_to_apispec_operations(spec_dict["_operations"], spec))["get"][
+        "responses"
+    ][200] == {
+        "description": "OK",
+        "content": {
+            "application/json": {
+                "schema": {
+                    "type": "object",
+                    "properties": {"integer": {"type": "integer", "format": "int32"}},
                 }
             }
         },
-        "responses": {200: {"description": "OK"}},
-    }
-
-
-def test_method_to_apispec_operation_schema(spec):
-    class Index(View):
-        def get(self):
-            return "GET"
-
-    Index.get.__apispec__ = {"_schema": {200: {"integer": fields.Int()}}}
-
-    assert apispec.method_to_apispec_operation(Index.get, spec) == {
-        "responses": {
-            200: {
-                "description": "OK",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "integer": {"type": "integer", "format": "int32"}
-                            },
-                        }
-                    }
-                },
-            }
-        }
     }
 
 
@@ -72,36 +81,12 @@ def test_method_to_apispec_operation_extra_fields(spec):
         def get(self):
             return "GET"
 
-    Index.get.__apispec__ = {"summary": "A summary"}
+    spec_dict = compile_view_spec(Index)
+    spec_dict["_operations"]["get"]["summary"] = "A summary"
 
-    assert apispec.method_to_apispec_operation(Index.get, spec) == {
-        "summary": "A summary",
-        "responses": {200: {"description": "OK"}},
-    }
-
-
-def test_view_to_apispec_operations(spec):
-    class Index(View):
-        def get(self):
-            return "GET"
-
-        def post(self):
-            return "POST"
-
-    assert apispec.view_to_apispec_operations(Index, spec) == {
-        "post": {
-            "description": None,
-            "summary": None,
-            "tags": set(),
-            "responses": {200: {"description": "OK"}},
-        },
-        "get": {
-            "description": None,
-            "summary": None,
-            "tags": set(),
-            "responses": {200: {"description": "OK"}},
-        },
-    }
+    assert (apispec.dict_to_apispec_operations(spec_dict["_operations"], spec))["get"][
+        "summary"
+    ] == "A summary"
 
 
 def test_rule_to_apispec_path(app, spec):
@@ -114,24 +99,27 @@ def test_rule_to_apispec_path(app, spec):
 
     app.add_url_rule("/path", view_func=Index.as_view("index"))
     rule = app.url_map._rules_by_endpoint["index"][0]
-    assert apispec.rule_to_apispec_path(rule, Index, spec) == {
+
+    spec_dict = compile_view_spec(Index)
+
+    assert apispec.rule_to_apispec_path(rule, spec_dict, spec) == {
         "path": "/path",
         "operations": {
             "get": {
-                "description": None,
-                "summary": None,
-                "tags": set(),
                 "responses": {200: {"description": "OK"}},
+                "description": "",
+                "summary": "",
+                "tags": set(),
             },
             "post": {
-                "description": None,
-                "summary": None,
-                "tags": set(),
                 "responses": {200: {"description": "OK"}},
+                "description": "",
+                "summary": "",
+                "tags": set(),
             },
         },
-        "description": None,
-        "summary": None,
+        "description": "",
+        "summary": "",
         "tags": set(),
     }
 
@@ -146,14 +134,17 @@ def test_rule_to_apispec_path_params(app, spec):
 
     app.add_url_rule("/path/<id>/", view_func=Index.as_view("index"))
     rule = app.url_map._rules_by_endpoint["index"][0]
-    assert apispec.rule_to_apispec_path(rule, Index, spec) == {
+
+    spec_dict = compile_view_spec(Index)
+
+    assert apispec.rule_to_apispec_path(rule, spec_dict, spec) == {
         "path": "/path/{id}/",
         "operations": {
             "get": {
-                "description": None,
-                "summary": None,
-                "tags": set(),
                 "responses": {200: {"description": "OK"}},
+                "description": "",
+                "summary": "",
+                "tags": set(),
                 "parameters": [
                     {
                         "in": "path",
@@ -164,10 +155,10 @@ def test_rule_to_apispec_path_params(app, spec):
                 ],
             },
             "post": {
-                "description": None,
-                "summary": None,
-                "tags": set(),
                 "responses": {200: {"description": "OK"}},
+                "description": "",
+                "summary": "",
+                "tags": set(),
                 "parameters": [
                     {
                         "in": "path",
@@ -178,59 +169,7 @@ def test_rule_to_apispec_path_params(app, spec):
                 ],
             },
         },
-        "description": None,
-        "summary": None,
-        "tags": set(),
-    }
-
-
-def test_rule_to_apispec_path_extra_class_params(app, spec):
-    class Index(View):
-        def get(self):
-            return "GET"
-
-    Index.__apispec__ = {"summary": "A class summary"}
-
-    app.add_url_rule("/path", view_func=Index.as_view("index"))
-    rule = app.url_map._rules_by_endpoint["index"][0]
-
-    assert apispec.rule_to_apispec_path(rule, Index, spec) == {
-        "path": "/path",
-        "operations": {
-            "get": {
-                "description": None,
-                "summary": "A class summary",
-                "tags": set(),
-                "responses": {200: {"description": "OK"}},
-            }
-        },
-        "description": None,
-        "summary": "A class summary",
-        "tags": set(),
-    }
-
-
-def test_rule_to_apispec_path_extra_method_params(app, spec):
-    class Index(View):
-        def get(self):
-            return "GET"
-
-    Index.get.__apispec__ = {"summary": "A GET summary"}
-
-    app.add_url_rule("/path", view_func=Index.as_view("index"))
-    rule = app.url_map._rules_by_endpoint["index"][0]
-
-    assert apispec.rule_to_apispec_path(rule, Index, spec) == {
-        "path": "/path",
-        "operations": {
-            "get": {
-                "description": None,
-                "summary": "A GET summary",
-                "tags": set(),
-                "responses": {200: {"description": "OK"}},
-            }
-        },
-        "description": None,
-        "summary": None,
+        "description": "",
+        "summary": "",
         "tags": set(),
     }
