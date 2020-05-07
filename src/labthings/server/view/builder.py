@@ -92,7 +92,7 @@ def action_from(
 
     # Create a class name
     if not name:
-        name = f"{function.__name__}Action"
+        name = f"{function.__name__}_action"
 
     # Create schema
     action_schema = function_signature_to_schema(function)
