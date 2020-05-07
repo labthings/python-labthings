@@ -12,9 +12,7 @@ from .spec.utilities import update_spec, tag_spec
 from .schema import TaskSchema, Schema, FieldSchema
 from .fields import Field
 from .view import View, ActionView, PropertyView
-from .find import current_labthing
 from .utilities import unpack
-from .event import PropertyStatusEvent, ActionStatusEvent
 
 from labthings.core.tasks.pool import TaskThread
 from labthings.core.utilities import merge

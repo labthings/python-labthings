@@ -1,6 +1,4 @@
 from labthings.server.sockets import gevent as gsocket
-
-import json
 from flask import Blueprint
 
 

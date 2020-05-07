@@ -4,7 +4,6 @@ import cbor2
 import pytest
 import pickle
 import json
-from base64 import b64encode
 
 
 @pytest.fixture

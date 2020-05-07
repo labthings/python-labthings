@@ -18,10 +18,9 @@ from labthings.server.decorators import (
     use_args,
     marshal_with,
 )
-from labthings.server.view import View, ActionView, PropertyView
+from labthings.server.view import ActionView, PropertyView
 from labthings.server.find import find_component
 from labthings.server import fields
-from labthings.core.tasks import taskify, update_task_data
 
 
 """

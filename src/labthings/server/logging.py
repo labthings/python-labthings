@@ -1,7 +1,6 @@
 from .find import current_labthing
 
 from logging import StreamHandler
-import datetime
 
 
 class LabThingLogger(StreamHandler):
