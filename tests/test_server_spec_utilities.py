@@ -62,7 +62,7 @@ def test_get_topmost_spec_attr(view_cls):
 
 
 def test_convert_schema_none(spec):
-    assert not utilities.convert_schema(None, spec)
+    assert not utilities.convert_to_schema_or_json(None, spec)
 
 
 def test_convert_schema_schema(spec):
@@ -70,12 +70,12 @@ def test_convert_schema_schema(spec):
 
     schema = Schema()
     schema.integer = fields.Int()
-    assert utilities.convert_schema(schema, spec) is schema
+    assert utilities.convert_to_schema_or_json(schema, spec) is schema
 
 
 def test_convert_schema_map(spec):
     schema = {"integer": fields.Int()}
-    assert utilities.convert_schema(schema, spec) == {
+    assert utilities.convert_to_schema_or_json(schema, spec) == {
         "type": "object",
         "properties": {"integer": {"type": "integer", "format": "int32"}},
     }
@@ -83,7 +83,7 @@ def test_convert_schema_map(spec):
 
 def test_convert_schema_field(spec):
     schema = fields.Int()
-    assert utilities.convert_schema(schema, spec) == {
+    assert utilities.convert_to_schema_or_json(schema, spec) == {
         "type": "integer",
         "format": "int32",
     }
@@ -93,7 +93,7 @@ def test_convert_schema_invalid(spec):
     schema = object()
 
     with pytest.raises(TypeError):
-        utilities.convert_schema(schema, spec)
+        utilities.convert_to_schema_or_json(schema, spec)
 
 
 def test_map_to_schema_nested(spec):

@@ -5,7 +5,12 @@ import weakref
 from ..view import View
 from ..event import Event
 
-from .utilities import get_spec, convert_schema, schema_to_json, get_topmost_spec_attr
+from .utilities import (
+    get_spec,
+    convert_to_schema_or_json,
+    schema_to_json,
+    get_topmost_spec_attr,
+)
 from .paths import rule_to_params, rule_to_path
 
 from ..find import current_labthing
@@ -129,7 +134,7 @@ class ThingDescription:
 
         if prop_schema:
             # Ensure valid schema type
-            prop_schema = convert_schema(prop_schema, self.apispec)
+            prop_schema = convert_to_schema_or_json(prop_schema, self.apispec)
 
             # Convert schema to JSON
             prop_schema_json = schema_to_json(prop_schema, self.apispec)
@@ -182,7 +187,9 @@ class ThingDescription:
         action_input_schema = get_spec(view.post).get("_params")
         if action_input_schema:
             # Ensure valid schema type
-            action_input_schema = convert_schema(action_input_schema, self.apispec)
+            action_input_schema = convert_to_schema_or_json(
+                action_input_schema, self.apispec
+            )
             # Add schema to prop description
             action_description["input"] = schema_to_json(
                 action_input_schema, self.apispec
@@ -192,7 +199,9 @@ class ThingDescription:
         action_output_schema = get_spec(view.post).get("_schema", {}).get(201)
         if action_output_schema:
             # Ensure valid schema type
-            action_output_schema = convert_schema(action_output_schema, self.apispec)
+            action_output_schema = convert_to_schema_or_json(
+                action_output_schema, self.apispec
+            )
             # Add schema to prop description
             action_description["output"] = schema_to_json(
                 action_output_schema, self.apispec

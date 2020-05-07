@@ -3,7 +3,7 @@ from apispec import APISpec
 
 from ...core.utilities import get_summary, merge
 from .paths import rule_to_path, rule_to_params
-from .utilities import convert_schema, update_spec
+from .utilities import convert_to_schema_or_json, update_spec
 
 from werkzeug.routing import Rule
 from http import HTTPStatus
@@ -62,7 +62,9 @@ def dict_to_apispec_operations(operations_spec_dict: dict, apispec: APISpec):
 
         # Add input schema
         if "_params" in meth_spec:
-            request_schema = convert_schema(meth_spec.get("_params"), apispec)
+            request_schema = convert_to_schema_or_json(
+                meth_spec.get("_params"), apispec
+            )
             if request_schema:
                 ops[operation]["requestBody"] = {
                     "content": {"application/json": {"schema": request_schema}}
@@ -75,7 +77,9 @@ def dict_to_apispec_operations(operations_spec_dict: dict, apispec: APISpec):
                 ops[operation]["responses"][code] = {
                     "description": HTTPStatus(code).phrase,
                     "content": {
-                        "application/json": {"schema": convert_schema(schema, apispec)}
+                        "application/json": {
+                            "schema": convert_to_schema_or_json(schema, apispec)
+                        }
                     },
                 }
         else:

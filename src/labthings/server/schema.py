@@ -2,6 +2,7 @@
 from flask import url_for
 from werkzeug.routing import BuildError
 from marshmallow import Schema, pre_dump
+from collections.abc import Mapping
 
 from .names import TASK_ENDPOINT, EXTENSION_LIST_ENDPOINT
 from .utilities import view_class_from_endpoint, description_from_view
@@ -81,9 +82,10 @@ class ActionSchema(Schema):
     _status = fields.String(data_key="status")
     progress = fields.String()
     data = fields.Raw()
-    _return_value = fields.Raw(data_key="output")
+    # _return_value = fields.Raw(data_key="output")
     _request_time = fields.DateTime(data_key="timeRequested")
     _end_time = fields.DateTime(data_key="timeCompleted")
+    # TODO: Make a proper log schema
     log = fields.List(fields.Dict())
 
     href = fields.String()
@@ -96,6 +98,36 @@ class ActionSchema(Schema):
             url = None
         data.href = url
         return data
+
+
+def build_action_schema(data_schema: Schema, name: str = None):
+    # Create a name for the generated schema
+    if not name:
+        name = id(data_schema)
+    if not name.endswith("Action"):
+        name = f"{name}Action"
+
+    # If a real schema, nest it
+    if isinstance(data_schema, Schema):
+        output_schema = fields.Nested(data_schema, data_key="output")
+    # If a dictionary schema, build a real schema then nest it
+    elif isinstance(data_schema, Mapping):
+        output_schema = fields.Nested(Schema.from_dict(data_schema), data_key="output")
+    # If a single field, set it as the output Field, and override its data_key
+    elif isinstance(data_schema, fields.Field):
+        output_schema = data_schema
+        output_schema.data_key = "output"
+    # Otherwise allow any
+    elif data_schema is None:
+        output_schema = fields.Raw(data_key="output")
+    else:
+        raise TypeError(
+            f"Unsupported schema type {data_schema}. "
+            "Ensure schema is a Schema object, Field object, "
+            "or dictionary of Field objects"
+        )
+    # Build a Schema class for the Action
+    return type(name, (ActionSchema,), {"_return_value": output_schema})
 
 
 class ExtensionSchema(Schema):

@@ -1,11 +1,13 @@
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 
-from ...core.utilities import merge, get_docstring, get_summary
+from ...core.utilities import merge, get_docstring, get_summary, snake_to_camel
 
 from ..fields import Field
-from marshmallow import Schema as BaseSchema
+from ..schema import build_action_schema
+from ..view import ActionView
 
+from marshmallow import Schema as BaseSchema
 from collections.abc import Mapping
 
 
@@ -18,33 +20,41 @@ def compile_view_spec(view):
     Returns:
         [dict] -- Compiled API Spec
     """
-    # TODO: Build Action 201 response spec
+    # Create a 201 schema for Action views
+    view_name = snake_to_camel(getattr(view, "endpoint") or getattr(view, "__name__"))
+    if issubclass(view, ActionView) and hasattr(view, "post"):
+        # Get current 200 response schema, or None if none given
+        current_post_schema = get_spec(view.post).get("_schema", {}).get(200)
+        # Build an action schema, and attach it to view.post.__apispec__
+        get_spec(view.post).setdefault("_schema", {}).setdefault(
+            201, build_action_schema(current_post_schema, name=view_name)()
+        )
+
+    # Get the current view API spec
     spec = get_spec(view)
 
-    spec["description"] = spec.get("description") or get_docstring(view)
-    spec["summary"] = spec.get("summary") or get_summary(view) or spec["description"]
-    spec["tags"] = spec.get("tags", set())
+    # Set defaults
+    spec.setdefault("description", get_docstring(view))
+    spec.setdefault("summary", get_summary(view) or spec["description"])
+    spec.setdefault("tags", set())
 
+    # Expand operations (GET, POST etc)
     spec["_operations"] = {}
     for operation in ("get", "post", "put", "delete"):
         meth = getattr(view, operation, None)
         if meth:
             meth_spec = get_spec(meth)
 
-            meth_spec["description"] = (
-                meth_spec.get("description")
-                or get_docstring(meth)
-                or spec["description"]
+            # Set defaults
+            meth_spec.setdefault(
+                "description", get_docstring(meth) or spec["description"]
             )
-
-            meth_spec["summary"] = (
-                meth_spec.get("summary") or get_summary(meth) or spec["summary"]
-            )
-
-            meth_spec["tags"] = meth_spec.get("tags", set())
+            meth_spec.setdefault("summary", get_summary(meth) or spec["summary"])
+            meth_spec.setdefault("tags", set())
             meth_spec["tags"] = meth_spec["tags"].union(spec["tags"])
 
             spec["_operations"][operation] = meth_spec
+
     return spec
 
 
@@ -117,7 +127,7 @@ def get_topmost_spec_attr(view, spec_key: str):
     return value
 
 
-def convert_schema(schema, spec: APISpec):
+def convert_to_schema_or_json(schema, spec: APISpec):
     """
     Ensure that a given schema is either a real Marshmallow schema,
     or is a dictionary describing the schema inline.
@@ -138,8 +148,9 @@ def convert_schema(schema, spec: APISpec):
         return field_to_property(schema, spec)
     else:
         raise TypeError(
-            f"Unsupported schema type {schema}. "
-            "Ensure schema is a Schema class, or dictionary of Field objects"
+            f"Unsupported schema type {data_schema}. "
+            "Ensure schema is a Schema object, Field object, "
+            "or dictionary of Field objects"
         )
 
 
