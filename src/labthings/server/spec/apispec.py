@@ -1,14 +1,9 @@
-from ..view import View
 from apispec import APISpec
-
-from ...core.utilities import get_summary, merge
 from .paths import rule_to_path, rule_to_params
-from .utilities import convert_to_schema_or_json, update_spec
+from .utilities import convert_to_schema_or_json
 
 from werkzeug.routing import Rule
 from http import HTTPStatus
-
-from pprint import pprint
 
 
 def rule_to_apispec_path(rule: Rule, spec_dict: dict, apispec: APISpec):

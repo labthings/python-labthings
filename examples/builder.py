@@ -7,7 +7,6 @@ patch_all()
 import logging
 
 from labthings.server.quick import create_app
-from labthings.server.view.builder import property_of, action_from
 
 from components.pdf_component import PdfComponent
 
