@@ -37,35 +37,55 @@ class Server:
         self.wsgi_server = None
         self.zeroconf_server = None
         self.service_info = None
+        self.service_infos = set()
 
         # Events
         self.started_event = gevent.event.Event()
 
     def register_zeroconf(self):
         if self.labthing:
-            self.service_info = ServiceInfo(
-                "_labthings._tcp.local.",
-                f"{self.labthing.safe_title}._labthings._tcp.local.",
-                port=self.port,
-                properties={
-                    "path": self.labthing.url_prefix,
-                    "title": self.labthing.title,
-                    "description": self.labthing.description,
-                    "types": ";".join(self.labthing.types),
-                },
-                addresses={
-                    socket.inet_aton(i)
-                    for i in get_all_addresses()
-                    if i not in ("127.0.0.1", "0.0.0.0")
-                },
+            # LabThing service
+            self.service_infos.add(
+                ServiceInfo(
+                    "_labthing._tcp.local.",
+                    f"{self.labthing.safe_title}._labthing._tcp.local.",
+                    port=self.port,
+                    properties={
+                        "path": self.labthing.url_prefix,
+                        "title": self.labthing.title,
+                        "description": self.labthing.description,
+                        "types": ";".join(self.labthing.types),
+                    },
+                    addresses={
+                        socket.inet_aton(i)
+                        for i in get_all_addresses()
+                        if i not in ("127.0.0.1", "0.0.0.0")
+                    },
+                )
+            )
+            # Mozilla WebThing service
+            self.service_infos.add(
+                ServiceInfo(
+                    "_webthing._tcp.local.",
+                    f"{self.labthing.safe_title}._webthing._tcp.local.",
+                    port=self.port,
+                    properties={"path": self.labthing.url_prefix},
+                    addresses={
+                        socket.inet_aton(i)
+                        for i in get_all_addresses()
+                        if i not in ("127.0.0.1", "0.0.0.0")
+                    },
+                )
             )
             self.zeroconf_server = Zeroconf(ip_version=IPVersion.V4Only)
-            self.zeroconf_server.register_service(self.service_info)
+            for service in self.service_infos:
+                self.zeroconf_server.register_service(service)
 
     def stop(self, timeout=1):
         # Unregister zeroconf service
         if self.zeroconf_server:
-            self.zeroconf_server.unregister_service(self.service_info)
+            for service in self.service_infos:
+                self.zeroconf_server.unregister_service(service)
             self.zeroconf_server.close()
             self.zeroconf_server = None
         # Stop WSGI server with timeout
