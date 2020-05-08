@@ -44,6 +44,12 @@ class Server:
 
     def register_zeroconf(self):
         if self.labthing:
+            # Get list of host addresses
+            mdns_addresses = {
+                socket.inet_aton(i)
+                for i in get_all_addresses()
+                if i not in ("127.0.0.1", "0.0.0.0")
+            }
             # LabThing service
             self.service_infos.add(
                 ServiceInfo(
@@ -56,11 +62,7 @@ class Server:
                         "description": self.labthing.description,
                         "types": ";".join(self.labthing.types),
                     },
-                    addresses={
-                        socket.inet_aton(i)
-                        for i in get_all_addresses()
-                        if i not in ("127.0.0.1", "0.0.0.0")
-                    },
+                    addresses=mdns_addresses,
                 )
             )
             # Mozilla WebThing service
@@ -70,11 +72,7 @@ class Server:
                     f"{self.labthing.safe_title}._webthing._tcp.local.",
                     port=self.port,
                     properties={"path": self.labthing.url_prefix},
-                    addresses={
-                        socket.inet_aton(i)
-                        for i in get_all_addresses()
-                        if i not in ("127.0.0.1", "0.0.0.0")
-                    },
+                    addresses=mdns_addresses,
                 )
             )
             self.zeroconf_server = Zeroconf(ip_version=IPVersion.V4Only)
