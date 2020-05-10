@@ -54,6 +54,9 @@ class BaseExtension:
         self.add_view(
             self.static_view_class, f"{static_url_path}/<path:path>", endpoint="static"
         )
+        self.add_view(
+            self.static_view_class, f"{static_url_path}", endpoint="static_root"
+        )
 
     @property
     def views(self):
