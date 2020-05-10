@@ -37,7 +37,7 @@ class Server:
         self.wsgi_server = None
         self.zeroconf_server = None
         self.service_info = None
-        self.service_infos = set()
+        self.service_infos = []
 
         # Events
         self.started_event = gevent.event.Event()
@@ -51,7 +51,7 @@ class Server:
                 if i not in ("127.0.0.1", "0.0.0.0")
             }
             # LabThing service
-            self.service_infos.add(
+            self.service_infos.append(
                 ServiceInfo(
                     "_labthing._tcp.local.",
                     f"{self.labthing.safe_title}._labthing._tcp.local.",
@@ -66,7 +66,7 @@ class Server:
                 )
             )
             # Mozilla WebThing service
-            self.service_infos.add(
+            self.service_infos.append(
                 ServiceInfo(
                     "_webthing._tcp.local.",
                     f"{self.labthing.safe_title}._webthing._tcp.local.",
