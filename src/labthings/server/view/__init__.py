@@ -41,7 +41,7 @@ class View(MethodView):
             raise TypeError("Attribute 'get' of View must be a callable")
         response = get_method()  # pylint: disable=not-callable
         if isinstance(response, ResponseBase):  # Pluck useful data out of HTTP response
-            return response.json if response.json else response.data.decode()
+            return response.json if response.json else response.data
         else:  # Unless somehow an HTTP response isn't returned...
             return response
 
@@ -113,6 +113,10 @@ class PropertyView(View):
     __apispec__ = {"tags": {"properties"}}
 
     def dispatch_request(self, *args, **kwargs):
+        if request.method == "GET":
+            return View.dispatch_request(self, *args, **kwargs)
+
+        # FIXME: Sketchy as this breaks if the response is a generator/loop
         resp = View.dispatch_request(self, *args, **kwargs)
 
         property_value = self.get_value()
