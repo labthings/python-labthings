@@ -168,7 +168,6 @@ class QuickDataProperty(View):
 # Create LabThings Flask app
 app, labthing = create_app(
     __name__,
-    prefix="/api",
     title="My Lab Device API",
     description="Test LabThing-based API",
     version="0.1.0",
