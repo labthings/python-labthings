@@ -45,22 +45,22 @@ class ClientEvent(object):
         with self._setting_lock:
             now = time.time()
             remove_keys = set()
-            for ident, event in self.events.items():
-                if not event[0].is_set():
+            for event_key in list(self.events.keys()):
+                if not self.events[event_key][0].is_set():
                     # if this client's event is not set, then set it
                     # also update the last set timestamp to now
-                    event[0].set()
-                    event[1] = now
+                    self.events[event_key][0].set()
+                    self.events[event_key][1] = now
                 else:
                     # if the client's event is already set, it means the client
                     # did not process a previous frame
                     # if the event stays set for more than `timeout` seconds, then
                     # assume the client is gone and remove it
-                    if now - event[1] >= timeout:
-                        remove_keys.add(ident)
+                    if now - self.events[event_key][1] >= timeout:
+                        remove_keys.add(event_key)
             if remove_keys:
-                for ident in remove_keys:
-                    del self.events[ident]
+                for remove_key in remove_keys:
+                    del self.events[remove_key]
 
     def clear(self):
         """Clear frame event, once processed."""
