@@ -157,7 +157,7 @@ def test_get_value_response_text(app_ctx):
         assert isinstance(Index().get(), ResponseBase)
         assert Index().get().headers.get("Content-Type") == "text/html; charset=utf-8"
         # Main test
-        assert Index().get_value() == "GET"
+        assert Index().get_value() == b"GET"
 
 
 def test_get_value_response_json(app_ctx):
