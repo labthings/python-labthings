@@ -19,7 +19,7 @@ def test_add_view(lt_extension, app, view_cls):
 
     assert "index" in lt_extension.views
     assert lt_extension.views.get("index") == {
-        "rule": "/org.labthings.tests.extension/index",
+        "urls": ["/org.labthings.tests.extension/index"],
         "view": view_cls,
         "kwargs": {},
     }
@@ -98,35 +98,7 @@ def test_add_method_name_clash(lt_extension):
         )
 
 
-def test_static_file_url(lt_extension, app, app_ctx):
-    endpoint = "extensionstatic"
-    static_view = lt_extension.views.get("static").get("view")
-    static_view.endpoint = endpoint
-    static_rule = lt_extension.views.get("static").get("rule")
-
-    assert static_view
-    assert static_rule
-
-    app.add_url_rule(static_rule, view_func=static_view.as_view(endpoint))
-
-    with app_ctx.test_request_context():
-        assert (
-            "org.labthings.tests.extension/static/filename"
-            in lt_extension.static_file_url("filename")
-        )
-
-
-def test_static_file_url_no_endpoint(lt_extension, app, app_ctx):
-    static_view = lt_extension.views.get("static").get("view")
-    static_rule = lt_extension.views.get("static").get("rule")
-
-    assert static_view
-    assert static_rule
-
-    app.add_url_rule(static_rule, view_func=static_view.as_view("index"))
-
-    with app_ctx.test_request_context():
-        assert lt_extension.static_file_url("filename") is None
+# TODO: Rewrite static file tests to attach the extension to a Thing instance
 
 
 def test_find_instances_in_module(lt_extension):
