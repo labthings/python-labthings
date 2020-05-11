@@ -226,7 +226,7 @@ class LabThing:
             # Add route to the extensions blueprint
             self.add_view(
                 tag("extensions")(extension_view["view"]),
-                "/extensions" + extension_view["rule"],
+                *("/extensions" + url for url in extension_view["urls"]),
                 endpoint=endpoint,
                 **extension_view["kwargs"],
             )

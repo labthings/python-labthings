@@ -147,15 +147,20 @@ class ExtensionSchema(Schema):
     def generate_links(self, data, **kwargs):
         d = {}
         for view_id, view_data in data.views.items():
-            view_cls = view_data["view"]
-            view_rule = view_data["rule"]
+            view_cls = view_data.get("view")
+            view_urls = view_data.get("urls")
             # Try to build a URL
             try:
-                url = url_for(EXTENSION_LIST_ENDPOINT, _external=True) + view_rule
+                urls = [url_for(EXTENSION_LIST_ENDPOINT, _external=True) + url for url in view_urls]
             except BuildError:
-                url = None
+                urls = []
+            # TODO: Tidy up this nasty jazz
+            if len(urls) == 0:
+                urls = None
+            elif len(urls) == 1:
+                urls = urls[0]
             # Make links dictionary if it doesn't yet exist
-            d[view_id] = {"href": url, **description_from_view(view_cls)}
+            d[view_id] = {"href": urls, **description_from_view(view_cls)}
 
         data.links = d
 
