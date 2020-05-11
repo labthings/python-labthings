@@ -151,7 +151,10 @@ class ExtensionSchema(Schema):
             view_urls = view_data.get("urls")
             # Try to build a URL
             try:
-                urls = [url_for(EXTENSION_LIST_ENDPOINT, _external=True) + url for url in view_urls]
+                urls = [
+                    url_for(EXTENSION_LIST_ENDPOINT, _external=True) + url
+                    for url in view_urls
+                ]
             except BuildError:
                 urls = []
             # TODO: Tidy up this nasty jazz

@@ -52,7 +52,10 @@ class BaseExtension:
 
         self.static_view_class = static_from(static_folder)
         self.add_view(
-            self.static_view_class, f"{static_url_path}", f"{static_url_path}/<path:path>", endpoint="static"
+            self.static_view_class,
+            f"{static_url_path}",
+            f"{static_url_path}/<path:path>",
+            endpoint="static",
         )
 
     @property
@@ -67,7 +70,10 @@ class BaseExtension:
                 cleaned_urls[i] = cleaned_urls[i][1:]
 
         # Expand the rule to include extension name
-        full_urls = ["/{}/{}".format(self._name_uri_safe, cleaned_url) for cleaned_url in cleaned_urls]
+        full_urls = [
+            "/{}/{}".format(self._name_uri_safe, cleaned_url)
+            for cleaned_url in cleaned_urls
+        ]
 
         # Build endpoint if none given
         if not endpoint:
