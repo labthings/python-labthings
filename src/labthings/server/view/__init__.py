@@ -113,20 +113,20 @@ class PropertyView(View):
     __apispec__ = {"tags": {"properties"}}
 
     def dispatch_request(self, *args, **kwargs):
-        if request.method == "GET":
-            return View.dispatch_request(self, *args, **kwargs)
+        if request.method in ("POST", "PUT", "DELETE", "PATCH"):
+            # FIXME: Sketchy as this breaks if the response is a generator/loop
+            resp = View.dispatch_request(self, *args, **kwargs)
 
-        # FIXME: Sketchy as this breaks if the response is a generator/loop
-        resp = View.dispatch_request(self, *args, **kwargs)
-
-        property_value = self.get_value()
-        property_name = getattr(self, "endpoint", None) or getattr(
-            self, "__name__", "unknown"
-        )
-
-        if current_labthing():
-            current_labthing().message(
-                PropertyStatusEvent(property_name), property_value,
+            property_value = self.get_value()
+            property_name = getattr(self, "endpoint", None) or getattr(
+                self, "__name__", "unknown"
             )
 
-        return resp
+            if current_labthing():
+                current_labthing().message(
+                    PropertyStatusEvent(property_name), property_value,
+                )
+
+            return resp
+
+        return View.dispatch_request(self, *args, **kwargs)
