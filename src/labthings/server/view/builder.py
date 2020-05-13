@@ -19,6 +19,7 @@ def property_of(
     name: str = None,
     readonly=False,
     description=None,
+    _legacy=False,  # Old structure where POST is used to write property
 ):
 
     # Create a class name
@@ -26,14 +27,14 @@ def property_of(
         name = type(property_object).__name__ + f"_{property_name}"
 
     # Create inner functions
-    def _get(self):
+    def _read(self):
         return getattr(property_object, property_name)
 
-    def _post(self, args):
+    def _write(self, args):
         setattr(property_object, property_name, args)
         return getattr(property_object, property_name)
 
-    def _put(self, args):
+    def _update(self, args):
         getattr(property_object, property_name).update(args)
         return getattr(property_object, property_name)
 
@@ -44,17 +45,23 @@ def property_of(
         {
             "property_object": property_object,
             "property_name": property_name,
-            "get": _get,
+            "get": _read,
         },
     )
 
     # Override read-write capabilities
     if not readonly:
-        generated_class.post = _post
-        generated_class.methods.add("POST")
-        # Enable PUT requests for dictionaries
+        # Enable update PUT requests for dictionaries
         if type(getattr(property_object, property_name)) is dict:
-            generated_class.put = _put
+            generated_class.put = _update
+            generated_class.methods.add("PUT")
+        # If legacy mode, use POST to write property
+        elif _legacy:
+            generated_class.post = _write
+            generated_class.methods.add("POST")
+        # Normally, use PUT to write property
+        else:
+            generated_class.put = _write
             generated_class.methods.add("PUT")
 
     # Add decorators for arguments etc

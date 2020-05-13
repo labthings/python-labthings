@@ -9,7 +9,7 @@ def test_property_of(app, client):
 
     with client as c:
         assert c.get("/").data == b'"propertyValue"\n'
-        assert c.post("/", data=b"newPropertyValue").data == b'"newPropertyValue"\n'
+        assert c.put("/", data=b"newPropertyValue").data == b'"newPropertyValue"\n'
         assert c.get("/").data == b'"newPropertyValue"\n'
 
 
@@ -36,9 +36,6 @@ def test_property_of_dict(app, client):
         assert c.put("/", json={"property_name": "newPropertyValue"}).json == {
             "property_name": "newPropertyValue",
             "property_name_2": "propertyValue2",
-        }
-        assert c.post("/", json={"property_name": "newPropertyValue"}).json == {
-            "property_name": "newPropertyValue"
         }
 
 
