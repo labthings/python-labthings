@@ -89,14 +89,28 @@ class ActionSchema(Schema):
     log = fields.List(fields.Dict())
 
     href = fields.String()
+    links = fields.Dict()
 
     @pre_dump
     def generate_links(self, data, **kwargs):
+        # Add Mozilla format href
+        # TODO: This should eventually point to the Mozilla action URL
         try:
             url = url_for(TASK_ENDPOINT, task_id=data.id, _external=True)
         except BuildError:
             url = None
         data.href = url
+
+        # Add full link description
+        # TODO: Reintroduce this type of link to other Thing Description elements
+        data.links = {
+            "self": {
+                "href": url,
+                "mimetype": "application/json",
+                **description_from_view(view_class_from_endpoint(TASK_ENDPOINT)),
+            }
+        }
+
         return data
 
 
