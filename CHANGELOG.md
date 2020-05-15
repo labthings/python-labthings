@@ -1,3 +1,10 @@
+# [0.6.1](https://github.com/labthings/python-labthings/compare/v0.6.0...v0.6.1) (2020-05-15)
+
+
+* Reintroduced Action response "links" ([5b8401d](https://github.com/labthings/python-labthings/commit/5b8401d))
+* Use PUT for writing properties in built views ([e241c96](https://github.com/labthings/python-labthings/commit/e241c96))
+
+
 # [0.6.0](https://github.com/labthings/python-labthings/compare/v0.5.3...v0.6.0) (2020-05-12)
 
 
@@ -45,7 +52,12 @@
 * Support index pages in static folder ([66be1d7](https://github.com/labthings/python-labthings/commit/66be1d7))
 * Switched to /src structure ([f8b1b71](https://github.com/labthings/python-labthings/commit/f8b1b71))
 * Test b64 decoding ([6b29de8](https://github.com/labthings/python-labthings/commit/6b29de8))
+* Updated changelog ([9860fef](https://github.com/labthings/python-labthings/commit/9860fef))
+* Updated changelog ([478f121](https://github.com/labthings/python-labthings/commit/478f121))
+* Updated changelog ([4b3afc0](https://github.com/labthings/python-labthings/commit/4b3afc0))
 * Updated test_get_value_response_text ([fdba1fa](https://github.com/labthings/python-labthings/commit/fdba1fa))
+* Updated version and dependencies ([3e0b3df](https://github.com/labthings/python-labthings/commit/3e0b3df))
+* Updated version and dependencies ([d051430](https://github.com/labthings/python-labthings/commit/d051430))
 * Use custom Marshmallow APISpec plugin ([d0ab02c](https://github.com/labthings/python-labthings/commit/d0ab02c))
 
 
