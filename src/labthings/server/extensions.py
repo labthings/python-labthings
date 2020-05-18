@@ -85,7 +85,7 @@ class BaseExtension:
         # Add view to private views dictionary
         self._views[endpoint] = d
         # Store the rule expansion information
-        for url in urls:
+        for url in cleaned_urls:
             self._rules[url] = self._views[endpoint]
 
     def on_register(self, function, args=None, kwargs=None):
