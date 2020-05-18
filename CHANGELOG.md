@@ -1,7 +1,15 @@
-# [0.6.1](https://github.com/labthings/python-labthings/compare/v0.6.0...v0.6.1) (2020-05-15)
+# [0.6.2](https://github.com/labthings/python-labthings/compare/v0.6.1...v0.6.2) (2020-05-18)
+
+
+* Use cleaned_urls for extension rule expansion map ([2e649d7](https://github.com/labthings/python-labthings/commit/2e649d7))
+
+
+## [0.6.1](https://github.com/labthings/python-labthings/compare/v0.6.0...v0.6.1) (2020-05-15)
 
 
 * Reintroduced Action response "links" ([5b8401d](https://github.com/labthings/python-labthings/commit/5b8401d))
+* Updated changelog ([0dd7c50](https://github.com/labthings/python-labthings/commit/0dd7c50))
+* Updated version and dependencies ([ee861ea](https://github.com/labthings/python-labthings/commit/ee861ea))
 * Use PUT for writing properties in built views ([e241c96](https://github.com/labthings/python-labthings/commit/e241c96))
 
 
