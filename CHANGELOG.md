@@ -1,6 +1,14 @@
-# [0.6.2](https://github.com/labthings/python-labthings/compare/v0.6.1...v0.6.2) (2020-05-18)
+# [0.6.3](https://github.com/labthings/python-labthings/compare/v0.6.2...v0.6.3) (2020-05-20)
 
 
+* Properly handle access log handlers ([f0f02ae](https://github.com/labthings/python-labthings/commit/f0f02ae))
+
+
+## [0.6.2](https://github.com/labthings/python-labthings/compare/v0.6.1...v0.6.2) (2020-05-18)
+
+
+* Updated changelog ([5c617f8](https://github.com/labthings/python-labthings/commit/5c617f8))
+* Updated version and dependencies ([245d1ed](https://github.com/labthings/python-labthings/commit/245d1ed))
 * Use cleaned_urls for extension rule expansion map ([2e649d7](https://github.com/labthings/python-labthings/commit/2e649d7))
 
 
