@@ -1,8 +1,8 @@
 from geventwebsocket.handler import WebSocketHandler
 import gevent
 import socket
-import logging
 import signal
+import logging
 from werkzeug.debug import DebuggedApplication
 
 from zeroconf import IPVersion, ServiceInfo, Zeroconf, get_all_addresses
@@ -79,17 +79,15 @@ class Server:
             for service in self.service_infos:
                 self.zeroconf_server.register_service(service)
 
-    def stop(self, timeout=1):
+    def stop(self):
         # Unregister zeroconf service
         if self.zeroconf_server:
             for service in self.service_infos:
                 self.zeroconf_server.unregister_service(service)
             self.zeroconf_server.close()
-            self.zeroconf_server = None
         # Stop WSGI server with timeout
         if self.wsgi_server:
-            self.wsgi_server.stop(timeout=timeout)
-            self.wsgi_server = None
+            self.wsgi_server.stop(timeout=5)
         # Clear started event
         if self.started_event.is_set():
             self.started_event.clear()
@@ -129,7 +127,7 @@ class Server:
         )
 
         # Serve
-        signal.signal(signal.SIGTERM, self.stop)
+        gevent.signal_handler(signal.SIGTERM, self.stop)
 
         # Set started event
         self.started_event.set()
