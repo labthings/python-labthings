@@ -1,4 +1,3 @@
-from geventwebsocket.handler import WebSocketHandler
 import gevent
 import socket
 import signal
@@ -7,8 +6,10 @@ from werkzeug.debug import DebuggedApplication
 
 from zeroconf import IPVersion, ServiceInfo, Zeroconf, get_all_addresses
 
+from .handler import WebSocketHandler
 from ..find import current_labthing
 
+sentinel = object()
 
 class Server:
     def __init__(
@@ -16,8 +17,8 @@ class Server:
         app,
         host="0.0.0.0",
         port=7485,
-        log=None,
-        error_log=None,
+        log=sentinel,
+        error_log=sentinel,
         debug=False,
         zeroconf=True,
     ):
@@ -82,15 +83,18 @@ class Server:
     def stop(self):
         # Unregister zeroconf service
         if self.zeroconf_server:
+            logging.info("Unregistering zeroconf services")
             for service in self.service_infos:
                 self.zeroconf_server.unregister_service(service)
             self.zeroconf_server.close()
         # Stop WSGI server with timeout
         if self.wsgi_server:
+            logging.info("Shutting down WSGI server")
             self.wsgi_server.stop(timeout=5)
         # Clear started event
         if self.started_event.is_set():
             self.started_event.clear()
+        logging.info("Done")
 
     def start(self):
         # Unmodified version of app
@@ -101,10 +105,16 @@ class Server:
             self.register_zeroconf()
 
         # Handle logging
-        if not self.log:
+        if self.log is sentinel:
+            print("No access log specified. Using root.")
             self.log = logging.getLogger()
-        if not self.error_log:
+        if not self.log:
+            self.log = logging.NullHandler()
+        if self.error_log is sentinel:
+            print("No error og specified. Using root.")
             self.error_log = logging.getLogger()
+        if not self.error_log:
+            self.error_log = logging.NullHandler()
 
         # Handle debug mode
         if self.debug:
@@ -116,6 +126,8 @@ class Server:
         friendlyhost = "localhost" if self.host == "0.0.0.0" else self.host
         print("Starting LabThings WSGI Server")
         print(f"Debug mode: {self.debug}")
+        print(f"Access log: {self.log}")
+        print(f"Error log: {self.error_log}")
         print(f"Running on http://{friendlyhost}:{self.port} (Press CTRL+C to quit)")
 
         # Create WSGIServer
@@ -124,6 +136,7 @@ class Server:
             app_to_run,
             handler_class=WebSocketHandler,
             log=self.log,
+            error_log=self.error_log
         )
 
         # Serve
@@ -140,7 +153,7 @@ class Server:
             self.stop()  # pragma: no cover
 
     def run(
-        self, host=None, port=None, log=None, error_log=None, debug=None, zeroconf=None,
+        self, host=None, port=None, log=sentinel, error_log=sentinel, debug=None, zeroconf=None,
     ):
         """Starts the server allowing for runtime parameters. Designed to immitate
         the old Flask app.run style of starting an app
@@ -158,10 +171,10 @@ class Server:
         if host is not None:
             self.host = str(host)
 
-        if log is not None:
+        if log is not sentinel:
             self.log = log
 
-        if error_log is not None:
+        if error_log is not sentinel:
             self.error_log = error_log
 
         if debug is not None:
