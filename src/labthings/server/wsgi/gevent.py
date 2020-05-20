@@ -11,6 +11,7 @@ from ..find import current_labthing
 
 sentinel = object()
 
+
 class Server:
     def __init__(
         self,
@@ -136,7 +137,7 @@ class Server:
             app_to_run,
             handler_class=WebSocketHandler,
             log=self.log,
-            error_log=self.error_log
+            error_log=self.error_log,
         )
 
         # Serve
@@ -153,7 +154,13 @@ class Server:
             self.stop()  # pragma: no cover
 
     def run(
-        self, host=None, port=None, log=sentinel, error_log=sentinel, debug=None, zeroconf=None,
+        self,
+        host=None,
+        port=None,
+        log=sentinel,
+        error_log=sentinel,
+        debug=None,
+        zeroconf=None,
     ):
         """Starts the server allowing for runtime parameters. Designed to immitate
         the old Flask app.run style of starting an app
