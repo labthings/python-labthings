@@ -1,7 +1,9 @@
-# [0.6.3](https://github.com/labthings/python-labthings/compare/v0.6.2...v0.6.3) (2020-05-20)
+## [0.6.3](https://github.com/labthings/python-labthings/compare/v0.6.2...v0.6.3) (2020-05-20)
 
 
 * Properly handle access log handlers ([f0f02ae](https://github.com/labthings/python-labthings/commit/f0f02ae))
+* Switched SIGTERM handler to gevent.signal_handler ([4810247](https://github.com/labthings/python-labthings/commit/4810247))
+* Updated version and changelog ([d5a2efc](https://github.com/labthings/python-labthings/commit/d5a2efc))
 
 
 ## [0.6.2](https://github.com/labthings/python-labthings/compare/v0.6.1...v0.6.2) (2020-05-18)
