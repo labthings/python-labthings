@@ -93,7 +93,8 @@ def marshal_task(f):
     """Decorator to format the response of a View with the standard Task schema"""
 
     logging.warning(
-        "marshal_task is deprecated. Please use @ThingAction or the ActionView class"
+        "marshal_task is deprecated and will be removed in LabThings 1.0."
+        "Please use the ActionView class instead."
     )
 
     # Pass params to call function attribute for external access
@@ -121,6 +122,10 @@ def ThingAction(viewcls: View):
     Returns:
         View: View class with Action spec tags
     """
+    logging.warning(
+        "ThingAction decorator is deprecated and will be removed in LabThings 1.0."
+        "Please use the ActionView class instead."
+    )
     # Set to PropertyView.dispatch_request
     viewcls.dispatch_request = ActionView.dispatch_request
     # Update Views API spec
@@ -174,6 +179,10 @@ def ThingProperty(viewcls):
     Returns:
         View: View class with Property spec tags
     """
+    logging.warning(
+        "ThingProperty decorator is deprecated and will be removed in LabThings 1.0."
+        "Please use the PropertyView class instead."
+    )
     # Set to PropertyView.dispatch_request
     viewcls.dispatch_request = PropertyView.dispatch_request
     # Update Views API spec
