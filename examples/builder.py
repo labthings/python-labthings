@@ -26,22 +26,25 @@ app, labthing = create_app(
 my_component = PdfComponent()
 labthing.add_component(my_component, "org.labthings.example.mycomponent")
 
-# Add routes for the API views we created
+# Make some properties and actions out of our component
 
 labthing.build_property(
-    my_component, "magic_denoise", "/denoise", description="A magic denoise property",
+    my_component,  # Python object
+    "magic_denoise",  # Objects attribute name
+    "/denoise",  # URL to bind the property to
+    description="A magic denoise property",
 )
 
 labthing.build_property(
-    my_component,
-    "magic_dictionary",
-    "/dictionary",
+    my_component,  # Python object
+    "magic_dictionary",  # Objects attribute name
+    "/dictionary",  # URL to bind the property to
     description="A big dictionary of little properties",
 )
 
 labthing.build_action(
-    my_component.average_data,
-    "/average",
+    my_component.average_data,  # Python function
+    "/average",  # URL to bind the action to
     description="Take an averaged measurement",
     safe=True,  # Is the state of the Thing unchanged by calling the action?
     idempotent=True,  # Can the action be called repeatedly with the same result?
@@ -51,9 +54,4 @@ labthing.build_action(
 # Start the app
 if __name__ == "__main__":
     from labthings.server.wsgi import Server
-
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
-
-    server = Server(app)
-    server.run()
+    Server(app).run()
