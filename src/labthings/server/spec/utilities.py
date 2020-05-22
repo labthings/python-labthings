@@ -164,15 +164,11 @@ def map_to_properties(schema, spec: APISpec):
     Recursively convert any dictionary-like map of Marshmallow fields
     into a dictionary describing it's JSON schema
     """
-    marshmallow_plugin = next(
-        plugin for plugin in spec.plugins if isinstance(plugin, MarshmallowPlugin)
-    )
-    converter = marshmallow_plugin.converter
 
     d = {}
     for k, v in schema.items():
         if isinstance(v, Field):
-            d[k] = converter.field2property(v)
+            d[k] = field_to_property(v, spec)
         elif isinstance(v, Mapping):
             d[k] = map_to_properties(v, spec)
         else:
@@ -187,6 +183,10 @@ def field_to_property(field, spec: APISpec):
         plugin for plugin in spec.plugins if isinstance(plugin, MarshmallowPlugin)
     )
     converter = marshmallow_plugin.converter
+
+    # We add 'required' to the field metadata so that
+    # field2property recognises it as an additional parameter
+    field.metadata["required"] = field.required
 
     return converter.field2property(field)
 
