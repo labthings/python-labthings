@@ -30,12 +30,12 @@ class AnnotationConverter:
         if isinstance(parameter, Parameter):
             typehint = parameter.annotation
             optional = not (parameter.default is parameter.empty)
-            if parameter.kind == "VAR_POSITIONAL":
-                # Handle unbound *args parameters
-                pass
-            if parameter.kind == "VAR_KEYWORD":
-                # Handle unbound **kwargs parameters
-                pass
+            # Skip unbound arguments (e.g. *args, **kwargs) until we find a better way to handle them
+            if (
+                parameter.kind == Parameter.VAR_POSITIONAL
+                or parameter.kind == Parameter.VAR_KEYWORD
+            ):
+                return None
         elif isinstance(parameter, type):
             typehint = parameter
         else:
@@ -72,6 +72,8 @@ def function_signature_to_schema(function: callable):
     params = inspect.signature(function).parameters
 
     for k, p in params.items():
-        schema_dict[k] = converter.convert(p)
+        param_schema = converter.convert(p)
+        if param_schema:
+            schema_dict[k] = converter.convert(p)
 
     return schema_dict
