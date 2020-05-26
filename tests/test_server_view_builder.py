@@ -72,6 +72,14 @@ def test_action_from(app, client):
         assert response["input"] == input_json
 
 
+def test_action_from_argarray(app, client):
+    def f(*args, **kwargs):
+        return {"args": args, "kwargs": kwargs}
+
+    GeneratedClass = builder.action_from(f)
+    assert GeneratedClass.__apispec__["_operations"]["post"]["_params"] == {}
+
+
 def test_action_from_options(app):
     def f(arg: int, kwarg: str = "default"):
         return {"arg": arg, "kwarg": kwarg}
