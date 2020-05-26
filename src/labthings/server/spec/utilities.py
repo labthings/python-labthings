@@ -186,7 +186,8 @@ def field_to_property(field, spec: APISpec):
 
     # We add 'required' to the field metadata so that
     # field2property recognises it as an additional parameter
-    field.metadata["required"] = field.required
+    if field.required:
+        field.metadata["required"] = field.required
 
     return converter.field2property(field)
 
