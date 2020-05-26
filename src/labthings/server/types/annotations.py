@@ -30,6 +30,12 @@ class AnnotationConverter:
         if isinstance(parameter, Parameter):
             typehint = parameter.annotation
             optional = not (parameter.default is parameter.empty)
+            if parameter.kind == "VAR_POSITIONAL":
+                # Handle unbound *args parameters
+                pass
+            if parameter.kind == "VAR_KEYWORD":
+                # Handle unbound **kwargs parameters
+                pass
         elif isinstance(parameter, type):
             typehint = parameter
         else:
