@@ -482,7 +482,7 @@ description = "Pure Python Multicast DNS Service Discovery Library (Bonjour/Avah
 name = "zeroconf"
 optional = false
 python-versions = "*"
-version = "0.26.2"
+version = "0.26.3"
 
 [package.dependencies]
 ifaddr = "*"
@@ -846,8 +846,8 @@ werkzeug = [
     {file = "Werkzeug-1.0.1.tar.gz", hash = "sha256:6c80b1e5ad3665290ea39320b91e1be1e0d5f60652b964a3070216de83d2e47c"},
 ]
 zeroconf = [
-    {file = "zeroconf-0.26.2-py3-none-any.whl", hash = "sha256:569c801e50891e0cc639c223e296e870dd9f6242a4f2b41d356666735b2a4264"},
-    {file = "zeroconf-0.26.2.tar.gz", hash = "sha256:bca127caa7d16217cbca78290dbee532b41d71e798b939548dc5a2c3a8f98e5e"},
+    {file = "zeroconf-0.26.3-py3-none-any.whl", hash = "sha256:ee2015ed0df56640626e0c636d1c9b1751c7b9632515b329b86ffa7f258dddab"},
+    {file = "zeroconf-0.26.3.tar.gz", hash = "sha256:43ad5006c00be2040cdca1fe768206f4a25356d3cc87eff8b66bd7ead2a82440"},
 ]
 zipp = [
     {file = "zipp-3.1.0-py3-none-any.whl", hash = "sha256:aa36550ff0c0b7ef7fa639055d797116ee891440eac1a56f378e2d3179e0320b"},
