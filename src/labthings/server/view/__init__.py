@@ -14,6 +14,8 @@ from labthings.core.tasks import taskify
 
 from gevent.timeout import Timeout
 
+import logging
+
 
 class View(MethodView):
     """
@@ -95,18 +97,18 @@ class ActionView(View):
         # Keep a copy of the raw, unmarshalled JSON input in the task
         task.input = request.json
 
-        # Get the schema for this action
-        response_schema = (
-            getattr(meth, "__apispec__", {}).get("_schema", {}).get(201, ActionSchema())
-        )
-
         # Wait up to 2 second for the action to complete or error
         try:
             task.get(block=True, timeout=1)
+            logging.info("Got Action response quickly")
         except Timeout:
             pass
 
-        return self.represent_response((response_schema.dump(task), 201))
+        # If the action returns quickly, and returns a valid Response, return it as-is
+        if task.output and isinstance(task.output, ResponseBase):
+            return self.represent_response(task.output)
+
+        return self.represent_response((ActionSchema().dump(task), 201))
 
 
 class PropertyView(View):
