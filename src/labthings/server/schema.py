@@ -120,6 +120,15 @@ class ActionSchema(Schema):
 
 
 def build_action_schema(output_schema: Schema, input_schema: Schema, name: str = None):
+    """
+    Builds a complete schema for a given ActionView. That is, it reads any input and output 
+    schemas attached to the POST method, and nests them within the input/output fields of 
+    the generic ActionSchema.
+    NOTE: This is only for documentation purposes. When Action responses are built by the
+    HTTP server, the generic ActionSchema will be used for marshaling. This is because the
+    post() functions return value will already be marshaled because of its @marshal_with
+    decorator, and thus will already be a formatted dictionary object.
+    """
     # Create a name for the generated schema
     if not name:
         name = str(id(output_schema))
