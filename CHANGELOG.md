@@ -1,3 +1,16 @@
+# [0.6.4](https://github.com/labthings/python-labthings/compare/v0.6.3...v0.6.4) (2020-05-28)
+
+
+* Added input and output to default Action schema ([52a5116](https://github.com/labthings/python-labthings/commit/52a5116))
+* Added more deprecation warnings ([76831e2](https://github.com/labthings/python-labthings/commit/76831e2))
+* Assert unbound argument skipping ([8ae655d](https://github.com/labthings/python-labthings/commit/8ae655d))
+* Bump pytest-cov from 2.8.1 to 2.9.0 ([a832b11](https://github.com/labthings/python-labthings/commit/a832b11))
+* Bump zeroconf from 0.26.1 to 0.26.2 ([64c68f5](https://github.com/labthings/python-labthings/commit/64c68f5))
+* Fixed Action output formatting ([05b48ac](https://github.com/labthings/python-labthings/commit/05b48ac))
+* Skeleton for handling unbound arguments ([a03f1b5](https://github.com/labthings/python-labthings/commit/a03f1b5))
+* Skip unbound arguments when generating signature schemas ([b8ed956](https://github.com/labthings/python-labthings/commit/b8ed956))
+
+
 ## [0.6.3](https://github.com/labthings/python-labthings/compare/v0.6.2...v0.6.3) (2020-05-20)
 
 
