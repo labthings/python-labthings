@@ -88,6 +88,11 @@ class ActionSchema(Schema):
     # TODO: Make a proper log schema
     log = fields.List(fields.Dict())
 
+    # Dump unformatted input and output
+    # Function-level marshal_with will handle formatting
+    output = fields.Field()
+    input = fields.Field()
+
     href = fields.String()
     links = fields.Dict()
 
