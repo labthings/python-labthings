@@ -10,6 +10,7 @@ from .utilities import (
     convert_to_schema_or_json,
     schema_to_json,
     get_topmost_spec_attr,
+    get_semantic_type,
 )
 from .paths import rule_to_params, rule_to_path
 
@@ -124,6 +125,7 @@ class ThingDescription:
             # TODO: Make URLs absolute
             "links": [{"href": f"{url}"} for url in prop_urls],
             "uriVariables": {},
+            **get_semantic_type(view),
         }
 
         # Look for a _propertySchema in the Property classes API SPec
@@ -194,6 +196,7 @@ class ThingDescription:
             action_description["input"] = schema_to_json(
                 action_input_schema, self.apispec
             )
+            action_description["input"].update(get_semantic_type(view))
 
         # Look for a _schema in the Action classes API Spec
         action_output_schema = get_spec(view.post).get("_schema", {}).get(201)

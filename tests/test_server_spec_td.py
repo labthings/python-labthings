@@ -111,7 +111,10 @@ def test_td_action(app, thing_description, view_cls, app_ctx, schemas_path):
 
 
 def test_td_action_with_schema(app, thing_description, view_cls, app_ctx, schemas_path):
-    view_cls.post.__apispec__ = {"_params": {"integer": fields.Int()}}
+    view_cls.post.__apispec__ = {
+        "_params": {"integer": fields.Int()},
+        "@type": "ToggleAction",
+    }
 
     app.add_url_rule("/", view_func=view_cls.as_view("index"))
     rules = app.url_map._rules_by_endpoint["index"]
@@ -123,6 +126,7 @@ def test_td_action_with_schema(app, thing_description, view_cls, app_ctx, schema
         assert thing_description.to_dict().get("actions").get("index").get("input") == {
             "type": "object",
             "properties": {"integer": {"type": "integer", "format": "int32"}},
+            "@type": "ToggleAction",
         }
         validate_thing_description(thing_description, app_ctx, schemas_path)
 
@@ -147,7 +151,10 @@ def test_td_property_with_schema(app, thing_description, app_ctx, schemas_path):
         def get(self):
             return "GET"
 
-    Index.__apispec__ = {"_propertySchema": {"integer": fields.Int()}}
+    Index.__apispec__ = {
+        "_propertySchema": {"integer": fields.Int()},
+        "@type": "OnOffProperty",
+    }
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
     rules = app.url_map._rules_by_endpoint["index"]
@@ -156,6 +163,7 @@ def test_td_property_with_schema(app, thing_description, app_ctx, schemas_path):
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("properties")
+        assert "@type" in thing_description.to_dict().get("properties").get("index", {})
         validate_thing_description(thing_description, app_ctx, schemas_path)
 
 

@@ -115,7 +115,7 @@ def get_topmost_spec_attr(view, spec_key: str):
     falling back to GET, POST, and PUT in that descending order of priority
 
     Args:
-        obj: Python object
+        view: API view object
 
     Returns:
         spec value corresponding to spec_key
@@ -130,6 +130,23 @@ def get_topmost_spec_attr(view, spec_key: str):
             if value:
                 break
     return value
+
+
+def get_semantic_type(view):
+    """
+    Get the @type value of a view, from first the root view,
+    falling back to GET, POST, and PUT in that descending order of priority
+
+    Args:
+        view: API view object
+
+    Returns:
+        Dictionary of {"@type": `found @type value`}
+    """
+    top_semtype = get_topmost_spec_attr(view, "@type")
+    if top_semtype:
+        return {"@type": top_semtype}
+    return {}
 
 
 def convert_to_schema_or_json(schema, spec: APISpec):

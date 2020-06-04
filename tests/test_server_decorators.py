@@ -294,6 +294,11 @@ def test_doc(empty_cls):
     assert wrapped_cls.__apispec__["key"] == "value"
 
 
+def test_semtype(empty_cls):
+    wrapped_cls = decorators.semtype("OnOffProperty")(empty_cls)
+    assert wrapped_cls.__apispec__["@type"] == "OnOffProperty"
+
+
 def test_tag(empty_cls):
     wrapped_cls = decorators.tag(["tag", "tag2"])(empty_cls)
     assert wrapped_cls.__apispec__["tags"] == {"tag", "tag2"}
