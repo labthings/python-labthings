@@ -27,7 +27,7 @@ cbor2 = "^5.1.0"
 pytest = "^5.4"
 black = {version = "^19.10b0",allow-prereleases = true}
 pytest-cov = "^2.9.0"
-numpy = "^1.18.2"
+numpy = "^1.18.5"
 jsonschema = "^3.2.0"
 
 [tool.black]
