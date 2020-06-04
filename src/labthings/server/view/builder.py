@@ -3,7 +3,14 @@ from labthings.server.types import (
     data_dict_to_schema,
     function_signature_to_schema,
 )
-from labthings.server.decorators import PropertySchema, use_args, Doc, Safe, Idempotent
+from labthings.server.decorators import (
+    PropertySchema,
+    use_args,
+    Doc,
+    Safe,
+    Idempotent,
+    Semtype,
+)
 from . import View, ActionView, PropertyView
 from ..spec.utilities import compile_view_spec
 
@@ -19,6 +26,7 @@ def property_of(
     name: str = None,
     readonly=False,
     description=None,
+    semtype=None,
     _legacy=False,  # Old structure where POST is used to write property
 ):
 
@@ -78,6 +86,9 @@ def property_of(
             generated_class
         )
 
+    if semtype:
+        generated_class = Semtype(semtype)(generated_class)
+
     # Compile the generated views spec
     # Useful if its being attached to something other than a LabThing instance
     compile_view_spec(generated_class)
@@ -86,7 +97,12 @@ def property_of(
 
 
 def action_from(
-    function, name: str = None, description=None, safe=False, idempotent=False,
+    function,
+    name: str = None,
+    description=None,
+    safe=False,
+    idempotent=False,
+    semtype=None,
 ):
 
     # Create a class name
@@ -111,6 +127,9 @@ def action_from(
         generated_class = Doc(description=description, summary=description)(
             generated_class
         )
+
+    if semtype:
+        generated_class = Semtype(semtype)(generated_class)
 
     if safe:
         generated_class = Safe(generated_class)
