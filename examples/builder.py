@@ -7,6 +7,7 @@ patch_all()
 import logging
 
 from labthings.server.quick import create_app
+from labthings.server import semantics
 
 from components.pdf_component import PdfComponent
 
@@ -33,6 +34,7 @@ labthing.build_property(
     "magic_denoise",  # Objects attribute name
     "/denoise",  # URL to bind the property to
     description="A magic denoise property",
+    semtype=semantics.moz.LevelProperty(100, 500, example=200),
 )
 
 labthing.build_property(
