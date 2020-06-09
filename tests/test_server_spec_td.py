@@ -1,8 +1,5 @@
 import pytest
 
-import os
-import json
-import jsonschema
 from labthings.server import fields
 from labthings.server.view import View
 from labthings.server.spec import td
@@ -11,17 +8,6 @@ from labthings.server.spec import td
 @pytest.fixture
 def thing_description(thing):
     return thing.thing_description
-
-
-def validate_thing_description(thing_description, app_ctx, schemas_path):
-    schema = json.load(open(os.path.join(schemas_path, "td_schema.json"), "r"))
-    jsonschema.Draft7Validator.check_schema(schema)
-
-    with app_ctx.test_request_context():
-        td_json = thing_description.to_dict()
-        assert td_json
-
-    jsonschema.validate(instance=td_json, schema=schema)
 
 
 def test_find_schema_for_view_readonly():
@@ -58,13 +44,13 @@ def test_find_schema_for_view_none():
     assert td.find_schema_for_view(ViewClass) == {}
 
 
-def test_td_init(thing_description, app_ctx, schemas_path):
+def test_td_init(helpers, thing_description, app_ctx, schemas_path):
     assert thing_description
 
-    validate_thing_description(thing_description, app_ctx, schemas_path)
+    helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
 
 
-def test_td_add_link(thing_description, view_cls, app_ctx, schemas_path):
+def test_td_add_link(helpers, thing_description, view_cls, app_ctx, schemas_path):
     thing_description.add_link(view_cls, "rel")
     assert {
         "rel": "rel",
@@ -73,7 +59,7 @@ def test_td_add_link(thing_description, view_cls, app_ctx, schemas_path):
         "kwargs": {},
     } in thing_description._links
 
-    validate_thing_description(thing_description, app_ctx, schemas_path)
+    helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
 
 
 def test_td_add_link_options(thing_description, view_cls):
@@ -99,7 +85,7 @@ def test_td_links(thing_description, app_ctx, view_cls):
         )
 
 
-def test_td_action(app, thing_description, view_cls, app_ctx, schemas_path):
+def test_td_action(helpers, app, thing_description, view_cls, app_ctx, schemas_path):
     app.add_url_rule("/", view_func=view_cls.as_view("index"))
     rules = app.url_map._rules_by_endpoint["index"]
 
@@ -107,10 +93,12 @@ def test_td_action(app, thing_description, view_cls, app_ctx, schemas_path):
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("actions")
-        validate_thing_description(thing_description, app_ctx, schemas_path)
+        helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
 
 
-def test_td_action_with_schema(app, thing_description, view_cls, app_ctx, schemas_path):
+def test_td_action_with_schema(
+    helpers, app, thing_description, view_cls, app_ctx, schemas_path
+):
     view_cls.post.__apispec__ = {
         "_params": {"integer": fields.Int()},
         "@type": "ToggleAction",
@@ -128,10 +116,10 @@ def test_td_action_with_schema(app, thing_description, view_cls, app_ctx, schema
             "properties": {"integer": {"type": "integer", "format": "int32"}},
             "@type": "ToggleAction",
         }
-        validate_thing_description(thing_description, app_ctx, schemas_path)
+        helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
 
 
-def test_td_property(app, thing_description, app_ctx, schemas_path):
+def test_td_property(helpers, app, thing_description, app_ctx, schemas_path):
     class Index(View):
         def get(self):
             return "GET"
@@ -143,17 +131,18 @@ def test_td_property(app, thing_description, app_ctx, schemas_path):
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("properties")
-        validate_thing_description(thing_description, app_ctx, schemas_path)
+        helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
 
 
-def test_td_property_with_schema(app, thing_description, app_ctx, schemas_path):
+def test_td_property_with_schema(
+    helpers, app, thing_description, app_ctx, schemas_path
+):
     class Index(View):
         def get(self):
             return "GET"
 
     Index.__apispec__ = {
-        "_propertySchema": {"integer": fields.Int()},
-        "@type": "OnOffProperty",
+        "_propertySchema": fields.Int(required=True),
     }
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
@@ -163,11 +152,12 @@ def test_td_property_with_schema(app, thing_description, app_ctx, schemas_path):
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("properties")
-        assert "@type" in thing_description.to_dict().get("properties").get("index", {})
-        validate_thing_description(thing_description, app_ctx, schemas_path)
+        helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
 
 
-def test_td_property_with_url_param(app, thing_description, app_ctx, schemas_path):
+def test_td_property_with_url_param(
+    helpers, app, thing_description, app_ctx, schemas_path
+):
     class Index(View):
         def get(self):
             return "GET"
@@ -179,10 +169,10 @@ def test_td_property_with_url_param(app, thing_description, app_ctx, schemas_pat
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("properties")
-        validate_thing_description(thing_description, app_ctx, schemas_path)
+        helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
 
 
-def test_td_property_write_only(app, thing_description, app_ctx, schemas_path):
+def test_td_property_write_only(helpers, app, thing_description, app_ctx, schemas_path):
     class Index(View):
         def post(self):
             return "POST"
@@ -196,4 +186,4 @@ def test_td_property_write_only(app, thing_description, app_ctx, schemas_path):
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("properties")
-        validate_thing_description(thing_description, app_ctx, schemas_path)
+        helpers.validate_thing_description(thing_description, app_ctx, schemas_path)

@@ -1,5 +1,7 @@
 import pytest
 import os
+import json
+import jsonschema
 from flask import Flask
 from flask.views import MethodView
 from apispec import APISpec
@@ -9,6 +11,24 @@ from labthings.server.view import View
 
 from werkzeug.test import EnvironBuilder
 from flask.testing import FlaskClient
+
+
+class Helpers:
+    @staticmethod
+    def validate_thing_description(thing_description, app_ctx, schemas_path):
+        schema = json.load(open(os.path.join(schemas_path, "td_schema.json"), "r"))
+        jsonschema.Draft7Validator.check_schema(schema)
+
+        with app_ctx.test_request_context():
+            td_json = thing_description.to_dict()
+            assert td_json
+
+        jsonschema.validate(instance=td_json, schema=schema)
+
+
+@pytest.fixture
+def helpers():
+    return Helpers
 
 
 class FakeWebsocket:

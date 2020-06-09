@@ -13,11 +13,8 @@ import logging
 import atexit
 
 from labthings.server.quick import create_app
-from labthings.server.decorators import (
-    PropertySchema,
-    use_args,
-    marshal_with,
-)
+from labthings.server.decorators import PropertySchema, use_args, marshal_with, Doc
+from labthings.server import semantics
 from labthings.server.view import ActionView, PropertyView
 from labthings.server.find import find_component
 from labthings.server import fields
@@ -77,15 +74,8 @@ and register is as a Thing property
 
 
 # Define the data we're going to output (get), and what to expect in (post)
-@PropertySchema(
-    fields.Integer(
-        required=True,
-        example=200,
-        minimum=100,
-        maximum=500,
-        description="Value of magic_denoise",
-    )
-)
+@semantics.moz.LevelProperty(100, 500, example=200)
+@Doc(description="Value of magic_denoise",)
 class DenoiseProperty(PropertyView):
 
     # Main function to handle GET requests (read)

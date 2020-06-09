@@ -170,7 +170,7 @@
                     }
                 },
                 "required": {
-                    "type": "array",
+                    "type": ["array", "boolean"],
                     "items": {
                         "type": "string"
                     }
@@ -486,7 +486,7 @@
                     }
                 },
                 "required": {
-                    "type": "array",
+                    "type": ["array", "boolean"],
                     "items": {
                         "type": "string"
                     }
