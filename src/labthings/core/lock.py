@@ -1,8 +1,11 @@
 from gevent.hub import getcurrent
 from gevent.lock import RLock as _RLock
 
+import logging
+
 from .exceptions import LockError
 
+sentinel = object()
 
 class RLock(_RLock):
     def locked(self):
@@ -22,7 +25,7 @@ class StrictLock:
         timeout (int): Time in seconds acquisition will wait before raising an exception
     """
 
-    def __init__(self, timeout=1, name=None):
+    def __init__(self, timeout=None, name=None):
         self._lock = RLock()
         self.timeout = timeout
         self.name = name
@@ -30,8 +33,8 @@ class StrictLock:
     def locked(self):
         return self._lock.locked()
 
-    def acquire(self, blocking=True, timeout=None, _strict=True):
-        if not timeout:
+    def acquire(self, blocking=True, timeout=sentinel, _strict=True):
+        if timeout is sentinel:
             timeout = self.timeout
         result = self._lock.acquire(blocking, timeout=timeout)
         if _strict and not result:
@@ -74,12 +77,12 @@ class CompositeLock:
         timeout (int): Time in seconds acquisition will wait before raising an exception
     """
 
-    def __init__(self, locks, timeout=1):
+    def __init__(self, locks, timeout=None):
         self.locks = locks
         self.timeout = timeout
 
-    def acquire(self, blocking=True, timeout=None):
-        if not timeout:
+    def acquire(self, blocking=True, timeout=sentinel):
+        if timeout is sentinel:
             timeout = self.timeout
 
         lock_all = all(
@@ -89,6 +92,7 @@ class CompositeLock:
 
         if not lock_all:
             self._emergency_release()
+            logging.error(f"Unable to acquire {self} within {timeout} seconds")
             raise LockError("ACQUIRE_ERROR", self)
 
         return True
