@@ -7,6 +7,7 @@ from .exceptions import LockError
 
 sentinel = object()
 
+
 class RLock(_RLock):
     def locked(self):
         return self._block.locked()
