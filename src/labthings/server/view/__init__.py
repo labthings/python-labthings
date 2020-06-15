@@ -100,7 +100,7 @@ class ActionView(View):
         # Wait up to 2 second for the action to complete or error
         try:
             task.get(block=True, timeout=1)
-            logging.info("Got Action response quickly")
+            logging.debug("Got Action response quickly")
         except Timeout:
             pass
 
