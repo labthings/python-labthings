@@ -27,11 +27,12 @@ jobs:
           poetry config virtualenvs.in-project false
           poetry config virtualenvs.path ~/.virtualenvs
 
-      - name: Install Tox
-        run: pip install tox
+      - name: Code Quality
+        run: poetry run black . --check
+        continue-on-error: true
 
-      - name: Run Tox
-        run: tox -e py # Run tox using the version of Python in `PATH`
+      - name: Test with pytest
+        run: poetry run pytest --cov-report term-missing --cov-report=xml --cov=labthings ./tests
 
   publish:
     runs-on: ubuntu-latest
