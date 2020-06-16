@@ -1,15 +1,30 @@
 from labthings.server.view import builder
+from labthings.server import fields
 
 
-def test_property_of(app, client):
+def test_property_of_no_schema(app, client):
     obj = type("obj", (object,), {"property_name": "propertyValue"})
 
+    # GeneratedClass = builder.property_of(obj, "property_name", schema=fields.String())
     GeneratedClass = builder.property_of(obj, "property_name")
     app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
 
     with client as c:
         assert c.get("/").data == b'"propertyValue"\n'
-        assert c.put("/", data=b"newPropertyValue").data == b'"newPropertyValue"\n'
+        assert c.put("/", data="newPropertyValue").data == b'"newPropertyValue"\n'
+        assert c.get("/").data == b'"newPropertyValue"\n'
+
+
+def test_property_of_with_schema(app, client):
+    obj = type("obj", (object,), {"property_name": "propertyValue"})
+
+    # GeneratedClass = builder.property_of(obj, "property_name", schema=fields.String())
+    GeneratedClass = builder.property_of(obj, "property_name", schema=fields.String())
+    app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
+
+    with client as c:
+        assert c.get("/").data == b'"propertyValue"\n'
+        assert c.put("/", data="newPropertyValue").data == b'"newPropertyValue"\n'
         assert c.get("/").data == b'"newPropertyValue"\n'
 
 
@@ -25,7 +40,11 @@ def test_property_of_dict(app, client):
         },
     )
 
-    GeneratedClass = builder.property_of(obj, "properties")
+    GeneratedClass = builder.property_of(
+        obj,
+        "properties",
+        schema={"property_name": fields.String(), "property_name_2": fields.String(),},
+    )
     app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
 
     with client as c:
@@ -58,31 +77,37 @@ def test_property_of_name_description():
     assert GeneratedClass.__apispec__.get("summary") == "property description"
 
 
-def test_action_from(app, client):
-    def f(arg: int):
-        return {"arg": arg}
+def test_action_from_with_args(app, client):
+    def f(arg1, arg2=0):
+        return {"arg1": arg1, "arg2": arg2}
 
-    GeneratedClass = builder.action_from(f)
+    GeneratedClass = builder.action_from(
+        f, args={"arg1": fields.Int(), "arg2": fields.Int(required=False)}
+    )
     app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
 
     with client as c:
-        input_json = {"arg": 5}
+        input_json = {"arg1": 5}
         response = c.post("/", json=input_json).json
         assert "status" in response
         assert response["input"] == input_json
 
 
-def test_action_from_argarray(app, client):
-    def f(*args, **kwargs):
-        return {"args": args, "kwargs": kwargs}
+def test_action_from(debug_app, debug_client):
+    def f():
+        return "response"
 
     GeneratedClass = builder.action_from(f)
-    assert GeneratedClass.__apispec__["_operations"]["post"]["_params"] == {}
+    debug_app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
+
+    with debug_client as c:
+        response = c.post("/").json
+        assert "status" in response
 
 
 def test_action_from_options(app):
-    def f(arg: int, kwarg: str = "default"):
-        return {"arg": arg, "kwarg": kwarg}
+    def f():
+        return "response"
 
     assert builder.action_from(
         f,

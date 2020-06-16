@@ -267,6 +267,12 @@ def client(app):
 
 
 @pytest.fixture
+def debug_client(debug_app):
+    debug_app.test_client_class = JsonClient
+    return debug_app.test_client()
+
+
+@pytest.fixture
 def cbor_client(app):
     app.test_client_class = CborClient
     return app.test_client()

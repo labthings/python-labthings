@@ -19,7 +19,10 @@ class LabThingsJSONEncoder(JSONEncoder):
         if isinstance(o, set):
             return list(o)
         if isinstance(o, bytes):
-            return b64encode(o).decode()
+            try:  # Try unicode
+                return o.decode()
+            except UnicodeDecodeError:  # Otherwise, base64
+                return b64encode(o).decode()
         return JSONEncoder.default(self, o)
 
 
@@ -32,7 +35,7 @@ def output_json(data, code, headers=None):
     """Makes a Flask response with a JSON encoded body, using app JSON settings"""
 
     settings = current_app.config.get("LABTHINGS_JSON", {})
-    encoder = current_app.json_encoder
+    encoder = LabThingsJSONEncoder
 
     if current_app.debug:
         settings.setdefault("indent", 4)
@@ -55,7 +58,6 @@ def output_cbor(data, code, headers=None):
     """Makes a Flask response with a CBOR encoded body, using app CBOR settings"""
 
     settings = current_app.config.get("LABTHINGS_CBOR", {})
-
     dumped = encode_cbor(data, **settings)
 
     resp = make_response(dumped, code)
