@@ -7,6 +7,7 @@ patch_all()
 import logging
 
 from labthings.server.quick import create_app
+from labthings.server import fields
 
 from components.pdf_component import PdfComponent
 
@@ -33,6 +34,7 @@ labthing.build_property(
     "magic_denoise",  # Objects attribute name
     "/denoise",  # URL to bind the property to
     description="A magic denoise property",
+    schema=fields.Int(example=200),  # Property should be integer formatted
 )
 
 labthing.build_property(
@@ -40,6 +42,14 @@ labthing.build_property(
     "magic_dictionary",  # Objects attribute name
     "/dictionary",  # URL to bind the property to
     description="A big dictionary of little properties",
+    schema={  # Property is a dictionary, with these value types
+        "voltage": fields.Int(),
+        "volume": fields.List(fields.Int()),
+        "mode": fields.String(),
+        "light_on": fields.Bool(),
+        "user": {"name": fields.String(), "id": fields.Int()},
+        "bytes": fields.Bytes(),
+    },
 )
 
 labthing.build_action(
@@ -47,7 +57,10 @@ labthing.build_action(
     "/average",  # URL to bind the action to
     description="Take an averaged measurement",
     safe=True,  # Is the state of the Thing unchanged by calling the action?
-    idempotent=True,  # Can the action be called repeatedly with the same result?
+    idempotent=True,  # Can the action be called repeatedly with the same result?,
+    args={  # How do we convert from the request input to function arguments?
+        "n": fields.Int(description="Number of averages to take", example=5, default=5)
+    },
 )
 
 
