@@ -3,7 +3,16 @@ from geventwebsocket.handler import WebSocketHandler as _WebSocketHandler
 from logging import getLogger, StreamHandler, getLoggerClass, Formatter, DEBUG
 
 
-def create_logger(name, handlers=None, debug=False):
+def create_logger(name, handlers=None):
+    """Created a logger object from a list of log handlers
+
+    Args:
+        name (str): Name for the logger
+        handlers ([logging.Handler], optional): [List of log handlers]. Defaults to None.
+
+    Returns:
+        [logging.Logger]: Logger object containing the passed handlers
+    """
     if not handlers:
         handlers = ()
 
@@ -16,6 +25,12 @@ def create_logger(name, handlers=None, debug=False):
 
 
 class WebSocketHandler(_WebSocketHandler):
+    """
+    Override geventwebsocket.handler.WebSocketHandler logger behaviour.
+    This allows geventwebsocket to properly interact with the 
+    gevent.pywsgi.WSGIServer logger.
+    """
+
     @property
     def logger(self):
         if not hasattr(self, "_logger"):
