@@ -124,15 +124,3 @@ def test_socket_middleware_ws_http_cookie(app, ws_client):
     with ws_client as c:
         c.environ_base["HTTP_COOKIE"] = {"key": "value"}
         assert c.connect("/", message="hello") == ["hello"]
-
-
-def test_socket_handler_loop(fake_websocket):
-    ws = fake_websocket("hello", recieve_once=True)
-
-    gsocket.socket_handler_loop(ws)
-
-
-### Will need regular updating as new message handlers are added
-def test_process_socket_message():
-    assert gsocket.process_socket_message("message") is None
-    assert gsocket.process_socket_message(None) is None
