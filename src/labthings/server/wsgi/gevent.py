@@ -67,16 +67,6 @@ class Server:
                     addresses=mdns_addresses,
                 )
             )
-            # Mozilla WebThing service
-            self.service_infos.append(
-                ServiceInfo(
-                    "_webthing._tcp.local.",
-                    f"{self.labthing.safe_title}._webthing._tcp.local.",
-                    port=self.port,
-                    properties={"path": self.labthing.url_prefix},
-                    addresses=mdns_addresses,
-                )
-            )
             self.zeroconf_server = Zeroconf(ip_version=IPVersion.V4Only)
             for service in self.service_infos:
                 self.zeroconf_server.register_service(service)
