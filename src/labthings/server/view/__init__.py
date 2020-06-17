@@ -1,6 +1,7 @@
 from flask.views import MethodView
 from flask import request
 from werkzeug.wrappers import Response as ResponseBase
+from werkzeug.exceptions import BadRequest
 
 from collections import OrderedDict
 
@@ -77,7 +78,6 @@ class View(MethodView):
             response = representations[mediatype](data, code, headers)
             response.headers["Content-Type"] = mediatype
             return response
-
         return response
 
 
@@ -95,12 +95,15 @@ class ActionView(View):
         task = taskify(meth)(*args, **kwargs)
 
         # Keep a copy of the raw, unmarshalled JSON input in the task
-        task.input = request.json
+        try:
+            task.input = request.json
+        except BadRequest:
+            task.input = None
 
         # Wait up to 2 second for the action to complete or error
         try:
             task.get(block=True, timeout=1)
-            logging.info("Got Action response quickly")
+            logging.debug("Got Action response quickly")
         except Timeout:
             pass
 

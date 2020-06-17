@@ -1,8 +1,3 @@
-from labthings.server.types import (
-    value_to_field,
-    data_dict_to_schema,
-    function_signature_to_schema,
-)
 from labthings.server.decorators import (
     PropertySchema,
     use_args,
@@ -13,6 +8,7 @@ from labthings.server.decorators import (
 )
 from labthings.server.semantics.base import Semantic
 from . import View, ActionView, PropertyView
+from .. import fields
 from ..spec.utilities import compile_view_spec
 
 import os
@@ -28,6 +24,7 @@ def property_of(
     readonly=False,
     description=None,
     semtype=None,
+    schema=fields.Field(),
     _legacy=False,  # Old structure where POST is used to write property
 ):
 
@@ -74,13 +71,8 @@ def property_of(
             generated_class.methods.add("PUT")
 
     # Add decorators for arguments etc
-    initial_property_value = getattr(property_object, property_name)
-    if type(initial_property_value) is dict:
-        property_schema = data_dict_to_schema(initial_property_value)
-    else:
-        property_schema = value_to_field(initial_property_value)
-
-    generated_class = PropertySchema(property_schema)(generated_class)
+    if schema:
+        generated_class = PropertySchema(schema)(generated_class)
 
     if description:
         generated_class = Doc(description=description, summary=description)(
@@ -111,6 +103,7 @@ def action_from(
     description=None,
     safe=False,
     idempotent=False,
+    args=None,
     semtype=None,
 ):
 
@@ -118,19 +111,19 @@ def action_from(
     if not name:
         name = f"{function.__name__}_action"
 
-    # Create schema
-    action_schema = function_signature_to_schema(function)
-
     # Create inner functions
-    def _post(self, args):
+    def _post(self):
+        return function()
+
+    def _post_with_args(self, args):
         return function(**args)
 
-    # Generate a basic property class
-    generated_class = type(name, (ActionView, object), {"post": _post})
-
     # Add decorators for arguments etc
-
-    generated_class.post = use_args(action_schema)(generated_class.post)
+    if args is not None:
+        generated_class = type(name, (ActionView, object), {"post": _post_with_args})
+        generated_class.post = use_args(args)(generated_class.post)
+    else:
+        generated_class = type(name, (ActionView, object), {"post": _post})
 
     if description:
         generated_class = Doc(description=description, summary=description)(

@@ -2,8 +2,6 @@ import random
 import math
 import time
 
-from typing import List
-
 """
 Class for our lab component functionality. This could include serial communication,
 equipment API calls, network requests, or a "virtual" device as seen here.
@@ -41,7 +39,7 @@ class PdfComponent:
         """Return a 1D data trace."""
         return [self.noisy_pdf(x) for x in self.x_range]
 
-    def average_data(self, n: int, optlist: List[int] = [1, 2, 3]):
+    def average_data(self, n: int):
         """Average n-sets of data. Emulates a measurement that may take a while."""
         summed_data = self.data
 
