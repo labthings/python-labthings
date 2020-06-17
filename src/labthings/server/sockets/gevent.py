@@ -181,21 +181,3 @@ class Sockets:
                     return []
         except (NotFound, KeyError):
             return self.app_wsgi_app(environ, start_response)
-
-
-def socket_handler_loop(ws):
-    while not ws.closed:
-        message = ws.receive()
-        if message is None:
-            break
-        response = process_socket_message(message)
-        if response:
-            ws.send(response)
-        gevent.sleep(0.1)
-
-
-def process_socket_message(message: str):
-    if message:
-        return None
-    else:
-        return None
