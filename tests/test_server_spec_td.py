@@ -46,7 +46,6 @@ def test_find_schema_for_view_none():
 
 def test_td_init(helpers, thing_description, app_ctx, schemas_path):
     assert thing_description
-
     helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
 
 
