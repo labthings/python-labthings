@@ -1,8 +1,17 @@
 import logging
-from flask import current_app
+from flask import current_app, url_for
 import weakref
 
 from .names import EXTENSION_NAME
+
+__all__ = [
+    "url_for",
+    "current_labthing",
+    "registered_extensions",
+    "registered_components",
+    "find_component",
+    "find_extension",
+]
 
 
 def current_labthing(app=None):
