@@ -5,6 +5,7 @@ import weakref
 from .names import EXTENSION_NAME
 
 __all__ = [
+    "current_app",
     "url_for",
     "current_labthing",
     "registered_extensions",
