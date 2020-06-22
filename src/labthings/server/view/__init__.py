@@ -93,14 +93,6 @@ class View(MethodView):
         # Flask should ensure this is assersion never fails
         assert meth is not None, f"Unimplemented method {request.method!r}"
 
-        # Inject request arguments if an args schema is defined
-        if self.get_args():
-            meth = use_args(self.get_args())(meth)
-
-        # Marhal response if a response schema is defines
-        if self.get_schema():
-            meth = marshal_with(self.get_schema())(meth)
-
         # Generate basic response
         return self.represent_response(meth(*args, **kwargs))
 
@@ -145,6 +137,14 @@ class ActionView(View):
         if request.method != "POST":
             return View.dispatch_request(self, *args, **kwargs)
 
+        # Inject request arguments if an args schema is defined
+        if self.get_args():
+            meth = use_args(self.get_args())(meth)
+
+        # Marhal response if a response schema is defines
+        if self.get_schema():
+            meth = marshal_with(self.get_schema())(meth)
+
         # Make a task out of the views `post` method
         task = taskify(meth)(*args, **kwargs)
 
@@ -179,10 +179,29 @@ class PropertyView(View):
         return cls.schema
 
     def dispatch_request(self, *args, **kwargs):
-        if request.method in ("POST", "PUT", "DELETE", "PATCH"):
-            # FIXME: Sketchy as this breaks if the response is a generator/loop
-            resp = View.dispatch_request(self, *args, **kwargs)
+        meth = getattr(self, request.method.lower(), None)
 
+        # If the request method is HEAD and we don't have a handler for it
+        # retry with GET.
+        if meth is None and request.method == "HEAD":
+            meth = getattr(self, "get", None)
+
+        # Flask should ensure this is assersion never fails
+        assert meth is not None, f"Unimplemented method {request.method!r}"
+
+        # Inject request arguments if an args schema is defined
+        if request.method in ("POST", "PUT", "PATCH") and self.get_args():
+            meth = use_args(self.get_args())(meth)
+
+        # Marhal response if a response schema is defines
+        if self.get_schema():
+            meth = marshal_with(self.get_schema())(meth)
+
+        # Generate basic response
+        resp = self.represent_response(meth(*args, **kwargs))
+
+        # Emit property event
+        if request.method in ("POST", "PUT", "DELETE", "PATCH"):
             property_value = self.get_value()
             property_name = getattr(self, "endpoint", None) or getattr(
                 self, "__name__", "unknown"
@@ -193,6 +212,4 @@ class PropertyView(View):
                     PropertyStatusEvent(property_name), property_value,
                 )
 
-            return resp
-
-        return View.dispatch_request(self, *args, **kwargs)
+        return resp
