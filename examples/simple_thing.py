@@ -85,8 +85,8 @@ class DenoiseProperty(PropertyView):
         my_component = find_component("org.labthings.example.mycomponent")
         return my_component.magic_denoise
 
-    # Main function to handle POST requests (write)
-    def post(self, new_property_value):
+    # Main function to handle PUT requests (write)
+    def put(self, new_property_value):
         """Change the current magic_denoise value"""
 
         # Find our attached component
