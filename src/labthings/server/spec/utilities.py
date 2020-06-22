@@ -10,59 +10,6 @@ from ..view import ActionView
 from marshmallow import Schema as BaseSchema
 from collections.abc import Mapping
 
-
-def compile_view_spec(view):
-    """Compile a complete API Spec of a View and its HTTP methods
-
-    Arguments:
-        view {View} -- LabThings View class
-
-    Returns:
-        [dict] -- Compiled API Spec
-    """
-    # Create a 201 schema for Action views
-    view_name = snake_to_camel(getattr(view, "endpoint") or getattr(view, "__name__"))
-    if issubclass(view, ActionView) and hasattr(view, "post"):
-        # Get current 200 response schema, or None if none given
-        current_output_schema = get_spec(view.post).get("_schema", {}).get(200)
-        # Get current request input schema, or None if none given
-        current_input_schema = get_spec(view.post).get("_params", {})
-        # Build an action schema, and attach it to view.post.__apispec__
-        get_spec(view.post).setdefault("_schema", {}).setdefault(
-            201,
-            build_action_schema(
-                current_output_schema, current_input_schema, name=view_name
-            )(),
-        )
-
-    # Get the current view API spec
-    spec = get_spec(view)
-
-    # Set defaults
-    spec.setdefault("description", get_docstring(view))
-    spec.setdefault("summary", get_summary(view) or spec["description"])
-    spec.setdefault("tags", set())
-
-    # Expand operations (GET, POST etc)
-    spec["_operations"] = {}
-    for operation in ("get", "post", "put", "delete"):
-        meth = getattr(view, operation, None)
-        if meth:
-            meth_spec = get_spec(meth)
-
-            # Set defaults
-            meth_spec.setdefault(
-                "description", get_docstring(meth) or spec["description"]
-            )
-            meth_spec.setdefault("summary", get_summary(meth) or spec["summary"])
-            meth_spec.setdefault("tags", set())
-            meth_spec["tags"] = meth_spec["tags"].union(spec["tags"])
-
-            spec["_operations"][operation] = meth_spec
-
-    return spec
-
-
 def update_spec(obj, spec: dict):
     """Add API spec data to an object
 
@@ -143,9 +90,9 @@ def get_semantic_type(view):
     Returns:
         Dictionary of {"@type": `found @type value`}
     """
-    top_semtype = get_topmost_spec_attr(view, "@type")
-    if top_semtype:
-        return {"@type": top_semtype}
+    semtype = getattr(view, "semtype")
+    if semtype:
+        return {"@type": semtype}
     return {}
 
 

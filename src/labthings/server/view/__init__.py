@@ -5,11 +5,14 @@ from werkzeug.exceptions import BadRequest
 
 from collections import OrderedDict
 
+from .args import use_args
+from .marshalling import marshal_with
+
 from ..utilities import unpack
 from ..representations import DEFAULT_REPRESENTATIONS
 from ..find import current_labthing
-from ..event import PropertyStatusEvent, ActionStatusEvent
-from ..schema import ActionSchema
+from ..event import PropertyStatusEvent
+from ..schema import Schema, ActionSchema, build_action_schema
 
 from labthings.core.tasks import taskify
 
@@ -17,17 +20,33 @@ from gevent.timeout import Timeout
 
 import logging
 
+__all__ = ["MethodView", "View", "ActionView", "PropertyView"]
+
 
 class View(MethodView):
     """
     A LabThing Resource class should make use of functions
     get(), put(), post(), and delete(), corresponding to HTTP methods.
 
-    These functions will allow for automated documentation generation
+    These functions will allow for automated documentation generation.
+
+    Unlike MethodView, a LabThings View is opinionated, in that unless
+    explicitally returning a Response object, all requests with be marshaled
+    with the same schema, and all request arguments will be parsed with the same
+    args schema
     """
 
     endpoint = None
     __apispec__ = {}
+
+    schema: Schema = None
+    args: dict = None
+    tags: list = []
+    docs: dict = {}
+    title: None
+    semtype: str = None
+
+    responses: dict = {}
 
     def __init__(self, *args, **kwargs):
         MethodView.__init__(self, *args, **kwargs)
@@ -35,6 +54,14 @@ class View(MethodView):
         # Set the default representations
         # TODO: Inherit from parent LabThing. See original flask_restful implementation
         self.representations = OrderedDict(DEFAULT_REPRESENTATIONS)
+
+    @classmethod
+    def get_responses(cls):
+        return {200: cls.schema}.update(cls.responses)
+
+    @classmethod
+    def get_args(cls):
+        return cls.args
 
     def get_value(self):
         get_method = getattr(self, "get", None)  # Look for this views GET method
@@ -59,12 +86,21 @@ class View(MethodView):
         # Flask should ensure this is assersion never fails
         assert meth is not None, f"Unimplemented method {request.method!r}"
 
+        # Inject request arguments if an args schema is defined
+        if self.args:
+            meth = use_args(self.args)(meth)
+
+        # Marhal response if a response schema is defines
+        if self.schema:
+            meth = marshal_with(self.schema)(meth)
+
         # Generate basic response
         return self.represent_response(meth(*args, **kwargs))
 
     def represent_response(self, response):
         """
-        Take the return balue of a function and build a representation response
+        Take the marshalled return value of a function
+        and build a representation response
         """
         if isinstance(response, ResponseBase):  # There may be a better way to test
             return response
@@ -83,6 +119,15 @@ class View(MethodView):
 
 class ActionView(View):
     __apispec__ = {"tags": {"actions"}}
+
+    tags: list = ["actions"]
+    safe: bool = False
+    idempotent: bool = False
+
+    @classmethod
+    def get_responses(cls):
+        """Build an output schema that includes the Action wrapper object"""
+        return {201: build_action_schema(cls.schema, cls.args)}.update(cls.responses)
 
     def dispatch_request(self, *args, **kwargs):
         meth = getattr(self, request.method.lower(), None)
@@ -116,6 +161,13 @@ class ActionView(View):
 
 class PropertyView(View):
     __apispec__ = {"tags": {"properties"}}
+
+    tags: list = ["properties"]
+
+    @classmethod
+    def get_args(cls):
+        """Use the output schema for arguments, on Properties"""
+        return cls.schema
 
     def dispatch_request(self, *args, **kwargs):
         if request.method in ("POST", "PUT", "DELETE", "PATCH"):

@@ -10,6 +10,17 @@ from functools import reduce
 PY3 = sys.version_info > (3,)
 
 
+class classproperty(object):
+
+    __slots__ = ("getter",)
+
+    def __init__(self, getter):
+        self.getter = getter
+
+    def __get__(self, obj, cls):
+        return self.getter(cls, obj)
+
+
 def get_docstring(obj, remove_newlines=True):
     """Return the docstring of an object
 

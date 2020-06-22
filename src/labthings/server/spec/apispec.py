@@ -6,89 +6,66 @@ from werkzeug.routing import Rule
 from http import HTTPStatus
 
 
-def rule_to_apispec_path(rule: Rule, spec_dict: dict, apispec: APISpec):
+def rule_to_apispec_path(rule: Rule, view, apispec: APISpec):
     """Generate APISpec Path arguments from a flask Rule and View
-    
+
     Args:
         rule (Rule): Flask Rule for path
-        spec_dict (dict): Compiled API spec dictionary
+        view: View class
         apispec (APISpec): APISpec object to generate arguments for
-    
+
     Returns:
         dict: APISpec `path` funtion argument dictionary
     """
 
     params = {
         "path": rule_to_path(rule),
-        "operations": dict_to_apispec_operations(
-            spec_dict.get("_operations", {}), apispec
-        ),
+        "operations": view_to_apispec_operations(view, apispec),
+        **getattr(view, "docs", {}),
     }
 
     # Add URL arguments to operations
     if rule.arguments:
-        for op in spec_dict.get("_operations", {}).keys():
-            params["operations"][op].update({"parameters": rule_to_params(rule)})
-
-    # Merge in non-special spec elements
-    for k, v in spec_dict.items():
-        if not k.startswith("_"):
-            params[k] = v
+        for op in ("get", "post", "put", "delete"):
+            if hasattr(view, op):
+                params["operations"][op].update({"parameters": rule_to_params(rule)})
 
     return params
 
 
-def dict_to_apispec_operations(operations_spec_dict: dict, apispec: APISpec):
-    """Generate APISpec `operations` argument from a flask View
-
-    Args:
-        operations_spec_dict (dict): Operations API spec dictionary
-        apispec (APISpec): APISpec object to generate arguments for
-
-    Returns:
-        dict: APISpec `operations` dictionary
-    """
+def view_to_apispec_operations(view, apispec: APISpec):
+    """Generate APISpec `operations` argument from a flask View"""
 
     # Build dictionary of operations (HTTP methods)
     ops = {}
-    for operation, meth_spec in operations_spec_dict.items():
+    for op in ("get", "post", "put", "delete"):
+        if hasattr(view, op):
 
-        ops[operation] = {}
+            ops[op] = {}
 
-        # Add input schema
-        if "_params" in meth_spec:
-            request_schema = convert_to_schema_or_json(
-                meth_spec.get("_params"), apispec
-            )
-            if request_schema:
-                ops[operation]["requestBody"] = {
-                    "content": {"application/json": {"schema": request_schema}}
-                }
+            # Add arguments schema
+            if (op in (("post", "put", "delete"))) and hasattr(view, "get_args"):
+                request_schema = convert_to_schema_or_json(view.get_args(), apispec)
+                if request_schema:
+                    ops[op]["requestBody"] = {
+                        "content": {"application/json": {"schema": request_schema}}
+                    }
 
-        # Add output schema
-        if "_schema" in meth_spec:
-            ops[operation]["responses"] = {}
-            for code, schema in meth_spec.get("_schema", {}).items():
-                ops[operation]["responses"][code] = {
-                    "description": HTTPStatus(code).phrase,
-                    "content": {
-                        "application/json": {
-                            "schema": convert_to_schema_or_json(schema, apispec)
-                        }
-                    },
-                }
-        else:
-            # If no explicit responses are known, populate with defaults
-            ops[operation]["responses"] = {
-                200: {
-                    "description": meth_spec.get("description")
-                    or HTTPStatus(200).phrase
-                }
-            }
+            # Add response schema
+            if hasattr(view, "get_responses"):
+                ops[op]["responses"] = {}
 
-        # Merge in non-special spec elements
-        for k, v in meth_spec.items():
-            if not k.startswith("_"):
-                ops[operation][k] = v
+                for code, schema in view.get_responses().items():
+                    ops[op]["responses"][code] = {
+                        "description": HTTPStatus(code).phrase,
+                        "content": {
+                            "application/json": {
+                                "schema": convert_to_schema_or_json(schema, apispec)
+                            }
+                        },
+                    }
+            else:
+                # If no explicit responses are known, populate with defaults
+                ops[op]["responses"] = {200: {HTTPStatus(200).phrase}}
 
     return ops

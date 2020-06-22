@@ -8,7 +8,6 @@ from labthings.server.decorators import (
 )
 from . import View, ActionView, PropertyView
 from .. import fields
-from ..spec.utilities import compile_view_spec
 
 import os
 import glob
@@ -81,10 +80,6 @@ def property_of(
     if semtype:
         generated_class = Semtype(semtype)(generated_class)
 
-    # Compile the generated views spec
-    # Useful if its being attached to something other than a LabThing instance
-    compile_view_spec(generated_class)
-
     return generated_class
 
 
@@ -129,10 +124,6 @@ def action_from(
 
     if idempotent:
         generated_class = Idempotent(generated_class)
-
-    # Compile the generated views spec
-    # Useful if its being attached to something other than a LabThing instance
-    compile_view_spec(generated_class)
 
     return generated_class
 

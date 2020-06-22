@@ -16,7 +16,7 @@ from .logging import LabThingLogger
 from .representations import LabThingsJSONEncoder
 from .spec.apispec import rule_to_apispec_path
 from .spec.apispec_plugins import MarshmallowPlugin
-from .spec.utilities import get_spec, compile_view_spec
+from .spec.utilities import get_spec
 from .spec.td import ThingDescription
 from .decorators import tag
 from .sockets import Sockets
@@ -318,24 +318,17 @@ class LabThing:
             # Add the url to the application or blueprint
             app.add_url_rule(rule, view_func=resource_func, **kwargs)
 
-        # Compile the View classes API spec
-        compile_view_spec(view)
-
         # There might be a better way to do this than _rules_by_endpoint,
         # but I can't find one so this will do for now. Skipping PYL-W0212
         flask_rules = app.url_map._rules_by_endpoint.get(endpoint)  # skipcq: PYL-W0212
         for flask_rule in flask_rules:
-            self.spec.path(
-                **rule_to_apispec_path(flask_rule, get_spec(view), self.spec)
-            )
+            self.spec.path(**rule_to_apispec_path(flask_rule, view, self.spec))
 
         # Handle resource groups listed in API spec
-        view_tags = get_spec(view).get("tags", set())
-        if "actions" in view_tags:
+        if "actions" in getattr(view, "tags", []):
             self.thing_description.action(flask_rules, view)
-            # TODO: Use this for top-level action POST
             self._action_views[view.endpoint] = view
-        if "properties" in view_tags:
+        if "properties" in getattr(view, "tags", []):
             self.thing_description.property(flask_rules, view)
             self._property_views[view.endpoint] = view
 

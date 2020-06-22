@@ -9,7 +9,6 @@ from .utilities import (
     get_spec,
     convert_to_schema_or_json,
     schema_to_json,
-    get_topmost_spec_attr,
     get_semantic_type,
 )
 from .paths import rule_to_params, rule_to_path
@@ -112,27 +111,19 @@ class ThingDescription:
 
         # Basic description
         prop_description = {
-            "title": get_topmost_spec_attr(view, "title") or view.__name__,
-            "description": (
-                get_topmost_spec_attr(view, "description")
-                or get_docstring(view)
-                or (get_docstring(view.get) if hasattr(view, "get") else "")
-            ),
+            "title": getattr(view, "title") or view.__name__,
+            "description": get_docstring(view),
             "readOnly": not (
                 hasattr(view, "post") or hasattr(view, "put") or hasattr(view, "delete")
             ),
             "writeOnly": not hasattr(view, "get"),
-            # TODO: Make URLs absolute
             "links": [{"href": f"{url}"} for url in prop_urls],
             "uriVariables": {},
             **get_semantic_type(view),
         }
 
         # Look for a _propertySchema in the Property classes API SPec
-        prop_schema = get_spec(view).get("_propertySchema")
-        # If no class-level property schema was found
-        if not prop_schema:
-            prop_schema = find_schema_for_view(view)
+        prop_schema = getattr(view, "schema")
 
         if prop_schema:
             # Ensure valid schema type
@@ -164,29 +155,17 @@ class ThingDescription:
     def view_to_thing_action(self, rules: list, view: View):
         action_urls = [rule_to_path(rule) for rule in rules]
 
-        # Check if action is safe
-        is_safe = get_spec(view.post).get("_safe", False) or get_spec(view).get(
-            "_safe", False
-        )
-
-        is_idempotent = get_spec(view.post).get("_idempotent", False) or get_spec(
-            view
-        ).get("_idempotent", False)
-
         # Basic description
         action_description = {
-            "title": get_topmost_spec_attr(view, "title") or view.__name__,
-            "description": get_topmost_spec_attr(view, "deescription")
-            or get_docstring(view)
-            or (get_docstring(view.post) if hasattr(view, "post") else ""),
-            # TODO: Make URLs absolute
+            "title": getattr(view, "title") or view.__name__,
+            "description": get_docstring(view),
             "links": [{"href": f"{url}"} for url in action_urls],
-            "safe": is_safe,
-            "idempotent": is_idempotent,
+            "safe": getattr(view, "safe"),
+            "idempotent": getattr(view, "idempotent"),
         }
 
         # Look for a _params in the Action classes API Spec
-        action_input_schema = get_spec(view.post).get("_params")
+        action_input_schema = getattr(view, "args")
         if action_input_schema:
             # Ensure valid schema type
             action_input_schema = convert_to_schema_or_json(
@@ -199,7 +178,7 @@ class ThingDescription:
             action_description["input"].update(get_semantic_type(view))
 
         # Look for a _schema in the Action classes API Spec
-        action_output_schema = get_spec(view.post).get("_schema", {}).get(201)
+        action_output_schema = getattr(view, "schema")
         if action_output_schema:
             # Ensure valid schema type
             action_output_schema = convert_to_schema_or_json(

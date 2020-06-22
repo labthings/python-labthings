@@ -1,23 +1,9 @@
-from webargs import flaskparser
-from functools import wraps, update_wrapper
-from flask import abort, request
-from werkzeug.wrappers import Response as ResponseBase
 from http import HTTPStatus
-from marshmallow.exceptions import ValidationError
-from collections.abc import Mapping
 
-from marshmallow import Schema as _Schema
+from .view import View
 
-from .spec.utilities import update_spec, tag_spec
-from .schema import TaskSchema, Schema, FieldSchema
-from .fields import Field
-from .view import View, ActionView, PropertyView
-from .utilities import unpack
-
-from labthings.core.tasks.pool import TaskThread
 from labthings.core.utilities import merge
 
-import logging
 
 # Useful externals to have included here
 from marshmallow import pre_dump, pre_load
@@ -25,91 +11,17 @@ from marshmallow import pre_dump, pre_load
 __all__ = [
     "pre_dump",
     "pre_load",
-    "marshal_with",
-    "marshal_task",
-    "ThingAction",
-    "thing_action",
     "Safe",
     "safe",
     "Idempotent",
     "idempotent",
-    "ThingProperty",
-    "thing_property",
     "PropertySchema",
-    "use_body",
-    "use_args",
     "Doc",
     "doc",
     "Tag",
     "tag",
     "doc_response",
 ]
-
-
-class marshal_with:
-    def __init__(self, schema, code=200):
-        """Decorator to format the return of a function with a Marshmallow schema
-
-        Args:
-            schema: Marshmallow schema, field, or dict of Fields, describing
-                the format of data to be returned by a View
-        """
-        self.schema = schema
-        self.code = code
-
-        # Case of schema as a dictionary
-        if isinstance(self.schema, Mapping):
-            self.converter = Schema.from_dict(self.schema)().dump
-        # Case of schema as a single Field
-        elif isinstance(self.schema, Field):
-            self.converter = FieldSchema(self.schema).dump
-        # Case of schema as a Schema
-        elif isinstance(self.schema, _Schema):
-            self.converter = self.schema.dump
-        else:
-            raise TypeError(
-                f"Unsupported schema type {type(self.schema)} for marshal_with"
-            )
-
-    def __call__(self, f):
-        # Pass params to call function attribute for external access
-        update_spec(f, {"_schema": {self.code: self.schema}})
-        # Wrapper function
-        @wraps(f)
-        def wrapper(*args, **kwargs):
-            resp = f(*args, **kwargs)
-            if isinstance(resp, ResponseBase):
-                resp.data = self.converter(resp.data)
-                return resp
-            elif isinstance(resp, tuple):
-                resp, code, headers = unpack(resp)
-                return (self.converter(resp), code, headers)
-            return self.converter(resp)
-
-        return wrapper
-
-
-def ThingAction(viewcls: View):
-    """Decorator to tag a view as a Thing Action
-
-    Args:
-        viewcls (View): View class to tag as an Action
-
-    Returns:
-        View: View class with Action spec tags
-    """
-    logging.warning(
-        "ThingAction decorator is deprecated and will be removed in LabThings 1.0."
-        "Please use the ActionView class instead."
-    )
-    # Set to PropertyView.dispatch_request
-    viewcls.dispatch_request = ActionView.dispatch_request
-    # Update Views API spec
-    tag_spec(viewcls, "actions")
-    return viewcls
-
-
-thing_action = ThingAction
 
 
 def Safe(viewcls: View):
@@ -122,7 +34,7 @@ def Safe(viewcls: View):
         View: View class with Safe spec tags
     """
     # Update Views API spec
-    update_spec(viewcls, {"_safe": True})
+    viewcls.safe = True
     return viewcls
 
 
@@ -139,129 +51,34 @@ def Idempotent(viewcls: View):
         View: View class with idempotent spec tags
     """
     # Update Views API spec
-    update_spec(viewcls, {"_idempotent": True})
+    viewcls.idempotent = True
     return viewcls
 
 
 idempotent = Idempotent
 
 
-def ThingProperty(viewcls):
-    """Decorator to tag a view as a Thing Property
-
-    Args:
-        viewcls (View): View class to tag as an Property
-
-    Returns:
-        View: View class with Property spec tags
-    """
-    logging.warning(
-        "ThingProperty decorator is deprecated and will be removed in LabThings 1.0."
-        "Please use the PropertyView class instead."
-    )
-    # Set to PropertyView.dispatch_request
-    viewcls.dispatch_request = PropertyView.dispatch_request
-    # Update Views API spec
-    tag_spec(viewcls, "properties")
-    return viewcls
-
-
-thing_property = ThingProperty
-
-
 class PropertySchema:
-    def __init__(self, schema, code=200):
+    def __init__(self, schema):
         """
         :param schema: a dict of whose keys will make up the final
                         serialized response output
         """
         self.schema = schema
-        self.code = code
 
-    def __call__(self, viewcls):
-        update_spec(viewcls, {"_propertySchema": self.schema})
-
-        if hasattr(viewcls, "get") and callable(viewcls.get):
-            viewcls.get = marshal_with(self.schema, code=self.code)(viewcls.get)
-
-        if hasattr(viewcls, "post") and callable(viewcls.post):
-            viewcls.post = marshal_with(self.schema, code=self.code)(viewcls.post)
-            viewcls.post = use_args(self.schema)(viewcls.post)
-
-        if hasattr(viewcls, "put") and callable(viewcls.put):
-            viewcls.put = marshal_with(self.schema, code=self.code)(viewcls.put)
-            viewcls.put = use_args(self.schema)(viewcls.put)
-
+    def __call__(self, viewcls: View):
+        viewcls.schema = self.schema
         return viewcls
-
-
-class use_body:
-    """Gets the request body as a single value and adds it as a positional argument"""
-
-    def __init__(self, schema, **kwargs):
-        self.schema = schema
-
-    def __call__(self, f):
-        # Pass params to call function attribute for external access
-        update_spec(f, {"_params": self.schema})
-
-        # Wrapper function
-        @wraps(f)
-        def wrapper(*args, **kwargs):
-            # Get data from request
-            data = request.data or None
-
-            # If no data is there
-            if not data:
-                # If data is required
-                if self.schema.required:
-                    # Abort
-                    return abort(400)
-                # Otherwise, look for the schema fields 'missing' property
-                if self.schema.missing:
-                    data = self.schema.missing
-
-            # Serialize data if it exists
-            if data:
-                try:
-                    data = FieldSchema(self.schema).deserialize(data)
-                except ValidationError as e:
-                    logging.error(e)
-                    return abort(400)
-
-            # Inject argument and return wrapped function
-            return f(*args, data, **kwargs)
-
-        return wrapper
-
-
-class use_args:
-    """Equivalent to webargs.flask_parser.use_args"""
-
-    def __init__(self, schema, **kwargs):
-        self.schema = schema
-
-        if isinstance(schema, Field):
-            self.wrapper = use_body(schema, **kwargs)
-        else:
-            self.wrapper = flaskparser.use_args(schema, **kwargs)
-
-    def __call__(self, f):
-        # Pass params to call function attribute for external access
-        update_spec(f, {"_params": self.schema})
-        # Wrapper function
-        update_wrapper(self.wrapper, f)
-        return self.wrapper(f)
 
 
 class Doc:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
 
-    def __call__(self, f):
+    def __call__(self, viewcls: View):
         # Pass params to call function attribute for external access
-        update_spec(f, self.kwargs)
-        return f
+        viewcls.docs.update(self.kwargs)
+        return viewcls
 
 
 doc = Doc
@@ -269,12 +86,14 @@ doc = Doc
 
 class Tag:
     def __init__(self, tags):
+        if type(tags) is str:
+            tags = [tags]
         self.tags = tags
 
-    def __call__(self, f):
+    def __call__(self, viewcls: View):
         # Pass params to call function attribute for external access
-        tag_spec(f, self.tags)
-        return f
+        viewcls.tags.extend(self.tags)
+        return viewcls
 
 
 tag = Tag
@@ -284,10 +103,10 @@ class Semtype:
     def __init__(self, semtype: str):
         self.semtype = semtype
 
-    def __call__(self, f):
+    def __call__(self, viewcls: View):
         # Pass params to call function attribute for external access
-        update_spec(f, {"@type": self.semtype})
-        return f
+        viewcls.semtype = self.semtype
+        return viewcls
 
 
 semtype = Semtype

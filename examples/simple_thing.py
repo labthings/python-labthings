@@ -77,7 +77,6 @@ and register is as a Thing property
 @semantics.moz.LevelProperty(100, 500, example=200)
 @Doc(description="Value of magic_denoise",)
 class DenoiseProperty(PropertyView):
-
     # Main function to handle GET requests (read)
     def get(self):
         """Show the current magic_denoise value"""
