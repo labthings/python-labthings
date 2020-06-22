@@ -43,7 +43,6 @@ class ExtensionMeasurementAction(View):
     )
     # Shorthand to say we're always going to return a Task object
     @marshal_task
-    @doc(title="Averaged Measurement")
     # Main function to handle POST requests
     def post(self, args):
         """Start an averaged measurement"""
