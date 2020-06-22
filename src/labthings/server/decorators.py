@@ -89,30 +89,6 @@ class marshal_with:
         return wrapper
 
 
-def marshal_task(f):
-    """Decorator to format the response of a View with the standard Task schema"""
-
-    logging.warning(
-        "marshal_task is deprecated and will be removed in LabThings 1.0."
-        "Please use the ActionView class instead."
-    )
-
-    # Pass params to call function attribute for external access
-    update_spec(f, {"responses": {201: {"description": "Task started successfully"}}})
-    update_spec(f, {"_schema": {201: TaskSchema()}})
-    # Wrapper function
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        resp = f(*args, **kwargs)
-        if not isinstance(resp, TaskThread):
-            raise TypeError(
-                f"Function {f.__name__} expected to return a TaskThread object, but instead returned a {type(resp).__name__}. If it does not return a task, remove the @marshall_task decorator from {f.__name__}."
-            )
-        return TaskSchema().dump(resp)
-
-    return wrapper
-
-
 def ThingAction(viewcls: View):
     """Decorator to tag a view as a Thing Action
 
