@@ -9,7 +9,6 @@ from .utilities import (
     get_spec,
     convert_to_schema_or_json,
     schema_to_json,
-    get_semantic_type,
 )
 from .paths import rule_to_params, rule_to_path
 
@@ -184,8 +183,11 @@ class ThingDescription:
             "links": [{"href": f"{url}"} for url in prop_urls],
             "forms": view_to_thing_property_forms(rules, view),
             "uriVariables": {},
-            **get_semantic_type(view),
         }
+
+        semtype = getattr(view, "semtype")
+        if semtype:
+            prop_description["@type"] = semtype
 
         # Look for a _propertySchema in the Property classes API SPec
         prop_schema = getattr(view, "schema", None)
@@ -241,7 +243,11 @@ class ThingDescription:
             action_description["input"] = schema_to_json(
                 action_input_schema, self.apispec
             )
-            action_description["input"].update(get_semantic_type(view))
+
+        semtype = getattr(view, "semtype")
+        if semtype:
+            action_description["@type"] = semtype
+
 
         # Look for a _schema in the Action classes API Spec
         action_output_schema = getattr(view, "schema", None)
