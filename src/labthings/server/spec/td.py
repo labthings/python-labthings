@@ -49,6 +49,65 @@ def find_schema_for_view(view: View):
     return prop_schema
 
 
+def build_forms_for_view(rules: list, view: View, op: list):
+    """Build a W3C form description for a particular View
+
+    Args:
+        rules (list): List of Flask rules
+        view (View): View class
+        op (list): List of Form operations
+
+    Returns:
+        [dict]: Form description
+    """
+    forms = []
+    prop_urls = [rule_to_path(rule) for rule in rules]
+
+    content_type = get_topmost_spec_attr(view, "_content_type") or "application/json"
+
+    for url in prop_urls:
+        forms.append({"op": op, "href": url, "contentType": content_type})
+
+    return forms
+
+
+def view_to_thing_property_forms(rules: list, view: View):
+    """Build a W3C form description for a PropertyView
+
+    Args:
+        rules (list): List of Flask rules
+        view (View): View class
+        op (list): List of Form operations
+
+    Returns:
+        [dict]: Form description
+    """
+    readable = hasattr(view, "post") or hasattr(view, "put") or hasattr(view, "delete")
+    writeable = hasattr(view, "get")
+
+    op = []
+    if readable:
+        op.append("readproperty")
+    if writeable:
+        op.append("writeproperty")
+
+    return build_forms_for_view(rules, view, op=op)
+
+
+def view_to_thing_action_forms(rules: list, view: View):
+    """Build a W3C form description for an ActionView
+
+    Args:
+        rules (list): List of Flask rules
+        view (View): View class
+        op (list): List of Form operations
+
+    Returns:
+        [dict]: Form description
+    """
+    return build_forms_for_view(rules, view, op=["invokeaction"])
+
+
 class ThingDescription:
     def __init__(self, apispec: APISpec):
         self._apispec = weakref.ref(apispec)
@@ -90,7 +149,10 @@ class ThingDescription:
 
     def to_dict(self):
         return {
-            "@context": ["https://iot.mozilla.org/schemas/"],
+            "@context": [
+                "https://www.w3.org/2019/wot/td/v1",
+                "https://iot.mozilla.org/schemas/",
+            ],
             "@type": current_labthing().types,
             "id": url_for("root", _external=True),
             "base": request.host_url,
@@ -98,13 +160,15 @@ class ThingDescription:
             "description": current_labthing().description,
             "properties": self.properties,
             "actions": self.actions,
-            "events": self.events,  # TODO: Enable once properly populated
+            # "events": self.events,  # TODO: Enable once properly populated
             "links": self.links,
+            "securityDefinitions": {"nosec_sc": {"scheme": "nosec"}},
+            "security": "nosec_sc",
         }
 
     def event_to_thing_event(self, event: Event):
         # TODO: Include event schema
-        return {}
+        return {"forms": []}
 
     def view_to_thing_property(self, rules: list, view: View):
         prop_urls = [rule_to_path(rule) for rule in rules]
@@ -118,6 +182,7 @@ class ThingDescription:
             ),
             "writeOnly": not hasattr(view, "get"),
             "links": [{"href": f"{url}"} for url in prop_urls],
+            "forms": view_to_thing_property_forms(rules, view),
             "uriVariables": {},
             **get_semantic_type(view),
         }
@@ -162,6 +227,7 @@ class ThingDescription:
             "links": [{"href": f"{url}"} for url in action_urls],
             "safe": getattr(view, "safe", False),
             "idempotent": getattr(view, "idempotent", False),
+            "forms": view_to_thing_action_forms(rules, view),
         }
 
         # Look for a _params in the Action classes API Spec

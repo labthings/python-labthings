@@ -97,16 +97,3 @@ class Tag:
 
 
 tag = Tag
-
-
-class Semtype:
-    def __init__(self, semtype: str):
-        self.semtype = semtype
-
-    def __call__(self, viewcls: View):
-        # Pass params to call function attribute for external access
-        viewcls.semtype = self.semtype
-        return viewcls
-
-
-semtype = Semtype

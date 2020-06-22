@@ -16,7 +16,7 @@ from flask.testing import FlaskClient
 class Helpers:
     @staticmethod
     def validate_thing_description(thing_description, app_ctx, schemas_path):
-        schema = json.load(open(os.path.join(schemas_path, "td_schema.json"), "r"))
+        schema = json.load(open(os.path.join(schemas_path, "w3c_td_schema.json"), "r"))
         jsonschema.Draft7Validator.check_schema(schema)
 
         with app_ctx.test_request_context():

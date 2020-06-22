@@ -67,8 +67,20 @@ def property_of(
     if description:
         generated_class.docs = {"description": description, "summary": description}
 
+    # Apply semantic type last, to ensure this is always used
     if semtype:
-        generated_class.semtype = semtype
+        if isinstance(semtype, str):
+            generated_class = Semtype(semtype)(generated_class)
+        elif isinstance(semtype, Semantic):
+            generated_class = semtype(generated_class)
+        else:
+            logging.error(
+                "Unsupported type for semtype. Must be a string or Semantic object"
+            )
+
+    # Compile the generated views spec
+    # Useful if its being attached to something other than a LabThing instance
+    compile_view_spec(generated_class)
 
     return generated_class
 
@@ -108,8 +120,16 @@ def action_from(
     if description:
         generated_class.docs = {"description": description, "summary": description}
 
+    # Apply semantic type last, to ensure this is always used
     if semtype:
-        generated_class.semtype = semtype
+        if isinstance(semtype, str):
+            generated_class.semtype = semtype
+        elif isinstance(semtype, Semantic):
+            generated_class = semtype(generated_class)
+        else:
+            logging.error(
+                "Unsupported type for semtype. Must be a string or Semantic object"
+            )
 
     generated_class.safe = safe
     generated_class.idempotent = idempotent
