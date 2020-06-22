@@ -304,19 +304,6 @@ class Tag:
 tag = Tag
 
 
-class Semtype:
-    def __init__(self, semtype: str):
-        self.semtype = semtype
-
-    def __call__(self, f):
-        # Pass params to call function attribute for external access
-        update_spec(f, {"@type": self.semtype})
-        return f
-
-
-semtype = Semtype
-
-
 class doc_response:
     def __init__(self, code, description=None, mimetype=None, **kwargs):
         self.code = code
