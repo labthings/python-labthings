@@ -110,34 +110,3 @@ class Semtype:
 
 
 semtype = Semtype
-
-
-class doc_response:
-    def __init__(self, code, description=None, mimetype=None, **kwargs):
-        self.code = code
-        self.description = description
-        self.kwargs = kwargs
-        self.mimetype = mimetype
-
-        self.response_dict = {
-            "responses": {
-                self.code: {
-                    "description": self.description or HTTPStatus(self.code).phrase,
-                    **self.kwargs,
-                }
-            }
-        }
-
-        if self.mimetype:
-            self.response_dict = merge(
-                self.response_dict,
-                {
-                    "responses": {self.code: {"content": {self.mimetype: {}}}},
-                    "_content_type": self.mimetype,
-                },
-            )
-
-    def __call__(self, f):
-        # Pass params to call function attribute for external access
-        update_spec(f, self.response_dict)
-        return f
