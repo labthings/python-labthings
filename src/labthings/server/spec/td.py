@@ -63,7 +63,7 @@ def build_forms_for_view(rules: list, view: View, op: list):
     forms = []
     prop_urls = [rule_to_path(rule) for rule in rules]
 
-    content_type = get_topmost_spec_attr(view, "_content_type") or "application/json"
+    content_type = getattr(view, "content_type", None) or "application/json"
 
     for url in prop_urls:
         forms.append({"op": op, "href": url, "contentType": content_type})
