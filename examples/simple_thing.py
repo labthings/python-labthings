@@ -72,23 +72,17 @@ and register is as a Thing property
 """
 
 
-# Define the data we're going to output (get), and what to expect in (post)
+# Wrap in a semantic annotation to autmatically set schema and args
 @semantics.moz.LevelProperty(100, 500, example=200)
 class DenoiseProperty(PropertyView):
     """Value of magic_denoise"""
 
-    # Main function to handle GET requests (read)
     def get(self):
-        """Show the current magic_denoise value"""
-
         # When a GET request is made, we'll find our attached component
         my_component = find_component("org.labthings.example.mycomponent")
         return my_component.magic_denoise
 
-    # Main function to handle PUT requests (write)
     def put(self, new_property_value):
-        """Change the current magic_denoise value"""
-
         # Find our attached component
         my_component = find_component("org.labthings.example.mycomponent")
 
@@ -104,12 +98,12 @@ Create a view to quickly get some noisy data, and register is as a Thing propert
 
 
 class QuickDataProperty(PropertyView):
+    """Show the current data value"""
+
+    # Marshal the response as a list of floats
     schema = fields.List(fields.Float())
 
-    # Main function to handle GET requests
     def get(self):
-        """Show the current data value"""
-
         # Find our attached component
         my_component = find_component("org.labthings.example.mycomponent")
         return my_component.data
@@ -128,7 +122,7 @@ class MeasurementAction(ActionView):
             missing=20, example=20, description="Number of data sets to average over",
         )
     }
-
+    # Marshal the response as a list of numbers
     schema = fields.List(fields.Number)
 
     # Main function to handle POST requests
