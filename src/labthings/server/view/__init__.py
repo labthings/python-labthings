@@ -42,7 +42,6 @@ class View(MethodView):
     schema: Schema = None
     args: dict = None
     tags: list = []
-    docs: dict = {}
     title: None
     semtype: str = None
     content_type: str = "application/json"

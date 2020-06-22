@@ -23,7 +23,6 @@ def rule_to_apispec_path(rule: Rule, view, apispec: APISpec):
     params = {
         "path": rule_to_path(rule),
         "operations": view_to_apispec_operations(view, apispec),
-        **getattr(view, "docs", {}),
     }
 
     # Add URL arguments to operations
