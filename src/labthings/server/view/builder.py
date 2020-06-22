@@ -1,5 +1,6 @@
 from . import View, ActionView, PropertyView
 from .. import fields
+from ..semantics.base import Semantic
 
 import os
 import glob
@@ -77,11 +78,6 @@ def property_of(
             logging.error(
                 "Unsupported type for semtype. Must be a string or Semantic object"
             )
-
-    # Compile the generated views spec
-    # Useful if its being attached to something other than a LabThing instance
-    compile_view_spec(generated_class)
-
     return generated_class
 
 
