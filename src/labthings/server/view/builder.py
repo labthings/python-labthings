@@ -6,6 +6,7 @@ from labthings.server.decorators import (
     Idempotent,
     Semtype,
 )
+from labthings.server.semantics.base import Semantic
 from . import View, ActionView, PropertyView
 from .. import fields
 from ..spec.utilities import compile_view_spec
@@ -78,8 +79,16 @@ def property_of(
             generated_class
         )
 
+    # Apply semantic type last, to ensure this is always used
     if semtype:
-        generated_class = Semtype(semtype)(generated_class)
+        if isinstance(semtype, str):
+            generated_class = Semtype(semtype)(generated_class)
+        elif isinstance(semtype, Semantic):
+            generated_class = semtype(generated_class)
+        else:
+            logging.error(
+                "Unsupported type for semtype. Must be a string or Semantic object"
+            )
 
     # Compile the generated views spec
     # Useful if its being attached to something other than a LabThing instance
@@ -121,14 +130,22 @@ def action_from(
             generated_class
         )
 
-    if semtype:
-        generated_class = Semtype(semtype)(generated_class)
-
     if safe:
         generated_class = Safe(generated_class)
 
     if idempotent:
         generated_class = Idempotent(generated_class)
+
+    # Apply semantic type last, to ensure this is always used
+    if semtype:
+        if isinstance(semtype, str):
+            generated_class = Semtype(semtype)(generated_class)
+        elif isinstance(semtype, Semantic):
+            generated_class = semtype(generated_class)
+        else:
+            logging.error(
+                "Unsupported type for semtype. Must be a string or Semantic object"
+            )
 
     # Compile the generated views spec
     # Useful if its being attached to something other than a LabThing instance
