@@ -4,6 +4,8 @@ from .utilities import convert_to_schema_or_json
 
 from ..schema import Schema
 
+from labthings.core.utilities import get_docstring
+
 from werkzeug.routing import Rule
 from http import HTTPStatus
 
@@ -42,7 +44,13 @@ def view_to_apispec_operations(view, apispec: APISpec):
     for op in ("get", "post", "put", "delete"):
         if hasattr(view, op):
 
-            ops[op] = {}
+            ops[op] = {
+                "description": getattr(view, "description", None)
+                or get_docstring(view),
+                "summary": (getattr(view, "description", None) or get_docstring(view))
+                .partition("\n")[0]
+                .strip(),
+            }
 
             # Add arguments schema
             if (op in (("post", "put", "delete"))) and hasattr(view, "get_args"):
@@ -56,7 +64,6 @@ def view_to_apispec_operations(view, apispec: APISpec):
             if hasattr(view, "get_responses"):
                 ops[op]["responses"] = {}
 
-                print(view.get_responses())
                 for code, schema in view.get_responses().items():
                     ops[op]["responses"][code] = {
                         "description": HTTPStatus(code).phrase,

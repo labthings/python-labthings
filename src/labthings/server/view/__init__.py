@@ -37,13 +37,14 @@ class View(MethodView):
     """
 
     endpoint = None
-    __apispec__ = {}
 
     schema: Schema = None
     args: dict = None
+    semtype: str = None
     tags: list = []
     title: None
-    semtype: str = None
+
+    # Content type of response, usually application/json
     content_type: str = "application/json"
 
     responses: dict = {}
@@ -120,8 +121,6 @@ class View(MethodView):
 
 
 class ActionView(View):
-    __apispec__ = {"tags": {"actions"}}
-
     tags: list = ["actions"]
     safe: bool = False
     idempotent: bool = False
@@ -172,8 +171,6 @@ class ActionView(View):
 
 
 class PropertyView(View):
-    __apispec__ = {"tags": {"properties"}}
-
     tags: list = ["properties"]
 
     @classmethod

@@ -3,64 +3,6 @@ from marshmallow import fields
 import pytest
 
 
-def test_initial_update_spec(view_cls):
-    initial_spec = {"key": "value"}
-    utilities.update_spec(view_cls, initial_spec)
-
-    assert view_cls.__apispec__ == initial_spec
-
-
-def test_update_spec(view_cls):
-    initial_spec = {"key": {"subkey": "value"}}
-    utilities.update_spec(view_cls, initial_spec)
-
-    new_spec = {"key": {"new_subkey": "new_value"}}
-    utilities.update_spec(view_cls, new_spec)
-
-    assert view_cls.__apispec__ == {
-        "key": {"subkey": "value", "new_subkey": "new_value"}
-    }
-
-
-def test_tag_spec(view_cls):
-    utilities.tag_spec(view_cls, {"tag1"})
-    assert view_cls.__apispec__.get("tags") == {"tag1"}
-    utilities.tag_spec(view_cls, {"tag2"})
-    assert view_cls.__apispec__.get("tags") == {"tag1", "tag2"}
-
-
-def test_tag_spec_string(view_cls):
-    utilities.tag_spec(view_cls, "tag1")
-    assert view_cls.__apispec__.get("tags") == {"tag1"}
-
-
-def test_tag_spec_invalid(view_cls):
-    with pytest.raises(TypeError):
-        utilities.tag_spec(view_cls, {object(), "tag"})
-
-
-def test_get_spec(view_cls):
-    assert utilities.get_spec(None) == {}
-    assert utilities.get_spec(view_cls) == {}
-
-    initial_spec = {"key": {"subkey": "value"}}
-    view_cls.__apispec__ = initial_spec
-
-    assert utilities.get_spec(view_cls) == initial_spec
-
-
-def test_get_topmost_spec_attr(view_cls):
-    assert not utilities.get_topmost_spec_attr(view_cls, "key")
-
-    # Root value missing, fall back to GET
-    view_cls.get.__apispec__ = {"key": "get_value"}
-    assert utilities.get_topmost_spec_attr(view_cls, "key") == "get_value"
-
-    # Root value present, return root value
-    view_cls.__apispec__ = {"key": "class_value"}
-    assert utilities.get_topmost_spec_attr(view_cls, "key") == "class_value"
-
-
 def test_convert_schema_none(spec):
     assert not utilities.convert_to_schema_or_json(None, spec)
 

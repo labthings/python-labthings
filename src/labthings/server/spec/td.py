@@ -175,7 +175,7 @@ class ThingDescription:
         # Basic description
         prop_description = {
             "title": getattr(view, "title", None) or view.__name__,
-            "description": get_docstring(view),
+            "description": getattr(view, "description", None) or get_docstring(view),
             "readOnly": not (
                 hasattr(view, "post") or hasattr(view, "put") or hasattr(view, "delete")
             ),
@@ -225,7 +225,7 @@ class ThingDescription:
         # Basic description
         action_description = {
             "title": getattr(view, "title", None) or view.__name__,
-            "description": get_docstring(view),
+            "description": getattr(view, "description", None) or get_docstring(view),
             "links": [{"href": f"{url}"} for url in action_urls],
             "safe": getattr(view, "safe", False),
             "idempotent": getattr(view, "idempotent", False),
@@ -247,7 +247,6 @@ class ThingDescription:
         semtype = getattr(view, "semtype")
         if semtype:
             action_description["@type"] = semtype
-
 
         # Look for a _schema in the Action classes API Spec
         action_output_schema = getattr(view, "schema", None)
