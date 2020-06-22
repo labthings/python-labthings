@@ -111,7 +111,7 @@ class ThingDescription:
 
         # Basic description
         prop_description = {
-            "title": getattr(view, "title") or view.__name__,
+            "title": getattr(view, "title", None) or view.__name__,
             "description": get_docstring(view),
             "readOnly": not (
                 hasattr(view, "post") or hasattr(view, "put") or hasattr(view, "delete")
@@ -123,7 +123,7 @@ class ThingDescription:
         }
 
         # Look for a _propertySchema in the Property classes API SPec
-        prop_schema = getattr(view, "schema")
+        prop_schema = getattr(view, "schema", None)
 
         if prop_schema:
             # Ensure valid schema type
@@ -157,15 +157,15 @@ class ThingDescription:
 
         # Basic description
         action_description = {
-            "title": getattr(view, "title") or view.__name__,
+            "title": getattr(view, "title", None) or view.__name__,
             "description": get_docstring(view),
             "links": [{"href": f"{url}"} for url in action_urls],
-            "safe": getattr(view, "safe"),
-            "idempotent": getattr(view, "idempotent"),
+            "safe": getattr(view, "safe", False),
+            "idempotent": getattr(view, "idempotent", False),
         }
 
         # Look for a _params in the Action classes API Spec
-        action_input_schema = getattr(view, "args")
+        action_input_schema = getattr(view, "args", None)
         if action_input_schema:
             # Ensure valid schema type
             action_input_schema = convert_to_schema_or_json(
@@ -178,7 +178,7 @@ class ThingDescription:
             action_description["input"].update(get_semantic_type(view))
 
         # Look for a _schema in the Action classes API Spec
-        action_output_schema = getattr(view, "schema")
+        action_output_schema = getattr(view, "schema", None)
         if action_output_schema:
             # Ensure valid schema type
             action_output_schema = convert_to_schema_or_json(
@@ -192,7 +192,7 @@ class ThingDescription:
         return action_description
 
     def property(self, rules: list, view: View):
-        endpoint = getattr(view, "endpoint") or getattr(rules[0], "endpoint")
+        endpoint = getattr(view, "endpoint", None) or getattr(rules[0], "endpoint")
         key = snake_to_camel(endpoint)
         self.properties[key] = self.view_to_thing_property(rules, view)
 
@@ -206,7 +206,7 @@ class ThingDescription:
             raise AttributeError(
                 f"The API View '{view}' was added as an Action, but it does not have a POST method."
             )
-        endpoint = getattr(view, "endpoint") or getattr(rules[0], "endpoint")
+        endpoint = getattr(view, "endpoint", None) or getattr(rules[0], "endpoint")
         key = snake_to_camel(endpoint)
         self.actions[key] = self.view_to_thing_action(rules, view)
 

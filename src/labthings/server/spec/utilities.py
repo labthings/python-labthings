@@ -4,11 +4,11 @@ from apispec.ext.marshmallow import MarshmallowPlugin
 from ...core.utilities import merge, get_docstring, get_summary, snake_to_camel
 
 from ..fields import Field
-from ..schema import build_action_schema
+from ..schema import Schema, build_action_schema
 from ..view import ActionView
 
-from marshmallow import Schema as BaseSchema
 from collections.abc import Mapping
+
 
 def update_spec(obj, spec: dict):
     """Add API spec data to an object
@@ -109,7 +109,7 @@ def convert_to_schema_or_json(schema, spec: APISpec):
         return schema
 
     # Expand/convert actual schema data
-    if isinstance(schema, BaseSchema):
+    if isinstance(schema, Schema):
         return schema
     elif isinstance(schema, Mapping):
         return map_to_properties(schema, spec)
@@ -164,7 +164,7 @@ def schema_to_json(schema, spec: APISpec):
     This is used, for example, in the Thing Description.
     """
 
-    if isinstance(schema, BaseSchema):
+    if isinstance(schema, Schema):
         marshmallow_plugin = next(
             plugin for plugin in spec.plugins if isinstance(plugin, MarshmallowPlugin)
         )

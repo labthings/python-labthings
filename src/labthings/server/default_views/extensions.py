@@ -2,14 +2,14 @@
 from ..view import View
 from ..find import registered_extensions
 from ..schema import ExtensionSchema
-from ..decorators import marshal_with, Tag
 
 
-@Tag("extensions")
 class ExtensionList(View):
     """List and basic documentation for all enabled Extensions"""
 
-    @marshal_with(ExtensionSchema(many=True))
+    schema = ExtensionSchema(many=True)
+    tags = ["extensions"]
+
     def get(self):
         """
         List enabled extensions.

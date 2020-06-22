@@ -1,11 +1,3 @@
-from labthings.server.decorators import (
-    PropertySchema,
-    use_args,
-    Doc,
-    Safe,
-    Idempotent,
-    Semtype,
-)
 from . import View, ActionView, PropertyView
 from .. import fields
 
@@ -70,15 +62,13 @@ def property_of(
 
     # Add decorators for arguments etc
     if schema:
-        generated_class = PropertySchema(schema)(generated_class)
+        generated_class.schema = schema
 
     if description:
-        generated_class = Doc(description=description, summary=description)(
-            generated_class
-        )
+        generated_class.docs = {"description": description, "summary": description}
 
     if semtype:
-        generated_class = Semtype(semtype)(generated_class)
+        generated_class.semtype = semtype
 
     return generated_class
 
@@ -90,6 +80,7 @@ def action_from(
     safe=False,
     idempotent=False,
     args=None,
+    schema=None,
     semtype=None,
 ):
 
@@ -107,23 +98,21 @@ def action_from(
     # Add decorators for arguments etc
     if args is not None:
         generated_class = type(name, (ActionView, object), {"post": _post_with_args})
-        generated_class.post = use_args(args)(generated_class.post)
+        generated_class.args = args
     else:
         generated_class = type(name, (ActionView, object), {"post": _post})
 
+    if schema:
+        generated_class.schema = schema
+
     if description:
-        generated_class = Doc(description=description, summary=description)(
-            generated_class
-        )
+        generated_class.docs = {"description": description, "summary": description}
 
     if semtype:
-        generated_class = Semtype(semtype)(generated_class)
+        generated_class.semtype = semtype
 
-    if safe:
-        generated_class = Safe(generated_class)
-
-    if idempotent:
-        generated_class = Idempotent(generated_class)
+    generated_class.safe = safe
+    generated_class.idempotent = idempotent
 
     return generated_class
 

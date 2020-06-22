@@ -2,6 +2,8 @@ from apispec import APISpec
 from .paths import rule_to_path, rule_to_params
 from .utilities import convert_to_schema_or_json
 
+from ..schema import Schema
+
 from werkzeug.routing import Rule
 from http import HTTPStatus
 
@@ -55,12 +57,14 @@ def view_to_apispec_operations(view, apispec: APISpec):
             if hasattr(view, "get_responses"):
                 ops[op]["responses"] = {}
 
+                print(view.get_responses())
                 for code, schema in view.get_responses().items():
                     ops[op]["responses"][code] = {
                         "description": HTTPStatus(code).phrase,
                         "content": {
-                            "application/json": {
+                            getattr(view, "content_type", "application/json"): {
                                 "schema": convert_to_schema_or_json(schema, apispec)
+                                or Schema()
                             }
                         },
                     }

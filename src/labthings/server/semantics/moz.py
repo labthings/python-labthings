@@ -1,5 +1,5 @@
-from .. import decorators
 from .. import fields
+
 
 # BASIC PROPERTIES
 class Property:
@@ -8,8 +8,8 @@ class Property:
 
     def __call__(self, viewcls):
         # Use the class name as the semantic type
-        viewcls = decorators.Semtype(self.__class__.__name__)(viewcls)
-        viewcls = decorators.PropertySchema(self.schema)(viewcls)
+        viewcls.semtype = self.__class__.__name__
+        viewcls.schema = self.schema
         return viewcls
 
 

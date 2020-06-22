@@ -13,7 +13,6 @@ import logging
 import atexit
 
 from labthings.server.quick import create_app
-from labthings.server.decorators import PropertySchema, use_args, marshal_with, Doc
 from labthings.server import semantics
 from labthings.server.view import ActionView, PropertyView
 from labthings.server.find import find_component
@@ -75,8 +74,9 @@ and register is as a Thing property
 
 # Define the data we're going to output (get), and what to expect in (post)
 @semantics.moz.LevelProperty(100, 500, example=200)
-@Doc(description="Value of magic_denoise",)
 class DenoiseProperty(PropertyView):
+    """Value of magic_denoise"""
+
     # Main function to handle GET requests (read)
     def get(self):
         """Show the current magic_denoise value"""
@@ -103,8 +103,9 @@ Create a view to quickly get some noisy data, and register is as a Thing propert
 """
 
 
-@PropertySchema(fields.List(fields.Float()))
 class QuickDataProperty(PropertyView):
+    schema = fields.List(fields.Float())
+
     # Main function to handle GET requests
     def get(self):
         """Show the current data value"""
@@ -122,17 +123,14 @@ Create a view to start an averaged measurement, and register is as a Thing actio
 class MeasurementAction(ActionView):
     # Expect JSON parameters in the request body.
     # Pass to post function as dictionary argument.
-    @use_args(
-        {
-            "averages": fields.Integer(
-                missing=20,
-                example=20,
-                description="Number of data sets to average over",
-            )
-        }
-    )
-    # Output schema
-    @marshal_with(fields.List(fields.Number))
+    args = {
+        "averages": fields.Integer(
+            missing=20, example=20, description="Number of data sets to average over",
+        )
+    }
+
+    schema = fields.List(fields.Number)
+
     # Main function to handle POST requests
     def post(self, args):
         """Start an averaged measurement"""

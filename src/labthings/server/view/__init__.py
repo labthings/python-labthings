@@ -45,6 +45,7 @@ class View(MethodView):
     docs: dict = {}
     title: None
     semtype: str = None
+    content_type: str = "application/json"
 
     responses: dict = {}
 
@@ -57,7 +58,13 @@ class View(MethodView):
 
     @classmethod
     def get_responses(cls):
-        return {200: cls.schema}.update(cls.responses)
+        r = {200: cls.schema}
+        r.update(cls.responses)
+        return r
+
+    @classmethod
+    def get_schema(cls):
+        return cls.schema
 
     @classmethod
     def get_args(cls):
@@ -87,12 +94,12 @@ class View(MethodView):
         assert meth is not None, f"Unimplemented method {request.method!r}"
 
         # Inject request arguments if an args schema is defined
-        if self.args:
-            meth = use_args(self.args)(meth)
+        if self.get_args():
+            meth = use_args(self.get_args())(meth)
 
         # Marhal response if a response schema is defines
-        if self.schema:
-            meth = marshal_with(self.schema)(meth)
+        if self.get_schema():
+            meth = marshal_with(self.get_schema())(meth)
 
         # Generate basic response
         return self.represent_response(meth(*args, **kwargs))
@@ -127,7 +134,9 @@ class ActionView(View):
     @classmethod
     def get_responses(cls):
         """Build an output schema that includes the Action wrapper object"""
-        return {201: build_action_schema(cls.schema, cls.args)}.update(cls.responses)
+        r = {201: build_action_schema(cls.schema, cls.args)()}
+        r.update(cls.responses)
+        return r
 
     def dispatch_request(self, *args, **kwargs):
         meth = getattr(self, request.method.lower(), None)
