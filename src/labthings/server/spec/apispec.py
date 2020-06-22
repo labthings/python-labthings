@@ -48,6 +48,7 @@ def view_to_apispec_operations(view, apispec: APISpec):
                 "description": getattr(view, "description", None)
                 or get_docstring(view),
                 "summary": getattr(view, "summary", None) or get_summary(view),
+                "tags": view.tags,
             }
 
             # Add arguments schema
