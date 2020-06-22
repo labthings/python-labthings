@@ -16,9 +16,7 @@ from .logging import LabThingLogger
 from .representations import LabThingsJSONEncoder
 from .spec.apispec import rule_to_apispec_path
 from .spec.apispec_plugins import MarshmallowPlugin
-from .spec.utilities import get_spec
 from .spec.td import ThingDescription
-from .decorators import tag
 from .sockets import Sockets
 from .event import Event
 
@@ -225,7 +223,7 @@ class LabThing:
 
             # Add route to the extensions blueprint
             self.add_view(
-                tag("extensions")(extension_view["view"]),
+                extension_view["view"],
                 *("/extensions" + url for url in extension_view["urls"]),
                 endpoint=endpoint,
                 **extension_view["kwargs"],

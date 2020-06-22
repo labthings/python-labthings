@@ -4,7 +4,7 @@ from .utilities import convert_to_schema_or_json
 
 from ..schema import Schema
 
-from labthings.core.utilities import get_docstring
+from labthings.core.utilities import get_docstring, get_summary
 
 from werkzeug.routing import Rule
 from http import HTTPStatus
@@ -47,9 +47,7 @@ def view_to_apispec_operations(view, apispec: APISpec):
             ops[op] = {
                 "description": getattr(view, "description", None)
                 or get_docstring(view),
-                "summary": (getattr(view, "description", None) or get_docstring(view))
-                .partition("\n")[0]
-                .strip(),
+                "summary": getattr(view, "summary", None) or get_summary(view),
             }
 
             # Add arguments schema

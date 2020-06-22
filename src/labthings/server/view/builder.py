@@ -66,7 +66,8 @@ def property_of(
         generated_class.schema = schema
 
     if description:
-        generated_class.docs = {"description": description, "summary": description}
+        generated_class.description = description
+        generated_class.summary = description.partition("\n")[0].strip()
 
     # Apply semantic type last, to ensure this is always used
     if semtype:
@@ -114,7 +115,8 @@ def action_from(
         generated_class.schema = schema
 
     if description:
-        generated_class.docs = {"description": description, "summary": description}
+        generated_class.description = description
+        generated_class.summary = description.partition("\n")[0].strip()
 
     # Apply semantic type last, to ensure this is always used
     if semtype:

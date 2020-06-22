@@ -6,7 +6,6 @@ from ..view import View
 from ..event import Event
 
 from .utilities import (
-    get_spec,
     convert_to_schema_or_json,
     schema_to_json,
 )
@@ -15,37 +14,6 @@ from .paths import rule_to_params, rule_to_path
 from ..find import current_labthing
 
 from labthings.core.utilities import get_docstring, snake_to_camel
-
-
-def find_schema_for_view(view: View):
-    """Find the broadest available data schema for a Flask view
-
-    Looks for GET, POST, and PUT methods depending on if the view is read/write only
-    
-    Args:
-        view (View): View to search for schema
-    
-    Returns:
-        Broadest available schema dictionary for the View. Returns empty dictionary
-            if no schema is found
-    """
-    prop_schema = {}
-    # If prop is read-only
-    if hasattr(view, "get") and not (hasattr(view, "post") or hasattr(view, "put")):
-        # Use GET schema
-        prop_schema = get_spec(view.get).get("_schema", {}).get(200)
-    # If prop is write-only
-    elif not hasattr(view, "get") and (hasattr(view, "post") or hasattr(view, "put")):
-        if hasattr(view, "post"):
-            # Use POST schema
-            prop_schema = get_spec(view.post).get("_params")
-        else:
-            # Use PUT schema
-            prop_schema = get_spec(view.put).get("_params")
-    else:
-        prop_schema = {}
-
-    return prop_schema
 
 
 def build_forms_for_view(rules: list, view: View, op: list):
