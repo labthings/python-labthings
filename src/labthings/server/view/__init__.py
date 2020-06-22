@@ -90,6 +90,10 @@ class View(MethodView):
         if meth is None and request.method == "HEAD":
             meth = getattr(self, "get", None)
 
+        # Marhal response if a response schema is defines
+        if self.get_schema():
+            meth = marshal_with(self.get_schema())(meth)
+
         # Flask should ensure this is assersion never fails
         assert meth is not None, f"Unimplemented method {request.method!r}"
 
@@ -192,10 +196,6 @@ class PropertyView(View):
         # Inject request arguments if an args schema is defined
         if request.method in ("POST", "PUT", "PATCH") and self.get_args():
             meth = use_args(self.get_args())(meth)
-
-        # Marhal response if a response schema is defines
-        if self.get_schema():
-            meth = marshal_with(self.get_schema())(meth)
 
         # Generate basic response
         resp = self.represent_response(meth(*args, **kwargs))
