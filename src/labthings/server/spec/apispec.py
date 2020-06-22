@@ -69,8 +69,9 @@ def view_to_apispec_operations(view, apispec: APISpec):
                         "content": {
                             getattr(view, "content_type", "application/json"): {
                                 "schema": convert_to_schema_or_json(schema, apispec)
-                                or Schema()
                             }
+                            if schema
+                            else {}  # If no schema is defined, don't include one in the APISpec
                         },
                     }
             else:
