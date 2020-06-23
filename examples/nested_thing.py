@@ -5,7 +5,7 @@ import logging
 
 from labthings.server.quick import create_app
 from labthings.server.decorators import ThingProperty, PropertySchema
-from labthings.server.view import View
+from labthings.server.view import PropertyView
 from labthings.server.find import find_component
 from labthings.server.schema import Schema
 from labthings.server import fields
@@ -64,19 +64,15 @@ and register is as a Thing property
 """
 
 
-# Register this view as a Thing Property
-@ThingProperty
-# Define the data we're going to output (get), and what to expect in (post)
-@PropertySchema(
-    fields.Integer(
+class DenoiseProperty(PropertyView):
+
+    schema = fields.Integer(
         required=True,
         example=200,
         minimum=100,
         maximum=500,
         description="Value of magic_denoise",
     )
-)
-class DenoiseProperty(View):
 
     # Main function to handle GET requests (read)
     def get(self):
@@ -104,10 +100,11 @@ Create a view to quickly get some noisy data, and register is as a Thing propert
 """
 
 
-@ThingProperty
-@PropertySchema(MyComponentSchema())
-class MyComponentProperty(View):
+class MyComponentProperty(PropertyView):
     # Main function to handle GET requests
+
+    schema = MyComponentSchema()
+
     def get(self):
         """Show the current data value"""
 

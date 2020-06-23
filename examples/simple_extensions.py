@@ -3,15 +3,7 @@ import math
 import logging
 
 from labthings.server.quick import create_app
-from labthings.server.decorators import (
-    ThingProperty,
-    PropertySchema,
-    ThingAction,
-    use_args,
-    marshal_task,
-    doc,
-)
-from labthings.server.view import View
+from labthings.server.view import ActionView, PropertyView
 from labthings.server.find import find_component
 from labthings.server import fields
 from labthings.core.utilities import path_relative_to
@@ -28,25 +20,16 @@ Make our extension
 """
 
 
-@ThingAction
-class ExtensionMeasurementAction(View):
-    # Expect JSON parameters in the request body.
-    # Pass to post function as dictionary argument.
-    @use_args(
-        {
-            "averages": fields.Integer(
-                missing=10,
-                example=10,
-                description="Number of data sets to average over",
-            )
-        }
-    )
-    # Shorthand to say we're always going to return a Task object
-    @marshal_task
-    # Main function to handle POST requests
-    def post(self, args):
-        """Start an averaged measurement"""
+class ExtensionMeasurementAction(ActionView):
+    """Start an averaged measurement"""
 
+    args = {
+        "averages": fields.Integer(
+            missing=10, example=10, description="Number of data sets to average over",
+        )
+    }
+
+    def post(self, args):
         # Find our attached component
         my_component = find_component("org.labthings.example.mycomponent")
 
@@ -114,17 +97,15 @@ Create a view to view and change our magic_denoise value, and register is as a T
 """
 
 
-@ThingProperty  # Register this view as a Thing Property
-@PropertySchema(  # Define the data we're going to output (get), and what to expect in (post)
-    fields.Integer(
+class DenoiseProperty(PropertyView):
+
+    schema = fields.Integer(
         required=True,
         example=200,
         minimum=100,
         maximum=500,
         description="Value of magic_denoise",
     )
-)
-class DenoiseProperty(View):
 
     # Main function to handle GET requests (read)
     def get(self):
@@ -152,9 +133,10 @@ Create a view to quickly get some noisy data, and register is as a Thing propert
 """
 
 
-@ThingProperty
-@PropertySchema(fields.List(fields.Float()))
-class QuickDataProperty(View):
+class QuickDataProperty(PropertyView):
+
+    schema = fields.List(fields.Float())
+
     # Main function to handle GET requests
     def get(self):
         """Show the current data value"""
