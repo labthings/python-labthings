@@ -35,7 +35,9 @@ def output_json(data, code, headers=None):
     """Makes a Flask response with a JSON encoded body, using app JSON settings"""
 
     settings = current_app.config.get("LABTHINGS_JSON", {})
-    encoder = current_app.config.get("LABTHINGS_JSON_ENCODER", {}) or LabThingsJSONEncoder
+    encoder = (
+        current_app.config.get("LABTHINGS_JSON_ENCODER", {}) or LabThingsJSONEncoder
+    )
 
     if current_app.debug:
         settings.setdefault("indent", 4)
