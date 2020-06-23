@@ -12,6 +12,6 @@ class Property(Semantic):
 
     def __call__(self, viewcls):
         # Use the class name as the semantic type
-        viewcls.Semtype = self.__class__.__name__
+        viewcls.semtype = self.__class__.__name__
         viewcls.schema = self.schema
         return viewcls
