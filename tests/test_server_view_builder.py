@@ -73,8 +73,8 @@ def test_property_of_name_description():
         obj, "property_name", name="property_name", description="property description"
     )
 
-    assert GeneratedClass.__apispec__.get("description") == "property description"
-    assert GeneratedClass.__apispec__.get("summary") == "property description"
+    assert GeneratedClass.description == "property description"
+    assert GeneratedClass.summary == "property description"
 
 
 def test_action_from_with_args(app, client):
