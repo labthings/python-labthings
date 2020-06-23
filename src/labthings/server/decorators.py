@@ -43,6 +43,7 @@ __all__ = [
     "Tag",
     "tag",
     "doc_response",
+    "Semtype"
 ]
 
 
