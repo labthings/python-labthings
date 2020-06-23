@@ -10,40 +10,6 @@ def thing_description(thing):
     return thing.thing_description
 
 
-def test_find_schema_for_view_readonly():
-    class ViewClass:
-        def get(self):
-            pass
-
-    ViewClass.get.__apispec__ = {"_schema": {200: "schema"}}
-    assert td.find_schema_for_view(ViewClass) == "schema"
-
-
-def test_find_schema_for_view_writeonly_post():
-    class ViewClass:
-        def post(self):
-            pass
-
-    ViewClass.post.__apispec__ = {"_params": "params"}
-    assert td.find_schema_for_view(ViewClass) == "params"
-
-
-def test_find_schema_for_view_writeonly_put():
-    class ViewClass:
-        def put(self):
-            pass
-
-    ViewClass.put.__apispec__ = {"_params": "params"}
-    assert td.find_schema_for_view(ViewClass) == "params"
-
-
-def test_find_schema_for_view_none():
-    class ViewClass:
-        pass
-
-    assert td.find_schema_for_view(ViewClass) == {}
-
-
 def test_td_init(helpers, thing_description, app_ctx, schemas_path):
     assert thing_description
     helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
@@ -98,10 +64,8 @@ def test_td_action(helpers, app, thing_description, view_cls, app_ctx, schemas_p
 def test_td_action_with_schema(
     helpers, app, thing_description, view_cls, app_ctx, schemas_path
 ):
-    view_cls.post.__apispec__ = {
-        "_params": {"integer": fields.Int()},
-        "@type": "ToggleAction",
-    }
+    view_cls.args = {"integer": fields.Int()}
+    view_cls.semtype = "ToggleAction"
 
     app.add_url_rule("/", view_func=view_cls.as_view("index"))
     rules = app.url_map._rules_by_endpoint["index"]
@@ -110,9 +74,19 @@ def test_td_action_with_schema(
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("actions")
-        assert thing_description.to_dict().get("actions").get("index").get("input") == {
-            "type": "object",
-            "properties": {"integer": {"type": "integer", "format": "int32"}},
+        assert thing_description.to_dict().get("actions").get("index") == {
+            "title": "ViewClass",
+            "description": "",
+            "links": [{"href": "/"}],
+            "safe": False,
+            "idempotent": False,
+            "forms": [
+                {"op": ["invokeaction"], "href": "/", "contentType": "application/json"}
+            ],
+            "input": {
+                "type": "object",
+                "properties": {"integer": {"type": "integer", "format": "int32"}},
+            },
             "@type": "ToggleAction",
         }
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
