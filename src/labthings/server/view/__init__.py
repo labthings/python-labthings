@@ -91,7 +91,10 @@ class View(MethodView):
             meth = getattr(self, "get", None)
 
         # Marhal response if a response schema is defines
-        if meth in ("get", "put", "post", "patch") and self.get_schema():
+        if (
+            request.method in ("GET", "PUT", "POST", "PATCH", "DELETE")
+            and self.get_schema()
+        ):
             meth = marshal_with(self.get_schema())(meth)
 
         # Flask should ensure this is assersion never fails
