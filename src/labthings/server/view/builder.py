@@ -16,7 +16,6 @@ def property_of(
     description=None,
     semtype=None,
     schema=fields.Field(),
-    _legacy=False,  # Old structure where POST is used to write property
 ):
 
     # Create a class name
@@ -52,10 +51,6 @@ def property_of(
         if type(getattr(property_object, property_name)) is dict:
             generated_class.put = _update
             generated_class.methods.add("PUT")
-        # If legacy mode, use POST to write property
-        elif _legacy:
-            generated_class.post = _write
-            generated_class.methods.add("POST")
         # Normally, use PUT to write property
         else:
             generated_class.put = _write
@@ -72,11 +67,11 @@ def property_of(
     # Apply semantic type last, to ensure this is always used
     if semtype:
         if isinstance(semtype, str):
-            generated_class = Semtype(semtype)(generated_class)
+            generated_class.semtype = semtype
         elif isinstance(semtype, Semantic):
             generated_class = semtype(generated_class)
         else:
-            logging.error(
+            raise TypeError(
                 "Unsupported type for semtype. Must be a string or Semantic object"
             )
     return generated_class
@@ -125,7 +120,7 @@ def action_from(
         elif isinstance(semtype, Semantic):
             generated_class = semtype(generated_class)
         else:
-            logging.error(
+            raise TypeError(
                 "Unsupported type for semtype. Must be a string or Semantic object"
             )
 
