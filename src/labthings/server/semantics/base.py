@@ -2,7 +2,10 @@ from .. import fields
 
 
 class Semantic:
-    pass
+    def __call__(self, viewcls):
+        # Use the class name as the semantic type
+        viewcls.semtype = self.__class__.__name__
+        return viewcls
 
 
 # BASIC PROPERTIES
