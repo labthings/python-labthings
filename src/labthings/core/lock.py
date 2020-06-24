@@ -33,7 +33,7 @@ class StrictLock:
         self.name = name
 
     @contextmanager
-    def acquire_timeout(self, timeout, blocking=True):
+    def __call__(self, timeout=sentinel, blocking=True):
         result = self.acquire(timeout=timeout, blocking=blocking)
         yield result
         if result:
@@ -91,7 +91,7 @@ class CompositeLock:
         self.timeout = timeout
 
     @contextmanager
-    def acquire_timeout(self, timeout, blocking=True):
+    def __call__(self, timeout=sentinel, blocking=True):
         result = self.acquire(timeout=timeout, blocking=blocking)
         yield result
         if result:
