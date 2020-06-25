@@ -1,6 +1,7 @@
 from gevent.hub import getcurrent
 from gevent.lock import RLock as _RLock
 
+from contextlib import contextmanager
 import logging
 
 from .exceptions import LockError
@@ -31,6 +32,13 @@ class StrictLock:
         self.timeout = timeout
         self.name = name
 
+    @contextmanager
+    def __call__(self, timeout=sentinel, blocking=True):
+        result = self.acquire(timeout=timeout, blocking=blocking)
+        yield result
+        if result:
+            self.release()
+        
     def locked(self):
         return self._lock.locked()
 
@@ -82,6 +90,13 @@ class CompositeLock:
         self.locks = locks
         self.timeout = timeout
 
+    @contextmanager
+    def __call__(self, timeout=sentinel, blocking=True):
+        result = self.acquire(timeout=timeout, blocking=blocking)
+        yield result
+        if result:
+            self.release()
+        
     def acquire(self, blocking=True, timeout=sentinel):
         if timeout is sentinel:
             timeout = self.timeout
