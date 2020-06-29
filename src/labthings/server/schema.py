@@ -1,14 +1,21 @@
 # -*- coding: utf-8 -*-
 from flask import url_for
 from werkzeug.routing import BuildError
-from marshmallow import Schema, pre_dump
+from marshmallow import Schema, pre_load, pre_dump
 from collections.abc import Mapping
 
 from .names import TASK_ENDPOINT, EXTENSION_LIST_ENDPOINT
 from .utilities import view_class_from_endpoint, description_from_view
 from . import fields
 
-__all__ = ["Schema", "FieldSchema", "TaskSchema", "ExtensionSchema"]
+__all__ = [
+    "Schema",
+    "FieldSchema",
+    "TaskSchema",
+    "ExtensionSchema",
+    "pre_load",
+    "pre_dump",
+]
 
 
 class FieldSchema(Schema):
