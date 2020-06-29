@@ -44,9 +44,6 @@ class View(MethodView):
     tags: list = []
     title: None
 
-    # Content type of response, usually application/json
-    content_type: str = "application/json"
-
     responses: dict = {}
 
     def __init__(self, *args, **kwargs):
@@ -58,7 +55,7 @@ class View(MethodView):
 
     @classmethod
     def get_responses(cls):
-        r = {200: cls.schema}
+        r = {200: {"schema": cls.schema, "content_type": "application/json",}}
         r.update(cls.responses)
         return r
 
@@ -131,7 +128,13 @@ class ActionView(View):
     @classmethod
     def get_responses(cls):
         """Build an output schema that includes the Action wrapper object"""
-        r = {201: build_action_schema(cls.schema, cls.args)()}
+        r = {
+            201: {
+                "schema": build_action_schema(cls.schema, cls.args)(),
+                "content_type": "application/json",
+                "description": "Action started",
+            }
+        }
         r.update(cls.responses)
         return r
 

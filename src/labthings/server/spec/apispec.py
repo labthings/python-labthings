@@ -63,14 +63,19 @@ def view_to_apispec_operations(view, apispec: APISpec):
             if hasattr(view, "get_responses"):
                 ops[op]["responses"] = {}
 
-                for code, schema in view.get_responses().items():
+                for code, response in view.get_responses().items():
                     ops[op]["responses"][code] = {
-                        "description": HTTPStatus(code).phrase,
+                        "description": response.get("description")
+                        or HTTPStatus(code).phrase,
                         "content": {
-                            getattr(view, "content_type", "application/json"): {
-                                "schema": convert_to_schema_or_json(schema, apispec)
+                            # See if response description specifies a content_type
+                            # If not, assume application/json
+                            response.get("content_type", "application/json"): {
+                                "schema": convert_to_schema_or_json(
+                                    response.get("schema"), apispec
+                                )
                             }
-                            if schema
+                            if response.get("schema")
                             else {}  # If no schema is defined, don't include one in the APISpec
                         },
                     }
