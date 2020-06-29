@@ -26,6 +26,8 @@ class TaskView(View):
     tags = ["tasks"]
     schema = TaskSchema()
 
+    marshal_methods = ("GET", "DELETE")
+
     def get(self, task_id):
         """
         Show status of a session task
