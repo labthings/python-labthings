@@ -38,7 +38,7 @@ def test_view_to_apispec_tags(spec):
     class Index(View):
         """Index docstring"""
 
-        tags = ["tag1", "tag2"]
+        tags = set(["tag1", "tag2"])
 
         def get(self):
             return "GET"
@@ -46,24 +46,10 @@ def test_view_to_apispec_tags(spec):
         def post(self):
             return "POST"
 
-    assert apispec.view_to_apispec_operations(Index, spec) == {
-        "get": {
-            "description": "Index docstring",
-            "summary": "Index docstring",
-            "tags": ["tag1", "tag2"],
-            "responses": {
-                200: {"description": "OK", "content": {"application/json": {}}}
-            },
-        },
-        "post": {
-            "description": "Index docstring",
-            "summary": "Index docstring",
-            "tags": ["tag1", "tag2"],
-            "responses": {
-                200: {"description": "OK", "content": {"application/json": {}}}
-            },
-        },
-    }
+    spec_ops = apispec.view_to_apispec_operations(Index, spec)
+
+    assert set(spec_ops["get"]["tags"]) == Index.tags
+    assert set(spec_ops["post"]["tags"]) == Index.tags
 
 
 def test_dict_to_apispec_operations_params(spec):
