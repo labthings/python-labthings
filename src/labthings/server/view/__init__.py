@@ -41,7 +41,8 @@ class View(MethodView):
     schema: Schema = None
     args: dict = None
     semtype: str = None
-    tags: list = []
+    tags: list = []  # Custom tags the user can add
+    _cls_tags = set()  # Class tags that shouldn't be removed
     title: None
 
     responses: dict = {}
@@ -66,6 +67,10 @@ class View(MethodView):
     @classmethod
     def get_args(cls):
         return cls.args
+
+    @classmethod
+    def get_tags(cls):
+        return cls._cls_tags.union(set(cls.tags))
 
     def get_value(self):
         get_method = getattr(self, "get", None)  # Look for this views GET method
@@ -121,7 +126,7 @@ class View(MethodView):
 
 
 class ActionView(View):
-    tags: list = ["actions"]
+    _cls_tags = {"actions"}
     safe: bool = False
     idempotent: bool = False
 
@@ -177,7 +182,7 @@ class ActionView(View):
 
 
 class PropertyView(View):
-    tags: list = ["properties"]
+    _cls_tags = {"properties"}
 
     @classmethod
     def get_args(cls):
