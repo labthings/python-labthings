@@ -92,9 +92,13 @@ class View(MethodView):
         if meth is None and request.method == "HEAD":
             meth = getattr(self, "get", None)
 
-        # Marhal response if a response schema is defines
+        # Inject request arguments if an args schema is defined
+        if request.method in ("POST", "PUT", "PATCH") and self.get_args():
+            meth = use_args(self.get_args())(meth)
+
+        # Marhal response if a response schema is defined
         if (
-            request.method in ("GET", "PUT", "POST", "PATCH", "DELETE")
+            request.method in ("GET", "PUT", "POST", "PATCH")
             and self.get_schema()
         ):
             meth = marshal_with(self.get_schema())(meth)
@@ -190,22 +194,8 @@ class PropertyView(View):
         return cls.schema
 
     def dispatch_request(self, *args, **kwargs):
-        meth = getattr(self, request.method.lower(), None)
-
-        # If the request method is HEAD and we don't have a handler for it
-        # retry with GET.
-        if meth is None and request.method == "HEAD":
-            meth = getattr(self, "get", None)
-
-        # Flask should ensure this is assersion never fails
-        assert meth is not None, f"Unimplemented method {request.method!r}"
-
-        # Inject request arguments if an args schema is defined
-        if request.method in ("POST", "PUT", "PATCH") and self.get_args():
-            meth = use_args(self.get_args())(meth)
-
         # Generate basic response
-        resp = self.represent_response(meth(*args, **kwargs))
+        resp = View.dispatch_request(self, *args, **kwargs)
 
         # Emit property event
         if request.method in ("POST", "PUT", "DELETE", "PATCH"):
