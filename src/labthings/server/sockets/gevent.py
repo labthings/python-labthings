@@ -10,7 +10,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 from werkzeug.exceptions import NotFound
 from werkzeug.http import parse_cookie
 from flask import request
-import gevent
 
 from flask.helpers import _endpoint_from_view_func
 from werkzeug.routing import Map, Rule, BuildError

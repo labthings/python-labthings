@@ -2,8 +2,6 @@ from apispec import APISpec
 from .paths import rule_to_path, rule_to_params
 from .utilities import convert_to_schema_or_json
 
-from ..schema import Schema
-
 from labthings.core.utilities import get_docstring, get_summary
 
 from werkzeug.routing import Rule
