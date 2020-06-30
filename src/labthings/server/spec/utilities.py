@@ -1,11 +1,8 @@
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 
-from ...core.utilities import merge, get_docstring, get_summary, snake_to_camel
-
 from ..fields import Field
-from ..schema import Schema, build_action_schema
-from ..view import ActionView
+from ..schema import Schema
 
 from collections.abc import Mapping
 
