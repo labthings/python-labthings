@@ -45,14 +45,6 @@ class use_body:
 
         return wrapper
 
-
-def args_to_wrapper(schema, **kwargs):
-    if isinstance(schema, Field):
-        return use_body(schema, **kwargs)
-    else:
-        return flaskparser.use_args(schema, **kwargs)
-
-
 class use_args:
     """Equivalent to webargs.flask_parser.use_args"""
 
