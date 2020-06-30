@@ -38,7 +38,7 @@ class StrictLock:
         yield result
         if result:
             self.release()
-        
+
     def locked(self):
         return self._lock.locked()
 
@@ -96,7 +96,7 @@ class CompositeLock:
         yield result
         if result:
             self.release()
-        
+
     def acquire(self, blocking=True, timeout=sentinel):
         if timeout is sentinel:
             timeout = self.timeout

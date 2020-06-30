@@ -5,9 +5,8 @@ import gevent
 import logging
 
 
-STATIC_SOCKET_RESPONSES = {
-    "__unittest": "__unittest_response"
-}
+STATIC_SOCKET_RESPONSES = {"__unittest": "__unittest_response"}
+
 
 def socket_handler(ws):
     # Create a socket subscriber

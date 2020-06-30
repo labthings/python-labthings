@@ -45,6 +45,7 @@ class use_body:
 
         return wrapper
 
+
 class use_args:
     """Equivalent to webargs.flask_parser.use_args"""
 

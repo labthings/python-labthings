@@ -99,10 +99,7 @@ class View(MethodView):
             meth = use_args(self.get_args())(meth)
 
         # Marhal response if a response schema is defined
-        if (
-            request.method in self.marshal_methods
-            and self.get_schema()
-        ):
+        if request.method in self.marshal_methods and self.get_schema():
             meth = marshal_with(self.get_schema())(meth)
 
         # Flask should ensure this is assersion never fails

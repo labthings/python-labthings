@@ -180,4 +180,3 @@ def test_rule_to_apispec_path_params(app, spec):
             },
         },
     }
-

@@ -147,6 +147,7 @@ def test_get_value_raise_if_not_callable():
         # Main test
         Index().get_value()
 
+
 def test_get_responses(app_ctx):
     class Index(view.View):
         def post(self):
