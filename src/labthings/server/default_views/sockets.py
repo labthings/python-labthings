@@ -5,6 +5,10 @@ import gevent
 import logging
 
 
+STATIC_SOCKET_RESPONSES = {
+    "__unittest": "__unittest_response"
+}
+
 def socket_handler(ws):
     # Create a socket subscriber
     wssub = SocketSubscriber(ws)
@@ -26,6 +30,7 @@ def socket_handler(ws):
 
 def process_socket_message(message: str):
     if message:
-        return None
+        if message in STATIC_SOCKET_RESPONSES:
+            return STATIC_SOCKET_RESPONSES.get(message)
     else:
         return None
