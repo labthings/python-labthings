@@ -323,12 +323,13 @@ class LabThing:
             self.spec.path(**rule_to_apispec_path(flask_rule, view, self.spec))
 
         # Handle resource groups listed in API spec
-        if "actions" in getattr(view, "tags", []):
-            self.thing_description.action(flask_rules, view)
-            self._action_views[view.endpoint] = view
-        if "properties" in getattr(view, "tags", []):
-            self.thing_description.property(flask_rules, view)
-            self._property_views[view.endpoint] = view
+        if hasattr(view, "get_tags"):
+            if "actions" in view.get_tags():
+                self.thing_description.action(flask_rules, view)
+                self._action_views[view.endpoint] = view
+            if "properties" in view.get_tags():
+                self.thing_description.property(flask_rules, view)
+                self._property_views[view.endpoint] = view
 
     # Event stuff
     def add_event(self, name, schema=None):
