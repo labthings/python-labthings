@@ -4,149 +4,10 @@ from apispec.ext.marshmallow import MarshmallowPlugin
 from ...core.utilities import merge, get_docstring, get_summary, snake_to_camel
 
 from ..fields import Field
-from ..schema import build_action_schema
+from ..schema import Schema, build_action_schema
 from ..view import ActionView
 
-from marshmallow import Schema as BaseSchema
 from collections.abc import Mapping
-
-
-def compile_view_spec(view):
-    """Compile a complete API Spec of a View and its HTTP methods
-
-    Arguments:
-        view {View} -- LabThings View class
-
-    Returns:
-        [dict] -- Compiled API Spec
-    """
-    # Create a 201 schema for Action views
-    view_name = snake_to_camel(getattr(view, "endpoint") or getattr(view, "__name__"))
-    if issubclass(view, ActionView) and hasattr(view, "post"):
-        # Get current 200 response schema, or None if none given
-        current_output_schema = get_spec(view.post).get("_schema", {}).get(200)
-        # Get current request input schema, or None if none given
-        current_input_schema = get_spec(view.post).get("_params", {})
-        # Build an action schema, and attach it to view.post.__apispec__
-        get_spec(view.post).setdefault("_schema", {}).setdefault(
-            201,
-            build_action_schema(
-                current_output_schema, current_input_schema, name=view_name
-            )(),
-        )
-
-    # Get the current view API spec
-    spec = get_spec(view)
-
-    # Set defaults
-    spec.setdefault("description", get_docstring(view))
-    spec.setdefault("summary", get_summary(view) or spec["description"])
-    spec.setdefault("tags", set())
-
-    # Expand operations (GET, POST etc)
-    spec["_operations"] = {}
-    for operation in ("get", "post", "put", "delete"):
-        meth = getattr(view, operation, None)
-        if meth:
-            meth_spec = get_spec(meth)
-
-            # Set defaults
-            meth_spec.setdefault(
-                "description", get_docstring(meth) or spec["description"]
-            )
-            meth_spec.setdefault("summary", get_summary(meth) or spec["summary"])
-            meth_spec.setdefault("tags", set())
-            meth_spec["tags"] = meth_spec["tags"].union(spec["tags"])
-
-            spec["_operations"][operation] = meth_spec
-
-    return spec
-
-
-def update_spec(obj, spec: dict):
-    """Add API spec data to an object
-
-    Args:
-        obj: Python object
-        spec (dict): Dictionary of API spec data to add
-    """
-    # obj.__apispec__ = obj.__dict__.get("__apispec__", {})
-    obj.__apispec__ = getattr(obj, "__apispec__", {})
-    obj.__apispec__ = merge(obj.__apispec__, spec)
-    return obj.__apispec__ or {}
-
-
-def tag_spec(obj, tags, add_group: bool = True):
-    obj.__apispec__ = obj.__dict__.get("__apispec__", {})
-
-    if "tags" not in obj.__apispec__:
-        obj.__apispec__["tags"] = set()
-
-    if isinstance(tags, set) or isinstance(tags, list):
-        if not all(isinstance(e, str) for e in tags):
-            raise TypeError("All tags must be strings")
-        obj.__apispec__["tags"] = obj.__apispec__["tags"].union(tags)
-    elif isinstance(tags, str):
-        obj.__apispec__["tags"].add(tags)
-    else:
-        raise TypeError("All tags must be strings")
-
-
-def get_spec(obj):
-    """
-    Get the __apispec__ dictionary, created by LabThings decorators,
-    for a particular Python object
-
-    Args:
-        obj: Python object
-
-    Returns:
-        dict: API spec dictionary. Returns empty dictionary if no spec is found.
-    """
-    if not obj:
-        return {}
-    obj.__apispec__ = getattr(obj, "__apispec__", {})
-    return obj.__apispec__ or {}
-
-
-def get_topmost_spec_attr(view, spec_key: str):
-    """
-    Get the __apispec__ value corresponding to spec_key, from first the root view,
-    falling back to GET, POST, and PUT in that descending order of priority
-
-    Args:
-        view: API view object
-
-    Returns:
-        spec value corresponding to spec_key
-    """
-    spec = get_spec(view)
-    value = spec.get(spec_key)
-
-    if not value:
-        for meth in ["get", "post", "put"]:
-            spec = get_spec(getattr(view, meth, None))
-            value = spec.get(spec_key)
-            if value:
-                break
-    return value
-
-
-def get_semantic_type(view):
-    """
-    Get the @type value of a view, from first the root view,
-    falling back to GET, POST, and PUT in that descending order of priority
-
-    Args:
-        view: API view object
-
-    Returns:
-        Dictionary of {"@type": `found @type value`}
-    """
-    top_semtype = get_topmost_spec_attr(view, "@type")
-    if top_semtype:
-        return {"@type": top_semtype}
-    return {}
 
 
 def convert_to_schema_or_json(schema, spec: APISpec):
@@ -162,7 +23,7 @@ def convert_to_schema_or_json(schema, spec: APISpec):
         return schema
 
     # Expand/convert actual schema data
-    if isinstance(schema, BaseSchema):
+    if isinstance(schema, Schema):
         return schema
     elif isinstance(schema, Mapping):
         return map_to_properties(schema, spec)
@@ -217,7 +78,7 @@ def schema_to_json(schema, spec: APISpec):
     This is used, for example, in the Thing Description.
     """
 
-    if isinstance(schema, BaseSchema):
+    if isinstance(schema, Schema):
         marshmallow_plugin = next(
             plugin for plugin in spec.plugins if isinstance(plugin, MarshmallowPlugin)
         )

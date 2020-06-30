@@ -1,15 +1,6 @@
-from labthings.server.decorators import (
-    PropertySchema,
-    use_args,
-    Doc,
-    Safe,
-    Idempotent,
-    Semtype,
-)
-from labthings.server.semantics.base import Semantic
 from . import View, ActionView, PropertyView
 from .. import fields
-from ..spec.utilities import compile_view_spec
+from ..semantics.base import Semantic
 
 import os
 import glob
@@ -25,7 +16,6 @@ def property_of(
     description=None,
     semtype=None,
     schema=fields.Field(),
-    _legacy=False,  # Old structure where POST is used to write property
 ):
 
     # Create a class name
@@ -61,10 +51,6 @@ def property_of(
         if type(getattr(property_object, property_name)) is dict:
             generated_class.put = _update
             generated_class.methods.add("PUT")
-        # If legacy mode, use POST to write property
-        elif _legacy:
-            generated_class.post = _write
-            generated_class.methods.add("POST")
         # Normally, use PUT to write property
         else:
             generated_class.put = _write
@@ -72,28 +58,22 @@ def property_of(
 
     # Add decorators for arguments etc
     if schema:
-        generated_class = PropertySchema(schema)(generated_class)
+        generated_class.schema = schema
 
     if description:
-        generated_class = Doc(description=description, summary=description)(
-            generated_class
-        )
+        generated_class.description = description
+        generated_class.summary = description.partition("\n")[0].strip()
 
     # Apply semantic type last, to ensure this is always used
     if semtype:
         if isinstance(semtype, str):
-            generated_class = Semtype(semtype)(generated_class)
+            generated_class.semtype = semtype
         elif isinstance(semtype, Semantic):
             generated_class = semtype(generated_class)
         else:
-            logging.error(
+            raise TypeError(
                 "Unsupported type for semtype. Must be a string or Semantic object"
             )
-
-    # Compile the generated views spec
-    # Useful if its being attached to something other than a LabThing instance
-    compile_view_spec(generated_class)
-
     return generated_class
 
 
@@ -104,6 +84,7 @@ def action_from(
     safe=False,
     idempotent=False,
     args=None,
+    schema=None,
     semtype=None,
 ):
 
@@ -121,35 +102,30 @@ def action_from(
     # Add decorators for arguments etc
     if args is not None:
         generated_class = type(name, (ActionView, object), {"post": _post_with_args})
-        generated_class.post = use_args(args)(generated_class.post)
+        generated_class.args = args
     else:
         generated_class = type(name, (ActionView, object), {"post": _post})
 
+    if schema:
+        generated_class.schema = schema
+
     if description:
-        generated_class = Doc(description=description, summary=description)(
-            generated_class
-        )
-
-    if safe:
-        generated_class = Safe(generated_class)
-
-    if idempotent:
-        generated_class = Idempotent(generated_class)
+        generated_class.description = description
+        generated_class.summary = description.partition("\n")[0].strip()
 
     # Apply semantic type last, to ensure this is always used
     if semtype:
         if isinstance(semtype, str):
-            generated_class = Semtype(semtype)(generated_class)
+            generated_class.semtype = semtype
         elif isinstance(semtype, Semantic):
             generated_class = semtype(generated_class)
         else:
-            logging.error(
+            raise TypeError(
                 "Unsupported type for semtype. Must be a string or Semantic object"
             )
 
-    # Compile the generated views spec
-    # Useful if its being attached to something other than a LabThing instance
-    compile_view_spec(generated_class)
+    generated_class.safe = safe
+    generated_class.idempotent = idempotent
 
     return generated_class
 

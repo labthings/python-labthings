@@ -1,5 +1,9 @@
+import pytest
+
 from labthings.server.view import builder
 from labthings.server import fields
+
+from labthings.server.semantics.base import Semantic
 
 
 def test_property_of_no_schema(app, client):
@@ -73,8 +77,52 @@ def test_property_of_name_description():
         obj, "property_name", name="property_name", description="property description"
     )
 
-    assert GeneratedClass.__apispec__.get("description") == "property description"
-    assert GeneratedClass.__apispec__.get("summary") == "property description"
+    assert GeneratedClass.description == "property description"
+    assert GeneratedClass.summary == "property description"
+
+
+def test_property_of_semtype_string():
+    obj = type("obj", (object,), {"property_name": "propertyValue"})
+    GeneratedClass = builder.property_of(
+        obj, "property_name", name="property_name", semtype="SemanticType"
+    )
+
+    assert GeneratedClass.semtype == "SemanticType"
+
+
+def test_property_of_semtype_semantic():
+    obj = type("obj", (object,), {"property_name": "propertyValue"})
+
+    semantic_annotation = Semantic()
+
+    GeneratedClass = builder.property_of(
+        obj, "property_name", name="property_name", semtype=semantic_annotation
+    )
+
+    assert GeneratedClass.semtype == "Semantic"
+
+
+def test_property_of_semtype_invalid():
+    obj = type("obj", (object,), {"property_name": "propertyValue"})
+
+    semantic_annotation = object
+
+    with pytest.raises(TypeError):
+        GeneratedClass = builder.property_of(
+            obj, "property_name", name="property_name", semtype=semantic_annotation
+        )
+
+
+def test_action_from(debug_app, debug_client):
+    def f():
+        return "response"
+
+    GeneratedClass = builder.action_from(f)
+    debug_app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
+
+    with debug_client as c:
+        response = c.post("/").json
+        assert "status" in response
 
 
 def test_action_from_with_args(app, client):
@@ -93,19 +141,20 @@ def test_action_from_with_args(app, client):
         assert response["input"] == input_json
 
 
-def test_action_from(debug_app, debug_client):
+def test_action_from_with_schema(app, client):
     def f():
         return "response"
 
-    GeneratedClass = builder.action_from(f)
-    debug_app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
+    GeneratedClass = builder.action_from(f, schema=fields.String())
+    app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
 
-    with debug_client as c:
+    with client as c:
         response = c.post("/").json
         assert "status" in response
+        assert response["output"] == "response"
 
 
-def test_action_from_options(app):
+def test_action_from_with_options(app):
     def f():
         return "response"
 
@@ -116,6 +165,36 @@ def test_action_from_options(app):
         safe=True,
         idempotent=True,
     )
+
+
+def test_action_from_semtype_string():
+    def f():
+        return "response"
+
+    GeneratedClass = builder.action_from(f, semtype="SemanticType")
+
+    assert GeneratedClass.semtype == "SemanticType"
+
+
+def test_action_from_semtype_semantic():
+    def f():
+        return "response"
+
+    semantic_annotation = Semantic()
+
+    GeneratedClass = builder.action_from(f, semtype=semantic_annotation)
+
+    assert GeneratedClass.semtype == "Semantic"
+
+
+def test_action_from_semtype_invalid():
+    def f():
+        return "response"
+
+    semantic_annotation = object
+
+    with pytest.raises(TypeError):
+        GeneratedClass = builder.action_from(f, semtype=semantic_annotation)
 
 
 def test_static_from(app, client, app_ctx, static_path):

@@ -61,7 +61,9 @@ def test_task_kill(thing_client):
 
     # Send a DELETE request to terminate the task
     with thing_client as c:
-        assert c.delete(f"/tasks/{task_id}").status_code == 200
+        response = c.delete(f"/tasks/{task_id}")
+        print(response.json)
+        assert response.status_code == 200
     # Test task was terminated
     assert task_obj._status == "terminated"
 

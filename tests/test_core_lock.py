@@ -68,7 +68,6 @@ def test_rlock_block(this_lock):
 
     # Override owner to force acquisition failure
     this_lock._owner = None
-    print(this_lock._owner)
     # Assert not owner
     assert not this_lock._is_owned()
 
@@ -88,8 +87,17 @@ def test_rlock_block(this_lock):
 
     # Release lock, assert no owner
     assert not this_lock._is_owned()
-    
-def test_rlock_acquire_timeout(this_lock):
+
+
+def test_rlock_acquire_timeout_pass(this_lock):
+    # Assert acquisition fails using context manager
+    with this_lock(timeout=0.01) as result:
+        assert result is True
+
+    assert not this_lock.locked()
+
+
+def test_rlock_acquire_timeout_fail(this_lock):
     from labthings.core.exceptions import LockError
 
     # Acquire lock
@@ -97,13 +105,12 @@ def test_rlock_acquire_timeout(this_lock):
 
     # Override owner to force acquisition failure
     this_lock._owner = None
-    print(this_lock._owner)
     # Assert not owner
     assert not this_lock._is_owned()
 
     # Assert acquisition fails using context manager
     with pytest.raises(LockError):
-        with this_lock(timeout=0.01):
+        with this_lock(timeout=0.01) as result:
             pass
 
     # Force ownership

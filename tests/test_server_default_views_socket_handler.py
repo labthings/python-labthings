@@ -6,11 +6,11 @@ from labthings.server.default_views.sockets import (
 
 def test_socket_handler(thing_ctx, fake_websocket):
     with thing_ctx.test_request_context():
-        ws = fake_websocket("", recieve_once=True)
+        ws = fake_websocket(
+            "__unittest", recieve_once=True, close_after=["__unittest_response"]
+        )
         socket_handler(ws)
-        # Only responses should be announcing new subscribers
-        for response in ws.responses:
-            assert '"message": "Added subscriber' in response
+        assert "__unittest_response" in ws.responses
 
 
 ### Will need regular updating as new message handlers are added

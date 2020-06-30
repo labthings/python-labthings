@@ -61,13 +61,13 @@ def test_view_decorator(thing, client):
 
 
 def test_add_view_action(thing, view_cls, client):
-    view_cls.__apispec__ = {"tags": {"actions",}}
+    view_cls.tags = ["actions"]
     thing.add_view(view_cls, "/index", endpoint="index")
     assert view_cls in thing._action_views.values()
 
 
 def test_add_view_property(thing, view_cls, client):
-    view_cls.__apispec__ = {"tags": {"properties",}}
+    view_cls.tags = ["properties"]
     thing.add_view(view_cls, "/index", endpoint="index")
     assert view_cls in thing._property_views.values()
 

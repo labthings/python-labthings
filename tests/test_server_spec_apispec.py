@@ -1,47 +1,67 @@
 from labthings.server.spec import apispec
-from labthings.server.spec.utilities import compile_view_spec
 from labthings.server.view import View
 
 from labthings.server import fields
 
 
-def test_dict_to_apispec_operations_no_spec(spec):
+def test_view_to_apispec_operations_no_spec(spec):
     class Index(View):
+        """Index docstring"""
+
         def get(self):
             return "GET"
 
         def post(self):
             return "POST"
 
-    spec_dict = compile_view_spec(Index)
-
-    assert apispec.dict_to_apispec_operations(spec_dict["_operations"], spec) == {
+    assert apispec.view_to_apispec_operations(Index, spec) == {
         "get": {
-            "responses": {200: {"description": "OK"}},
-            "description": "",
-            "summary": "",
-            "tags": set(),
+            "description": "Index docstring",
+            "summary": "Index docstring",
+            "tags": [],
+            "responses": {
+                200: {"description": "OK", "content": {"application/json": {}}}
+            },
         },
         "post": {
-            "responses": {200: {"description": "OK"}},
-            "description": "",
-            "summary": "",
-            "tags": set(),
+            "description": "Index docstring",
+            "summary": "Index docstring",
+            "tags": [],
+            "responses": {
+                200: {"description": "OK", "content": {"application/json": {}}}
+            },
         },
     }
 
 
-def test_dict_to_apispec_operations_params(spec):
+def test_view_to_apispec_tags(spec):
     class Index(View):
+        """Index docstring"""
+
+        tags = set(["tag1", "tag2"])
+
         def get(self):
             return "GET"
 
-    spec_dict = compile_view_spec(Index)
-    spec_dict["_operations"]["get"]["_params"] = {"integer": fields.Int()}
+        def post(self):
+            return "POST"
 
-    assert (apispec.dict_to_apispec_operations(spec_dict["_operations"], spec))["get"][
-        "requestBody"
-    ] == {
+    spec_ops = apispec.view_to_apispec_operations(Index, spec)
+
+    assert set(spec_ops["get"]["tags"]) == Index.tags
+    assert set(spec_ops["post"]["tags"]) == Index.tags
+
+
+def test_dict_to_apispec_operations_params(spec):
+    class Index(View):
+        """Index docstring"""
+
+        args = {"integer": fields.Int()}
+
+        def put(self):
+            return "GET"
+
+    assert (apispec.view_to_apispec_operations(Index, spec))["put"]["requestBody"] == {
         "content": {
             "application/json": {
                 "schema": {
@@ -55,15 +75,13 @@ def test_dict_to_apispec_operations_params(spec):
 
 def test_dict_to_apispec_operations_schema(spec):
     class Index(View):
+
+        schema = {"integer": fields.Int()}
+
         def get(self):
             return "GET"
 
-    spec_dict = compile_view_spec(Index)
-    spec_dict["_operations"]["get"]["_schema"] = {200: {"integer": fields.Int()}}
-
-    assert (apispec.dict_to_apispec_operations(spec_dict["_operations"], spec))["get"][
-        "responses"
-    ][200] == {
+    assert apispec.view_to_apispec_operations(Index, spec)["get"]["responses"][200] == {
         "description": "OK",
         "content": {
             "application/json": {
@@ -76,21 +94,10 @@ def test_dict_to_apispec_operations_schema(spec):
     }
 
 
-def test_method_to_apispec_operation_extra_fields(spec):
-    class Index(View):
-        def get(self):
-            return "GET"
-
-    spec_dict = compile_view_spec(Index)
-    spec_dict["_operations"]["get"]["summary"] = "A summary"
-
-    assert (apispec.dict_to_apispec_operations(spec_dict["_operations"], spec))["get"][
-        "summary"
-    ] == "A summary"
-
-
 def test_rule_to_apispec_path(app, spec):
     class Index(View):
+        """Index docstring"""
+
         def get(self):
             return "GET"
 
@@ -100,32 +107,33 @@ def test_rule_to_apispec_path(app, spec):
     app.add_url_rule("/path", view_func=Index.as_view("index"))
     rule = app.url_map._rules_by_endpoint["index"][0]
 
-    spec_dict = compile_view_spec(Index)
-
-    assert apispec.rule_to_apispec_path(rule, spec_dict, spec) == {
+    assert apispec.rule_to_apispec_path(rule, Index, spec) == {
         "path": "/path",
         "operations": {
             "get": {
-                "responses": {200: {"description": "OK"}},
-                "description": "",
-                "summary": "",
-                "tags": set(),
+                "description": "Index docstring",
+                "summary": "Index docstring",
+                "tags": [],
+                "responses": {
+                    200: {"description": "OK", "content": {"application/json": {}}}
+                },
             },
             "post": {
-                "responses": {200: {"description": "OK"}},
-                "description": "",
-                "summary": "",
-                "tags": set(),
+                "description": "Index docstring",
+                "summary": "Index docstring",
+                "tags": [],
+                "responses": {
+                    200: {"description": "OK", "content": {"application/json": {}}}
+                },
             },
         },
-        "description": "",
-        "summary": "",
-        "tags": set(),
     }
 
 
 def test_rule_to_apispec_path_params(app, spec):
     class Index(View):
+        """Index docstring"""
+
         def get(self):
             return "GET"
 
@@ -135,16 +143,16 @@ def test_rule_to_apispec_path_params(app, spec):
     app.add_url_rule("/path/<id>/", view_func=Index.as_view("index"))
     rule = app.url_map._rules_by_endpoint["index"][0]
 
-    spec_dict = compile_view_spec(Index)
-
-    assert apispec.rule_to_apispec_path(rule, spec_dict, spec) == {
+    assert apispec.rule_to_apispec_path(rule, Index, spec) == {
         "path": "/path/{id}/",
         "operations": {
             "get": {
-                "responses": {200: {"description": "OK"}},
-                "description": "",
-                "summary": "",
-                "tags": set(),
+                "description": "Index docstring",
+                "summary": "Index docstring",
+                "tags": [],
+                "responses": {
+                    200: {"description": "OK", "content": {"application/json": {}}}
+                },
                 "parameters": [
                     {
                         "in": "path",
@@ -155,10 +163,12 @@ def test_rule_to_apispec_path_params(app, spec):
                 ],
             },
             "post": {
-                "responses": {200: {"description": "OK"}},
-                "description": "",
-                "summary": "",
-                "tags": set(),
+                "description": "Index docstring",
+                "summary": "Index docstring",
+                "tags": [],
+                "responses": {
+                    200: {"description": "OK", "content": {"application/json": {}}}
+                },
                 "parameters": [
                     {
                         "in": "path",
@@ -169,7 +179,4 @@ def test_rule_to_apispec_path_params(app, spec):
                 ],
             },
         },
-        "description": "",
-        "summary": "",
-        "tags": set(),
     }

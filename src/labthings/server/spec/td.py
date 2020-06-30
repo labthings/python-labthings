@@ -6,48 +6,14 @@ from ..view import View
 from ..event import Event
 
 from .utilities import (
-    get_spec,
     convert_to_schema_or_json,
     schema_to_json,
-    get_topmost_spec_attr,
-    get_semantic_type,
 )
 from .paths import rule_to_params, rule_to_path
 
 from ..find import current_labthing
 
 from labthings.core.utilities import get_docstring, snake_to_camel
-
-
-def find_schema_for_view(view: View):
-    """Find the broadest available data schema for a Flask view
-
-    Looks for GET, POST, and PUT methods depending on if the view is read/write only
-    
-    Args:
-        view (View): View to search for schema
-    
-    Returns:
-        Broadest available schema dictionary for the View. Returns empty dictionary
-            if no schema is found
-    """
-    prop_schema = {}
-    # If prop is read-only
-    if hasattr(view, "get") and not (hasattr(view, "post") or hasattr(view, "put")):
-        # Use GET schema
-        prop_schema = get_spec(view.get).get("_schema", {}).get(200)
-    # If prop is write-only
-    elif not hasattr(view, "get") and (hasattr(view, "post") or hasattr(view, "put")):
-        if hasattr(view, "post"):
-            # Use POST schema
-            prop_schema = get_spec(view.post).get("_params")
-        else:
-            # Use PUT schema
-            prop_schema = get_spec(view.put).get("_params")
-    else:
-        prop_schema = {}
-
-    return prop_schema
 
 
 def build_forms_for_view(rules: list, view: View, op: list):
@@ -64,7 +30,7 @@ def build_forms_for_view(rules: list, view: View, op: list):
     forms = []
     prop_urls = [rule_to_path(rule) for rule in rules]
 
-    content_type = get_topmost_spec_attr(view, "_content_type") or "application/json"
+    content_type = getattr(view, "content_type", None) or "application/json"
 
     for url in prop_urls:
         forms.append({"op": op, "href": url, "contentType": content_type})
@@ -176,12 +142,8 @@ class ThingDescription:
 
         # Basic description
         prop_description = {
-            "title": get_topmost_spec_attr(view, "title") or view.__name__,
-            "description": (
-                get_topmost_spec_attr(view, "description")
-                or get_docstring(view)
-                or (get_docstring(view.get) if hasattr(view, "get") else "")
-            ),
+            "title": getattr(view, "title", None) or view.__name__,
+            "description": getattr(view, "description", None) or get_docstring(view),
             "readOnly": not (
                 hasattr(view, "post") or hasattr(view, "put") or hasattr(view, "delete")
             ),
@@ -189,14 +151,14 @@ class ThingDescription:
             "links": [{"href": f"{url}"} for url in prop_urls],
             "forms": view_to_thing_property_forms(rules, view),
             "uriVariables": {},
-            **get_semantic_type(view),
         }
 
+        semtype = getattr(view, "semtype")
+        if semtype:
+            prop_description["@type"] = semtype
+
         # Look for a _propertySchema in the Property classes API SPec
-        prop_schema = get_spec(view).get("_propertySchema")
-        # If no class-level property schema was found
-        if not prop_schema:
-            prop_schema = find_schema_for_view(view)
+        prop_schema = getattr(view, "schema", None)
 
         if prop_schema:
             # Ensure valid schema type
@@ -228,30 +190,18 @@ class ThingDescription:
     def view_to_thing_action(self, rules: list, view: View):
         action_urls = [rule_to_path(rule) for rule in rules]
 
-        # Check if action is safe
-        is_safe = get_spec(view.post).get("_safe", False) or get_spec(view).get(
-            "_safe", False
-        )
-
-        is_idempotent = get_spec(view.post).get("_idempotent", False) or get_spec(
-            view
-        ).get("_idempotent", False)
-
         # Basic description
         action_description = {
-            "title": get_topmost_spec_attr(view, "title") or view.__name__,
-            "description": get_topmost_spec_attr(view, "deescription")
-            or get_docstring(view)
-            or (get_docstring(view.post) if hasattr(view, "post") else ""),
-            # TODO: Make URLs absolute
+            "title": getattr(view, "title", None) or view.__name__,
+            "description": getattr(view, "description", None) or get_docstring(view),
             "links": [{"href": f"{url}"} for url in action_urls],
+            "safe": getattr(view, "safe", False),
+            "idempotent": getattr(view, "idempotent", False),
             "forms": view_to_thing_action_forms(rules, view),
-            "safe": is_safe,
-            "idempotent": is_idempotent,
         }
 
         # Look for a _params in the Action classes API Spec
-        action_input_schema = get_spec(view.post).get("_params")
+        action_input_schema = getattr(view, "args", None)
         if action_input_schema:
             # Ensure valid schema type
             action_input_schema = convert_to_schema_or_json(
@@ -261,10 +211,13 @@ class ThingDescription:
             action_description["input"] = schema_to_json(
                 action_input_schema, self.apispec
             )
-            action_description["input"].update(get_semantic_type(view))
+
+        semtype = getattr(view, "semtype")
+        if semtype:
+            action_description["@type"] = semtype
 
         # Look for a _schema in the Action classes API Spec
-        action_output_schema = get_spec(view.post).get("_schema", {}).get(201)
+        action_output_schema = getattr(view, "schema", None)
         if action_output_schema:
             # Ensure valid schema type
             action_output_schema = convert_to_schema_or_json(
@@ -278,7 +231,7 @@ class ThingDescription:
         return action_description
 
     def property(self, rules: list, view: View):
-        endpoint = getattr(view, "endpoint") or getattr(rules[0], "endpoint")
+        endpoint = getattr(view, "endpoint", None) or getattr(rules[0], "endpoint")
         key = snake_to_camel(endpoint)
         self.properties[key] = self.view_to_thing_property(rules, view)
 
@@ -292,7 +245,7 @@ class ThingDescription:
             raise AttributeError(
                 f"The API View '{view}' was added as an Action, but it does not have a POST method."
             )
-        endpoint = getattr(view, "endpoint") or getattr(rules[0], "endpoint")
+        endpoint = getattr(view, "endpoint", None) or getattr(rules[0], "endpoint")
         key = snake_to_camel(endpoint)
         self.actions[key] = self.view_to_thing_action(rules, view)
 

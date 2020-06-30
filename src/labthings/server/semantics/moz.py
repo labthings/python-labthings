@@ -1,6 +1,7 @@
 from .. import fields
 from .base import Property
 
+
 # BASIC PROPERTIES
 class BooleanProperty(Property):
     """https://iot.mozilla.org/schemas/#BooleanProperty"""
