@@ -147,6 +147,16 @@ def test_get_value_raise_if_not_callable():
         # Main test
         Index().get_value()
 
+def test_get_responses(app_ctx):
+    class Index(view.View):
+        def post(self):
+            return {}
+
+    responses = Index.get_responses()
+    assert 200 in responses
+    assert responses[200]["content_type"] == "application/json"
+    assert "schema" in responses[200]
+
 
 def test_get_value_response_text(app_ctx):
     class Index(view.View):
@@ -170,3 +180,14 @@ def test_get_value_response_json(app_ctx):
         assert Index().get().headers.get("Content-Type") == "application/json"
         # Main test
         assert Index().get_value() == {"json": "body"}
+
+
+def test_action_view_get_responses(app_ctx):
+    class Index(view.ActionView):
+        def post(self):
+            return {}
+
+    responses = Index.get_responses()
+    assert 201 in responses
+    assert responses[201]["content_type"] == "application/json"
+    assert "schema" in responses[201]
