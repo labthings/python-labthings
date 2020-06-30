@@ -3,9 +3,6 @@ from labthings.server.monkey import patch_all
 
 patch_all()
 
-# Import requirements
-import logging
-
 from labthings.server.quick import create_app
 from labthings.server import semantics
 from labthings.server import fields
