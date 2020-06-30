@@ -32,11 +32,13 @@ def helpers():
 
 
 class FakeWebsocket:
-    def __init__(self, message: str, recieve_once=True):
+    def __init__(self, message: str, recieve_once=True, close_after=None):
         self.message = message
         self.responses = []
         self.closed = False
         self.recieve_once = recieve_once
+
+        self.close_after = close_after or []
 
         # I mean screw whoever is responsible for this having to be a thing...
         self.receive = self.recieve
@@ -59,7 +61,9 @@ class FakeWebsocket:
 
     def send(self, response):
         self.responses.append(response)
-        self.closed = True
+        # Close WS after getting the pre-defined unit test response
+        if response in self.close_after:
+            self.closed = True
         return response
 
 
@@ -317,7 +321,7 @@ def fake_websocket():
     that sends a given message, waits for a response, then closes
     """
 
-    def _foo(msg, recieve_once=True):
-        return FakeWebsocket(msg, recieve_once=recieve_once)
+    def _foo(*args, **kwargs):
+        return FakeWebsocket(*args, **kwargs)
 
     return _foo
