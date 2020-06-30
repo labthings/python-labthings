@@ -110,7 +110,7 @@ def test_rlock_acquire_timeout_fail(this_lock):
 
     # Assert acquisition fails using context manager
     with pytest.raises(LockError):
-        with this_lock(timeout=0.01) as result:
+        with this_lock(timeout=0.01):
             pass
 
     # Force ownership
