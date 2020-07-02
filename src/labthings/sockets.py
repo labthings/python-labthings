@@ -14,7 +14,7 @@ from flask import request
 from flask.helpers import _endpoint_from_view_func
 from werkzeug.routing import Map, Rule, BuildError
 
-from ..representations import encode_json
+from .representations import encode_json
 
 
 class SocketSubscriber:

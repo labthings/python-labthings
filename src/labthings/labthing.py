@@ -11,7 +11,7 @@ from .names import (
 )
 from .extensions import BaseExtension
 from .utilities import clean_url_string
-from .exceptions import JSONExceptionHandler
+from .httperrorhandler import JSONExceptionHandler
 from .logging import LabThingLogger
 from .representations import LabThingsJSONEncoder
 from .spec.apispec import rule_to_apispec_path
