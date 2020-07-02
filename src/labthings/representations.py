@@ -7,7 +7,7 @@ import json
 import cbor2
 
 
-from ..core.utilities import PY3
+from .utilities import PY3
 
 
 class LabThingsJSONEncoder(JSONEncoder):

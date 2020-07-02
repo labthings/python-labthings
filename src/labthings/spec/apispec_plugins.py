@@ -2,7 +2,7 @@ from apispec.ext.marshmallow import (
     MarshmallowPlugin as _MarshmallowPlugin,
     OpenAPIConverter,
 )
-from labthings.server.fields import Bytes as BytesField
+from ..fields import Bytes as BytesField
 
 
 class ExtendedOpenAPIConverter(OpenAPIConverter):

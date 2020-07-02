@@ -3,7 +3,7 @@ from flask import abort
 from ..view import View
 from ..schema import TaskSchema
 
-from ...core import tasks
+from .. import tasks
 
 
 class TaskList(View):

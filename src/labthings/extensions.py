@@ -8,7 +8,7 @@ import os
 import glob
 
 from .view.builder import static_from
-from ..core.utilities import get_docstring, camel_to_snake, snake_to_spine
+from .utilities import get_docstring, camel_to_snake, snake_to_spine
 
 
 class BaseExtension:

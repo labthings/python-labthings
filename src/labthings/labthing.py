@@ -28,7 +28,7 @@ from .default_views.docs import docs_blueprint, SwaggerUIView
 from .default_views.root import RootView
 from .default_views.sockets import socket_handler
 
-from labthings.core.utilities import camel_to_snake
+from .utilities import camel_to_snake
 
 from typing import Callable
 

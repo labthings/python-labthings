@@ -13,7 +13,7 @@ from .paths import rule_to_params, rule_to_path
 
 from ..find import current_labthing
 
-from labthings.core.utilities import get_docstring, snake_to_camel
+from ..utilities import get_docstring, snake_to_camel
 
 
 def build_forms_for_view(rules: list, view: View, op: list):
