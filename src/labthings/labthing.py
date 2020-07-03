@@ -13,10 +13,9 @@ from .extensions import BaseExtension
 from .utilities import clean_url_string
 from .httperrorhandler import JSONExceptionHandler
 from .logging import LabThingLogger
-from .representations import LabThingsJSONEncoder
-from .spec.apispec import rule_to_apispec_path
-from .spec.apispec_plugins import MarshmallowPlugin
-from .spec.td import ThingDescription
+from .json.encoder import LabThingsJSONEncoder
+from .apispec import MarshmallowPlugin, rule_to_apispec_path
+from .td import ThingDescription
 from .sockets import Sockets
 from .event import Event
 

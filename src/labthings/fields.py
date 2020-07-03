@@ -72,6 +72,9 @@ __all__ = [
 
 
 class Bytes(Field):
+    def _jsonschema_type_mapping(self):
+        return {"type": "string", "contentEncoding": "base64"}
+
     def _validate(self, value):
         if not isinstance(value, bytes):
             raise ValidationError("Invalid input type.")

@@ -8,7 +8,7 @@ PATH_RE = re.compile(r"<(?:[^:<>]+:)?([^<>]+)>")
 
 
 def rule_to_path(rule):
-    """Convert a Flask rule into an APISpec formatted URL path
+    """Convert a Flask rule into an JSON schema formatted URL path
     
     Args:
         rule: Flask rule object
@@ -30,7 +30,7 @@ DEFAULT_TYPE = ("string", None)
 
 
 def rule_to_params(rule, overrides=None):
-    """Convert a Flask rule into APISpec URL parameters description
+    """Convert a Flask rule into JSON schema URL parameters description
     
     Args:
         rule: Flask rule object

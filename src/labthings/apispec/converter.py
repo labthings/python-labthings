@@ -1,13 +1,9 @@
-from apispec.ext.marshmallow import (
-    MarshmallowPlugin as _MarshmallowPlugin,
-    OpenAPIConverter,
-)
+from apispec.ext.marshmallow import OpenAPIConverter
 from ..fields import Bytes as BytesField
 
 
 class ExtendedOpenAPIConverter(OpenAPIConverter):
     field_mapping = OpenAPIConverter.field_mapping
-    field_mapping.update({BytesField: ("string", None)})
 
     def init_attribute_functions(self, *args, **kwargs):
         OpenAPIConverter.init_attribute_functions(self, *args, **kwargs)
@@ -16,9 +12,5 @@ class ExtendedOpenAPIConverter(OpenAPIConverter):
     def bytes2json(self, field, **kwargs):
         ret = {}
         if isinstance(field, BytesField):
-            ret.update({"contentEncoding": "base64"})
+            ret.update(BytesField()._jsonschema_type_mapping())
         return ret
-
-
-class MarshmallowPlugin(_MarshmallowPlugin):
-    Converter = ExtendedOpenAPIConverter

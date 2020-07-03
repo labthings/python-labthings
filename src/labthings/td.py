@@ -2,18 +2,15 @@ from flask import url_for, request
 from apispec import APISpec
 import weakref
 
-from ..view import View
-from ..event import Event
+from .view import View
+from .event import Event
 
-from .utilities import (
-    convert_to_schema_or_json,
-    schema_to_json,
-)
-from .paths import rule_to_params, rule_to_path
+from .json.schemas import schema_to_json
+from .json.paths import rule_to_params, rule_to_path
 
-from ..find import current_labthing
+from .find import current_labthing
 
-from ..utilities import get_docstring, snake_to_camel
+from .utilities import get_docstring, snake_to_camel
 
 
 def build_forms_for_view(rules: list, view: View, op: list):
@@ -161,11 +158,8 @@ class ThingDescription:
         prop_schema = getattr(view, "schema", None)
 
         if prop_schema:
-            # Ensure valid schema type
-            prop_schema = convert_to_schema_or_json(prop_schema, self.apispec)
-
             # Convert schema to JSON
-            prop_schema_json = schema_to_json(prop_schema, self.apispec)
+            prop_schema_json = schema_to_json(prop_schema)
 
             # Add schema to prop description
             prop_description.update(prop_schema_json)
@@ -203,14 +197,8 @@ class ThingDescription:
         # Look for a _params in the Action classes API Spec
         action_input_schema = getattr(view, "args", None)
         if action_input_schema:
-            # Ensure valid schema type
-            action_input_schema = convert_to_schema_or_json(
-                action_input_schema, self.apispec
-            )
             # Add schema to prop description
-            action_description["input"] = schema_to_json(
-                action_input_schema, self.apispec
-            )
+            action_description["input"] = schema_to_json(action_input_schema)
 
         semtype = getattr(view, "semtype")
         if semtype:
@@ -219,14 +207,8 @@ class ThingDescription:
         # Look for a _schema in the Action classes API Spec
         action_output_schema = getattr(view, "schema", None)
         if action_output_schema:
-            # Ensure valid schema type
-            action_output_schema = convert_to_schema_or_json(
-                action_output_schema, self.apispec
-            )
             # Add schema to prop description
-            action_description["output"] = schema_to_json(
-                action_output_schema, self.apispec
-            )
+            action_description["output"] = schema_to_json(action_output_schema)
 
         return action_description
 

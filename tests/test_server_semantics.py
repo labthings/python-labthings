@@ -45,7 +45,8 @@ def test_moz_LevelProperty(helpers, app, thing_description, app_ctx, schemas_pat
             thing_description.to_dict()["properties"]["index"]["@type"]
             == "LevelProperty"
         )
-        assert thing_description.to_dict()["properties"]["index"]["type"] == "integer"
+        assert thing_description.to_dict()["properties"]["index"]["type"] == "number"
+        assert thing_description.to_dict()["properties"]["index"]["format"] == "integer"
         assert thing_description.to_dict()["properties"]["index"]["minimum"] == 0
         assert thing_description.to_dict()["properties"]["index"]["maximum"] == 100
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
@@ -67,7 +68,8 @@ def test_moz_BrightnessProperty(helpers, app, thing_description, app_ctx, schema
             thing_description.to_dict()["properties"]["index"]["@type"]
             == "BrightnessProperty"
         )
-        assert thing_description.to_dict()["properties"]["index"]["type"] == "integer"
+        assert thing_description.to_dict()["properties"]["index"]["type"] == "number"
+        assert thing_description.to_dict()["properties"]["index"]["format"] == "integer"
         assert thing_description.to_dict()["properties"]["index"]["minimum"] == 0
         assert thing_description.to_dict()["properties"]["index"]["maximum"] == 100
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)

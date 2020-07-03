@@ -74,6 +74,27 @@ def test_td_action_with_schema(
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("actions")
+        d = {
+            "title": "ViewClass",
+            "description": "",
+            "links": [{"href": "/"}],
+            "safe": False,
+            "idempotent": False,
+            "forms": [
+                {"op": ["invokeaction"], "href": "/", "contentType": "application/json"}
+            ],
+            "input": {
+                "properties": {
+                    "integer": {
+                        "title": "integer",
+                        "type": "number",
+                        "format": "integer",
+                    }
+                },
+                "type": "object",
+            },
+            "@type": "ToggleAction",
+        }
         assert thing_description.to_dict().get("actions").get("index") == {
             "title": "ViewClass",
             "description": "",
@@ -85,7 +106,7 @@ def test_td_action_with_schema(
             ],
             "input": {
                 "type": "object",
-                "properties": {"integer": {"type": "integer", "format": "int32"}},
+                "properties": {"integer": {"type": "number", "format": "integer"}},
             },
             "@type": "ToggleAction",
         }
