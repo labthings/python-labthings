@@ -11,7 +11,7 @@ from .names import (
 )
 from .extensions import BaseExtension
 from .utilities import clean_url_string
-from .httperrorhandler import JSONExceptionHandler
+from .httperrorhandler import SerializedExceptionHandler
 from .logging import LabThingLogger
 from .json.encoder import LabThingsJSONEncoder
 from .apispec import MarshmallowPlugin, rule_to_apispec_path
@@ -147,7 +147,7 @@ class LabThing:
 
         # Flask error formatter
         if self.format_flask_exceptions:
-            error_handler = JSONExceptionHandler()
+            error_handler = SerializedExceptionHandler()
             error_handler.init_app(app)
 
         # Custom JSON encoder

@@ -3,11 +3,11 @@ from werkzeug.exceptions import default_exceptions
 from werkzeug.exceptions import HTTPException
 
 
-class JSONExceptionHandler:
+class SerializedExceptionHandler:
 
     """
     A class to be registered as a Flask error handler,
-    converts error codes into a JSON response
+    converts error codes into a serialized response
     """
 
     def __init__(self, app=None):

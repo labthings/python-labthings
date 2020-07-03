@@ -1,5 +1,5 @@
 from flask import Flask
-from labthings.labthing import JSONExceptionHandler
+from labthings.labthing import SerializedExceptionHandler
 import json
 import pytest
 
@@ -21,14 +21,14 @@ def app():
 
 
 def test_registering_handler(app):
-    error_handler = JSONExceptionHandler()
+    error_handler = SerializedExceptionHandler()
     error_handler.init_app(app)
 
 
 def test_http_exception(app):
     from werkzeug.exceptions import NotFound
 
-    error_handler = JSONExceptionHandler(app)
+    error_handler = SerializedExceptionHandler(app)
 
     # Test a 404 HTTPException
     response = error_handler.std_handler(NotFound())
@@ -43,7 +43,7 @@ def test_http_exception(app):
 
 
 def test_generic_exception(app):
-    error_handler = JSONExceptionHandler(app)
+    error_handler = SerializedExceptionHandler(app)
 
     # Test a 404 HTTPException
     response = error_handler.std_handler(RuntimeError("Exception message"))
@@ -58,7 +58,7 @@ def test_generic_exception(app):
 
 
 def test_blank_exception(app):
-    error_handler = JSONExceptionHandler(app)
+    error_handler = SerializedExceptionHandler(app)
 
     e = Exception()
     e.message = None
