@@ -61,8 +61,6 @@ def test_rlock_reentry(this_lock):
 
 
 def test_rlock_block(this_lock):
-    from labthings.core.exceptions import LockError
-
     # Acquire lock
     assert this_lock.acquire()
 
@@ -72,7 +70,7 @@ def test_rlock_block(this_lock):
     assert not this_lock._is_owned()
 
     # Assert acquisition fails
-    with pytest.raises(LockError):
+    with pytest.raises(lock.LockError):
         this_lock.acquire(blocking=True, timeout=0.01)
 
     # Ensure an unheld lock cannot be released
@@ -98,8 +96,6 @@ def test_rlock_acquire_timeout_pass(this_lock):
 
 
 def test_rlock_acquire_timeout_fail(this_lock):
-    from labthings.core.exceptions import LockError
-
     # Acquire lock
     assert this_lock.acquire()
 
@@ -109,7 +105,7 @@ def test_rlock_acquire_timeout_fail(this_lock):
     assert not this_lock._is_owned()
 
     # Assert acquisition fails using context manager
-    with pytest.raises(LockError):
+    with pytest.raises(lock.LockError):
         with this_lock(timeout=0.01):
             pass
 

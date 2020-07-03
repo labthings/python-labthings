@@ -1,10 +1,10 @@
-from labthings.server.sockets import gevent as gsocket
+from labthings import sockets
 from flask import Blueprint
 
 
 def test_sockets_flask_init(app):
     original_wsgi_app = app.wsgi_app
-    socket = gsocket.Sockets(app)
+    socket = sockets.Sockets(app)
     assert socket
     # Check "fallback" wsgi_app. This should be the original app.wsgi_app
     assert socket.app_wsgi_app == original_wsgi_app
@@ -12,7 +12,7 @@ def test_sockets_flask_init(app):
 
 def test_sockets_flask_delayed_init(app):
     original_wsgi_app = app.wsgi_app
-    socket = gsocket.Sockets()
+    socket = sockets.Sockets()
     socket.init_app(app)
     assert socket
     # Check "fallback" wsgi_app. This should be the original app.wsgi_app
@@ -20,7 +20,7 @@ def test_sockets_flask_delayed_init(app):
 
 
 def test_sockets_flask_route(app):
-    socket = gsocket.Sockets(app)
+    socket = sockets.Sockets(app)
 
     @socket.route("/ws", endpoint="ws")
     def ws_view_func(ws):
@@ -35,7 +35,7 @@ def test_sockets_flask_route(app):
 
 
 def test_sockets_flask_blueprint(app):
-    socket = gsocket.Sockets(app)
+    socket = sockets.Sockets(app)
 
     bp = Blueprint("blueprint", __name__)
 
@@ -58,7 +58,7 @@ def test_sockets_flask_blueprint(app):
 
 
 def test_socket_middleware_http(app, client):
-    socket = gsocket.Sockets(app)
+    socket = sockets.Sockets(app)
 
     @socket.route("/")
     def ws_view_func(ws):
@@ -74,7 +74,7 @@ def test_socket_middleware_http(app, client):
 
 
 def test_socket_middleware_ws(app, ws_client):
-    socket = gsocket.Sockets(app)
+    socket = sockets.Sockets(app)
 
     @socket.route("/<param>")
     def ws_view_func(ws, param):
@@ -87,7 +87,7 @@ def test_socket_middleware_ws(app, ws_client):
 
 
 def test_socket_middleware_add_view(app, ws_client):
-    socket = gsocket.Sockets(app)
+    socket = sockets.Sockets(app)
 
     def ws_view_func(ws):
         msg = ws.recieve()
@@ -101,7 +101,7 @@ def test_socket_middleware_add_view(app, ws_client):
 
 
 def test_socket_middleware_http_fallback(app, ws_client):
-    gsocket.Sockets(app)
+    sockets.Sockets(app)
 
     @app.route("/")
     def http_view_func():
@@ -113,7 +113,7 @@ def test_socket_middleware_http_fallback(app, ws_client):
 
 
 def test_socket_middleware_ws_http_cookie(app, ws_client):
-    socket = gsocket.Sockets(app)
+    socket = sockets.Sockets(app)
 
     @socket.route("/")
     def ws_view_func(ws):

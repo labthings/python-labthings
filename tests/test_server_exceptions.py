@@ -1,5 +1,5 @@
 from flask import Flask
-from labthings.server.exceptions import JSONExceptionHandler
+from labthings.labthing import JSONExceptionHandler
 import json
 import pytest
 

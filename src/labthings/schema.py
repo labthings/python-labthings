@@ -13,6 +13,8 @@ __all__ = [
     "FieldSchema",
     "TaskSchema",
     "ExtensionSchema",
+    "ActionSchema",
+    "build_action_schema",
     "pre_load",
     "pre_dump",
 ]

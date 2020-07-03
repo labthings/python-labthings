@@ -1,4 +1,4 @@
-from labthings.server.default_views.sockets import (
+from labthings.default_views.sockets import (
     socket_handler,
     process_socket_message,
 )
