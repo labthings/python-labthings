@@ -6,8 +6,7 @@ import logging
 from gevent.monkey import get_original
 from gevent.lock import BoundedSemaphore
 
-# Guarantee that Task threads will always be proper system threads, regardless of Gevent patches
-Event = get_original("threading", "Event")
+from gevent.event import Event
 
 
 class ClientEvent(object):
