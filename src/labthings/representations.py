@@ -4,7 +4,6 @@ from flask import make_response, current_app
 from flask.json import JSONEncoder
 from base64 import b64encode
 import json
-import cbor2
 
 
 from .utilities import PY3
@@ -51,24 +50,6 @@ def output_json(data, code, headers=None):
     return resp
 
 
-def encode_cbor(data, **settings):
-    """Makes CBOR encoded data using the default CBOR encoder"""
-    return cbor2.dumps(data, **settings)
-
-
-def output_cbor(data, code, headers=None):
-    """Makes a Flask response with a CBOR encoded body, using app CBOR settings"""
-
-    settings = current_app.config.get("LABTHINGS_CBOR", {})
-    dumped = encode_cbor(data, **settings)
-
-    resp = make_response(dumped, code)
-    resp.headers.extend(headers or {})
-    resp.mimetype = "application/cbor"
-    return resp
-
-
 DEFAULT_REPRESENTATIONS = [
     ("application/json", output_json),
-    ("application/cbor", output_cbor),
 ]

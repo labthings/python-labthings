@@ -4,7 +4,6 @@ from werkzeug.wrappers import Response as ResponseBase
 from flask import make_response
 
 import json
-import cbor2
 
 import pytest
 
@@ -65,20 +64,6 @@ def test_accept_default_application_json(app, client):
         assert res.status_code == 200
         assert res.content_type == "application/json"
         assert json.loads(res.data) == {"key": "value"}
-
-
-def test_accept_default_application_cbor(app, cbor_client):
-    class Index(view.View):
-        def get(self):
-            return {"key": "value"}
-
-    app.add_url_rule("/", view_func=Index.as_view("index"))
-
-    with cbor_client:
-        res = cbor_client.get("/")
-        assert res.status_code == 200
-        assert res.content_type == "application/cbor"
-        assert cbor2.loads(res.data) == {"key": "value"}
 
 
 def test_return_response(app, client):

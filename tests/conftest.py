@@ -77,16 +77,6 @@ class JsonClient(FlaskClient):
         return super().open(*args, **kwargs)
 
 
-class CborClient(FlaskClient):
-    def open(self, *args, **kwargs):
-        kwargs.setdefault(
-            "headers",
-            {"Content-Type": "application/json", "Accept": "application/cbor"},
-        )
-        kwargs.setdefault("content_type", "application/json")
-        return super().open(*args, **kwargs)
-
-
 class SocketClient(FlaskClient):
     def __init__(self, app, response_wrapper, *args, **kwargs):
         super().__init__(app, response_wrapper, *args, **kwargs)
@@ -274,12 +264,6 @@ def client(app):
 def debug_client(debug_app):
     debug_app.test_client_class = JsonClient
     return debug_app.test_client()
-
-
-@pytest.fixture
-def cbor_client(app):
-    app.test_client_class = CborClient
-    return app.test_client()
 
 
 @pytest.fixture
