@@ -1,5 +1,4 @@
 from apispec.ext.marshmallow import OpenAPIConverter
-from ..fields import Bytes as BytesField
 
 
 class ExtendedOpenAPIConverter(OpenAPIConverter):
@@ -11,6 +10,7 @@ class ExtendedOpenAPIConverter(OpenAPIConverter):
 
     def bytes2json(self, field, **kwargs):
         ret = {}
-        if isinstance(field, BytesField):
-            ret.update(BytesField()._jsonschema_type_mapping())
+        if hasattr(field, "_jsonschema_type_mapping"):
+            schema = field._jsonschema_type_mapping()
+            ret.update(schema)
         return ret
