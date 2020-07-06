@@ -88,7 +88,7 @@ description = "Pure Python CBOR (de)serializer with extensive tag support"
 name = "cbor2"
 optional = false
 python-versions = "*"
-version = "5.1.0"
+version = "5.1.1"
 
 [package.extras]
 test = ["pytest", "pytest-cov"]
@@ -633,7 +633,7 @@ black = [
     {file = "black-19.10b0.tar.gz", hash = "sha256:c2edb73a08e9e0e6f65a0e6af18b059b8b1cdd5bef997d7a0b181df93dc81539"},
 ]
 cbor2 = [
-    {file = "cbor2-5.1.0.tar.gz", hash = "sha256:43ce11e8c2fe4971d386d1a60cf83bfa0a4a667b97668ba76acbf5e6398821aa"},
+    {file = "cbor2-5.1.1.tar.gz", hash = "sha256:09e9607ea50e2ebb718791d475f11620cb244b0cc3758ce2e76cf36e8372ad64"},
 ]
 cffi = [
     {file = "cffi-1.14.0-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:1cae98a7054b5c9391eb3249b86e0e99ab1e02bb0cc0575da191aedadbdf4384"},
