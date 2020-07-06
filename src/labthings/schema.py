@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask import url_for
 from werkzeug.routing import BuildError
-from marshmallow import Schema, pre_load, pre_dump
+from marshmallow import Schema, pre_load, pre_dump, validate
 from collections.abc import Mapping
 
 from .names import TASK_ENDPOINT, EXTENSION_LIST_ENDPOINT
@@ -17,6 +17,7 @@ __all__ = [
     "build_action_schema",
     "pre_load",
     "pre_dump",
+    "validate",
 ]
 
 
