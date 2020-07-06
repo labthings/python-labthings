@@ -1,1 +1,1 @@
-from . import moz
+from ...semantics import *

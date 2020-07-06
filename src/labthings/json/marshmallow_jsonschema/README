@@ -1,0 +1,6 @@
+This submodule is a modified version of fuhrysteve/marshmallow-jsonschema, with slightly differing and reduced functionality.
+
+This will convert any Marshmallow schema into a JSON schema, without any schema references or additional properties. 
+It will create a basic, inline schema only.
+
+https://github.com/fuhrysteve/marshmallow-jsonschema

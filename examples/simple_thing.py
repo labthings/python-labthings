@@ -1,10 +1,7 @@
 #!/usr/bin/env python
-from gevent import monkey
+from labthings import monkey
 
-# Patch most system modules. Leave threads untouched so we can still use them normally if needed.
-print("Monkey patching with Gevenet")
-monkey.patch_all(thread=False)
-print("Monkey patching successful")
+monkey.patch_all()
 
 import random
 import math
@@ -23,11 +20,6 @@ from labthings.server import fields
 Class for our lab component functionality. This could include serial communication,
 equipment API calls, network requests, or a "virtual" device as seen here.
 """
-
-
-from gevent.monkey import get_original
-
-get_ident = get_original("_thread", "get_ident")
 
 
 class MyComponent:

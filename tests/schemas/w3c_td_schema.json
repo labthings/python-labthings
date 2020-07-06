@@ -182,16 +182,10 @@
                     }
                 },
                 "required": {
-                    "oneOf": [{
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        {
-                            "type": "boolean"
-                        }
-                    ]
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -523,16 +517,10 @@
                     }
                 },
                 "required": {
-                    "oneOf": [{
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        {
-                            "type": "boolean"
-                        }
-                    ]
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             },
             "required": [

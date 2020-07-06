@@ -84,17 +84,6 @@ d = ["aiohttp (>=3.3.2)", "aiohttp-cors"]
 
 [[package]]
 category = "main"
-description = "Pure Python CBOR (de)serializer with extensive tag support"
-name = "cbor2"
-optional = false
-python-versions = "*"
-version = "5.1.0"
-
-[package.extras]
-test = ["pytest", "pytest-cov"]
-
-[[package]]
-category = "main"
 description = "Foreign Function Interface for Python calling C code."
 marker = "platform_python_implementation == \"CPython\" and sys_platform == \"win32\""
 name = "cffi"
@@ -604,7 +593,7 @@ test = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 
 [metadata]
-content-hash = "5fb3d3819f98fc21a5a28eca891dcdfd20ea94edd8f79cc50009bdfc6f16cdc8"
+content-hash = "6c611000dfd3cd5517e76c5bc86fe07b442c05d73eb7112b4e297c690710f85c"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -631,9 +620,6 @@ attrs = [
 black = [
     {file = "black-19.10b0-py36-none-any.whl", hash = "sha256:1b30e59be925fafc1ee4565e5e08abef6b03fe455102883820fe5ee2e4734e0b"},
     {file = "black-19.10b0.tar.gz", hash = "sha256:c2edb73a08e9e0e6f65a0e6af18b059b8b1cdd5bef997d7a0b181df93dc81539"},
-]
-cbor2 = [
-    {file = "cbor2-5.1.0.tar.gz", hash = "sha256:43ce11e8c2fe4971d386d1a60cf83bfa0a4a667b97668ba76acbf5e6398821aa"},
 ]
 cffi = [
     {file = "cffi-1.14.0-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:1cae98a7054b5c9391eb3249b86e0e99ab1e02bb0cc0575da191aedadbdf4384"},
