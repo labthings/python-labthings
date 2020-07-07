@@ -13,24 +13,46 @@ from .find import current_labthing
 from .utilities import get_docstring, snake_to_camel
 
 
-def build_forms_for_view(rules: list, view: View, op: list):
-    """Build a W3C form description for a particular View
+def view_to_thing_action_forms(rules: list, view: View):
+    """Build a W3C form description for an ActionView
 
     Args:
         rules (list): List of Flask rules
         view (View): View class
-        op (list): List of Form operations
 
     Returns:
         [dict]: Form description
     """
     forms = []
-    prop_urls = [rule_to_path(rule) for rule in rules]
 
-    content_type = getattr(view, "content_type", None) or "application/json"
+    # HTTP invokeaction requires POST method
+    if hasattr(view, "post"):
+        prop_urls = [rule_to_path(rule) for rule in rules]
 
-    for url in prop_urls:
-        forms.append({"op": op, "href": url, "contentType": content_type})
+        # Get input content_type
+        content_type = getattr(view, "content_type", "application/json")
+
+        # See if the action has an unusual 200 response
+        responses = view.get_responses()
+        response_content_type = "application/json"  # Default assumed content_type
+
+        for response_code in (200, 201):
+            if response_code in responses and responses[response_code].get(
+                "content_type"
+            ):
+                response_content_type = responses[response_code].get("content_type")
+                break
+
+        for url in prop_urls:
+            forms.append(
+                {
+                    "op": ["invokeaction"],
+                    "htv:methodName": "POST",
+                    "href": url,
+                    "contentType": content_type,
+                    "response": {"contentType": response_content_type},
+                }
+            )
 
     return forms
 
@@ -41,35 +63,66 @@ def view_to_thing_property_forms(rules: list, view: View):
     Args:
         rules (list): List of Flask rules
         view (View): View class
-        op (list): List of Form operations
 
     Returns:
         [dict]: Form description
     """
-    readable = hasattr(view, "post") or hasattr(view, "put") or hasattr(view, "delete")
-    writeable = hasattr(view, "get")
+    forms = []
 
-    op = []
-    if readable:
-        op.append("readproperty")
-    if writeable:
-        op.append("writeproperty")
+    # Get basic information
+    prop_urls = [rule_to_path(rule) for rule in rules]
 
-    return build_forms_for_view(rules, view, op=op)
+    # Get input content_type
+    content_type = getattr(view, "content_type", "application/json")
 
+    # See if the property has an unusual 201 response
+    responses = view.get_responses()
+    response_content_type = "application/json"  # Default assumed content_type
 
-def view_to_thing_action_forms(rules: list, view: View):
-    """Build a W3C form description for an ActionView
+    for response_code in (201, 200):
+        if response_code in responses and responses[response_code].get("content_type"):
+            response_content_type = responses[response_code].get("content_type")
+            break
 
-    Args:
-        rules (list): List of Flask rules
-        view (View): View class
-        op (list): List of Form operations
+    # HTTP readproperty requires GET method
+    if hasattr(view, "get"):
+        for url in prop_urls:
+            forms.append(
+                {
+                    "op": ["readproperty"],
+                    "htv:methodName": "GET",
+                    "href": url,
+                    "contentType": content_type,
+                    "response": {"contentType": response_content_type},
+                }
+            )
 
-    Returns:
-        [dict]: Form description
-    """
-    return build_forms_for_view(rules, view, op=["invokeaction"])
+    # HTTP writeproperty requires PUT method
+    if hasattr(view, "put"):
+        for url in prop_urls:
+            forms.append(
+                {
+                    "op": ["writeproperty"],
+                    "htv:methodName": "PUT",
+                    "href": url,
+                    "contentType": content_type,
+                    "response": {"contentType": response_content_type},
+                }
+            )
+    # HTTP writeproperty may use POST method
+    elif hasattr(view, "post"):
+        for url in prop_urls:
+            forms.append(
+                {
+                    "op": ["writeproperty"],
+                    "htv:methodName": "POST",
+                    "href": url,
+                    "contentType": content_type,
+                    "response": {"contentType": response_content_type},
+                }
+            )
+
+    return forms
 
 
 class ThingDescription:
