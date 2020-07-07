@@ -1,6 +1,7 @@
 from flask import abort
 
 from ..view import View
+from ..view.marshalling import marshal_with
 from ..schema import TaskSchema
 
 from .. import tasks
@@ -12,7 +13,7 @@ class TaskList(View):
 
     def get(self):
         """List of all session tasks"""
-        return tasks.tasks()
+        return self.schema.dump(tasks.tasks())
 
 
 class TaskView(View):
@@ -41,7 +42,7 @@ class TaskView(View):
 
         task = task_dict.get(task_id)
 
-        return task
+        return self.schema.dump(task)
 
     def delete(self, task_id):
         """
@@ -58,4 +59,4 @@ class TaskView(View):
 
         task.kill(block=True, timeout=3)
 
-        return task
+        return self.schema.dump(task)
