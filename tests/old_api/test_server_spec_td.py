@@ -87,7 +87,6 @@ def test_td_action_with_schema(
                     "htv:methodName": "POST",
                     "href": "/",
                     "contentType": "application/json",
-                    "response": {"contentType": "application/json"},
                 }
             ],
             "input": {

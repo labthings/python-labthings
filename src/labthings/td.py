@@ -44,15 +44,16 @@ def view_to_thing_action_forms(rules: list, view: View):
                 break
 
         for url in prop_urls:
-            forms.append(
-                {
-                    "op": ["invokeaction"],
-                    "htv:methodName": "POST",
-                    "href": url,
-                    "contentType": content_type,
-                    "response": {"contentType": response_content_type},
-                }
-            )
+            form = {
+                "op": ["invokeaction"],
+                "htv:methodName": "POST",
+                "href": url,
+                "contentType": content_type,
+            }
+            if response_content_type != content_type:
+                form["responses"] = {"contentType": response_content_type}
+
+            forms.append(form)
 
     return forms
 
@@ -84,43 +85,49 @@ def view_to_thing_property_forms(rules: list, view: View):
             response_content_type = responses[response_code].get("content_type")
             break
 
+    # TODO: Clean up repeated code
+
     # HTTP readproperty requires GET method
     if hasattr(view, "get"):
         for url in prop_urls:
-            forms.append(
-                {
-                    "op": ["readproperty"],
-                    "htv:methodName": "GET",
-                    "href": url,
-                    "contentType": content_type,
-                    "response": {"contentType": response_content_type},
-                }
-            )
+            form = {
+                "op": ["readproperty"],
+                "htv:methodName": "GET",
+                "href": url,
+                "contentType": content_type,
+                "response": {"contentType": response_content_type},
+            }
+            if response_content_type != content_type:
+                form["responses"] = {"contentType": response_content_type}
+            forms.append(form)
 
     # HTTP writeproperty requires PUT method
     if hasattr(view, "put"):
         for url in prop_urls:
-            forms.append(
-                {
-                    "op": ["writeproperty"],
-                    "htv:methodName": "PUT",
-                    "href": url,
-                    "contentType": content_type,
-                    "response": {"contentType": response_content_type},
-                }
-            )
+            form = {
+                "op": ["writeproperty"],
+                "htv:methodName": "PUT",
+                "href": url,
+                "contentType": content_type,
+                "response": {"contentType": response_content_type},
+            }
+            if response_content_type != content_type:
+                form["responses"] = {"contentType": response_content_type}
+            forms.append(form)
+
     # HTTP writeproperty may use POST method
     elif hasattr(view, "post"):
         for url in prop_urls:
-            forms.append(
-                {
-                    "op": ["writeproperty"],
-                    "htv:methodName": "POST",
-                    "href": url,
-                    "contentType": content_type,
-                    "response": {"contentType": response_content_type},
-                }
-            )
+            form = {
+                "op": ["writeproperty"],
+                "htv:methodName": "POST",
+                "href": url,
+                "contentType": content_type,
+                "response": {"contentType": response_content_type},
+            }
+            if response_content_type != content_type:
+                form["responses"] = {"contentType": response_content_type}
+            forms.append(form)
 
     return forms
 

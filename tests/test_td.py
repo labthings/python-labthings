@@ -87,7 +87,6 @@ def test_td_action_with_schema(
                     "htv:methodName": "POST",
                     "href": "/",
                     "contentType": "application/json",
-                    "response": {"contentType": "application/json"},
                 }
             ],
             "input": {
@@ -190,4 +189,29 @@ def test_td_property_post_to_write(
             ]
             == "POST"
         )
+        helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
+
+
+def test_td_property_different_response_type(
+    helpers, app, thing_description, app_ctx, schemas_path
+):
+    class Index(View):
+        def get(self):
+            return "GET"
+
+        def put(self):
+            return "PUT"
+
+    Index.schema = fields.Int()
+    Index.responses[200] = {"content_type": "text/plain; charset=us-ascii"}
+
+    app.add_url_rule("/", view_func=Index.as_view("index"))
+    rules = app.url_map._rules_by_endpoint["index"]
+
+    thing_description.property(rules, Index)
+
+    with app_ctx.test_request_context():
+        assert "index" in thing_description.to_dict()["properties"]
+        for form in thing_description.to_dict()["properties"]["index"]["forms"]:
+            assert form["response"]["contentType"] == "text/plain; charset=us-ascii"
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
