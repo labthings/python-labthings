@@ -2,8 +2,6 @@ from gevent.hub import getcurrent
 import gevent
 import time
 import logging
-
-from gevent.monkey import get_original
 from gevent.lock import BoundedSemaphore
 
 from gevent.event import Event

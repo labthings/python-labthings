@@ -1,7 +1,6 @@
 import pytest
 
 from labthings import fields
-from labthings import td
 
 from labthings.view import View
 
