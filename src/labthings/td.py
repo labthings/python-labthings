@@ -12,6 +12,8 @@ from .find import current_labthing
 
 from .utilities import get_docstring, snake_to_camel
 
+# TODO: Remove reliance on get_apispec() methods
+
 
 def view_to_thing_action_forms(rules: list, view: View):
     """Build a W3C form description for an ActionView

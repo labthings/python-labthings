@@ -115,6 +115,8 @@ class View(MethodView):
 
 
 class ActionView(View):
+    # TODO: Better support for overriding content type
+    # TODO: Better support for custom 200 responses
 
     # Data formatting
     schema: Schema = None
