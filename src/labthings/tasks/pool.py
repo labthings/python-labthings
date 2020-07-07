@@ -6,6 +6,7 @@ from gevent.pool import Pool as _Pool, PoolFull
 from .thread import TaskThread
 
 
+# TODO: Handle discarding old tasks. Action views now use deques
 class Pool(_Pool):
     def __init__(self, size=None):
         _Pool.__init__(self, size=size, greenlet_class=TaskThread)
