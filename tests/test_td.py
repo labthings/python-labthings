@@ -117,10 +117,10 @@ def test_td_property_with_schema(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
     class Index(View):
+        schema = fields.Int(required=True)
+
         def get(self):
             return "GET"
-
-    Index.schema = fields.Int(required=True)
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
     rules = app.url_map._rules_by_endpoint["index"]
@@ -151,10 +151,10 @@ def test_td_property_with_url_param(
 
 def test_td_property_write_only(helpers, app, thing_description, app_ctx, schemas_path):
     class Index(View):
+        schema = fields.Int()
+
         def put(self):
             return "PUT"
-
-    Index.schema = fields.Int()
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
     rules = app.url_map._rules_by_endpoint["index"]
@@ -196,14 +196,14 @@ def test_td_property_different_response_type(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
     class Index(View):
+        schema = fields.Int()
+        responses = {200: {"content_type": "text/plain; charset=us-ascii"}}
+
         def get(self):
             return "GET"
 
         def put(self):
             return "PUT"
-
-    Index.schema = fields.Int()
-    Index.responses[200] = {"content_type": "text/plain; charset=us-ascii"}
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
     rules = app.url_map._rules_by_endpoint["index"]
