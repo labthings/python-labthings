@@ -74,27 +74,7 @@ def test_td_action_with_schema(
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("actions")
-        d = {
-            "title": "ViewClass",
-            "description": "",
-            "links": [{"href": "/"}],
-            "safe": False,
-            "idempotent": False,
-            "forms": [
-                {"op": ["invokeaction"], "href": "/", "contentType": "application/json"}
-            ],
-            "input": {
-                "properties": {
-                    "integer": {
-                        "title": "integer",
-                        "type": "number",
-                        "format": "integer",
-                    }
-                },
-                "type": "object",
-            },
-            "@type": "ToggleAction",
-        }
+
         assert thing_description.to_dict().get("actions").get("index") == {
             "title": "ViewClass",
             "description": "",
@@ -102,7 +82,13 @@ def test_td_action_with_schema(
             "safe": False,
             "idempotent": False,
             "forms": [
-                {"op": ["invokeaction"], "href": "/", "contentType": "application/json"}
+                {
+                    "op": ["invokeaction"],
+                    "htv:methodName": "POST",
+                    "href": "/",
+                    "contentType": "application/json",
+                    "response": {"contentType": "application/json"},
+                }
             ],
             "input": {
                 "type": "object",
@@ -135,9 +121,7 @@ def test_td_property_with_schema(
         def get(self):
             return "GET"
 
-    Index.__apispec__ = {
-        "_propertySchema": fields.Int(required=True),
-    }
+    Index.schema = fields.Int(required=True)
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
     rules = app.url_map._rules_by_endpoint["index"]
@@ -168,10 +152,10 @@ def test_td_property_with_url_param(
 
 def test_td_property_write_only(helpers, app, thing_description, app_ctx, schemas_path):
     class Index(View):
-        def post(self):
-            return "POST"
+        def put(self):
+            return "PUT"
 
-    Index.__apispec__ = {"_propertySchema": fields.Int()}
+    Index.schema = fields.Int()
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
     rules = app.url_map._rules_by_endpoint["index"]
@@ -180,4 +164,30 @@ def test_td_property_write_only(helpers, app, thing_description, app_ctx, schema
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("properties")
+        helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
+
+
+def test_td_property_post_to_write(
+    helpers, app, thing_description, app_ctx, schemas_path
+):
+    class Index(View):
+        def post(self):
+            return "POST"
+
+    app.add_url_rule("/", view_func=Index.as_view("index"))
+    rules = app.url_map._rules_by_endpoint["index"]
+
+    thing_description.property(rules, Index)
+
+    with app_ctx.test_request_context():
+        assert "index" in thing_description.to_dict()["properties"]
+        assert thing_description.to_dict()["properties"]["index"]["forms"][0]["op"] == [
+            "writeproperty"
+        ]
+        assert (
+            thing_description.to_dict()["properties"]["index"]["forms"][0][
+                "htv:methodName"
+            ]
+            == "POST"
+        )
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
