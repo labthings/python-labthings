@@ -9,11 +9,10 @@ from .. import tasks
 
 class TaskList(View):
     tags = ["tasks"]
-    schema = TaskSchema(many=True)
 
     def get(self):
         """List of all session tasks"""
-        return self.schema.dump(tasks.tasks())
+        return TaskSchema(many=True).dump(tasks.tasks())
 
 
 class TaskView(View):
@@ -23,11 +22,7 @@ class TaskView(View):
     GET will safely return the current task progress.
     DELETE will terminate the background task, if running.
     """
-
     tags = ["tasks"]
-    schema = TaskSchema()
-
-    marshal_methods = ("GET", "DELETE")
 
     def get(self, task_id):
         """
@@ -42,7 +37,7 @@ class TaskView(View):
 
         task = task_dict.get(task_id)
 
-        return self.schema.dump(task)
+        return TaskSchema().dump(task)
 
     def delete(self, task_id):
         """
@@ -59,4 +54,4 @@ class TaskView(View):
 
         task.kill(block=True, timeout=3)
 
-        return self.schema.dump(task)
+        return TaskSchema().dump(task)
