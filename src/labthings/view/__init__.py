@@ -44,8 +44,13 @@ class View(MethodView):
     _cls_tags = set()  # Class tags that shouldn't be removed
     title: None
 
+    # Default input content_type
+    content_type = "application/json"
+    # Custom responses dictionary
     responses: dict = {}
+    # Methods for which to read arguments
     arg_methods = ("POST", "PUT", "PATCH")
+    # Methods for which to marshal responses
     marshal_methods = ("GET", "PUT", "POST", "PATCH")
 
     def __init__(self, *args, **kwargs):
