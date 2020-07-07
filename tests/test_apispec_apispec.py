@@ -1,5 +1,5 @@
 from labthings.apispec import apispec
-from labthings.view import View
+from labthings.view import View, PropertyView
 
 from labthings import fields
 
@@ -15,21 +15,15 @@ def test_view_to_apispec_operations_no_spec(spec):
             return "POST"
 
     assert apispec.view_to_apispec_operations(Index, spec) == {
-        "get": {
-            "description": "Index docstring",
-            "summary": "Index docstring",
-            "tags": [],
-            "responses": {
-                200: {"description": "OK", "content": {"application/json": {}}}
-            },
-        },
         "post": {
             "description": "Index docstring",
             "summary": "Index docstring",
             "tags": [],
-            "responses": {
-                200: {"description": "OK", "content": {"application/json": {}}}
-            },
+        },
+        "get": {
+            "description": "Index docstring",
+            "summary": "Index docstring",
+            "tags": [],
         },
     }
 
@@ -53,13 +47,13 @@ def test_view_to_apispec_tags(spec):
 
 
 def test_dict_to_apispec_operations_params(spec):
-    class Index(View):
+    class Index(PropertyView):
         """Index docstring"""
 
-        args = {"integer": fields.Int()}
+        schema = {"integer": fields.Int()}
 
         def put(self):
-            return "GET"
+            return "PUT"
 
     assert (apispec.view_to_apispec_operations(Index, spec))["put"]["requestBody"] == {
         "content": {
@@ -74,23 +68,18 @@ def test_dict_to_apispec_operations_params(spec):
 
 
 def test_dict_to_apispec_operations_schema(spec):
-    class Index(View):
+    class Index(PropertyView):
 
         schema = {"integer": fields.Int()}
 
         def get(self):
             return "GET"
 
-    assert apispec.view_to_apispec_operations(Index, spec)["get"]["responses"][200] == {
-        "description": "OK",
-        "content": {
-            "application/json": {
-                "schema": {
-                    "type": "object",
-                    "properties": {"integer": {"type": "integer", "format": "int32"}},
-                }
-            }
-        },
+    assert apispec.view_to_apispec_operations(Index, spec)["get"]["responses"][200][
+        "schema"
+    ] == {
+        "type": "object",
+        "properties": {"integer": {"type": "integer", "format": "int32"}},
     }
 
 
@@ -110,21 +99,15 @@ def test_rule_to_apispec_path(app, spec):
     assert apispec.rule_to_apispec_path(rule, Index, spec) == {
         "path": "/path",
         "operations": {
-            "get": {
-                "description": "Index docstring",
-                "summary": "Index docstring",
-                "tags": [],
-                "responses": {
-                    200: {"description": "OK", "content": {"application/json": {}}}
-                },
-            },
             "post": {
                 "description": "Index docstring",
                 "summary": "Index docstring",
                 "tags": [],
-                "responses": {
-                    200: {"description": "OK", "content": {"application/json": {}}}
-                },
+            },
+            "get": {
+                "description": "Index docstring",
+                "summary": "Index docstring",
+                "tags": [],
             },
         },
     }
@@ -146,13 +129,10 @@ def test_rule_to_apispec_path_params(app, spec):
     assert apispec.rule_to_apispec_path(rule, Index, spec) == {
         "path": "/path/{id}/",
         "operations": {
-            "get": {
+            "post": {
                 "description": "Index docstring",
                 "summary": "Index docstring",
                 "tags": [],
-                "responses": {
-                    200: {"description": "OK", "content": {"application/json": {}}}
-                },
                 "parameters": [
                     {
                         "in": "path",
@@ -162,13 +142,10 @@ def test_rule_to_apispec_path_params(app, spec):
                     }
                 ],
             },
-            "post": {
+            "get": {
                 "description": "Index docstring",
                 "summary": "Index docstring",
                 "tags": [],
-                "responses": {
-                    200: {"description": "OK", "content": {"application/json": {}}}
-                },
                 "parameters": [
                     {
                         "in": "path",

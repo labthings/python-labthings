@@ -2,7 +2,7 @@ import pytest
 
 from labthings import fields
 
-from labthings.view import View
+from labthings.view import View, PropertyView, ActionView
 
 
 @pytest.fixture
@@ -99,7 +99,7 @@ def test_td_action_with_schema(
 
 
 def test_td_property(helpers, app, thing_description, app_ctx, schemas_path):
-    class Index(View):
+    class Index(PropertyView):
         def get(self):
             return "GET"
 
@@ -116,7 +116,7 @@ def test_td_property(helpers, app, thing_description, app_ctx, schemas_path):
 def test_td_property_with_schema(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
-    class Index(View):
+    class Index(PropertyView):
         schema = fields.Int(required=True)
 
         def get(self):
@@ -135,7 +135,7 @@ def test_td_property_with_schema(
 def test_td_property_with_url_param(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
-    class Index(View):
+    class Index(PropertyView):
         def get(self):
             return "GET"
 
@@ -150,7 +150,7 @@ def test_td_property_with_url_param(
 
 
 def test_td_property_write_only(helpers, app, thing_description, app_ctx, schemas_path):
-    class Index(View):
+    class Index(PropertyView):
         schema = fields.Int()
 
         def put(self):
@@ -169,7 +169,7 @@ def test_td_property_write_only(helpers, app, thing_description, app_ctx, schema
 def test_td_property_post_to_write(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
-    class Index(View):
+    class Index(PropertyView):
         def post(self):
             return "POST"
 
@@ -195,7 +195,7 @@ def test_td_property_post_to_write(
 def test_td_property_different_response_type(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
-    class Index(View):
+    class Index(PropertyView):
         schema = fields.Int()
         responses = {200: {"content_type": "text/plain; charset=us-ascii"}}
 

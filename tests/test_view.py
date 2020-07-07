@@ -133,17 +133,6 @@ def test_get_value_raise_if_not_callable():
         Index().get_value()
 
 
-def test_get_responses(app_ctx):
-    class Index(view.View):
-        def post(self):
-            return {}
-
-    responses = Index.get_responses()
-    assert 200 in responses
-    assert responses[200]["content_type"] == "application/json"
-    assert "schema" in responses[200]
-
-
 def test_get_value_response_text(app_ctx):
     class Index(view.View):
         def get(self):
@@ -173,7 +162,7 @@ def test_action_view_get_responses(app_ctx):
         def post(self):
             return {}
 
-    responses = Index.get_responses()
+    responses = Index.get_apispec().get("post").get("responses")
     assert 201 in responses
     assert responses[201]["content_type"] == "application/json"
     assert "schema" in responses[201]
