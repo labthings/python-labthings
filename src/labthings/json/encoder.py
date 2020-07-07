@@ -1,4 +1,3 @@
-
 # Flask JSON encoder so we get UUID, datetime etc support
 from flask.json import JSONEncoder
 from base64 import b64encode
