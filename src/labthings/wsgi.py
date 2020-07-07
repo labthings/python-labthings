@@ -7,7 +7,7 @@ from werkzeug.debug import DebuggedApplication
 from zeroconf import IPVersion, ServiceInfo, Zeroconf, get_all_addresses
 
 from geventwebsocket.handler import WebSocketHandler as _WebSocketHandler
-from logging import getLogger, StreamHandler, getLoggerClass, Formatter, DEBUG
+from logging import getLogger
 
 from .find import current_labthing
 

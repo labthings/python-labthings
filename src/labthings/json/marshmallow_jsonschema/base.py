@@ -5,8 +5,6 @@ from inspect import isclass
 
 from marshmallow import fields, missing, Schema, validate
 from marshmallow.class_registry import get_class
-from marshmallow.decorators import post_dump
-from marshmallow import RAISE, INCLUDE, EXCLUDE
 
 from .exceptions import UnsupportedValueError
 from .validation import handle_length, handle_one_of, handle_range, handle_regexp
