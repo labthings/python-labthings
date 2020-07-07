@@ -33,7 +33,7 @@ def view_to_thing_action_forms(rules: list, view: View):
         content_type = getattr(view, "content_type", "application/json")
 
         # See if the action has an unusual 200 response
-        responses = view.get_responses()
+        responses = view.get_apispec().get("post", {}).get("responses", {})
         response_content_type = "application/json"  # Default assumed content_type
 
         for response_code in (200, 201):
@@ -77,7 +77,8 @@ def view_to_thing_property_forms(rules: list, view: View):
     content_type = getattr(view, "content_type", "application/json")
 
     # See if the property has an unusual 201 response
-    responses = view.get_responses()
+    # TODO: Do this per-method
+    responses = view.get_apispec().get("get", {}).get("responses", {})
     response_content_type = "application/json"  # Default assumed content_type
 
     for response_code in (201, 200):
