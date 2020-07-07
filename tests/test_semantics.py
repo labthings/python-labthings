@@ -1,7 +1,7 @@
 import pytest
 
-from labthings.server.view import View
-from labthings.server import semantics
+from labthings.view import View
+from labthings import semantics
 
 
 @pytest.fixture

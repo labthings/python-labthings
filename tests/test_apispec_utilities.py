@@ -1,4 +1,4 @@
-from labthings.server.spec import utilities
+from labthings.apispec import utilities
 from marshmallow import fields
 import pytest
 

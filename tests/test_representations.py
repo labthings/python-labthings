@@ -1,4 +1,4 @@
-from labthings.server import representations
+from labthings import representations
 from flask import Response
 import pytest
 import pickle

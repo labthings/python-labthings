@@ -1,11 +1,11 @@
 import pytest
 
-from labthings.server import labthing
+from labthings import labthing
 
-from labthings.server.view import View
-from labthings.server.representations import LabThingsJSONEncoder
-from labthings.server.names import EXTENSION_NAME
-from labthings.server.extensions import BaseExtension
+from labthings.view import View
+from labthings.representations import LabThingsJSONEncoder
+from labthings.names import EXTENSION_NAME
+from labthings.extensions import BaseExtension
 
 
 def test_init_types():

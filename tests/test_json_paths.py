@@ -1,4 +1,4 @@
-from labthings.server.spec import paths
+from labthings.json import paths
 
 
 def make_rule(app, path, **kwargs):

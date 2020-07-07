@@ -1,7 +1,7 @@
-from labthings.server import quick
+from labthings import quick
 
 from flask import Flask
-from labthings.server.labthing import LabThing
+from labthings.labthing import LabThing
 
 
 def test_create_app():

@@ -1,6 +1,6 @@
-from labthings.server import find
+from labthings import find
 
-from labthings.server.extensions import BaseExtension
+from labthings.extensions import BaseExtension
 
 
 def test_current_labthing(thing, thing_ctx):

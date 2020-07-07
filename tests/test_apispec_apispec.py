@@ -1,7 +1,7 @@
-from labthings.server.spec import apispec
-from labthings.server.view import View
+from labthings.apispec import apispec
+from labthings.view import View
 
-from labthings.server import fields
+from labthings import fields
 
 
 def test_view_to_apispec_operations_no_spec(spec):

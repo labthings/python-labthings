@@ -1,8 +1,8 @@
-from labthings.server import schema
-from labthings.server import fields
+from labthings import schema
+from labthings import fields
 
-from labthings.core.tasks.thread import TaskThread
-from labthings.server.extensions import BaseExtension
+from labthings.tasks.thread import TaskThread
+from labthings.extensions import BaseExtension
 
 import pytest
 

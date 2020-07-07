@@ -1,9 +1,9 @@
 import pytest
 
-from labthings.server.view import builder
-from labthings.server import fields
+from labthings.view import builder
+from labthings import fields
 
-from labthings.server.semantics.base import Semantic
+from labthings.semantics.base import Semantic
 
 
 def test_property_of_no_schema(app, client):

@@ -1,4 +1,4 @@
-from labthings.server import view
+from labthings import view
 from werkzeug.http import parse_set_header
 from werkzeug.wrappers import Response as ResponseBase
 from flask import make_response

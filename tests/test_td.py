@@ -1,8 +1,9 @@
 import pytest
 
-from labthings.server import fields
-from labthings.server.view import View
-from labthings.server.spec import td
+from labthings import fields
+from labthings import td
+
+from labthings.view import View
 
 
 @pytest.fixture

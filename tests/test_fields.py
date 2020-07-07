@@ -1,5 +1,5 @@
-from labthings.server import schema
-from labthings.server import fields
+from labthings import schema
+from labthings import fields
 
 from marshmallow import ValidationError
 from base64 import b64encode

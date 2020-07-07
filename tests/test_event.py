@@ -1,4 +1,4 @@
-from labthings.server import event
+from labthings import event
 
 
 def test_event():

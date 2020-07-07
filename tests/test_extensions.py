@@ -1,4 +1,4 @@
-from labthings.server import extensions
+from labthings import extensions
 import os
 
 import pytest
