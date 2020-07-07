@@ -4,6 +4,7 @@ from .utilities import convert_to_schema_or_json
 
 from ..utilities import get_docstring, get_summary
 
+from flask.views import http_method_funcs
 from werkzeug.routing import Rule
 from http import HTTPStatus
 
@@ -35,50 +36,24 @@ def rule_to_apispec_path(rule: Rule, view, apispec: APISpec):
 
 
 def view_to_apispec_operations(view, apispec: APISpec):
-    """Generate APISpec `operations` argument from a flask View"""
+    specs = {}
+    if hasattr(view, "get_apispec"):
+        specs = view.get_apispec()
 
-    # Build dictionary of operations (HTTP methods)
-    ops = {}
-    for op in ("get", "post", "put", "delete"):
-        if hasattr(view, op):
+    for method, spec in specs.items():
+        if "responses" in spec:
+            for response_code, response in spec["responses"].items():
+                if "schema" in response:
+                    response["schema"] = convert_to_schema_or_json(
+                        response["schema"], apispec
+                    )
 
-            ops[op] = {
-                "description": getattr(view, "description", None)
-                or get_docstring(view),
-                "summary": getattr(view, "summary", None) or get_summary(view),
-                "tags": list(view.get_tags()),
-            }
+        if "requestBody" in spec:
+            for content_type, description in (
+                spec["requestBody"].get("content", {}).items()
+            ):
+                description["schema"] = convert_to_schema_or_json(
+                    description["schema"], apispec
+                )
 
-            # Add arguments schema
-            if (op in (("post", "put", "delete"))) and hasattr(view, "get_args"):
-                request_schema = convert_to_schema_or_json(view.get_args(), apispec)
-                if request_schema:
-                    ops[op]["requestBody"] = {
-                        "content": {"application/json": {"schema": request_schema}}
-                    }
-
-            # Add response schema
-            if hasattr(view, "get_responses"):
-                ops[op]["responses"] = {}
-
-                for code, response in view.get_responses().items():
-                    ops[op]["responses"][code] = {
-                        "description": response.get("description")
-                        or HTTPStatus(code).phrase,
-                        "content": {
-                            # See if response description specifies a content_type
-                            # If not, assume application/json
-                            response.get("content_type", "application/json"): {
-                                "schema": convert_to_schema_or_json(
-                                    response.get("schema"), apispec
-                                )
-                            }
-                            if response.get("schema")
-                            else {}  # If no schema is defined, don't include one in the APISpec
-                        },
-                    }
-            else:
-                # If no explicit responses are known, populate with defaults
-                ops[op]["responses"] = {200: {HTTPStatus(200).phrase}}
-
-    return ops
+    return specs
