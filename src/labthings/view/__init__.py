@@ -137,20 +137,36 @@ class ActionView(View):
 
     @classmethod
     def get_apispec(cls):
+        class_args = schema_to_json(cls.args)
+        class_action_schema = schema_to_json(
+            build_action_schema(cls.schema, cls.args)()
+        )
+        class_action_queue_schema = schema_to_json(
+            build_action_schema(cls.schema, cls.args)(many=True)
+        )
+        class_schema = schema_to_json(cls.schema)
         d = {
             "post": {
                 "description": getattr(cls, "description", None) or get_docstring(cls),
                 "summary": getattr(cls, "summary", None) or get_summary(cls),
                 "tags": list(cls.get_tags()),
-                "requestBody": {"content": {"application/json": cls.schema}},
+                "requestBody": {
+                    "content": {
+                        "application/json": (
+                            {"schema": class_args} if class_args else {}
+                        )
+                    }
+                },
                 "responses": {
                     # Our POST 201 will usually be application/json
                     201: {
-                        "schema": schema_to_json(
-                            build_action_schema(cls.schema, cls.args)()
-                        ),
                         "content_type": "application/json",
                         "description": "Action started",
+                        **(
+                            {"schema": class_action_schema}
+                            if class_action_schema
+                            else {}
+                        ),
                     }
                 },
             },
@@ -161,11 +177,13 @@ class ActionView(View):
                 "responses": {
                     # Our GET 200 will usually be application/json
                     200: {
-                        "schema": schema_to_json(
-                            build_action_schema(cls.schema, cls.args)(many=True)
-                        ),
                         "content_type": "application/json",
                         "description": "Action started",
+                        **(
+                            {"schema": class_action_queue_schema}
+                            if class_action_queue_schema
+                            else {}
+                        ),
                     }
                 },
             },
@@ -238,13 +256,23 @@ class PropertyView(View):
                     "summary": getattr(cls, "summary", None) or get_summary(cls),
                     "tags": list(cls.get_tags()),
                     "requestBody": {
-                        "content": {"application/json": {"schema": class_json_schema}}
+                        "content": {
+                            "application/json": (
+                                {"schema": class_json_schema}
+                                if class_json_schema
+                                else {}
+                            )
+                        }
                     },
                     "responses": {
                         200: {
-                            "schema": class_json_schema,
                             "content_type": "application/json",
                             "description": "Write property",
+                            **(
+                                {"schema": class_json_schema}
+                                if class_json_schema
+                                else {}
+                            ),
                         }
                     },
                 }
@@ -256,9 +284,9 @@ class PropertyView(View):
                 "tags": list(cls.get_tags()),
                 "responses": {
                     200: {
-                        "schema": class_json_schema,
                         "content_type": "application/json",
                         "description": "Read property",
+                        **({"schema": class_json_schema} if class_json_schema else {}),
                     }
                 },
             }
