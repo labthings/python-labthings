@@ -293,9 +293,6 @@ class PropertyView(View):
     def dispatch_request(self, *args, **kwargs):
         meth = getattr(self, request.method.lower(), None)
 
-        # Flask should ensure this is assersion never fails
-        assert meth is not None, f"Unimplemented method {request.method!r}"
-
         # If the request method is HEAD and we don't have a handler for it
         # retry with GET.
         if meth is None and request.method == "HEAD":
