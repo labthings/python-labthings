@@ -89,9 +89,6 @@ class View(MethodView):
         if meth is None and request.method == "HEAD":
             meth = getattr(self, "get", None)
 
-        # Flask should ensure this is assersion never fails
-        assert meth is not None, f"Unimplemented method {request.method!r}"
-
         # Generate basic response
         return self.represent_response(meth(*args, **kwargs))
 
