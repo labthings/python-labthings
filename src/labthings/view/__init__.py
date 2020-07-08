@@ -135,16 +135,18 @@ class ActionView(View):
     _cls_tags = {"actions"}
     _deque = Deque()  # Action queue
 
+    def get(self):
+        queue_schema = build_action_schema(self.schema, self.args)(many=True)
+        return queue_schema.dump(self._deque)
+
     @classmethod
     def get_apispec(cls):
         class_args = schema_to_json(cls.args)
-        class_action_schema = schema_to_json(
-            build_action_schema(cls.schema, cls.args)()
-        )
-        class_action_queue_schema = schema_to_json(
+        action_json_schema = schema_to_json(build_action_schema(cls.schema, cls.args)())
+        queue_json_schema = schema_to_json(
             build_action_schema(cls.schema, cls.args)(many=True)
         )
-        class_schema = schema_to_json(cls.schema)
+        class_json_schema = schema_to_json(cls.schema)
         d = {
             "post": {
                 "description": getattr(cls, "description", None) or get_docstring(cls),
@@ -163,9 +165,7 @@ class ActionView(View):
                         "content_type": "application/json",
                         "description": "Action started",
                         **(
-                            {"schema": class_action_schema}
-                            if class_action_schema
-                            else {}
+                            {"schema": action_json_schema} if action_json_schema else {}
                         ),
                     }
                 },
@@ -179,11 +179,7 @@ class ActionView(View):
                     200: {
                         "content_type": "application/json",
                         "description": "Action started",
-                        **(
-                            {"schema": class_action_queue_schema}
-                            if class_action_queue_schema
-                            else {}
-                        ),
+                        **({"schema": queue_json_schema} if queue_json_schema else {}),
                     }
                 },
             },
