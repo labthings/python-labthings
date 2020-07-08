@@ -15,6 +15,7 @@ from ..event import PropertyStatusEvent
 from ..schema import Schema, ActionSchema, build_action_schema
 from ..tasks import taskify
 from ..deque import Deque, resize_deque
+from ..json.schemas import schema_to_json
 
 from gevent.timeout import Timeout
 
@@ -145,7 +146,9 @@ class ActionView(View):
                 "responses": {
                     # Our POST 201 will usually be application/json
                     201: {
-                        "schema": build_action_schema(cls.schema, cls.args)(),
+                        "schema": schema_to_json(
+                            build_action_schema(cls.schema, cls.args)()
+                        ),
                         "content_type": "application/json",
                         "description": "Action started",
                     }
@@ -158,7 +161,9 @@ class ActionView(View):
                 "responses": {
                     # Our GET 200 will usually be application/json
                     200: {
-                        "schema": build_action_schema(cls.schema, cls.args)(many=True),
+                        "schema": schema_to_json(
+                            build_action_schema(cls.schema, cls.args)(many=True)
+                        ),
                         "content_type": "application/json",
                         "description": "Action started",
                     }
@@ -222,6 +227,7 @@ class PropertyView(View):
     @classmethod
     def get_apispec(cls):
         d = {}
+        class_json_schema = schema_to_json(cls.schema) if cls.schema else None
 
         # writeproperty methods
         for method in ("put", "post"):
@@ -232,11 +238,11 @@ class PropertyView(View):
                     "summary": getattr(cls, "summary", None) or get_summary(cls),
                     "tags": list(cls.get_tags()),
                     "requestBody": {
-                        "content": {"application/json": {"schema": cls.schema}}
+                        "content": {"application/json": {"schema": class_json_schema}}
                     },
                     "responses": {
                         200: {
-                            "schema": cls.schema,
+                            "schema": class_json_schema,
                             "content_type": "application/json",
                             "description": "Write property",
                         }
@@ -250,7 +256,7 @@ class PropertyView(View):
                 "tags": list(cls.get_tags()),
                 "responses": {
                     200: {
-                        "schema": cls.schema,
+                        "schema": class_json_schema,
                         "content_type": "application/json",
                         "description": "Read property",
                     }
@@ -260,6 +266,7 @@ class PropertyView(View):
         # Enable custom responses from all methods
         for method in d.keys():
             d[method]["responses"].update(cls.responses)
+
         return d
 
     def dispatch_request(self, *args, **kwargs):

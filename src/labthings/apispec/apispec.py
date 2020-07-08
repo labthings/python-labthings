@@ -23,7 +23,7 @@ def rule_to_apispec_path(rule: Rule, view, apispec: APISpec):
 
     params = {
         "path": rule_to_path(rule),
-        "operations": view_to_apispec_operations(view, apispec),
+        "operations": view.get_apispec(),
     }
 
     # Add URL arguments to operations
@@ -33,27 +33,3 @@ def rule_to_apispec_path(rule: Rule, view, apispec: APISpec):
                 params["operations"][op].update({"parameters": rule_to_params(rule)})
 
     return params
-
-
-def view_to_apispec_operations(view, apispec: APISpec):
-    specs = {}
-    if hasattr(view, "get_apispec"):
-        specs = view.get_apispec()
-
-    for method, spec in specs.items():
-        if "responses" in spec:
-            for response_code, response in spec["responses"].items():
-                if "schema" in response:
-                    response["schema"] = convert_to_schema_or_json(
-                        response["schema"], apispec
-                    )
-
-        if "requestBody" in spec:
-            for content_type, description in (
-                spec["requestBody"].get("content", {}).items()
-            ):
-                description["schema"] = convert_to_schema_or_json(
-                    description["schema"], apispec
-                )
-
-    return specs
