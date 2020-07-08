@@ -95,7 +95,7 @@ class LabThing:
         )
 
         # Thing description
-        self.thing_description = ThingDescription(self.spec)
+        self.thing_description = ThingDescription()
 
         if app is not None:
             self.init_app(app)
