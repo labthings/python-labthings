@@ -83,7 +83,7 @@ def test_td_action_with_schema(
             "idempotent": False,
             "forms": [
                 {
-                    "op": ["invokeaction"],
+                    "op": "invokeaction",
                     "htv:methodName": "POST",
                     "href": "/",
                     "contentType": "application/json",
@@ -180,9 +180,11 @@ def test_td_property_post_to_write(
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict()["properties"]
-        assert thing_description.to_dict()["properties"]["index"]["forms"][0]["op"] == [
-            "writeproperty"
-        ]
+        assert (
+            thing_description.to_dict()["properties"]["index"]["forms"][0]["op"]
+            == "writeproperty"
+        )
+
         assert (
             thing_description.to_dict()["properties"]["index"]["forms"][0][
                 "htv:methodName"

@@ -47,7 +47,7 @@ def view_to_thing_action_forms(rules: list, view: View):
 
         for url in prop_urls:
             form = {
-                "op": ["invokeaction"],
+                "op": "invokeaction",
                 "htv:methodName": "POST",
                 "href": url,
                 "contentType": content_type,
@@ -94,7 +94,7 @@ def view_to_thing_property_forms(rules: list, view: View):
     if hasattr(view, "get"):
         for url in prop_urls:
             form = {
-                "op": ["readproperty"],
+                "op": "readproperty",
                 "htv:methodName": "GET",
                 "href": url,
                 "contentType": content_type,
@@ -108,7 +108,7 @@ def view_to_thing_property_forms(rules: list, view: View):
     if hasattr(view, "put"):
         for url in prop_urls:
             form = {
-                "op": ["writeproperty"],
+                "op": "writeproperty",
                 "htv:methodName": "PUT",
                 "href": url,
                 "contentType": content_type,
@@ -122,7 +122,7 @@ def view_to_thing_property_forms(rules: list, view: View):
     elif hasattr(view, "post"):
         for url in prop_urls:
             form = {
-                "op": ["writeproperty"],
+                "op": "writeproperty",
                 "htv:methodName": "POST",
                 "href": url,
                 "contentType": content_type,
