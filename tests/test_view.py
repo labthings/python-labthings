@@ -164,5 +164,5 @@ def test_action_view_get_responses(app_ctx):
 
     responses = Index.get_apispec().get("post").get("responses")
     assert 201 in responses
-    assert responses[201]["content_type"] == "application/json"
-    assert "schema" in responses[201]
+    assert "application/json" in responses[201]["content"]
+    assert "schema" in responses[201]["content"]["application/json"]
