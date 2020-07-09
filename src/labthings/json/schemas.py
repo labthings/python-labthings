@@ -22,6 +22,8 @@ def map_to_schema(schema_dict: dict):
 
 
 def schema_to_json(schema):
+    if schema is None:
+        return None
     if isinstance(schema, fields.Field):
         return field_to_property(schema)
     elif isinstance(schema, Mapping):

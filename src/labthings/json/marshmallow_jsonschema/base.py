@@ -15,10 +15,7 @@ PY_TO_JSON_TYPES_MAP = {
     dict: {"type": "object"},
     list: {"type": "array"},
     datetime.time: {"type": "string", "format": "time"},
-    datetime.timedelta: {
-        # TODO explore using 'range'?
-        "type": "string"
-    },
+    datetime.timedelta: {"type": "string"},
     datetime.datetime: {"type": "string", "format": "date-time"},
     datetime.date: {"type": "string", "format": "date"},
     uuid.UUID: {"type": "string", "format": "uuid"},
@@ -102,7 +99,10 @@ class JSONSchema(Schema):
 
         for _, field in fields_items_sequence:
             schema = self._get_schema_for_field(obj, field)
-            properties[field.metadata.get("name") or field.name] = schema
+            # Prioritize data_key if given
+            properties[
+                field.data_key or field.metadata.get("name") or field.name
+            ] = schema
 
         return properties
 

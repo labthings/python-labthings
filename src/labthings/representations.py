@@ -1,4 +1,5 @@
 from flask import make_response, current_app
+from collections import OrderedDict
 
 from .json.encoder import LabThingsJSONEncoder, encode_json
 from .utilities import PY3
@@ -24,6 +25,4 @@ def output_json(data, code, headers=None):
     return resp
 
 
-DEFAULT_REPRESENTATIONS = [
-    ("application/json", output_json),
-]
+DEFAULT_REPRESENTATIONS = OrderedDict({"application/json": output_json,})

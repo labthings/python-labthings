@@ -7,7 +7,6 @@ from ..schema import ExtensionSchema
 class ExtensionList(View):
     """List and basic documentation for all enabled Extensions"""
 
-    schema = ExtensionSchema(many=True)
     tags = ["extensions"]
 
     def get(self):
@@ -17,4 +16,4 @@ class ExtensionList(View):
         Returns a list of Extension representations, including basic documentation.
         Describes server methods, web views, and other relevant Lab Things metadata.
         """
-        return registered_extensions().values() or []
+        return ExtensionSchema(many=True).dump(registered_extensions().values() or [])

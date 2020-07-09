@@ -6,6 +6,7 @@ from gevent.pool import Pool as _Pool, PoolFull
 from .thread import TaskThread
 
 
+# TODO: Handle discarding old tasks. Action views now use deques
 class Pool(_Pool):
     def __init__(self, size=None):
         _Pool.__init__(self, size=size, greenlet_class=TaskThread)
@@ -111,33 +112,3 @@ def update_task_data(data: dict):
         current_task().update_data(data)
     else:
         logging.info("Cannot update task data of __main__ thread. Skipping.")
-
-
-# Main "taskify" functions
-
-
-def taskify(f):
-    """
-    A decorator that wraps the passed in function
-    and surpresses exceptions should one occur
-    """
-    global default_pool
-
-    @wraps(f)
-    def wrapped(*args, **kwargs):
-        task = default_pool.spawn(
-            f, *args, **kwargs
-        )  # Append to parent object's task list
-        return task
-
-    return wrapped
-
-
-# Create our default, protected, module-level task pool
-default_pool = Pool()
-
-tasks = default_pool.tasks
-to_dict = default_pool.to_dict
-states = default_pool.states
-cleanup = default_pool.cleanup
-discard_id = default_pool.discard_id

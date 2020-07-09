@@ -1,18 +1,24 @@
 from flask import abort
+import logging
 
 from ..view import View
+from ..view.marshalling import marshal_with
 from ..schema import TaskSchema
-
-from .. import tasks
+from ..find import current_thing
 
 
 class TaskList(View):
+    """
+    List of all background tasks from the session
+    """
+
     tags = ["tasks"]
-    schema = TaskSchema(many=True)
 
     def get(self):
-        """List of all session tasks"""
-        return tasks.tasks()
+        logging.warning(
+            "TaskList is deprecated and will be removed in a future version. Use the Actions list instead."
+        )
+        return TaskSchema(many=True).dump(current_thing.actions.greenlets)
 
 
 class TaskView(View):
@@ -24,9 +30,6 @@ class TaskView(View):
     """
 
     tags = ["tasks"]
-    schema = TaskSchema()
-
-    marshal_methods = ("GET", "DELETE")
 
     def get(self, task_id):
         """
@@ -34,14 +37,17 @@ class TaskView(View):
 
         Includes progress and intermediate data.
         """
-        task_dict = tasks.to_dict()
+        logging.warning(
+            "TaskView is deprecated and will be removed in a future version. Use the Action view instead."
+        )
+        task_dict = current_thing.actions.to_dict()
 
         if task_id not in task_dict:
             return abort(404)  # 404 Not Found
 
         task = task_dict.get(task_id)
 
-        return task
+        return TaskSchema().dump(task)
 
     def delete(self, task_id):
         """
@@ -49,7 +55,10 @@ class TaskView(View):
 
         If the task is finished, deletes its entry.
         """
-        task_dict = tasks.to_dict()
+        logging.warning(
+            "TaskView is deprecated and will be removed in a future version. Use the Action view instead."
+        )
+        task_dict = current_thing.actions.to_dict()
 
         if task_id not in task_dict:
             return abort(404)  # 404 Not Found
@@ -58,4 +67,4 @@ class TaskView(View):
 
         task.kill(block=True, timeout=3)
 
-        return task
+        return TaskSchema().dump(task)

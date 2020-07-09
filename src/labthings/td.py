@@ -1,15 +1,10 @@
 from flask import url_for, request
-from apispec import APISpec
-import weakref
 
 from .view import View
 from .event import Event
-
 from .json.schemas import schema_to_json
 from .json.paths import rule_to_params, rule_to_path
-
-from .find import current_labthing
-
+from .find import current_thing
 from .utilities import get_docstring, snake_to_camel
 
 
@@ -31,27 +26,19 @@ def view_to_thing_action_forms(rules: list, view: View):
 
         # Get input content_type
         content_type = getattr(view, "content_type", "application/json")
-
-        # See if the action has an unusual 200 response
-        responses = view.get_responses()
-        response_content_type = "application/json"  # Default assumed content_type
-
-        for response_code in (200, 201):
-            if response_code in responses and responses[response_code].get(
-                "content_type"
-            ):
-                response_content_type = responses[response_code].get("content_type")
-                break
+        response_content_type = getattr(
+            view, "response_content_type", "application/json"
+        )
 
         for url in prop_urls:
             form = {
-                "op": ["invokeaction"],
+                "op": "invokeaction",
                 "htv:methodName": "POST",
                 "href": url,
                 "contentType": content_type,
             }
             if response_content_type != content_type:
-                form["responses"] = {"contentType": response_content_type}
+                form["response"] = {"contentType": response_content_type}
 
             forms.append(form)
 
@@ -76,74 +63,49 @@ def view_to_thing_property_forms(rules: list, view: View):
     # Get input content_type
     content_type = getattr(view, "content_type", "application/json")
 
-    # See if the property has an unusual 201 response
-    responses = view.get_responses()
-    response_content_type = "application/json"  # Default assumed content_type
-
-    for response_code in (201, 200):
-        if response_code in responses and responses[response_code].get("content_type"):
-            response_content_type = responses[response_code].get("content_type")
-            break
-
-    # TODO: Clean up repeated code
-
     # HTTP readproperty requires GET method
     if hasattr(view, "get"):
         for url in prop_urls:
             form = {
-                "op": ["readproperty"],
+                "op": "readproperty",
                 "htv:methodName": "GET",
                 "href": url,
                 "contentType": content_type,
-                "response": {"contentType": response_content_type},
             }
-            if response_content_type != content_type:
-                form["responses"] = {"contentType": response_content_type}
             forms.append(form)
 
     # HTTP writeproperty requires PUT method
     if hasattr(view, "put"):
         for url in prop_urls:
             form = {
-                "op": ["writeproperty"],
+                "op": "writeproperty",
                 "htv:methodName": "PUT",
                 "href": url,
                 "contentType": content_type,
-                "response": {"contentType": response_content_type},
             }
-            if response_content_type != content_type:
-                form["responses"] = {"contentType": response_content_type}
             forms.append(form)
 
     # HTTP writeproperty may use POST method
     elif hasattr(view, "post"):
         for url in prop_urls:
             form = {
-                "op": ["writeproperty"],
+                "op": "writeproperty",
                 "htv:methodName": "POST",
                 "href": url,
                 "contentType": content_type,
-                "response": {"contentType": response_content_type},
             }
-            if response_content_type != content_type:
-                form["responses"] = {"contentType": response_content_type}
             forms.append(form)
 
     return forms
 
 
 class ThingDescription:
-    def __init__(self, apispec: APISpec):
-        self._apispec = weakref.ref(apispec)
+    def __init__(self):
         self.properties = {}
         self.actions = {}
         self.events = {}
         self._links = []
         super().__init__()
-
-    @property
-    def apispec(self):
-        return self._apispec()
 
     @property
     def links(self):
@@ -152,7 +114,7 @@ class ThingDescription:
             td_links.append(
                 {
                     "rel": link_description.get("rel"),
-                    "href": current_labthing().url_for(
+                    "href": current_thing.url_for(
                         link_description.get("view"),
                         **link_description.get("params"),
                         _external=True,
@@ -177,11 +139,11 @@ class ThingDescription:
                 "https://www.w3.org/2019/wot/td/v1",
                 "https://iot.mozilla.org/schemas/",
             ],
-            "@type": current_labthing().types,
+            "@type": current_thing.types,
             "id": url_for("root", _external=True),
             "base": request.host_url,
-            "title": current_labthing().title,
-            "description": current_labthing().description,
+            "title": current_thing.title,
+            "description": current_thing.description,
             "properties": self.properties,
             "actions": self.actions,
             # "events": self.events,  # TODO: Enable once properly populated
@@ -210,7 +172,7 @@ class ThingDescription:
             "uriVariables": {},
         }
 
-        semtype = getattr(view, "semtype")
+        semtype = getattr(view, "semtype", None)
         if semtype:
             prop_description["@type"] = semtype
 
@@ -260,7 +222,7 @@ class ThingDescription:
             # Add schema to prop description
             action_description["input"] = schema_to_json(action_input_schema)
 
-        semtype = getattr(view, "semtype")
+        semtype = getattr(view, "semtype", None)
         if semtype:
             action_description["@type"] = semtype
 

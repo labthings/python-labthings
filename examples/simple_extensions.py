@@ -1,5 +1,10 @@
+from labthings.monkey import patch_all
+
+patch_all()
+
 import random
 import math
+import time
 import logging
 
 from labthings.server.quick import create_app
@@ -7,7 +12,6 @@ from labthings.server.view import ActionView, PropertyView
 from labthings.server.find import find_component
 from labthings.server import fields
 from labthings.core.utilities import path_relative_to
-from labthings.core.tasks import taskify
 
 from labthings.server.extensions import BaseExtension
 
@@ -35,10 +39,7 @@ class ExtensionMeasurementAction(ActionView):
 
         # Get arguments and start a background task
         n_averages = args.get("averages")
-        task = taskify(my_component.average_data)(n_averages)
-
-        # Return the task information
-        return task
+        return my_component.average_data(n_averages)
 
 
 def ext_on_register():
@@ -90,6 +91,18 @@ class MyComponent:
         Return a 1D data trace.
         """
         return [self.noisy_pdf(x) for x in self.x_range]
+
+    def average_data(self, n: int):
+        """Average n-sets of data. Emulates a measurement that may take a while."""
+        summed_data = self.data
+
+        for _ in range(n):
+            summed_data = [summed_data[i] + el for i, el in enumerate(self.data)]
+            time.sleep(0.25)
+
+        summed_data = [i / n for i in summed_data]
+
+        return summed_data
 
 
 """

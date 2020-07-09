@@ -6,9 +6,9 @@ class ExtendedOpenAPIConverter(OpenAPIConverter):
 
     def init_attribute_functions(self, *args, **kwargs):
         OpenAPIConverter.init_attribute_functions(self, *args, **kwargs)
-        self.attribute_functions.append(self.bytes2json)
+        self.attribute_functions.append(self.jsonschema_type_mapping)
 
-    def bytes2json(self, field, **kwargs):
+    def jsonschema_type_mapping(self, field, **kwargs):
         ret = {}
         if hasattr(field, "_jsonschema_type_mapping"):
             schema = field._jsonschema_type_mapping()

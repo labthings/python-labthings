@@ -2,7 +2,7 @@ import pytest
 
 from labthings import fields
 
-from labthings.view import View
+from labthings.view import View, PropertyView, ActionView
 
 
 @pytest.fixture
@@ -83,7 +83,7 @@ def test_td_action_with_schema(
             "idempotent": False,
             "forms": [
                 {
-                    "op": ["invokeaction"],
+                    "op": "invokeaction",
                     "htv:methodName": "POST",
                     "href": "/",
                     "contentType": "application/json",
@@ -99,7 +99,7 @@ def test_td_action_with_schema(
 
 
 def test_td_property(helpers, app, thing_description, app_ctx, schemas_path):
-    class Index(View):
+    class Index(PropertyView):
         def get(self):
             return "GET"
 
@@ -116,7 +116,7 @@ def test_td_property(helpers, app, thing_description, app_ctx, schemas_path):
 def test_td_property_with_schema(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
-    class Index(View):
+    class Index(PropertyView):
         schema = fields.Int(required=True)
 
         def get(self):
@@ -135,7 +135,7 @@ def test_td_property_with_schema(
 def test_td_property_with_url_param(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
-    class Index(View):
+    class Index(PropertyView):
         def get(self):
             return "GET"
 
@@ -150,7 +150,7 @@ def test_td_property_with_url_param(
 
 
 def test_td_property_write_only(helpers, app, thing_description, app_ctx, schemas_path):
-    class Index(View):
+    class Index(PropertyView):
         schema = fields.Int()
 
         def put(self):
@@ -169,7 +169,7 @@ def test_td_property_write_only(helpers, app, thing_description, app_ctx, schema
 def test_td_property_post_to_write(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
-    class Index(View):
+    class Index(PropertyView):
         def post(self):
             return "POST"
 
@@ -180,9 +180,11 @@ def test_td_property_post_to_write(
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict()["properties"]
-        assert thing_description.to_dict()["properties"]["index"]["forms"][0]["op"] == [
-            "writeproperty"
-        ]
+        assert (
+            thing_description.to_dict()["properties"]["index"]["forms"][0]["op"]
+            == "writeproperty"
+        )
+
         assert (
             thing_description.to_dict()["properties"]["index"]["forms"][0][
                 "htv:methodName"
@@ -192,12 +194,11 @@ def test_td_property_post_to_write(
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
 
 
-def test_td_property_different_response_type(
+def test_td_property_different_content_type(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
-    class Index(View):
-        schema = fields.Int()
-        responses = {200: {"content_type": "text/plain; charset=us-ascii"}}
+    class Index(ActionView):
+        content_type = "text/plain; charset=us-ascii"
 
         def get(self):
             return "GET"
@@ -213,5 +214,27 @@ def test_td_property_different_response_type(
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict()["properties"]
         for form in thing_description.to_dict()["properties"]["index"]["forms"]:
+            assert form["contentType"] == "text/plain; charset=us-ascii"
+        helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
+
+
+def test_td_action_different_response_type(
+    helpers, app, thing_description, app_ctx, schemas_path
+):
+    class Index(ActionView):
+        schema = fields.Int()
+        response_content_type = "text/plain; charset=us-ascii"
+
+        def post(self):
+            return "PUT"
+
+    app.add_url_rule("/", view_func=Index.as_view("index"))
+    rules = app.url_map._rules_by_endpoint["index"]
+
+    thing_description.action(rules, Index)
+
+    with app_ctx.test_request_context():
+        assert "index" in thing_description.to_dict()["actions"]
+        for form in thing_description.to_dict()["actions"]["index"]["forms"]:
             assert form["response"]["contentType"] == "text/plain; charset=us-ascii"
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)

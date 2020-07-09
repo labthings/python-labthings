@@ -4,7 +4,7 @@ from werkzeug.routing import BuildError
 from marshmallow import Schema, pre_load, pre_dump, validate
 from collections.abc import Mapping
 
-from .names import TASK_ENDPOINT, EXTENSION_LIST_ENDPOINT
+from .names import ACTION_ENDPOINT, TASK_ENDPOINT, EXTENSION_LIST_ENDPOINT
 from .utilities import view_class_from_endpoint, description_from_view
 from . import fields
 
@@ -26,7 +26,7 @@ class FieldSchema(Schema):
     "Virtual schema" for handling individual fields treated as schemas.
 
     For example, when serializing/deserializing individual values that are not
-    attributes of an object.
+    attributes of an object, like passing a single number as the request/response body
     """
 
     def __init__(self, field: fields.Field):
@@ -59,6 +59,10 @@ class FieldSchema(Schema):
 
 
 class TaskSchema(Schema):
+    """
+    Legacy schema for background tasks. Will eventually be replaced by ActionSchema,
+    """
+
     _ID = fields.String(data_key="id")
     target_string = fields.String(data_key="function")
     _status = fields.String(data_key="status")
@@ -109,20 +113,18 @@ class ActionSchema(Schema):
     @pre_dump
     def generate_links(self, data, **kwargs):
         # Add Mozilla format href
-        # TODO: This should eventually point to the Mozilla action URL
         try:
-            url = url_for(TASK_ENDPOINT, task_id=data.id, _external=True)
+            url = url_for(ACTION_ENDPOINT, task_id=data.id, _external=True)
         except BuildError:
             url = None
         data.href = url
 
         # Add full link description
-        # TODO: Reintroduce this type of link to other Thing Description elements
         data.links = {
             "self": {
                 "href": url,
                 "mimetype": "application/json",
-                **description_from_view(view_class_from_endpoint(TASK_ENDPOINT)),
+                **description_from_view(view_class_from_endpoint(ACTION_ENDPOINT)),
             }
         }
 
