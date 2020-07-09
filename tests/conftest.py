@@ -8,6 +8,7 @@ from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from labthings.server.labthing import LabThing
 from labthings.server.view import View
+from labthings.tasks import Pool
 
 from werkzeug.test import EnvironBuilder
 from flask.testing import FlaskClient
@@ -309,3 +310,12 @@ def fake_websocket():
         return FakeWebsocket(*args, **kwargs)
 
     return _foo
+
+
+@pytest.fixture
+def task_pool():
+    """
+    Return a task pool
+    """
+
+    return Pool()

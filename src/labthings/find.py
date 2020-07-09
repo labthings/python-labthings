@@ -2,12 +2,15 @@ import logging
 from flask import current_app, url_for
 import weakref
 
+from werkzeug.local import LocalProxy
+
 from .names import EXTENSION_NAME
 
 __all__ = [
     "current_app",
     "url_for",
     "current_labthing",
+    "current_thing",
     "registered_extensions",
     "registered_components",
     "find_component",
@@ -23,11 +26,10 @@ def current_labthing(app=None):
     # We use _get_current_object so that Task threads can still
     # reach the Flask app object. Just using current_app returns
     # a wrapper, which breaks it's use in Task threads
-    if not app:
-        try:
-            app = current_app._get_current_object()  # skipcq: PYL-W0212
-        except RuntimeError:
-            return None
+    try:
+        app = current_app._get_current_object()  # skipcq: PYL-W0212
+    except RuntimeError:
+        return None
     ext = app.extensions.get(EXTENSION_NAME, None)
     if isinstance(ext, weakref.ref):
         return ext()
@@ -107,3 +109,6 @@ def find_extension(extension_name, labthing_instance=None):
         return labthing_instance.extensions[extension_name]
     else:
         return None
+
+
+current_thing = LocalProxy(current_labthing)

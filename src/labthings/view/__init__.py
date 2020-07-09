@@ -3,17 +3,15 @@ from flask import request
 from werkzeug.wrappers import Response as ResponseBase
 from werkzeug.exceptions import BadRequest
 
-from collections import OrderedDict
-
 from .args import use_args
 from .marshalling import marshal_with
 
 from ..utilities import unpack, get_docstring, get_summary, merge
 from ..representations import DEFAULT_REPRESENTATIONS
-from ..find import current_labthing
+from ..find import current_labthing, current_thing
 from ..event import PropertyStatusEvent
 from ..schema import Schema, ActionSchema, build_action_schema
-from ..tasks import default_pool
+from ..tasks import Pool
 from ..deque import Deque, resize_deque
 from ..json.schemas import schema_to_json
 from .. import fields
@@ -46,8 +44,9 @@ class View(MethodView):
         MethodView.__init__(self, *args, **kwargs)
 
         # Set the default representations
-        # TODO: Inherit from parent LabThing. See original flask_restful implementation
-        self.representations = OrderedDict(DEFAULT_REPRESENTATIONS)
+        self.representations = (
+            current_thing.representations if current_thing else DEFAULT_REPRESENTATIONS
+        )
 
     @classmethod
     def get_apispec(cls):
@@ -152,6 +151,7 @@ class ActionView(View):
     # Internal
     _cls_tags = {"actions"}
     _deque = Deque()  # Action queue
+    _emergency_pool = Pool()
 
     def get(self):
         queue_schema = build_action_schema(self.schema, self.args)(many=True)
@@ -247,8 +247,9 @@ class ActionView(View):
         if self.schema:
             meth = marshal_with(self.schema)(meth)
 
+        # Try to find a pool on the current LabThing, but fall back to Views emergency pool
+        pool = current_thing.actions if current_thing else self._emergency_pool
         # Make a task out of the views `post` method
-        pool = current_labthing().actions if current_labthing else default_pool
         task = pool.spawn(meth, *args, **kwargs)
 
         # Keep a copy of the raw, unmarshalled JSON input in the task
@@ -380,8 +381,8 @@ class PropertyView(View):
                 self, "__name__", "unknown"
             )
 
-            if current_labthing():
-                current_labthing().message(
+            if current_thing:
+                current_thing.message(
                     PropertyStatusEvent(property_name), property_value,
                 )
 

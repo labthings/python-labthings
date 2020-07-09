@@ -10,10 +10,6 @@ import uuid
 _LOG = logging.getLogger(__name__)
 
 
-class ThreadTerminationError(SystemExit):
-    """Sibling of SystemExit, but specific to thread termination."""
-
-
 class TaskKillException(Exception):
     """Sibling of SystemExit, but specific to thread termination."""
 

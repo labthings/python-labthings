@@ -16,12 +16,13 @@ from .utilities import clean_url_string
 from .httperrorhandler import SerializedExceptionHandler
 from .logging import LabThingLogger
 from .json.encoder import LabThingsJSONEncoder
+from .representations import DEFAULT_REPRESENTATIONS
 from .apispec import MarshmallowPlugin, rule_to_apispec_path
 from .td import ThingDescription
 from .sockets import Sockets
 from .event import Event
 
-from .tasks import Pool, change_default_pool
+from .tasks import Pool
 
 from .view.builder import property_of, action_from
 
@@ -61,7 +62,6 @@ class LabThing:
         self.extensions = {}
 
         self.actions = Pool()  # Pool of greenlets for Actions
-        change_default_pool(self.actions)
 
         self.events = {}
 
@@ -93,6 +93,9 @@ class LabThing:
         # TODO: Add cleanup code
         self.log_handler = LabThingLogger()
         logging.getLogger().addHandler(self.log_handler)
+
+        # Representation formatter map
+        self.representations = DEFAULT_REPRESENTATIONS
 
         # API Spec
         self.spec = APISpec(
