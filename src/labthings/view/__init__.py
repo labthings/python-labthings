@@ -114,9 +114,9 @@ class View(MethodView):
 
 class ActionView(View):
     # Data formatting
-    schema: Schema = None
-    args: dict = None
-    semtype: str = None
+    schema: Schema = None  # Schema for Action response
+    args: dict = None  # Schema for input arguments
+    semtype: str = None  # Semantic type string
 
     # Spec overrides
     content_type = "application/json"  # Input contentType
@@ -124,8 +124,8 @@ class ActionView(View):
     responses = {}  # Custom responses for invokeaction
 
     # Spec parameters
-    safe: bool = False
-    idempotent: bool = False
+    safe: bool = False  # Does the action complete WITHOUT changing the Thing state
+    idempotent: bool = False  # Can the action be performed idempotently
 
     # Internal
     _cls_tags = {"actions"}
@@ -235,12 +235,12 @@ class ActionView(View):
 
 
 class PropertyView(View):
-    schema: Schema = None
-    semtype: str = None
+    schema: Schema = None  # Schema for input AND output
+    semtype: str = None  # Semantic type string
 
     # Spec overrides
     content_type = "application/json"  # Input and output contentType
-    responses = {}  # Custom responses for invokeaction
+    responses = {}  # Custom responses for all interactions
 
     _cls_tags = {"properties"}
 
