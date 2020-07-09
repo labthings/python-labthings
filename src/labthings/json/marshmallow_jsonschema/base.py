@@ -15,10 +15,7 @@ PY_TO_JSON_TYPES_MAP = {
     dict: {"type": "object"},
     list: {"type": "array"},
     datetime.time: {"type": "string", "format": "time"},
-    datetime.timedelta: {
-        # TODO explore using 'range'?
-        "type": "string"
-    },
+    datetime.timedelta: {"type": "string"},
     datetime.datetime: {"type": "string", "format": "date-time"},
     datetime.date: {"type": "string", "format": "date"},
     uuid.UUID: {"type": "string", "format": "uuid"},
