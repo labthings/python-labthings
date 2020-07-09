@@ -4,7 +4,7 @@ from werkzeug.routing import BuildError
 from marshmallow import Schema, pre_load, pre_dump, validate
 from collections.abc import Mapping
 
-from .names import TASK_ENDPOINT, EXTENSION_LIST_ENDPOINT
+from .names import ACTION_ENDPOINT, TASK_ENDPOINT, EXTENSION_LIST_ENDPOINT
 from .utilities import view_class_from_endpoint, description_from_view
 from . import fields
 
@@ -114,7 +114,7 @@ class ActionSchema(Schema):
     def generate_links(self, data, **kwargs):
         # Add Mozilla format href
         try:
-            url = url_for(TASK_ENDPOINT, task_id=data.id, _external=True)
+            url = url_for(ACTION_ENDPOINT, task_id=data.id, _external=True)
         except BuildError:
             url = None
         data.href = url
@@ -124,7 +124,7 @@ class ActionSchema(Schema):
             "self": {
                 "href": url,
                 "mimetype": "application/json",
-                **description_from_view(view_class_from_endpoint(TASK_ENDPOINT)),
+                **description_from_view(view_class_from_endpoint(ACTION_ENDPOINT)),
             }
         }
 
