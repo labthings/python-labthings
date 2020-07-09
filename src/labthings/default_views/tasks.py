@@ -1,10 +1,10 @@
 from flask import abort
+import logging
 
 from ..view import View
 from ..view.marshalling import marshal_with
 from ..schema import TaskSchema
-
-from .. import tasks
+from ..find import current_labthing
 
 
 class TaskList(View):
@@ -15,7 +15,10 @@ class TaskList(View):
     tags = ["tasks"]
 
     def get(self):
-        return TaskSchema(many=True).dump(tasks.tasks())
+        logging.warning(
+            "TaskList is deprecated and will be removed in a future version. Use the Actions list instead."
+        )
+        return TaskSchema(many=True).dump(current_labthing().actions.greenlets)
 
 
 class TaskView(View):
@@ -34,7 +37,10 @@ class TaskView(View):
 
         Includes progress and intermediate data.
         """
-        task_dict = tasks.to_dict()
+        logging.warning(
+            "TaskView is deprecated and will be removed in a future version. Use the Action view instead."
+        )
+        task_dict = current_labthing().actions.to_dict()
 
         if task_id not in task_dict:
             return abort(404)  # 404 Not Found
@@ -49,7 +55,10 @@ class TaskView(View):
 
         If the task is finished, deletes its entry.
         """
-        task_dict = tasks.to_dict()
+        logging.warning(
+            "TaskView is deprecated and will be removed in a future version. Use the Action view instead."
+        )
+        task_dict = current_labthing().actions.to_dict()
 
         if task_id not in task_dict:
             return abort(404)  # 404 Not Found

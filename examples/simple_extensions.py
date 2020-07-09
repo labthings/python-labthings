@@ -12,7 +12,6 @@ from labthings.server.view import ActionView, PropertyView
 from labthings.server.find import find_component
 from labthings.server import fields
 from labthings.core.utilities import path_relative_to
-from labthings.core.tasks import taskify
 
 from labthings.server.extensions import BaseExtension
 

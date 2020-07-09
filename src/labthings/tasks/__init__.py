@@ -9,6 +9,8 @@ __all__ = [
     "cleanup",
     "discard_id",
     "update_task_data",
+    "default_pool",
+    "change_default_pool",
     "ThreadTerminationError",
 ]
 
@@ -23,5 +25,7 @@ from .pool import (
     discard_id,
     update_task_data,
     taskify,
+    default_pool,
+    change_default_pool,
 )
 from .thread import ThreadTerminationError

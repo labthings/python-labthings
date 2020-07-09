@@ -7,6 +7,8 @@ from .names import (
     EXTENSION_NAME,
     TASK_ENDPOINT,
     TASK_LIST_ENDPOINT,
+    ACTION_ENDPOINT,
+    ACTION_LIST_ENDPOINT,
     EXTENSION_LIST_ENDPOINT,
 )
 from .extensions import BaseExtension
@@ -19,10 +21,13 @@ from .td import ThingDescription
 from .sockets import Sockets
 from .event import Event
 
+from .tasks import Pool, change_default_pool
+
 from .view.builder import property_of, action_from
 
 from .default_views.extensions import ExtensionList
 from .default_views.tasks import TaskList, TaskView
+from .default_views.actions import ActionQueue, ActionView
 from .default_views.docs import docs_blueprint, SwaggerUIView
 from .default_views.root import RootView
 from .default_views.sockets import socket_handler
@@ -54,6 +59,9 @@ class LabThing:
         self.components = {}
 
         self.extensions = {}
+
+        self.actions = Pool()  # Pool of greenlets for Actions
+        change_default_pool(self.actions)
 
         self.events = {}
 
@@ -182,8 +190,11 @@ class LabThing:
         self.add_root_link(ExtensionList, "extensions")
         # Add task routes
         self.add_view(TaskList, "/tasks", endpoint=TASK_LIST_ENDPOINT)
-        self.add_root_link(TaskList, "tasks")
         self.add_view(TaskView, "/tasks/<task_id>", endpoint=TASK_ENDPOINT)
+        # Add action routes
+        self.add_view(ActionQueue, "/actions", endpoint=ACTION_LIST_ENDPOINT)
+        self.add_root_link(ActionQueue, "actions")
+        self.add_view(ActionView, "/actions/<task_id>", endpoint=ACTION_ENDPOINT)
 
     def _create_base_sockets(self):
         self.sockets.add_view(
@@ -386,3 +397,6 @@ class LabThing:
 
     def build_action(self, function: Callable, *urls, **kwargs):
         self.add_view(action_from(function, **kwargs), *urls)
+
+    def spawn_action(self, *args, **kwargs):
+        return self.actions.spawn(*args, **kwargs)

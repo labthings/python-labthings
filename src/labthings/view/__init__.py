@@ -13,7 +13,7 @@ from ..representations import DEFAULT_REPRESENTATIONS
 from ..find import current_labthing
 from ..event import PropertyStatusEvent
 from ..schema import Schema, ActionSchema, build_action_schema
-from ..tasks import taskify
+from ..tasks import default_pool
 from ..deque import Deque, resize_deque
 from ..json.schemas import schema_to_json
 from .. import fields
@@ -248,7 +248,8 @@ class ActionView(View):
             meth = marshal_with(self.schema)(meth)
 
         # Make a task out of the views `post` method
-        task = taskify(meth)(*args, **kwargs)
+        pool = current_labthing().actions if current_labthing else default_pool
+        task = pool.spawn(meth, *args, **kwargs)
 
         # Keep a copy of the raw, unmarshalled JSON input in the task
         try:

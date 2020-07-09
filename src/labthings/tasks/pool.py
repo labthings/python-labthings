@@ -142,3 +142,13 @@ to_dict = default_pool.to_dict
 states = default_pool.states
 cleanup = default_pool.cleanup
 discard_id = default_pool.discard_id
+
+
+def change_default_pool(new_default_pool: Pool):
+    global default_pool, tasks, to_dict, states, cleanup, discard_id
+    default_pool = new_default_pool
+    tasks = new_default_pool.tasks
+    to_dict = new_default_pool.to_dict
+    states = new_default_pool.states
+    cleanup = new_default_pool.cleanup
+    discard_id = new_default_pool.discard_id
