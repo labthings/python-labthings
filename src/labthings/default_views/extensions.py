@@ -6,6 +6,7 @@ from ..schema import ExtensionSchema
 
 class ExtensionList(View):
     """List and basic documentation for all enabled Extensions"""
+
     tags = ["extensions"]
 
     def get(self):

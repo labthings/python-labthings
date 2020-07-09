@@ -22,6 +22,7 @@ class TaskView(View):
     GET will safely return the current task progress.
     DELETE will terminate the background task, if running.
     """
+
     tags = ["tasks"]
 
     def get(self, task_id):
