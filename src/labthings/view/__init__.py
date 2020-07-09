@@ -33,12 +33,14 @@ class View(MethodView):
     These functions will allow for automated documentation generation.
     """
 
-    endpoint = None
-    semtype: str = None
+    endpoint = None  # Store the View endpoint for use in specs
 
+    # Basic view spec metadata
     tags: list = []  # Custom tags the user can add
-    _cls_tags = set()  # Class tags that shouldn't be removed
     title: None
+
+    # Internal
+    _cls_tags = set()  # Class tags that shouldn't be removed
 
     def __init__(self, *args, **kwargs):
         MethodView.__init__(self, *args, **kwargs)
@@ -143,6 +145,9 @@ class ActionView(View):
     # Spec parameters
     safe: bool = False  # Does the action complete WITHOUT changing the Thing state
     idempotent: bool = False  # Can the action be performed idempotently
+
+    # Action handling
+    wait_for: int = 1  # Time in seconds to wait before returning the action as pending/running
 
     # Internal
     _cls_tags = {"actions"}
@@ -253,7 +258,7 @@ class ActionView(View):
 
         # Wait up to 2 second for the action to complete or error
         try:
-            task.get(block=True, timeout=1)
+            task.get(block=True, timeout=self.wait_for)
         except Timeout:
             pass
 
@@ -268,6 +273,7 @@ class ActionView(View):
 
 
 class PropertyView(View):
+    # Data formatting
     schema: Schema = None  # Schema for input AND output
     semtype: str = None  # Semantic type string
 
@@ -275,6 +281,7 @@ class PropertyView(View):
     content_type = "application/json"  # Input and output contentType
     responses = {}  # Custom responses for all interactions
 
+    # Internal
     _cls_tags = {"properties"}
 
     @classmethod
