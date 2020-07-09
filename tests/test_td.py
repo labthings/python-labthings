@@ -194,26 +194,23 @@ def test_td_property_post_to_write(
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
 
 
-def test_td_property_different_response_type(
+def test_td_action_different_response_type(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
-    class Index(PropertyView):
+    class Index(ActionView):
         schema = fields.Int()
-        responses = {200: {"content_type": "text/plain; charset=us-ascii"}}
+        response_content_type = "text/plain; charset=us-ascii"
 
-        def get(self):
-            return "GET"
-
-        def put(self):
+        def post(self):
             return "PUT"
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
     rules = app.url_map._rules_by_endpoint["index"]
 
-    thing_description.property(rules, Index)
+    thing_description.action(rules, Index)
 
     with app_ctx.test_request_context():
-        assert "index" in thing_description.to_dict()["properties"]
-        for form in thing_description.to_dict()["properties"]["index"]["forms"]:
+        assert "index" in thing_description.to_dict()["actions"]
+        for form in thing_description.to_dict()["actions"]["index"]["forms"]:
             assert form["response"]["contentType"] == "text/plain; charset=us-ascii"
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
