@@ -48,6 +48,11 @@ class View(MethodView):
 
     @classmethod
     def get_apispec(cls):
+        """Build a basic OpenAPI spec, containing only basic view metadata
+
+        Returns:
+            [dict]: Minimal OpenAPI spec for the view class
+        """
         d = {}
 
         for method in http_method_funcs:
@@ -58,11 +63,6 @@ class View(MethodView):
                     "summary": getattr(cls, "summary", None) or get_summary(cls),
                     "tags": list(cls.get_tags()),
                 }
-
-        # Enable custom responses from all methods
-        if getattr(cls, "responses", None):
-            for method in d.keys():
-                d[method]["responses"] = getattr(cls, "responses")
         return d
 
     @classmethod
@@ -137,59 +137,72 @@ class ActionView(View):
 
     @classmethod
     def get_apispec(cls):
+        """Build an OpenAPI spec for the Action view
+
+        Returns:
+            [dict]: OpenAPI spec for the view class
+        """
         class_args = schema_to_json(cls.args)
         action_json_schema = schema_to_json(build_action_schema(cls.schema, cls.args)())
         queue_json_schema = schema_to_json(
             build_action_schema(cls.schema, cls.args)(many=True)
         )
         class_json_schema = schema_to_json(cls.schema)
-        d = {
-            "post": {
-                "description": getattr(cls, "description", None) or get_docstring(cls),
-                "summary": getattr(cls, "summary", None) or get_summary(cls),
-                "tags": list(cls.get_tags()),
-                "requestBody": {
-                    "content": {
-                        cls.content_type: ({"schema": class_args} if class_args else {})
-                    }
-                },
-                "responses": {
-                    200: {
-                        # Allow customising 200 (immediate response) content type
-                        "content_type": cls.response_content_type,
-                        "description": "Action completed immediately",
-                        **(
-                            # If an action JSON schema is defined, set the response schema
-                            {"schema": action_json_schema}
-                            if (action_json_schema)
-                            else {}
-                        ),
+
+        # Get basic view spec
+        d = super(ActionView, cls).get_apispec()
+        # Add in Action spec
+        d.update(
+            {
+                "post": {
+                    "requestBody": {
+                        "content": {
+                            cls.content_type: (
+                                {"schema": class_args} if class_args else {}
+                            )
+                        }
                     },
-                    # Our POST 201 MUST be application/json
-                    # Responses like images must be added as 200 responses with cls.responses = {200: {...}}
-                    201: {
-                        "content_type": "application/json",
-                        "description": "Action started",
-                        **(
-                            {"schema": action_json_schema} if action_json_schema else {}
-                        ),
+                    "responses": {
+                        200: {
+                            # Allow customising 200 (immediate response) content type
+                            "content_type": cls.response_content_type,
+                            "description": "Action completed immediately",
+                            **(
+                                # If an action JSON schema is defined, set the response schema
+                                {"schema": action_json_schema}
+                                if (action_json_schema)
+                                else {}
+                            ),
+                        },
+                        # Our POST 201 MUST be application/json
+                        # Responses like images must be added as 200 responses with cls.responses = {200: {...}}
+                        201: {
+                            "content_type": "application/json",
+                            "description": "Action started",
+                            **(
+                                {"schema": action_json_schema}
+                                if action_json_schema
+                                else {}
+                            ),
+                        },
                     },
                 },
-            },
-            "get": {
-                "description": "Action queue",
-                "summary": "Action queue",
-                "tags": list(cls.get_tags()),
-                "responses": {
-                    # Our GET 200 MUST be application/json
-                    200: {
-                        "content_type": "application/json",
-                        "description": "Action started",
-                        **({"schema": queue_json_schema} if queue_json_schema else {}),
-                    }
+                "get": {
+                    "responses": {
+                        # Our GET 200 MUST be application/json
+                        200: {
+                            "content_type": "application/json",
+                            "description": "Action started",
+                            **(
+                                {"schema": queue_json_schema}
+                                if queue_json_schema
+                                else {}
+                            ),
+                        }
+                    },
                 },
-            },
-        }
+            }
+        )
         # Enable custom responses from POST
         d["post"]["responses"].update(cls.responses)
         return d
@@ -246,17 +259,20 @@ class PropertyView(View):
 
     @classmethod
     def get_apispec(cls):
-        d = {}
+        """Build an OpenAPI spec for the Property view
+
+        Returns:
+            [dict]: OpenAPI spec for the view class
+        """
         class_json_schema = schema_to_json(cls.schema) if cls.schema else None
 
-        # writeproperty methods
+        # Get basic view spec
+        d = super(PropertyView, cls).get_apispec()
+
+        # Add in writeproperty methods
         for method in ("put", "post"):
             if hasattr(cls, method):
                 d[method] = {
-                    "description": getattr(cls, "description", None)
-                    or get_docstring(cls),
-                    "summary": getattr(cls, "summary", None) or get_summary(cls),
-                    "tags": list(cls.get_tags()),
                     "requestBody": {
                         "content": {
                             cls.content_type: (
@@ -279,11 +295,9 @@ class PropertyView(View):
                     },
                 }
 
+        # Add in readproperty methods
         if hasattr(cls, "get"):
             d["get"] = {
-                "description": getattr(cls, "description", None) or get_docstring(cls),
-                "summary": getattr(cls, "summary", None) or get_summary(cls),
-                "tags": list(cls.get_tags()),
                 "responses": {
                     200: {
                         "content_type": "application/json",
