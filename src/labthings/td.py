@@ -63,10 +63,6 @@ def view_to_thing_property_forms(rules: list, view: View):
     # Get input content_type
     content_type = getattr(view, "content_type", "application/json")
 
-    # See if the property has an unusual 201 response
-    # TODO: Do this per-method
-    responses = view.get_apispec().get("get", {}).get("responses", {})
-
     # HTTP readproperty requires GET method
     if hasattr(view, "get"):
         for url in prop_urls:
