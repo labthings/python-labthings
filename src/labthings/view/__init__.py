@@ -8,7 +8,7 @@ from collections import OrderedDict
 from .args import use_args
 from .marshalling import marshal_with
 
-from ..utilities import unpack, get_docstring, get_summary
+from ..utilities import unpack, get_docstring, get_summary, merge
 from ..representations import DEFAULT_REPRESENTATIONS
 from ..find import current_labthing
 from ..event import PropertyStatusEvent
@@ -16,6 +16,7 @@ from ..schema import Schema, ActionSchema, build_action_schema
 from ..tasks import taskify
 from ..deque import Deque, resize_deque
 from ..json.schemas import schema_to_json
+from .. import fields
 
 from gevent.timeout import Timeout
 
@@ -62,6 +63,22 @@ class View(MethodView):
                     or get_docstring(cls),
                     "summary": getattr(cls, "summary", None) or get_summary(cls),
                     "tags": list(cls.get_tags()),
+                    "responses": {
+                        "default": {
+                            "description": "Unexpected error",
+                            "content": {
+                                "application/json": {
+                                    "schema": schema_to_json(
+                                        {
+                                            "code": fields.Integer(),
+                                            "message": fields.String(),
+                                            "name": fields.String(),
+                                        }
+                                    )
+                                }
+                            },
+                        }
+                    },
                 }
         return d
 
@@ -152,7 +169,8 @@ class ActionView(View):
         # Get basic view spec
         d = super(ActionView, cls).get_apispec()
         # Add in Action spec
-        d.update(
+        d = merge(
+            d,
             {
                 "post": {
                     "requestBody": {
@@ -201,7 +219,7 @@ class ActionView(View):
                         }
                     },
                 },
-            }
+            },
         )
         # Enable custom responses from POST
         d["post"]["responses"].update(cls.responses)
@@ -272,20 +290,41 @@ class PropertyView(View):
         # Add in writeproperty methods
         for method in ("put", "post"):
             if hasattr(cls, method):
-                d[method] = {
-                    "requestBody": {
-                        "content": {
-                            cls.content_type: (
-                                {"schema": class_json_schema}
-                                if class_json_schema
-                                else {}
-                            )
-                        }
+                d[method] = merge(
+                    d.get(method, {}),
+                    {
+                        "requestBody": {
+                            "content": {
+                                cls.content_type: (
+                                    {"schema": class_json_schema}
+                                    if class_json_schema
+                                    else {}
+                                )
+                            }
+                        },
+                        "responses": {
+                            200: {
+                                "content_type": cls.content_type,
+                                "description": "Write property",
+                                **(
+                                    {"schema": class_json_schema}
+                                    if class_json_schema
+                                    else {}
+                                ),
+                            }
+                        },
                     },
+                )
+
+        # Add in readproperty methods
+        if hasattr(cls, "get"):
+            d["get"] = merge(
+                d.get("get", {}),
+                {
                     "responses": {
                         200: {
-                            "content_type": cls.content_type,
-                            "description": "Write property",
+                            "content_type": "application/json",
+                            "description": "Read property",
                             **(
                                 {"schema": class_json_schema}
                                 if class_json_schema
@@ -293,19 +332,8 @@ class PropertyView(View):
                             ),
                         }
                     },
-                }
-
-        # Add in readproperty methods
-        if hasattr(cls, "get"):
-            d["get"] = {
-                "responses": {
-                    200: {
-                        "content_type": "application/json",
-                        "description": "Read property",
-                        **({"schema": class_json_schema} if class_json_schema else {}),
-                    }
                 },
-            }
+            )
 
         # Enable custom responses from all methods
         for method in d.keys():
