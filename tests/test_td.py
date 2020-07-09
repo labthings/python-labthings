@@ -194,6 +194,30 @@ def test_td_property_post_to_write(
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
 
 
+def test_td_property_different_content_type(
+    helpers, app, thing_description, app_ctx, schemas_path
+):
+    class Index(ActionView):
+        content_type = "text/plain; charset=us-ascii"
+
+        def get(self):
+            return "GET"
+
+        def put(self):
+            return "PUT"
+
+    app.add_url_rule("/", view_func=Index.as_view("index"))
+    rules = app.url_map._rules_by_endpoint["index"]
+
+    thing_description.property(rules, Index)
+
+    with app_ctx.test_request_context():
+        assert "index" in thing_description.to_dict()["properties"]
+        for form in thing_description.to_dict()["properties"]["index"]["forms"]:
+            assert form["contentType"] == "text/plain; charset=us-ascii"
+        helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
+
+
 def test_td_action_different_response_type(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
