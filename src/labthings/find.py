@@ -102,9 +102,6 @@ def find_extension(extension_name, labthing_instance=None):
     if not labthing_instance:
         labthing_instance = current_labthing()
 
-    logging.debug("Current labthing:")
-    logging.debug(current_labthing())
-
     if extension_name in labthing_instance.extensions:
         return labthing_instance.extensions[extension_name]
     else:
