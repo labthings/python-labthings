@@ -26,7 +26,7 @@ class FieldSchema(Schema):
     "Virtual schema" for handling individual fields treated as schemas.
 
     For example, when serializing/deserializing individual values that are not
-    attributes of an object.
+    attributes of an object, like passing a single number as the request/response body
     """
 
     def __init__(self, field: fields.Field):
@@ -59,6 +59,10 @@ class FieldSchema(Schema):
 
 
 class TaskSchema(Schema):
+    """
+    Legacy schema for background tasks. Will eventually be replaced by ActionSchema,
+    """
+
     _ID = fields.String(data_key="id")
     target_string = fields.String(data_key="function")
     _status = fields.String(data_key="status")
