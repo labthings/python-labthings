@@ -210,7 +210,6 @@ class ActionView(View):
                     "responses": {
                         # Our GET 200 MUST be application/json
                         200: {
-                            "content_type": "application/json",
                             "description": "Action queue",
                             "content": {
                                 "application/json": (
