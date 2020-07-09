@@ -4,7 +4,7 @@ import logging
 from ..view import View
 from ..view.marshalling import marshal_with
 from ..schema import TaskSchema
-from ..find import current_labthing
+from ..find import current_thing
 
 
 class TaskList(View):
@@ -18,7 +18,7 @@ class TaskList(View):
         logging.warning(
             "TaskList is deprecated and will be removed in a future version. Use the Actions list instead."
         )
-        return TaskSchema(many=True).dump(current_labthing().actions.greenlets)
+        return TaskSchema(many=True).dump(current_thing.actions.greenlets)
 
 
 class TaskView(View):
@@ -40,7 +40,7 @@ class TaskView(View):
         logging.warning(
             "TaskView is deprecated and will be removed in a future version. Use the Action view instead."
         )
-        task_dict = current_labthing().actions.to_dict()
+        task_dict = current_thing.actions.to_dict()
 
         if task_id not in task_dict:
             return abort(404)  # 404 Not Found
@@ -58,7 +58,7 @@ class TaskView(View):
         logging.warning(
             "TaskView is deprecated and will be removed in a future version. Use the Action view instead."
         )
-        task_dict = current_labthing().actions.to_dict()
+        task_dict = current_thing.actions.to_dict()
 
         if task_id not in task_dict:
             return abort(404)  # 404 Not Found

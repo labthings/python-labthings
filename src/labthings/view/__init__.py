@@ -8,7 +8,7 @@ from .marshalling import marshal_with
 
 from ..utilities import unpack, get_docstring, get_summary, merge
 from ..representations import DEFAULT_REPRESENTATIONS
-from ..find import current_labthing, current_thing
+from ..find import current_thing
 from ..event import PropertyStatusEvent
 from ..schema import Schema, ActionSchema, build_action_schema
 from ..tasks import Pool

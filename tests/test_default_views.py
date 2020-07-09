@@ -1,4 +1,4 @@
-from labthings.find import current_labthing
+from labthings.find import current_thing
 
 import gevent
 
@@ -22,7 +22,7 @@ def test_actions_list(thing_client):
     def task_func():
         pass
 
-    task_obj = current_labthing().actions.spawn(task_func)
+    task_obj = current_thing.actions.spawn(task_func)
 
     with thing_client as c:
         response = c.get("/actions").json
@@ -34,7 +34,7 @@ def test_action_representation(thing_client):
     def task_func():
         pass
 
-    task_obj = current_labthing().actions.spawn(task_func)
+    task_obj = current_thing.actions.spawn(task_func)
     task_id = str(task_obj.id)
 
     with thing_client as c:
@@ -52,12 +52,12 @@ def test_action_kill(thing_client):
         while True:
             gevent.sleep(0)
 
-    task_obj = current_labthing().actions.spawn(task_func)
+    task_obj = current_thing.actions.spawn(task_func)
     task_id = str(task_obj.id)
 
     # Wait for task to start
     task_obj.started_event.wait()
-    assert task_id in current_labthing().actions.to_dict()
+    assert task_id in current_thing.actions.to_dict()
 
     # Send a DELETE request to terminate the task
     with thing_client as c:

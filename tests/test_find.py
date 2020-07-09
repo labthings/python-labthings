@@ -5,16 +5,16 @@ from labthings.extensions import BaseExtension
 
 def test_current_labthing(thing, thing_ctx):
     with thing_ctx.test_request_context():
-        assert find.current_labthing() is thing
-
-
-def test_current_labthing_explicit_app(thing, thing_ctx):
-    with thing_ctx.test_request_context():
         assert find.current_labthing(thing.app) is thing
 
 
-def test_current_labthing_missing_app():
-    assert find.current_labthing() is None
+def test_current_thing(thing, thing_ctx):
+    with thing_ctx.test_request_context():
+        assert find.current_thing._get_current_object() is thing
+
+
+def test_current_thing_missing_app():
+    assert find.current_thing._get_current_object() is None
 
 
 def test_registered_extensions(thing_ctx):
