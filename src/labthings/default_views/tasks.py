@@ -8,10 +8,13 @@ from .. import tasks
 
 
 class TaskList(View):
+    """
+    List of all background tasks from the session
+    """
+
     tags = ["tasks"]
 
     def get(self):
-        """List of all session tasks"""
         return TaskSchema(many=True).dump(tasks.tasks())
 
 
