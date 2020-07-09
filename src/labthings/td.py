@@ -172,7 +172,7 @@ class ThingDescription:
             "uriVariables": {},
         }
 
-        semtype = getattr(view, "semtype")
+        semtype = getattr(view, "semtype", None)
         if semtype:
             prop_description["@type"] = semtype
 
@@ -222,7 +222,7 @@ class ThingDescription:
             # Add schema to prop description
             action_description["input"] = schema_to_json(action_input_schema)
 
-        semtype = getattr(view, "semtype")
+        semtype = getattr(view, "semtype", None)
         if semtype:
             action_description["@type"] = semtype
 
