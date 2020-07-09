@@ -26,17 +26,9 @@ def view_to_thing_action_forms(rules: list, view: View):
 
         # Get input content_type
         content_type = getattr(view, "content_type", "application/json")
-
-        # See if the action has an unusual 200 response
-        responses = view.get_apispec().get("post", {}).get("responses", {})
-        response_content_type = "application/json"  # Default assumed content_type
-
-        for response_code in (200, 201):
-            if response_code in responses and responses[response_code].get(
-                "content_type"
-            ):
-                response_content_type = responses[response_code].get("content_type")
-                break
+        response_content_type = getattr(
+            view, "response_content_type", "application/json"
+        )
 
         for url in prop_urls:
             form = {
@@ -46,7 +38,7 @@ def view_to_thing_action_forms(rules: list, view: View):
                 "contentType": content_type,
             }
             if response_content_type != content_type:
-                form["responses"] = {"contentType": response_content_type}
+                form["response"] = {"contentType": response_content_type}
 
             forms.append(form)
 
@@ -74,14 +66,6 @@ def view_to_thing_property_forms(rules: list, view: View):
     # See if the property has an unusual 201 response
     # TODO: Do this per-method
     responses = view.get_apispec().get("get", {}).get("responses", {})
-    response_content_type = "application/json"  # Default assumed content_type
-
-    for response_code in (201, 200):
-        if response_code in responses and responses[response_code].get("content_type"):
-            response_content_type = responses[response_code].get("content_type")
-            break
-
-    # TODO: Clean up repeated code
 
     # HTTP readproperty requires GET method
     if hasattr(view, "get"):
@@ -91,10 +75,7 @@ def view_to_thing_property_forms(rules: list, view: View):
                 "htv:methodName": "GET",
                 "href": url,
                 "contentType": content_type,
-                "response": {"contentType": response_content_type},
             }
-            if response_content_type != content_type:
-                form["responses"] = {"contentType": response_content_type}
             forms.append(form)
 
     # HTTP writeproperty requires PUT method
@@ -105,10 +86,7 @@ def view_to_thing_property_forms(rules: list, view: View):
                 "htv:methodName": "PUT",
                 "href": url,
                 "contentType": content_type,
-                "response": {"contentType": response_content_type},
             }
-            if response_content_type != content_type:
-                form["responses"] = {"contentType": response_content_type}
             forms.append(form)
 
     # HTTP writeproperty may use POST method
@@ -119,10 +97,7 @@ def view_to_thing_property_forms(rules: list, view: View):
                 "htv:methodName": "POST",
                 "href": url,
                 "contentType": content_type,
-                "response": {"contentType": response_content_type},
             }
-            if response_content_type != content_type:
-                form["responses"] = {"contentType": response_content_type}
             forms.append(form)
 
     return forms
