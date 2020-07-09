@@ -113,15 +113,14 @@ class View(MethodView):
 
 
 class ActionView(View):
-    # TODO: Better support for overriding content type
-    # TODO: Better support for custom 200 responses
-
     # Data formatting
     schema: Schema = None
     args: dict = None
     semtype: str = None
 
     # Spec overrides
+    content_type = "application/json"  # Input contentType
+    response_content_type = "application/json"  # Output contentType
     responses = {}  # Custom responses for invokeaction
 
     # Spec parameters
@@ -151,20 +150,30 @@ class ActionView(View):
                 "tags": list(cls.get_tags()),
                 "requestBody": {
                     "content": {
-                        "application/json": (
-                            {"schema": class_args} if class_args else {}
-                        )
+                        cls.content_type: ({"schema": class_args} if class_args else {})
                     }
                 },
                 "responses": {
-                    # Our POST 201 will usually be application/json
+                    200: {
+                        # Allow customising 200 (immediate response) content type
+                        "content_type": cls.response_content_type,
+                        "description": "Action completed immediately",
+                        **(
+                            # If an action JSON schema is defined, set the response schema
+                            {"schema": action_json_schema}
+                            if (action_json_schema)
+                            else {}
+                        ),
+                    },
+                    # Our POST 201 MUST be application/json
+                    # Responses like images must be added as 200 responses with cls.responses = {200: {...}}
                     201: {
                         "content_type": "application/json",
                         "description": "Action started",
                         **(
                             {"schema": action_json_schema} if action_json_schema else {}
                         ),
-                    }
+                    },
                 },
             },
             "get": {
@@ -172,7 +181,7 @@ class ActionView(View):
                 "summary": "Action queue",
                 "tags": list(cls.get_tags()),
                 "responses": {
-                    # Our GET 200 will usually be application/json
+                    # Our GET 200 MUST be application/json
                     200: {
                         "content_type": "application/json",
                         "description": "Action started",
@@ -212,7 +221,6 @@ class ActionView(View):
         # Wait up to 2 second for the action to complete or error
         try:
             task.get(block=True, timeout=1)
-            logging.debug("Got Action response quickly")
         except Timeout:
             pass
 
@@ -231,6 +239,7 @@ class PropertyView(View):
     semtype: str = None
 
     # Spec overrides
+    content_type = "application/json"  # Input and output contentType
     responses = {}  # Custom responses for invokeaction
 
     _cls_tags = {"properties"}
@@ -250,7 +259,7 @@ class PropertyView(View):
                     "tags": list(cls.get_tags()),
                     "requestBody": {
                         "content": {
-                            "application/json": (
+                            cls.content_type: (
                                 {"schema": class_json_schema}
                                 if class_json_schema
                                 else {}
@@ -259,7 +268,7 @@ class PropertyView(View):
                     },
                     "responses": {
                         200: {
-                            "content_type": "application/json",
+                            "content_type": cls.content_type,
                             "description": "Write property",
                             **(
                                 {"schema": class_json_schema}
