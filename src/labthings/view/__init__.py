@@ -181,27 +181,28 @@ class ActionView(View):
                         }
                     },
                     "responses": {
-                        200: {
-                            # Allow customising 200 (immediate response) content type
-                            "content_type": cls.response_content_type,
-                            "description": "Action completed immediately",
-                            **(
-                                # If an action JSON schema is defined, set the response schema
-                                {"schema": action_json_schema}
-                                if (action_json_schema)
-                                else {}
-                            ),
-                        },
-                        # Our POST 201 MUST be application/json
                         # Responses like images must be added as 200 responses with cls.responses = {200: {...}}
+                        200: {
+                            "description": "Action completed immediately",
+                            # Allow customising 200 (immediate response) content type
+                            "content": {
+                                cls.response_content_type: (
+                                    {"schema": action_json_schema}
+                                    if action_json_schema
+                                    else {}
+                                )
+                            },
+                        },
                         201: {
-                            "content_type": "application/json",
                             "description": "Action started",
-                            **(
-                                {"schema": action_json_schema}
-                                if action_json_schema
-                                else {}
-                            ),
+                            # Our POST 201 MUST be application/json
+                            "content": {
+                                "application/json": (
+                                    {"schema": action_json_schema}
+                                    if action_json_schema
+                                    else {}
+                                )
+                            },
                         },
                     },
                 },
@@ -210,12 +211,14 @@ class ActionView(View):
                         # Our GET 200 MUST be application/json
                         200: {
                             "content_type": "application/json",
-                            "description": "Action started",
-                            **(
-                                {"schema": queue_json_schema}
-                                if queue_json_schema
-                                else {}
-                            ),
+                            "description": "Action queue",
+                            "content": {
+                                "application/json": (
+                                    {"schema": queue_json_schema}
+                                    if queue_json_schema
+                                    else {}
+                                )
+                            },
                         }
                     },
                 },
@@ -304,13 +307,14 @@ class PropertyView(View):
                         },
                         "responses": {
                             200: {
-                                "content_type": cls.content_type,
+                                "content": {
+                                    cls.content_type: (
+                                        {"schema": class_json_schema}
+                                        if class_json_schema
+                                        else {}
+                                    )
+                                },
                                 "description": "Write property",
-                                **(
-                                    {"schema": class_json_schema}
-                                    if class_json_schema
-                                    else {}
-                                ),
                             }
                         },
                     },
@@ -323,13 +327,14 @@ class PropertyView(View):
                 {
                     "responses": {
                         200: {
-                            "content_type": "application/json",
+                            "content": {
+                                cls.content_type: (
+                                    {"schema": class_json_schema}
+                                    if class_json_schema
+                                    else {}
+                                )
+                            },
                             "description": "Read property",
-                            **(
-                                {"schema": class_json_schema}
-                                if class_json_schema
-                                else {}
-                            ),
                         }
                     },
                 },
