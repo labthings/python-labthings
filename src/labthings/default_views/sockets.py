@@ -1,7 +1,6 @@
 from ..sockets import SocketSubscriber
 from ..find import current_thing
 
-import gevent
 import logging
 
 
@@ -21,7 +20,6 @@ def socket_handler(ws):
         response = process_socket_message(message)
         if response:
             ws.send(response)
-        gevent.sleep(0.1)
     # Remove the subscriber once the loop returns
     current_thing.subscribers.remove(wssub)
     logging.info(f"Removed subscriber {wssub}")
