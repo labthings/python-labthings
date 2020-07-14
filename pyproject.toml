@@ -4,7 +4,7 @@ version = "0.8.0-beta.1"
 description = "Python implementation of LabThings, based on the Flask microframework"
 readme = "README.md"
 repository = "https://github.com/labthings/python-labthings/"
-authors = ["jtc42 <jtc9242@gmail.com>"]
+authors = ["Joel Collins <joel@jtcollins.net>"]
 classifiers = [
     "Topic :: System :: Hardware",
     "Topic :: Software Development :: Libraries :: Application Frameworks",
