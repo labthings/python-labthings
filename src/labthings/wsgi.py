@@ -122,7 +122,7 @@ class Server:
         print(f"Running on http://{friendlyhost}:{self.port} (Press CTRL+C to quit)")
 
         # Create WSGIServer
-        self.wsgi_server = ThreadedWsWSGIServer(self.host, self.port, app_to_run)
+        self.wsgi_server = ThreadedWebsocketServer(self.host, self.port, app_to_run)
 
         # Serve
         signal.signal(signal.SIGTERM, self.stop)
