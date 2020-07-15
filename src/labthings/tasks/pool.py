@@ -88,6 +88,20 @@ def current_task():
     return current_task_thread
 
 
+def current_task_stopped():
+    """Return True if the current task is stoppable and flagged to be stopped
+
+    If this function is called from outside a Task thread, it will return None.
+
+    Returns:
+        bool -- Is the current task scheduled to be stopped
+    """
+    current_task_thread = threading.current_thread()
+    if not isinstance(current_task_thread, TaskThread):
+        return None
+    return current_task_thread.stopped
+
+
 def update_task_progress(progress: int):
     """Update the progress of the Task in which the caller is currently running.
 
