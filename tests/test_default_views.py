@@ -56,7 +56,7 @@ def test_action_kill(thing_client):
     task_id = str(task_obj.id)
 
     # Wait for task to start
-    task_obj.started_event.wait()
+    task_obj.started.wait()
     assert task_id in current_thing.actions.to_dict()
 
     # Send a DELETE request to terminate the task
@@ -113,7 +113,7 @@ def test_task_kill(thing_client):
     task_id = str(task_obj.id)
 
     # Wait for task to start
-    task_obj.started_event.wait()
+    task_obj.started.wait()
     assert task_id in current_thing.actions.to_dict()
 
     # Send a DELETE request to terminate the task

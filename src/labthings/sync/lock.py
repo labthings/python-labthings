@@ -1,5 +1,4 @@
-from gevent.hub import getcurrent
-from gevent.lock import RLock as _RLock
+from threading import RLock, current_thread
 
 from contextlib import contextmanager
 import logging
@@ -27,11 +26,6 @@ class LockError(RuntimeError):
 
     def __str__(self):
         return self.string
-
-
-class RLock(_RLock):
-    def locked(self):
-        return self._block.locked()
 
 
 class StrictLock:
@@ -80,14 +74,6 @@ class StrictLock:
     def release(self):
         self._lock.release()
 
-    @property
-    def _owner(self):
-        return self._lock._owner
-
-    @_owner.setter
-    def _owner(self, new_owner):
-        self._lock._owner = new_owner
-
     def _is_owned(self):
         return self._lock._is_owned()
 
@@ -127,7 +113,7 @@ class CompositeLock:
         )
 
         if not lock_all:
-            self._emergency_release()
+            self.release()
             logging.error(f"Unable to acquire {self} within {timeout} seconds")
             raise LockError("ACQUIRE_ERROR", self)
 
@@ -141,28 +127,16 @@ class CompositeLock:
 
     def release(self):
         # If not all child locks are owner by caller
-        if not all(owner is getcurrent() for owner in self._owner):
-            raise RuntimeError("cannot release un-acquired lock")
-        for lock in self.locks:
-            if lock.locked():
-                lock.release()
-
-    def _emergency_release(self):
         for lock in self.locks:
             if lock.locked() and lock._is_owned():
-                lock.release()
+                try:
+                    lock.release()
+                    logging.debug(f"Released lock {lock}")
+                except RuntimeError as e:
+                    logging.error(e)
 
     def locked(self):
         return any(lock.locked() for lock in self.locks)
-
-    @property
-    def _owner(self):
-        return [lock._owner for lock in self.locks]
-
-    @_owner.setter
-    def _owner(self, new_owner):
-        for lock in self.locks:
-            lock._owner = new_owner
 
     def _is_owned(self):
         return all(lock._is_owned() for lock in self.locks)

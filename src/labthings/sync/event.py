@@ -1,10 +1,8 @@
-from gevent.hub import getcurrent
-import gevent
 import time
 import logging
-from gevent.lock import BoundedSemaphore
 
-from gevent.event import Event
+import threading
+from _thread import get_ident
 
 
 class ClientEvent(object):
@@ -17,25 +15,18 @@ class ClientEvent(object):
 
     def __init__(self):
         self.events = {}
-        self._setting_lock = BoundedSemaphore()
+        self._setting_lock = threading.Lock()
 
     def wait(self, timeout: int = 5):
         """Wait for the next data frame (invoked from each client's thread)."""
-        ident = id(getcurrent())
+        ident = id(get_ident())
         if ident not in self.events:
             # this is a new client
             # add an entry for it in the self.events dict
             # each entry has two elements, a threading.Event() and a timestamp
-            self.events[ident] = [Event(), time.time()]
+            self.events[ident] = [threading.Event(), time.time()]
 
-        # We have to reimplement event waiting here as we need native thread events to allow gevent context switching
-        wait_start = time.time()
-        while not self.events[ident][0].is_set():
-            now = time.time()
-            if now - wait_start > timeout:
-                return False
-            gevent.sleep(0)
-        return True
+        return self.events[ident][0].wait()
 
     def set(self, timeout=5):
         """Signal that a new frame is available."""
@@ -61,10 +52,10 @@ class ClientEvent(object):
 
     def clear(self):
         """Clear frame event, once processed."""
-        ident = id(getcurrent())
+        ident = id(get_ident())
         if ident not in self.events:
             logging.error(f"Mismatched ident. Current: {ident}, available:")
             logging.error(self.events.keys())
             return False
-        self.events[id(getcurrent())][0].clear()
+        self.events[get_ident()][0].clear()
         return True

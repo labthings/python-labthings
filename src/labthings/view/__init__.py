@@ -16,8 +16,6 @@ from ..deque import Deque, resize_deque
 from ..json.schemas import schema_to_json
 from .. import fields
 
-from gevent.timeout import Timeout
-
 import logging
 
 __all__ = ["MethodView", "View", "ActionView", "PropertyView"]
@@ -261,7 +259,7 @@ class ActionView(View):
         # Wait up to 2 second for the action to complete or error
         try:
             task.get(block=True, timeout=self.wait_for)
-        except Timeout:
+        except TimeoutError:
             pass
 
         # Log the action to the view's deque

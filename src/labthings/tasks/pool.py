@@ -1,72 +1,70 @@
 import logging
 from functools import wraps
-from gevent import getcurrent
-from gevent.pool import Pool as _Pool, PoolFull
 
+import threading
 from .thread import TaskThread
 
 
 # TODO: Handle discarding old tasks. Action views now use deques
-class Pool(_Pool):
-    def __init__(self, size=None):
-        _Pool.__init__(self, size=size, greenlet_class=TaskThread)
+class Pool:
+    def __init__(self):
+        self.threads = set()
 
-    def add(self, greenlet, blocking=True, timeout=None):
-        """
-        Override the default Gevent pool `add` method so that
-        tasks are not discarded as soon as they finish.
-        """
-        if not self._semaphore.acquire(blocking=blocking, timeout=timeout):
-            # We failed to acquire the semaphore.
-            # If blocking was True, then there was a timeout. If blocking was
-            # False, then there was no capacity. Either way, raise PoolFull.
-            raise PoolFull()
+    def add(self, thread: TaskThread):
+        self.threads.add(thread)
 
-        try:
-            self.greenlets.add(greenlet)
-            self._empty_event.clear()
-        except:
-            self._semaphore.release()
-            raise
+    def start(self, thread: TaskThread):
+        self.add(thread)
+        thread.start()
+
+    def spawn(self, function, *args, **kwargs):
+        thread = TaskThread(target=function, args=args, kwargs=kwargs)
+        self.start(thread)
+        return thread
+
+    def kill(self, timeout=5):
+        for thread in self.threads:
+            if thread.is_alive():
+                thread.stop(timeout=timeout)
 
     def tasks(self):
         """
         Returns:
             list: List of TaskThread objects.
         """
-        return list(self.greenlets)
+        return list(self.threads)
 
     def states(self):
         """
         Returns:
             dict: Dictionary of TaskThread.state dictionaries. Key is TaskThread ID.
         """
-        return {str(t.id): t.state for t in self.greenlets}
+        return {str(t.id): t.state for t in self.threads}
 
     def to_dict(self):
         """
         Returns:
             dict: Dictionary of TaskThread objects. Key is TaskThread ID.
         """
-        return {str(t.id): t for t in self.greenlets}
+        return {str(t.id): t for t in self.threads}
 
     def discard_id(self, task_id):
         marked_for_discard = set()
-        for task in self.greenlets:
+        for task in self.threads:
             if (str(task.id) == str(task_id)) and task.dead:
                 marked_for_discard.add(task)
 
-        for greenlet in marked_for_discard:
-            self.discard(greenlet)
+        for thread in marked_for_discard:
+            self.threads.remove(thread)
 
     def cleanup(self):
         marked_for_discard = set()
-        for task in self.greenlets:
+        for task in self.threads:
             if task.dead:
                 marked_for_discard.add(task)
 
-        for greenlet in marked_for_discard:
-            self.discard(greenlet)
+        for thread in marked_for_discard:
+            self.threads.remove(thread)
 
 
 # Operations on the current task
@@ -80,7 +78,7 @@ def current_task():
     Returns:
         TaskThread -- Currently running Task thread.
     """
-    current_task_thread = getcurrent()
+    current_task_thread = threading.current_thread()
     if not isinstance(current_task_thread, TaskThread):
         return None
     return current_task_thread

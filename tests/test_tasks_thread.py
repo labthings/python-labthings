@@ -73,7 +73,7 @@ def test_task_terminate():
 
     task_obj = thread.TaskThread(target=task_func)
     task_obj.start()
-    task_obj.started_event.wait()
+    task_obj.started.wait()
     assert task_obj._status == "running"
     task_obj.terminate()
     task_obj.join()
@@ -95,7 +95,7 @@ def test_task_log_list():
 
     task_obj = thread.TaskThread(target=task_func)
     task_obj.start()
-    task_obj.started_event.wait()
+    task_obj.started.wait()
 
     assert len(task_obj.log) >= 1
     assert task_obj.log[0]["message"] == "Task warning"
