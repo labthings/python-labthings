@@ -61,8 +61,12 @@ class StrictLock:
         return bool(self._lock._count)
 
     def acquire(self, blocking=True, timeout=sentinel, _strict=True):
+        # If no timeout is given, use object level timeout
         if timeout is sentinel:
             timeout = self.timeout
+        # Convert from Gevent-style timeout to threading style
+        if timeout is None:
+            timeout = -1
         result = self._lock.acquire(blocking, timeout=timeout)
         if _strict and not result:
             raise LockError("ACQUIRE_ERROR", self)
@@ -112,8 +116,12 @@ class CompositeLock:
             self.release()
 
     def acquire(self, blocking=True, timeout=sentinel):
+        # If no timeout is given, use object level timeout
         if timeout is sentinel:
             timeout = self.timeout
+        # Convert from Gevent-style timeout to threading style
+        if timeout is None:
+            timeout = -1
 
         lock_all = all(
             lock.acquire(blocking=blocking, timeout=timeout, _strict=False)
