@@ -89,6 +89,10 @@ class TaskThread(threading.Thread):
     def dead(self):
         return not self.is_alive()
 
+    @property
+    def stopped(self):
+        return self.stopping.is_set()
+
     def update_progress(self, progress: int):
         # Update progress of the task
         self.progress = progress
@@ -247,6 +251,7 @@ class TaskThread(threading.Thread):
                 # Break
                 return True
         # If the timeout tracker stopped before the thread died, kill it
+        logging.warning(f"Forcefully terminating thread {self}")
         return self.terminate(exception=exception)
 
 

@@ -64,7 +64,6 @@ class TaskView(View):
             return abort(404)  # 404 Not Found
 
         task = task_dict.get(task_id)
-
-        task.kill(block=True, timeout=3)
+        task.stop(timeout=5)
 
         return TaskSchema().dump(task)

@@ -51,6 +51,7 @@ class ActionView(View):
 
         task = task_dict.get(task_id)
 
-        task.kill(block=True, timeout=3)
+        # TODO: Make non-blocking?
+        task.stop(timeout=5)
 
         return ActionSchema().dump(task)
