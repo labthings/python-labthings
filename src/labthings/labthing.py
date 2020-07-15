@@ -1,4 +1,5 @@
 from flask import url_for
+from flask_threaded_sockets.flask import Sockets
 from apispec import APISpec
 
 # from apispec.ext.marshmallow import MarshmallowPlugin
@@ -19,7 +20,6 @@ from .json.encoder import LabThingsJSONEncoder
 from .representations import DEFAULT_REPRESENTATIONS
 from .apispec import MarshmallowPlugin, rule_to_apispec_path
 from .td import ThingDescription
-from .sockets import Sockets
 from .event import Event
 
 from .tasks import Pool
@@ -61,7 +61,7 @@ class LabThing:
 
         self.extensions = {}
 
-        self.actions = Pool()  # Pool of greenlets for Actions
+        self.actions = Pool()  # Pool of threads for Actions
 
         self.events = {}
 

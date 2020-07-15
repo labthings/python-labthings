@@ -2,6 +2,8 @@ import random
 import math
 import time
 
+from labthings.tasks import current_task
+
 """
 Class for our lab component functionality. This could include serial communication,
 equipment API calls, network requests, or a "virtual" device as seen here.
@@ -44,6 +46,8 @@ class PdfComponent:
         summed_data = self.data
 
         for _ in range(n):
+            if current_task() and current_task().stopped:
+                return summed_data
             summed_data = [summed_data[i] + el for i, el in enumerate(self.data)]
             time.sleep(0.25)
 
