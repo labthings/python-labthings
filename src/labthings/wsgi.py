@@ -5,7 +5,7 @@ import threading
 
 from werkzeug.debug import DebuggedApplication
 from zeroconf import IPVersion, ServiceInfo, Zeroconf, get_all_addresses
-from flask_threaded_sockets.serving import ThreadedWsWSGIServer
+from flask_threaded_sockets import ThreadedWebsocketServer
 
 from .find import current_labthing
 

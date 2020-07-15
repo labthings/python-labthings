@@ -19,7 +19,7 @@ webargs = "^6.0.0"
 apispec = "^3.2.0"
 flask-cors = "^3.0.8"
 zeroconf = ">=0.24.5,<0.29.0"
-flask-threaded-sockets = "^0.1.0"
+flask-threaded-sockets = "^0.2.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.4"

@@ -1,5 +1,5 @@
 from flask import url_for
-from flask_threaded_sockets.flask import Sockets
+from flask_threaded_sockets import Sockets
 from apispec import APISpec
 
 # from apispec.ext.marshmallow import MarshmallowPlugin
