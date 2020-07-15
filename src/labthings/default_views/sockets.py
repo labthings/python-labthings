@@ -29,7 +29,5 @@ def process_socket_message(message: str):
     if message:
         if message in STATIC_SOCKET_RESPONSES:
             return STATIC_SOCKET_RESPONSES.get(message)
-        else:
-            return message.upper()
     else:
         return None

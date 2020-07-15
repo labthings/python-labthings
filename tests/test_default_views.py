@@ -1,6 +1,7 @@
 from labthings.find import current_thing
+from labthings.tasks import current_task
 
-import gevent
+import time
 
 
 def test_docs(thing, thing_client, schemas_path):
@@ -47,10 +48,10 @@ def test_action_representation_missing(thing_client):
         assert c.get("/actions/missing_id").status_code == 404
 
 
-def test_action_kill(thing_client):
+def test_action_stop(thing_client):
     def task_func():
-        while True:
-            gevent.sleep(0)
+        while not current_task().stopping:
+            time.sleep(0)
 
     task_obj = current_thing.actions.spawn(task_func)
     task_id = str(task_obj.id)
@@ -63,7 +64,27 @@ def test_action_kill(thing_client):
     with thing_client as c:
         response = c.delete(f"/actions/{task_id}")
         assert response.status_code == 200
-    # Test task was terminated
+    # Test task was stopped
+    assert task_obj._status == "stopped"
+
+
+def test_action_terminate(thing_client):
+    def task_func():
+        while True:
+            time.sleep(0)
+
+    task_obj = current_thing.actions.spawn(task_func)
+    task_id = str(task_obj.id)
+
+    # Wait for task to start
+    task_obj.started.wait()
+    assert task_id in current_thing.actions.to_dict()
+
+    # Send a DELETE request to terminate the task
+    with thing_client as c:
+        response = c.delete(f"/actions/{task_id}", json={"timeout": "0"})
+        assert response.status_code == 200
+    # Test task was stopped
     assert task_obj._status == "terminated"
 
 
@@ -106,8 +127,8 @@ def test_task_representation_missing(thing_client):
 
 def test_task_kill(thing_client):
     def task_func():
-        while True:
-            gevent.sleep(0)
+        while not current_task().stopping:
+            time.sleep(0)
 
     task_obj = current_thing.actions.spawn(task_func)
     task_id = str(task_obj.id)
@@ -120,8 +141,8 @@ def test_task_kill(thing_client):
     with thing_client as c:
         response = c.delete(f"/tasks/{task_id}")
         assert response.status_code == 200
-    # Test task was terminated
-    assert task_obj._status == "terminated"
+    # Test task was stopped
+    assert task_obj._status == "stopped"
 
 
 def test_task_kill_missing(thing_client):

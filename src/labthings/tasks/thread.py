@@ -159,7 +159,6 @@ class TaskThread(threading.Thread):
         """
         Start waiting for the task to finish before returning
         """
-        print("Joining thread {}".format(self))
         if not block:
             if self.is_alive():
                 raise TimeoutError
@@ -249,6 +248,7 @@ class TaskThread(threading.Thread):
             # If the thread has stopped
             if not self.is_alive():
                 # Break
+                self._status = "stopped"
                 return True
         # If the timeout tracker stopped before the thread died, kill it
         logging.warning(f"Forcefully terminating thread {self}")

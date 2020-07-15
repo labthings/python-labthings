@@ -1,4 +1,4 @@
-from threading import RLock, current_thread
+from threading import _RLock, current_thread
 
 from contextlib import contextmanager
 import logging
@@ -41,10 +41,14 @@ class StrictLock:
         timeout (int): Time in seconds acquisition will wait before raising an exception
     """
 
-    def __init__(self, timeout=None, name=None):
-        self._lock = RLock()
+    def __init__(self, timeout=-1, name=None):
+        self._lock = _RLock()
         self.timeout = timeout
         self.name = name
+
+    @property
+    def _owner(self):
+        return self._lock._owner
 
     @contextmanager
     def __call__(self, timeout=sentinel, blocking=True):
@@ -54,7 +58,7 @@ class StrictLock:
             self.release()
 
     def locked(self):
-        return self._lock.locked()
+        return bool(self._lock._count)
 
     def acquire(self, blocking=True, timeout=sentinel, _strict=True):
         if timeout is sentinel:
@@ -92,9 +96,13 @@ class CompositeLock:
         timeout (int): Time in seconds acquisition will wait before raising an exception
     """
 
-    def __init__(self, locks, timeout=None):
+    def __init__(self, locks, timeout=-1):
         self.locks = locks
         self.timeout = timeout
+
+    @property
+    def _owner(self):
+        return [lock._owner for lock in self.locks]
 
     @contextmanager
     def __call__(self, timeout=sentinel, blocking=True):
@@ -113,7 +121,7 @@ class CompositeLock:
         )
 
         if not lock_all:
-            self.release()
+            self._emergency_release()
             logging.error(f"Unable to acquire {self} within {timeout} seconds")
             raise LockError("ACQUIRE_ERROR", self)
 
@@ -127,13 +135,16 @@ class CompositeLock:
 
     def release(self):
         # If not all child locks are owner by caller
+        if not all(owner == current_thread().ident for owner in self._owner):
+            raise RuntimeError("cannot release un-acquired lock")
+        for lock in self.locks:
+            if lock.locked():
+                lock.release()
+
+    def _emergency_release(self):
         for lock in self.locks:
             if lock.locked() and lock._is_owned():
-                try:
-                    lock.release()
-                    logging.debug(f"Released lock {lock}")
-                except RuntimeError as e:
-                    logging.error(e)
+                lock.release()
 
     def locked(self):
         return any(lock.locked() for lock in self.locks)

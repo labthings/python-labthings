@@ -61,7 +61,7 @@ class LabThing:
 
         self.extensions = {}
 
-        self.actions = Pool()  # Pool of greenlets for Actions
+        self.actions = Pool()  # Pool of threads for Actions
 
         self.events = {}
 

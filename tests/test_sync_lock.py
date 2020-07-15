@@ -1,18 +1,17 @@
 from labthings.sync import lock
+import threading
 import pytest
-from gevent.hub import getcurrent
 
 # Fixtures
 
 
-@pytest.fixture(
-    params=[
-        lock.StrictLock(),
-        lock.CompositeLock([lock.StrictLock(), lock.StrictLock()]),
-    ],
-    ids=["StrictLock", "CompositeLock"],
-)
+@pytest.fixture(params=["StrictLock", "CompositeLock"],)
 def this_lock(request):
+    # Create a fresh lock for each test
+    if request.param == "StrictLock":
+        return lock.StrictLock()
+    elif request.param == "CompositeLock":
+        return lock.CompositeLock([lock.StrictLock(), lock.StrictLock()])
     return request.param
 
 
@@ -61,46 +60,43 @@ def test_rlock_reentry(this_lock):
 
 
 def test_rlock_block(this_lock):
-    # Acquire lock
-    assert this_lock.acquire()
+    def g():
+        this_lock.acquire()
 
-    # Override owner to force acquisition failure
-    this_lock._owner = None
+    # Spawn thread
+    thread = threading.Thread(target=g)
+    thread.start()
+
     # Assert not owner
     assert not this_lock._is_owned()
 
     # Assert acquisition fails
     with pytest.raises(lock.LockError):
-        this_lock.acquire(blocking=True, timeout=0.01)
+        this_lock.acquire(blocking=True, timeout=0)
 
     # Ensure an unheld lock cannot be released
     with pytest.raises(RuntimeError):
         this_lock.release()
 
-    # Force ownership
-    this_lock._owner = getcurrent()
-
-    # Release lock
-    this_lock.release()
-
-    # Release lock, assert no owner
-    assert not this_lock._is_owned()
-
 
 def test_rlock_acquire_timeout_pass(this_lock):
+    assert not this_lock.locked()
+
     # Assert acquisition fails using context manager
-    with this_lock(timeout=0.01) as result:
+    with this_lock(timeout=-1) as result:
         assert result is True
 
     assert not this_lock.locked()
 
 
 def test_rlock_acquire_timeout_fail(this_lock):
-    # Acquire lock
-    assert this_lock.acquire()
+    def g():
+        this_lock.acquire()
 
-    # Override owner to force acquisition failure
-    this_lock._owner = None
+    # Spawn thread
+    thread = threading.Thread(target=g)
+    thread.start()
+
     # Assert not owner
     assert not this_lock._is_owned()
 
@@ -108,9 +104,3 @@ def test_rlock_acquire_timeout_fail(this_lock):
     with pytest.raises(lock.LockError):
         with this_lock(timeout=0.01):
             pass
-
-    # Force ownership
-    this_lock._owner = getcurrent()
-
-    # Release lock
-    this_lock.release()

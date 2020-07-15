@@ -66,6 +66,10 @@ class Pool:
         for thread in marked_for_discard:
             self.threads.remove(thread)
 
+    def join(self):
+        for thread in self.threads:
+            thread.join()
+
 
 # Operations on the current task
 

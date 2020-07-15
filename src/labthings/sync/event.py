@@ -19,14 +19,14 @@ class ClientEvent(object):
 
     def wait(self, timeout: int = 5):
         """Wait for the next data frame (invoked from each client's thread)."""
-        ident = id(get_ident())
+        ident = get_ident()
         if ident not in self.events:
             # this is a new client
             # add an entry for it in the self.events dict
             # each entry has two elements, a threading.Event() and a timestamp
             self.events[ident] = [threading.Event(), time.time()]
 
-        return self.events[ident][0].wait()
+        return self.events[ident][0].wait(timeout=timeout)
 
     def set(self, timeout=5):
         """Signal that a new frame is available."""
@@ -52,7 +52,7 @@ class ClientEvent(object):
 
     def clear(self):
         """Clear frame event, once processed."""
-        ident = id(get_ident())
+        ident = get_ident()
         if ident not in self.events:
             logging.error(f"Mismatched ident. Current: {ident}, available:")
             logging.error(self.events.keys())
