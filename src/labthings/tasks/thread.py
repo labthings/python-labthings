@@ -168,7 +168,8 @@ class TaskThread(threading.Thread):
     def async_raise(self, exc_type):
         """Raise an exception in this thread."""
         # Should only be called on a started thread, so raise otherwise.
-        assert self.ident is not None, "Only started threads have thread identifier"
+        if self.ident is None:
+            raise RuntimeError("Only started threads have thread identifier")
 
         # If the thread has died we don't want to raise an exception so log.
         if not self.is_alive():
