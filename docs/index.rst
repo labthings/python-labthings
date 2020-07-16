@@ -5,6 +5,7 @@ Welcome to Python-LabThings' documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   core_concepts.rst
    basic_usage/index.rst
 
 
