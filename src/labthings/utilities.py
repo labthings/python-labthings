@@ -9,7 +9,9 @@ import os
 import copy
 import time
 import typing
+import inspect
 from functools import reduce
+from typing import Callable
 
 PY3 = sys.version_info > (3,)
 
@@ -302,3 +304,20 @@ def path_relative_to(source_file, *paths):
         paths {str} -- Paths to add to source file location
     """
     return os.path.join(os.path.abspath(os.path.dirname(source_file)), *paths)
+
+
+def get_class_that_defined_method(meth):
+    for cls in inspect.getmro(meth.im_class):
+        if meth.__name__ in cls.__dict__:
+            return cls
+    return None
+
+
+def url_for_property(property_object: object, property_name: str):
+    return f"/properties/{property_object.__class__.__name__}/{property_name}"
+
+
+def url_for_action(function: Callable):
+    full_name = getattr(function, "__qualname__", None) or function.__name__
+    full_name_safe = full_name.replace(".", "/")
+    return f"/actions/{full_name_safe}"

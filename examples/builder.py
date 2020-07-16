@@ -29,7 +29,6 @@ labthing.add_component(my_component, "org.labthings.example.mycomponent")
 labthing.build_property(
     my_component,  # Python object
     "magic_denoise",  # Objects attribute name
-    "/denoise",  # URL to bind the property to
     description="A magic denoise property",
     semtype=semantics.moz.LevelProperty(100, 500, example=200),
 )
@@ -37,7 +36,6 @@ labthing.build_property(
 labthing.build_property(
     my_component,  # Python object
     "magic_dictionary",  # Objects attribute name
-    "/dictionary",  # URL to bind the property to
     description="A big dictionary of little properties",
     schema={  # Property is a dictionary, with these value types
         "voltage": fields.Int(),
@@ -51,7 +49,6 @@ labthing.build_property(
 
 labthing.build_action(
     my_component.average_data,  # Python function
-    "/average",  # URL to bind the action to
     description="Take an averaged measurement",
     safe=True,  # Is the state of the Thing unchanged by calling the action?
     idempotent=True,  # Can the action be called repeatedly with the same result?,
@@ -59,7 +56,6 @@ labthing.build_action(
         "n": fields.Int(description="Number of averages to take", example=5, default=5)
     },
 )
-
 
 # Start the app
 if __name__ == "__main__":
