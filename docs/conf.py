@@ -4,6 +4,7 @@ author = "Joel Collins"
 
 
 extensions = [
+    "sphinx.ext.intersphinx",
     "autoapi.extension",
     "sphinx_rtd_theme",
 ]
@@ -21,3 +22,9 @@ autoapi_ignore = [
     "*/server/*",
     "*/core/*",
 ]
+
+intersphinx_mapping = {
+    "marshmallow": ("https://marshmallow.readthedocs.io/en/stable/", None),
+    "webargs": ("https://webargs.readthedocs.io/en/latest/", None),
+    "apispec": ("https://apispec.readthedocs.io/en/latest/", None),
+}
