@@ -30,12 +30,12 @@ An example Lab Thing built from our ``PretendSpectrometer`` class, complete with
 
 
     # Make some properties and actions out of our component
+    my_spectrometer = PretendSpectrometer()
 
     # Single-shot data property
     labthing.build_property(
-        my_component,  # Python object
+        my_spectrometer,  # Python object
         "data",  # Objects attribute name
-        "/data",  # URL to bind the property to
         description="A single-shot measurement",
         readonly=True,
         schema=fields.List(fields.Number())
@@ -43,17 +43,15 @@ An example Lab Thing built from our ``PretendSpectrometer`` class, complete with
 
     # Magic denoise property
     labthing.build_property(
-        my_component,  # Python object
+        my_spectrometer,  # Python object
         "magic_denoise",  # Objects attribute name
-        "/denoise",  # URL to bind the property to
         description="A magic denoise property",
         schema=fields.Int(min=100, max=500, example=200)
     )
 
     # Averaged measurement action
     labthing.build_action(
-        my_component.average_data,  # Python function
-        "/average",  # URL to bind the action to
+        my_spectrometer.average_data,  # Python function
         description="Take an averaged measurement",
         args={  # How do we convert from the request input to function arguments?
             "n": fields.Int(description="Number of averages to take", example=5, default=5)
@@ -66,6 +64,97 @@ An example Lab Thing built from our ``PretendSpectrometer`` class, complete with
         from labthings.server.wsgi import Server
         Server(app).run()
 
+
+Once started, the app will build and serve a full web API, and generate the following Thing Description:
+
+.. code-block:: JSON
+
+    {
+        "@context": [
+            "https://www.w3.org/2019/wot/td/v1",
+            "https://iot.mozilla.org/schemas/"
+        ],
+        "id": "http://127.0.0.1:7486/",
+        "base": "http://127.0.0.1:7486/",
+        "title": "My PretendSpectrometer API",
+        "description": "LabThing API for PretendSpectrometer",
+        "properties": {
+            "pretendSpectrometerData": {
+                "title": "PretendSpectrometer_data",
+                "description": "A single-shot measurement",
+                "readOnly": true,
+                "links": [{
+                    "href": "/properties/PretendSpectrometer/data"
+                }],
+                "forms": [{
+                    "op": "readproperty",
+                    "htv:methodName": "GET",
+                    "href": "/properties/PretendSpectrometer/data",
+                    "contentType": "application/json"
+                }],
+                "type": "array",
+                "items": {
+                    "type": "number",
+                    "format": "decimal"
+                }
+            },
+            "pretendSpectrometerMagicDenoise": {
+                "title": "PretendSpectrometer_magic_denoise",
+                "description": "A magic denoise property",
+                "links": [{
+                    "href": "/properties/PretendSpectrometer/magic_denoise"
+                }],
+                "forms": [{
+                        "op": "readproperty",
+                        "htv:methodName": "GET",
+                        "href": "/properties/PretendSpectrometer/magic_denoise",
+                        "contentType": "application/json"
+                    },
+                    {
+                        "op": "writeproperty",
+                        "htv:methodName": "PUT",
+                        "href": "/properties/PretendSpectrometer/magic_denoise",
+                        "contentType": "application/json"
+                    }
+                ],
+                "type": "number",
+                "format": "integer",
+                "min": 100,
+                "max": 500,
+                "example": 200
+            }
+        },
+        "actions": {
+            "averageDataAction": {
+                "title": "average_data_action",
+                "description": "Take an averaged measurement",
+                "links": [{
+                    "href": "/actions/PretendSpectrometer/average_data"
+                }],
+                "forms": [{
+                    "op": "invokeaction",
+                    "htv:methodName": "POST",
+                    "href": "/actions/PretendSpectrometer/average_data",
+                    "contentType": "application/json"
+                }],
+                "input": {
+                    "type": "object",
+                    "properties": {
+                        "n": {
+                            "type": "number",
+                            "format": "integer",
+                            "default": 5,
+                            "description": "Number of averages to take",
+                            "example": 5
+                        }
+                    }
+                }
+            }
+        },
+        "links": [...],
+        "securityDefinitions": {...},
+        "security": "nosec_sc"
+    }
 
 
 For completeness of the examples, our ``PretendSpectrometer`` class code is:
