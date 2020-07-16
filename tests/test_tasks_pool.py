@@ -1,6 +1,6 @@
 from labthings import tasks
 
-import gevent
+import threading
 
 
 def test_spawn_without_context(task_pool):
@@ -8,7 +8,7 @@ def test_spawn_without_context(task_pool):
         pass
 
     task_obj = task_pool.spawn(task_func)
-    assert isinstance(task_obj, gevent.Greenlet)
+    assert isinstance(task_obj, threading.Thread)
 
 
 def test_spawn_with_context(app_ctx, task_pool):
@@ -17,7 +17,7 @@ def test_spawn_with_context(app_ctx, task_pool):
 
     with app_ctx.test_request_context():
         task_obj = task_pool.spawn(task_func)
-        assert isinstance(task_obj, gevent.Greenlet)
+        assert isinstance(task_obj, threading.Thread)
 
 
 def test_update_task_data(task_pool):
@@ -49,14 +49,12 @@ def test_update_task_progress_main_thread():
 
 
 def test_tasks_list(task_pool):
-    assert all(
-        isinstance(task_obj, gevent.Greenlet) for task_obj in task_pool.greenlets
-    )
+    assert all(isinstance(task_obj, threading.Thread) for task_obj in task_pool.threads)
 
 
 def test_tasks_dict(task_pool):
     assert all(
-        isinstance(task_obj, gevent.Greenlet)
+        isinstance(task_obj, threading.Thread)
         for task_obj in task_pool.to_dict().values()
     )
 
@@ -85,8 +83,8 @@ def test_cleanup_task(task_pool):
     task_pool.spawn(task_func)
 
     # Wait for all tasks to finish
-    gevent.joinall(task_pool.greenlets)
+    task_pool.join()
 
-    assert len(task_pool.greenlets) > 0
+    assert len(task_pool.threads) > 0
     task_pool.cleanup()
-    assert len(task_pool.greenlets) == 0
+    assert len(task_pool.threads) == 0

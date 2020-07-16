@@ -1,6 +1,7 @@
 __all__ = [
     "Pool",
     "current_task",
+    "current_task_stopped",
     "update_task_progress",
     "update_task_data",
     "TaskKillException",
@@ -10,6 +11,7 @@ __all__ = [
 from .pool import (
     Pool,
     current_task,
+    current_task_stopped,
     update_task_progress,
     update_task_data,
 )

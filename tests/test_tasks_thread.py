@@ -1,7 +1,6 @@
-from labthings.tasks import thread
+from labthings.tasks import thread, pool
+import threading
 
-import gevent
-from gevent.thread import get_ident
 import time
 
 
@@ -9,8 +8,10 @@ def test_task_with_args():
     def task_func(arg, kwarg=False):
         pass
 
-    task_obj = thread.TaskThread(task_func, "String arg", kwarg=True)
-    assert isinstance(task_obj, gevent.Greenlet)
+    task_obj = thread.TaskThread(
+        target=task_func, args=("String arg",), kwargs={"kwarg": True}
+    )
+    assert isinstance(task_obj, threading.Thread)
     assert task_obj._target == task_func
     assert task_obj._args == ("String arg",)
     assert task_obj._kwargs == {"kwarg": True}
@@ -22,19 +23,10 @@ def test_task_without_args():
 
     task_obj = thread.TaskThread(target=task_func)
 
-    assert isinstance(task_obj, gevent.Greenlet)
+    assert isinstance(task_obj, threading.Thread)
     assert task_obj._target == task_func
     assert task_obj._args == ()
     assert task_obj._kwargs == {}
-
-
-def test_task_identity():
-    def task_func():
-        pass
-
-    task_obj = thread.TaskThread(target=task_func)
-
-    assert task_obj.ident == get_ident(task_obj)
 
 
 def test_task_start():
@@ -66,14 +58,29 @@ def test_task_exception():
     assert task_obj._return_value == str(exc_to_raise)
 
 
-def test_task_terminate():
+def test_task_stop():
     def task_func():
-        while True:
-            gevent.sleep(0.5)
+        while not pool.current_task().stopped:
+            time.sleep(0)
 
     task_obj = thread.TaskThread(target=task_func)
     task_obj.start()
-    task_obj.started_event.wait()
+    task_obj.started.wait()
+    assert task_obj._status == "running"
+    task_obj.stop()
+    task_obj.join()
+    assert task_obj._status == "stopped"
+    assert task_obj._return_value is None
+
+
+def test_task_terminate():
+    def task_func():
+        while True:
+            time.sleep(0.5)
+
+    task_obj = thread.TaskThread(target=task_func)
+    task_obj.start()
+    task_obj.started.wait()
     assert task_obj._status == "running"
     task_obj.terminate()
     task_obj.join()
@@ -95,7 +102,7 @@ def test_task_log_list():
 
     task_obj = thread.TaskThread(target=task_func)
     task_obj.start()
-    task_obj.started_event.wait()
+    task_obj.started.wait()
 
     assert len(task_obj.log) >= 1
     assert task_obj.log[0]["message"] == "Task warning"

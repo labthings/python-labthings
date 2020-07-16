@@ -7,6 +7,7 @@ import operator
 import sys
 import os
 import copy
+import time
 import typing
 from functools import reduce
 
@@ -22,6 +23,15 @@ http_method_funcs = [
     "options",
     "trace",
 ]
+
+
+class TimeoutTracker:
+    def __init__(self, timeout: int):
+        self.timeout_time = time.time() + timeout
+
+    @property
+    def stopped(self):
+        return time.time() >= self.timeout_time
 
 
 def http_status_message(code):

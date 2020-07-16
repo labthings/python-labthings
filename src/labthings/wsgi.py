@@ -1,56 +1,15 @@
-import gevent
 import socket
 import signal
 import logging
+import threading
+
 from werkzeug.debug import DebuggedApplication
-
 from zeroconf import IPVersion, ServiceInfo, Zeroconf, get_all_addresses
-
-from geventwebsocket.handler import WebSocketHandler as _WebSocketHandler
-from logging import getLogger
+from flask_threaded_sockets import ThreadedWebsocketServer
 
 from .find import current_labthing
 
 sentinel = object()
-
-
-def create_logger(name, handlers=None):
-    """Created a logger object from a list of log handlers
-
-    Args:
-        name (str): Name for the logger
-        handlers ([logging.Handler], optional): [List of log handlers]. Defaults to None.
-
-    Returns:
-        [logging.Logger]: Logger object containing the passed handlers
-    """
-    if not handlers:
-        handlers = ()
-
-    logger = getLogger(name)
-
-    for handler in handlers:
-        logger.addHandler(handler)
-
-    return logger
-
-
-class WebSocketHandler(_WebSocketHandler):
-    """
-    Override geventwebsocket.handler.WebSocketHandler logger behaviour.
-    This allows geventwebsocket to properly interact with the 
-    gevent.pywsgi.WSGIServer logger.
-    """
-
-    @property
-    def logger(self):
-        if not hasattr(self, "_logger"):
-            if hasattr(self.server, "log"):
-                self._logger = create_logger(__name__, handlers=(self.server.log,))
-            else:
-                self._logger = create_logger(__name__)
-
-        return self._logger
 
 
 class Server:
@@ -83,7 +42,7 @@ class Server:
         self.service_infos = []
 
         # Events
-        self.started_event = gevent.event.Event()
+        self.started = threading.Event()
 
     def register_zeroconf(self):
         if self.labthing:
@@ -124,8 +83,8 @@ class Server:
             logging.info("Shutting down WSGI server")
             self.wsgi_server.stop(timeout=5)
         # Clear started event
-        if self.started_event.is_set():
-            self.started_event.clear()
+        if self.started.is_set():
+            self.started.clear()
         logging.info("Done")
 
     def start(self):
@@ -163,19 +122,13 @@ class Server:
         print(f"Running on http://{friendlyhost}:{self.port} (Press CTRL+C to quit)")
 
         # Create WSGIServer
-        self.wsgi_server = gevent.pywsgi.WSGIServer(
-            (self.host, self.port),
-            app_to_run,
-            handler_class=WebSocketHandler,
-            log=self.log,
-            error_log=self.error_log,
-        )
+        self.wsgi_server = ThreadedWebsocketServer(self.host, self.port, app_to_run)
 
         # Serve
-        gevent.signal_handler(signal.SIGTERM, self.stop)
+        signal.signal(signal.SIGTERM, self.stop)
 
         # Set started event
-        self.started_event.set()
+        self.started.set()
         try:
             self.wsgi_server.serve_forever()
         except (KeyboardInterrupt, SystemExit):  # pragma: no cover

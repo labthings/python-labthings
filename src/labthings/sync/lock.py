@@ -1,5 +1,4 @@
-from gevent.hub import getcurrent
-from gevent.lock import RLock as _RLock
+from threading import _RLock, current_thread
 
 from contextlib import contextmanager
 import logging
@@ -29,11 +28,6 @@ class LockError(RuntimeError):
         return self.string
 
 
-class RLock(_RLock):
-    def locked(self):
-        return self._block.locked()
-
-
 class StrictLock:
     """
     Class that behaves like a Python RLock,
@@ -47,10 +41,14 @@ class StrictLock:
         timeout (int): Time in seconds acquisition will wait before raising an exception
     """
 
-    def __init__(self, timeout=None, name=None):
-        self._lock = RLock()
+    def __init__(self, timeout=-1, name=None):
+        self._lock = _RLock()
         self.timeout = timeout
         self.name = name
+
+    @property
+    def _owner(self):
+        return self._lock._owner
 
     @contextmanager
     def __call__(self, timeout=sentinel, blocking=True):
@@ -60,11 +58,15 @@ class StrictLock:
             self.release()
 
     def locked(self):
-        return self._lock.locked()
+        return bool(self._lock._count)
 
     def acquire(self, blocking=True, timeout=sentinel, _strict=True):
+        # If no timeout is given, use object level timeout
         if timeout is sentinel:
             timeout = self.timeout
+        # Convert from Gevent-style timeout to threading style
+        if timeout is None:
+            timeout = -1
         result = self._lock.acquire(blocking, timeout=timeout)
         if _strict and not result:
             raise LockError("ACQUIRE_ERROR", self)
@@ -79,14 +81,6 @@ class StrictLock:
 
     def release(self):
         self._lock.release()
-
-    @property
-    def _owner(self):
-        return self._lock._owner
-
-    @_owner.setter
-    def _owner(self, new_owner):
-        self._lock._owner = new_owner
 
     def _is_owned(self):
         return self._lock._is_owned()
@@ -106,9 +100,13 @@ class CompositeLock:
         timeout (int): Time in seconds acquisition will wait before raising an exception
     """
 
-    def __init__(self, locks, timeout=None):
+    def __init__(self, locks, timeout=-1):
         self.locks = locks
         self.timeout = timeout
+
+    @property
+    def _owner(self):
+        return [lock._owner for lock in self.locks]
 
     @contextmanager
     def __call__(self, timeout=sentinel, blocking=True):
@@ -118,8 +116,12 @@ class CompositeLock:
             self.release()
 
     def acquire(self, blocking=True, timeout=sentinel):
+        # If no timeout is given, use object level timeout
         if timeout is sentinel:
             timeout = self.timeout
+        # Convert from Gevent-style timeout to threading style
+        if timeout is None:
+            timeout = -1
 
         lock_all = all(
             lock.acquire(blocking=blocking, timeout=timeout, _strict=False)
@@ -141,7 +143,7 @@ class CompositeLock:
 
     def release(self):
         # If not all child locks are owner by caller
-        if not all(owner is getcurrent() for owner in self._owner):
+        if not all(owner == current_thread().ident for owner in self._owner):
             raise RuntimeError("cannot release un-acquired lock")
         for lock in self.locks:
             if lock.locked():
@@ -154,15 +156,6 @@ class CompositeLock:
 
     def locked(self):
         return any(lock.locked() for lock in self.locks)
-
-    @property
-    def _owner(self):
-        return [lock._owner for lock in self.locks]
-
-    @_owner.setter
-    def _owner(self, new_owner):
-        for lock in self.locks:
-            lock._owner = new_owner
 
     def _is_owned(self):
         return all(lock._is_owned() for lock in self.locks)

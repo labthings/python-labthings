@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "labthings"
-version = "0.8.0-beta.1"
+version = "0.8.0-beta.2"
 description = "Python implementation of LabThings, based on the Flask microframework"
 readme = "README.md"
 repository = "https://github.com/labthings/python-labthings/"
@@ -18,9 +18,8 @@ marshmallow = "^3.4.0"
 webargs = "^6.0.0"
 apispec = "^3.2.0"
 flask-cors = "^3.0.8"
-gevent = ">=1.4,<21.0"
-gevent-websocket = "^0.10.1"
 zeroconf = ">=0.24.5,<0.29.0"
+flask-threaded-sockets = "^0.2.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.4"
