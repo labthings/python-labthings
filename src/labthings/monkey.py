@@ -1,3 +1,8 @@
+import logging
+
+
 def patch_all(*args, **kwargs):
-    # Here for backwards compatibility
+    logging.warning(
+        "monkey.patch_all is deprecated and will be removed in a future version"
+    )
     return
