@@ -1,6 +1,6 @@
 import pytest
 
-from labthings.view import builder
+from labthings.views import builder
 from labthings import fields
 
 from labthings.semantics.base import Semantic

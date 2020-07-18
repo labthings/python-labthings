@@ -1,4 +1,4 @@
-from labthings import view
+from labthings import views
 from werkzeug.http import parse_set_header
 from werkzeug.wrappers import Response as ResponseBase
 from flask import make_response
@@ -20,7 +20,7 @@ def common_test(app):
 
 
 def test_method_based_view(app):
-    class Index(view.View):
+    class Index(views.View):
         def get(self):
             return "GET"
 
@@ -32,7 +32,7 @@ def test_method_based_view(app):
 
 
 def test_view_patching(app):
-    class Index(view.View):
+    class Index(views.View):
         def get(self):
             1 // 0
 
@@ -53,7 +53,7 @@ def test_view_patching(app):
 
 
 def test_accept_default_application_json(app, client):
-    class Index(view.View):
+    class Index(views.View):
         def get(self):
             return {"key": "value"}
 
@@ -67,7 +67,7 @@ def test_accept_default_application_json(app, client):
 
 
 def test_return_response(app, client):
-    class Index(view.View):
+    class Index(views.View):
         def get(self):
             return make_response("GET", 200)
 
@@ -80,7 +80,7 @@ def test_return_response(app, client):
 
 
 def test_missing_method(app, client):
-    class Index(view.View):
+    class Index(views.View):
         def get(self):
             return "GET"
 
@@ -92,7 +92,7 @@ def test_missing_method(app, client):
 
 
 def test_missing_head_method(app, client):
-    class Index(view.View):
+    class Index(views.View):
         def get(self):
             return "GET"
 
@@ -104,7 +104,7 @@ def test_missing_head_method(app, client):
 
 
 def test_get_value_text():
-    class Index(view.View):
+    class Index(views.View):
         def get(self):
             return "GET"
 
@@ -113,7 +113,7 @@ def test_get_value_text():
 
 
 def test_get_value_missing():
-    class Index(view.View):
+    class Index(views.View):
         def post(self):
             return "POST"
 
@@ -122,7 +122,7 @@ def test_get_value_missing():
 
 
 def test_get_value_raise_if_not_callable():
-    class Index(view.View):
+    class Index(views.View):
         def post(self):
             return "POST"
 
@@ -134,7 +134,7 @@ def test_get_value_raise_if_not_callable():
 
 
 def test_get_value_response_text(app_ctx):
-    class Index(view.View):
+    class Index(views.View):
         def get(self):
             return make_response("GET", 200)
 
@@ -146,7 +146,7 @@ def test_get_value_response_text(app_ctx):
 
 
 def test_get_value_response_json(app_ctx):
-    class Index(view.View):
+    class Index(views.View):
         def get(self):
             return make_response({"json": "body"}, 200)
 
@@ -158,7 +158,7 @@ def test_get_value_response_json(app_ctx):
 
 
 def test_action_view_get_responses(app_ctx):
-    class Index(view.ActionView):
+    class Index(views.ActionView):
         def post(self):
             return {}
 

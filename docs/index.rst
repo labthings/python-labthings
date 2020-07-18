@@ -8,6 +8,8 @@ Welcome to Python-LabThings' documentation!
    core_concepts.rst
    basic_usage/index.rst
 
+   api_reference/index.rst
+
 
 Installation
 ------------

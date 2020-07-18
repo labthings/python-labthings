@@ -15,7 +15,7 @@ An example Lab Thing built from our ``PretendSpectrometer`` class, complete with
 .. code-block:: python
 
     from labthings.server.quick import create_app
-    from labthings.server import fields
+    from labthings import fields
 
     from my_components import PretendSpectrometer
 

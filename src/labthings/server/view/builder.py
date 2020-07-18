@@ -1,1 +1,1 @@
-from ...view.builder import *
+from ...views.builder import *
