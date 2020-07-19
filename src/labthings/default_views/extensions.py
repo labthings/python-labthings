@@ -1,5 +1,5 @@
 """Top-level representation of attached and enabled Extensions"""
-from ..view import View
+from ..views import View
 from ..find import registered_extensions
 from ..schema import ExtensionSchema
 

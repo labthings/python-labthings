@@ -24,7 +24,7 @@ from .event import Event
 
 from .tasks import Pool
 
-from .view.builder import property_of, action_from
+from .views.builder import property_of, action_from
 
 from .default_views.extensions import ExtensionList
 from .default_views.tasks import TaskList, TaskView

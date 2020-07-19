@@ -1,8 +1,8 @@
 import pytest
 
-from labthings import labthing
+from labthings import LabThing
 
-from labthings.view import View
+from labthings.views import View
 from labthings.representations import LabThingsJSONEncoder
 from labthings.names import EXTENSION_NAME
 from labthings.extensions import BaseExtension
@@ -10,18 +10,18 @@ from labthings.extensions import BaseExtension
 
 def test_init_types():
     types = ["org.labthings.test"]
-    thing = labthing.LabThing(types=types)
+    thing = LabThing(types=types)
     assert thing.types == types
 
 
 def test_init_types_invalid():
     types = ["org;labthings;test"]
     with pytest.raises(ValueError):
-        labthing.LabThing(types=types)
+        LabThing(types=types)
 
 
 def test_init_app(app):
-    thing = labthing.LabThing()
+    thing = LabThing()
     thing.init_app(app)
 
     # Check weakref
@@ -32,7 +32,7 @@ def test_init_app(app):
 
 
 def test_init_app_no_error_formatter(app):
-    thing = labthing.LabThing(format_flask_exceptions=False)
+    thing = LabThing(format_flask_exceptions=False)
     thing.init_app(app)
     assert app.error_handler_spec == {}
 
@@ -73,7 +73,7 @@ def test_add_view_property(thing, view_cls, client):
 
 
 def test_init_app_early_views(app, view_cls, client):
-    thing = labthing.LabThing()
+    thing = LabThing()
     thing.add_view(view_cls, "/index", endpoint="index")
 
     thing.init_app(app)

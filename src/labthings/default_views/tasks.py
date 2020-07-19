@@ -1,8 +1,8 @@
 from flask import abort
 import logging
 
-from ..view import View
-from ..view.marshalling import marshal_with
+from ..views import View
+from ..views.marshalling import marshal_with
 from ..schema import TaskSchema
 from ..find import current_thing
 

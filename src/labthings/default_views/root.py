@@ -1,5 +1,5 @@
 from ..find import current_thing
-from ..view import View
+from ..views import View
 
 
 class RootView(View):

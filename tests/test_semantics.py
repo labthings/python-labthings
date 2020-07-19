@@ -1,6 +1,6 @@
 import pytest
 
-from labthings.view import View
+from labthings.views import View
 from labthings import semantics
 
 

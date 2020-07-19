@@ -1,5 +1,5 @@
 from labthings import utilities
-from labthings.view import View
+from labthings.views import View
 
 import pytest
 

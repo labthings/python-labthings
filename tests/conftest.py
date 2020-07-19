@@ -3,12 +3,13 @@ import os
 import json
 import jsonschema
 from flask import Flask
-from flask.views import MethodView
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from labthings.server.labthing import LabThing
-from labthings.server.view import View
 from labthings.tasks import Pool
+
+from flask.views import MethodView
+from labthings.views import View
 
 from werkzeug.test import EnvironBuilder
 from flask.testing import FlaskClient

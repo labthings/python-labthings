@@ -1,8 +1,8 @@
 from flask import abort
 
-from ..view import View
-from ..view.marshalling import marshal_with
-from ..view.args import use_args
+from ..views import View
+from ..views.marshalling import marshal_with
+from ..views.args import use_args
 from ..schema import ActionSchema
 from ..find import current_thing
 from .. import fields

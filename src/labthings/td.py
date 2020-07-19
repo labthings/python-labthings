@@ -1,6 +1,6 @@
 from flask import url_for, request
 
-from .view import View
+from .views import View
 from .event import Event
 from .json.schemas import schema_to_json
 from .json.paths import rule_to_params, rule_to_path

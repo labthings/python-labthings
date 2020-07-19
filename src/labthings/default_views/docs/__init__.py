@@ -1,6 +1,6 @@
 from flask import render_template, Blueprint, make_response
 
-from ...view import View
+from ...views import View
 from ...find import current_thing
 
 
