@@ -1,4 +1,4 @@
-from labthings.find import current_thing
+from labthings.find import current_labthing
 from labthings.tasks import current_task
 
 import time
@@ -23,7 +23,7 @@ def test_actions_list(thing_client):
     def task_func():
         pass
 
-    task_obj = current_thing.actions.spawn(task_func)
+    task_obj = current_labthing().actions.spawn(task_func)
 
     with thing_client as c:
         response = c.get("/actions").json
@@ -35,7 +35,7 @@ def test_action_representation(thing_client):
     def task_func():
         pass
 
-    task_obj = current_thing.actions.spawn(task_func)
+    task_obj = current_labthing().actions.spawn(task_func)
     task_id = str(task_obj.id)
 
     with thing_client as c:
@@ -53,12 +53,12 @@ def test_action_stop(thing_client):
         while not current_task().stopping:
             time.sleep(0)
 
-    task_obj = current_thing.actions.spawn(task_func)
+    task_obj = current_labthing().actions.spawn(task_func)
     task_id = str(task_obj.id)
 
     # Wait for task to start
     task_obj.started.wait()
-    assert task_id in current_thing.actions.to_dict()
+    assert task_id in current_labthing().actions.to_dict()
 
     # Send a DELETE request to terminate the task
     with thing_client as c:
@@ -73,12 +73,12 @@ def test_action_terminate(thing_client):
         while True:
             time.sleep(0)
 
-    task_obj = current_thing.actions.spawn(task_func)
+    task_obj = current_labthing().actions.spawn(task_func)
     task_id = str(task_obj.id)
 
     # Wait for task to start
     task_obj.started.wait()
-    assert task_id in current_thing.actions.to_dict()
+    assert task_id in current_labthing().actions.to_dict()
 
     # Send a DELETE request to terminate the task
     with thing_client as c:
@@ -100,7 +100,7 @@ def test_tasks_list(thing_client):
     def task_func():
         pass
 
-    task_obj = current_thing.actions.spawn(task_func)
+    task_obj = current_labthing().actions.spawn(task_func)
 
     with thing_client as c:
         response = c.get("/tasks").json
@@ -112,7 +112,7 @@ def test_task_representation(thing_client):
     def task_func():
         pass
 
-    task_obj = current_thing.actions.spawn(task_func)
+    task_obj = current_labthing().actions.spawn(task_func)
     task_id = str(task_obj.id)
 
     with thing_client as c:
@@ -130,12 +130,12 @@ def test_task_kill(thing_client):
         while not current_task().stopping:
             time.sleep(0)
 
-    task_obj = current_thing.actions.spawn(task_func)
+    task_obj = current_labthing().actions.spawn(task_func)
     task_id = str(task_obj.id)
 
     # Wait for task to start
     task_obj.started.wait()
-    assert task_id in current_thing.actions.to_dict()
+    assert task_id in current_labthing().actions.to_dict()
 
     # Send a DELETE request to terminate the task
     with thing_client as c:

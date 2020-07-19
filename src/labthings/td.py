@@ -4,7 +4,7 @@ from .views import View
 from .event import Event
 from .json.schemas import schema_to_json
 from .json.paths import rule_to_params, rule_to_path
-from .find import current_thing
+from .find import current_labthing
 from .utilities import get_docstring, snake_to_camel
 
 
@@ -114,7 +114,7 @@ class ThingDescription:
             td_links.append(
                 {
                     "rel": link_description.get("rel"),
-                    "href": current_thing.url_for(
+                    "href": current_labthing().url_for(
                         link_description.get("view"),
                         **link_description.get("params"),
                         _external=True,
@@ -139,11 +139,11 @@ class ThingDescription:
                 "https://www.w3.org/2019/wot/td/v1",
                 "https://iot.mozilla.org/schemas/",
             ],
-            "@type": current_thing.types,
+            "@type": current_labthing().types,
             "id": url_for("root", _external=True),
             "base": request.host_url,
-            "title": current_thing.title,
-            "description": current_thing.description,
+            "title": current_labthing().title,
+            "description": current_labthing().description,
             "properties": self.properties,
             "actions": self.actions,
             # "events": self.events,  # TODO: Enable once properly populated

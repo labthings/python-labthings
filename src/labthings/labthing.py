@@ -22,7 +22,7 @@ from .apispec import MarshmallowPlugin, rule_to_apispec_path
 from .td import ThingDescription
 from .event import Event
 
-from .tasks import Pool
+from .tasks.pool import Pool
 
 from .views.builder import property_of, action_from
 

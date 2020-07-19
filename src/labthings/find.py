@@ -2,15 +2,13 @@ import logging
 from flask import current_app, url_for
 import weakref
 
-from werkzeug.local import LocalProxy
-
 from .names import EXTENSION_NAME
 
 __all__ = [
     "current_app",
     "url_for",
     "current_labthing",
-    "current_thing",
+    "current_labthing()",
     "registered_extensions",
     "registered_components",
     "find_component",
@@ -106,6 +104,3 @@ def find_extension(extension_name, labthing_instance=None):
         return labthing_instance.extensions[extension_name]
     else:
         return None
-
-
-current_thing = LocalProxy(current_labthing)

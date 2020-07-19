@@ -6,7 +6,7 @@ from flask import Flask
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from labthings.server.labthing import LabThing
-from labthings.tasks import Pool
+from labthings.tasks.pool import Pool
 
 from flask.views import MethodView
 from labthings.views import View

@@ -8,12 +8,12 @@ from .marshalling import marshal_with
 
 from ..utilities import unpack, get_docstring, get_summary, merge
 from ..representations import DEFAULT_REPRESENTATIONS
-from ..find import current_thing
+from ..find import current_labthing
 from ..event import PropertyStatusEvent
 from ..schema import Schema, ActionSchema, build_action_schema
-from ..tasks import Pool
 from ..deque import Deque, resize_deque
 from ..json.schemas import schema_to_json
+from ..tasks.pool import Pool
 from .. import fields
 
 import logging
@@ -43,7 +43,9 @@ class View(MethodView):
 
         # Set the default representations
         self.representations = (
-            current_thing.representations if current_thing else DEFAULT_REPRESENTATIONS
+            current_labthing().representations
+            if current_labthing()
+            else DEFAULT_REPRESENTATIONS
         )
 
     @classmethod
@@ -246,7 +248,9 @@ class ActionView(View):
             meth = marshal_with(self.schema)(meth)
 
         # Try to find a pool on the current LabThing, but fall back to Views emergency pool
-        pool = current_thing.actions if current_thing else self._emergency_pool
+        pool = (
+            current_labthing().actions if current_labthing() else self._emergency_pool
+        )
         # Make a task out of the views `post` method
         task = pool.spawn(meth, *args, **kwargs)
 
@@ -379,8 +383,8 @@ class PropertyView(View):
                 self, "__name__", "unknown"
             )
 
-            if current_thing:
-                current_thing.message(
+            if current_labthing():
+                current_labthing().message(
                     PropertyStatusEvent(property_name), property_value,
                 )
 

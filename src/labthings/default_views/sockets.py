@@ -1,5 +1,5 @@
 from ..sockets import SocketSubscriber
-from ..find import current_thing
+from ..find import current_labthing
 
 import logging
 
@@ -10,7 +10,7 @@ STATIC_SOCKET_RESPONSES = {"__unittest": "__unittest_response"}
 def socket_handler(ws):
     # Create a socket subscriber
     wssub = SocketSubscriber(ws)
-    current_thing.subscribers.add(wssub)
+    current_labthing().subscribers.add(wssub)
     logging.info(f"Added subscriber {wssub}")
     # Start the socket connection handler loop
     while not ws.closed:
@@ -21,7 +21,7 @@ def socket_handler(ws):
         if response:
             ws.send(response)
     # Remove the subscriber once the loop returns
-    current_thing.subscribers.remove(wssub)
+    current_labthing().subscribers.remove(wssub)
     logging.info(f"Removed subscriber {wssub}")
 
 

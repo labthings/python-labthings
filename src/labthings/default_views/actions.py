@@ -4,7 +4,7 @@ from ..views import View
 from ..views.marshalling import marshal_with
 from ..views.args import use_args
 from ..schema import ActionSchema
-from ..find import current_thing
+from ..find import current_labthing
 from .. import fields
 
 
@@ -14,7 +14,7 @@ class ActionQueue(View):
     """
 
     def get(self):
-        return ActionSchema(many=True).dump(current_thing.actions.threads)
+        return ActionSchema(many=True).dump(current_labthing().actions.threads)
 
 
 class ActionView(View):
@@ -31,7 +31,7 @@ class ActionView(View):
 
         Includes progress and intermediate data.
         """
-        task_dict = current_thing.actions.to_dict()
+        task_dict = current_labthing().actions.to_dict()
 
         if task_id not in task_dict:
             return abort(404)  # 404 Not Found
@@ -48,7 +48,7 @@ class ActionView(View):
         If the task is finished, deletes its entry.
         """
         timeout = args.get("timeout", 5)
-        task_dict = current_thing.actions.to_dict()
+        task_dict = current_labthing().actions.to_dict()
 
         if task_id not in task_dict:
             return abort(404)  # 404 Not Found
