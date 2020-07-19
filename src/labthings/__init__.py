@@ -35,10 +35,27 @@ from . import semantics
 from . import json
 
 __all__ = [
+    "LabThing",
+    "create_app",
+    "Server",
     "current_labthing",
     "registered_extensions",
     "registered_components",
     "find_extension",
     "find_component",
+    "StrictLock",
+    "CompositeLock",
+    "ClientEvent",
+    "current_task",
+    "current_task_stopped"
+    "update_task_progress"
+    "update_task_data"
+    "TaskKillException",
+    "extensions",
+    "views",
+    "fields",
+    "schema",
+    "semantics",
+    "json",
 ]
 
