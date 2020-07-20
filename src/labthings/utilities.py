@@ -29,6 +29,7 @@ http_method_funcs = [
 
 class TimeoutTracker:
     """ """
+
     def __init__(self, timeout: int):
         self.timeout_time = time.time() + timeout
 
@@ -358,12 +359,11 @@ def url_for_property(property_object: object, property_name: str):
     return f"/properties/{property_object.__class__.__name__}/{property_name}"
 
 
-def url_for_action(function: Callable):
+def url_for_action(action_object: object, action_name: str):
     """
 
-    :param function: Callable: 
+    :param action_object: object: 
+    :param action_name: str: 
 
     """
-    full_name = getattr(function, "__qualname__", None) or function.__name__
-    full_name_safe = full_name.replace(".", "/")
-    return f"/actions/{full_name_safe}"
+    return f"/actions/{action_object.__class__.__name__}/{action_name}"

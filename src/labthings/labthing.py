@@ -547,14 +547,17 @@ class LabThing:
             urls = [url_for_property(property_object, property_name)]
         self.add_view(property_of(property_object, property_name, **kwargs), *urls)
 
-    def build_action(self, function: Callable, urls: list = None, **kwargs):
+    def build_action(
+        self, action_object: object, action_name: str, urls: list = None, **kwargs
+    ):
         """
 
-        :param function: Callable: 
+        :param action_object: object: 
+        :param action_name: str: 
         :param urls: list:  (Default value = None)
         :param **kwargs: 
 
         """
         if urls is None:
-            urls = [url_for_action(function)]
+            urls = [url_for_action(action_object, action_name)]
         self.add_view(action_from(function, **kwargs), *urls)

@@ -48,7 +48,8 @@ labthing.build_property(
 )
 
 labthing.build_action(
-    my_component.average_data,  # Python function
+    my_component,  # Python object
+    "average_data",  # Objects method name
     description="Take an averaged measurement",
     safe=True,  # Is the state of the Thing unchanged by calling the action?
     idempotent=True,  # Can the action be called repeatedly with the same result?,

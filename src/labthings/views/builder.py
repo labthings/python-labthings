@@ -100,7 +100,8 @@ def property_of(
 
 
 def action_from(
-    function,
+    action_object: object,
+    action_name: str,
     name: str = None,
     description=None,
     safe=False,
@@ -111,8 +112,8 @@ def action_from(
 ):
     """
 
-    :param function: 
-    :param name: str:  (Default value = None)
+    :param action_object: object: 
+    :param action_name: str: 
     :param description:  (Default value = None)
     :param safe:  (Default value = False)
     :param idempotent:  (Default value = False)
@@ -124,12 +125,20 @@ def action_from(
 
     # Create a class name
     if not name:
-        name = f"{function.__name__}_action"
+        name = type(action_object).__name__ + f"_{action_name}"
+
+    # Get pointer to action function
+    action_f = getattr(action_object, action_name)
+    # Ensure action function is actually a function
+    if not callable(action_f):
+        raise TypeError(
+            f"Attribute {action_name} of {action_object} must be a callable"
+        )
 
     # Create inner functions
     def _post(self):
         """ """
-        return function()
+        return action_f()
 
     def _post_with_args(self, args):
         """
@@ -137,7 +146,7 @@ def action_from(
         :param args: 
 
         """
-        return function(**args)
+        return action_f(**args)
 
     # Add decorators for arguments etc
     if args is not None:

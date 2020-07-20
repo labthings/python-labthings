@@ -117,7 +117,9 @@ def test_action_from(debug_app, debug_client):
     def f():
         return "response"
 
-    GeneratedClass = builder.action_from(f)
+    obj = type("obj", (object,), {"f": f})
+
+    GeneratedClass = builder.action_from(obj, "f")
     debug_app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
 
     with debug_client as c:
@@ -129,8 +131,10 @@ def test_action_from_with_args(app, client):
     def f(arg1, arg2=0):
         return {"arg1": arg1, "arg2": arg2}
 
+    obj = type("obj", (object,), {"f": f})
+
     GeneratedClass = builder.action_from(
-        f, args={"arg1": fields.Int(), "arg2": fields.Int(required=False)}
+        obj, "f", args={"arg1": fields.Int(), "arg2": fields.Int(required=False)}
     )
     app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
 
@@ -145,7 +149,9 @@ def test_action_from_with_schema(app, client):
     def f():
         return "response"
 
-    GeneratedClass = builder.action_from(f, schema=fields.String())
+    obj = type("obj", (object,), {"f": f})
+
+    GeneratedClass = builder.action_from(obj, "f", schema=fields.String())
     app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
 
     with client as c:
@@ -158,8 +164,11 @@ def test_action_from_with_options(app):
     def f():
         return "response"
 
+    obj = type("obj", (object,), {"f": f})
+
     assert builder.action_from(
-        f,
+        obj,
+        "f",
         name="action_name",
         description="action_description",
         safe=True,
@@ -171,7 +180,9 @@ def test_action_from_semtype_string():
     def f():
         return "response"
 
-    GeneratedClass = builder.action_from(f, semtype="SemanticType")
+    obj = type("obj", (object,), {"f": f})
+
+    GeneratedClass = builder.action_from(obj, "f", semtype="SemanticType")
 
     assert GeneratedClass.semtype == "SemanticType"
 
@@ -180,9 +191,11 @@ def test_action_from_semtype_semantic():
     def f():
         return "response"
 
+    obj = type("obj", (object,), {"f": f})
+
     semantic_annotation = Semantic()
 
-    GeneratedClass = builder.action_from(f, semtype=semantic_annotation)
+    GeneratedClass = builder.action_from(obj, "f", semtype=semantic_annotation)
 
     assert GeneratedClass.semtype == "Semantic"
 
@@ -191,10 +204,12 @@ def test_action_from_semtype_invalid():
     def f():
         return "response"
 
+    obj = type("obj", (object,), {"f": f})
+
     semantic_annotation = object
 
     with pytest.raises(TypeError):
-        GeneratedClass = builder.action_from(f, semtype=semantic_annotation)
+        GeneratedClass = builder.action_from(obj, "f", semtype=semantic_annotation)
 
 
 def test_static_from(app, client, app_ctx, static_path):
