@@ -30,4 +30,5 @@ intersphinx_mapping = {
     "marshmallow": ("https://marshmallow.readthedocs.io/en/stable/", None),
     "webargs": ("https://webargs.readthedocs.io/en/latest/", None),
     "apispec": ("https://apispec.readthedocs.io/en/latest/", None),
+    "flask": ("https://flask.palletsprojects.com/en/1.1.x/", None),
 }

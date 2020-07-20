@@ -1,6 +1,8 @@
 # Documentation plan/structure
 
-## Basic usage
+## Quickstart
+
+## App, LabThing, and Server
 
 * create_app
 * LabThing class
@@ -57,11 +59,8 @@
 
 * labthings.json.LabThingsJSONEncoder
 
-## Extension system
+### Extensions
 
 * labthings.extensions.BaseExtension
 * labthings.extensions.find_extensions
-
-### Find functions
-
 * registered_extensions, find_extension

@@ -16,9 +16,9 @@ def create_app(
     handle_cors: bool = True,
     flask_kwargs: dict = None,
 ):
-    """QUick-create a LabThings-enabled Flask app
+    """Quick-create a LabThings-enabled Flask app
 
-    :param import_name: Flask import name. Usually `__name__`.
+    :param import_name: Flask import name. Usually ``__name__``.
     :param prefix: URL prefix for all LabThings views. Defaults to "/api".
     :type prefix: str
     :param title: Title/name of the LabThings Thing.

@@ -13,16 +13,20 @@ sentinel = object()
 
 
 class Server:
-    """ """
+    """Combined WSGI+WebSocket+mDNS server.
+
+    :param host: Host IP address. Defaults to 0.0.0.0.
+    :type host: string
+    :param port: Host port. Defaults to 7485.
+    :type port: int
+    :param debug: Enable server debug mode. Defaults to False.
+    :type debug: bool
+    :param zeroconf: Enable the zeroconf (mDNS) server. Defaults to True.
+    :type zeroconf: bool
+    """
+
     def __init__(
-        self,
-        app,
-        host="0.0.0.0",
-        port=7485,
-        log=sentinel,
-        error_log=sentinel,
-        debug=False,
-        zeroconf=True,
+        self, app, host="0.0.0.0", port=7485, debug=False, zeroconf=True, **kwargs
     ):
         self.app = app
         # Find LabThing attached to app
@@ -31,8 +35,6 @@ class Server:
         # Server properties
         self.host = host
         self.port = port
-        self.log = log
-        self.error_log = error_log
         self.debug = debug
         self.zeroconf = zeroconf
 
@@ -45,8 +47,7 @@ class Server:
         # Events
         self.started = threading.Event()
 
-    def register_zeroconf(self):
-        """ """
+    def _register_zeroconf(self):
         if self.labthing:
             # Get list of host addresses
             mdns_addresses = {
@@ -74,7 +75,7 @@ class Server:
                 self.zeroconf_server.register_service(service)
 
     def stop(self):
-        """ """
+        """Stop the server and unregister mDNS records"""
         # Unregister zeroconf service
         if self.zeroconf_server:
             logging.info("Unregistering zeroconf services")
@@ -91,38 +92,23 @@ class Server:
         logging.info("Done")
 
     def start(self):
-        """ """
+        """Start the server and register mDNS records"""
         # Unmodified version of app
-        app_to_run = self.app
-
+        app_to_run = self.app_register_zeroconf
         # Handle zeroconf
         if self.zeroconf:
             self.register_zeroconf()
 
-        # Handle logging
-        if self.log is sentinel:
-            print("No access log specified. Using root.")
-            self.log = logging.getLogger()
-        if not self.log:
-            self.log = logging.NullHandler()
-        if self.error_log is sentinel:
-            print("No error og specified. Using root.")
-            self.error_log = logging.getLogger()
-        if not self.error_log:
-            self.error_log = logging.NullHandler()
-
         # Handle debug mode
         if self.debug:
-            self.log.setLevel(logging.DEBUG)
             app_to_run = DebuggedApplication(self.app)
+            logging.getLogger("werkzeug").setLevel(logging.DEBUG)
             logging.getLogger("zeroconf").setLevel(logging.DEBUG)
 
         # Slightly more useful logger output
         friendlyhost = "localhost" if self.host == "0.0.0.0" else self.host
         print("Starting LabThings WSGI Server")
         print(f"Debug mode: {self.debug}")
-        print(f"Access log: {self.log}")
-        print(f"Error log: {self.error_log}")
         print(f"Running on http://{friendlyhost}:{self.port} (Press CTRL+C to quit)")
 
         # Create WSGIServer
@@ -141,42 +127,24 @@ class Server:
             )  # pragma: no cover
             self.stop()  # pragma: no cover
 
-    def run(
-        self,
-        host=None,
-        port=None,
-        log=sentinel,
-        error_log=sentinel,
-        debug=None,
-        zeroconf=None,
-    ):
+    def run(self, host=None, port=None, debug=None, zeroconf=None, **kwargs):
         """Starts the server allowing for runtime parameters. Designed to immitate
         the old Flask app.run style of starting an app
 
-        :param host: Host IP address. Defaults to None.
+        :param host: Host IP address. Defaults to 0.0.0.0.
         :type host: string
-        :param port: Host port. Defaults to None.
+        :param port: Host port. Defaults to 7485.
         :type port: int
-        :param log: Logger to log to. Defaults to None.
-        :type log: optional
-        :param debug: Enable server debug mode. Defaults to None.
+        :param debug: Enable server debug mode. Defaults to False.
         :type debug: bool
-        :param zeroconf: Enable the zeroconf server. Defaults to None.
+        :param zeroconf: Enable the zeroconf (mDNS) server. Defaults to True.
         :type zeroconf: bool
-        :param error_log:  (Default value = sentinel)
-
         """
         if port is not None:
             self.port = int(port)
 
         if host is not None:
             self.host = str(host)
-
-        if log is not sentinel:
-            self.log = log
-
-        if error_log is not sentinel:
-            self.error_log = error_log
 
         if debug is not None:
             self.debug = debug

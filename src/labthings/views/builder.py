@@ -14,19 +14,19 @@ def property_of(
     name: str = None,
     readonly=False,
     description=None,
-    semtype=None,
     schema=fields.Field(),
+    semtype=None,
 ):
     """
-
-    :param property_object: object: 
-    :param property_name: str: 
+    :param property_object: object: Python object containing the property
+    :param property_name: str: Name of the property on the Python object
     :param name: str:  (Default value = None)
-    :param readonly:  (Default value = False)
-    :param description:  (Default value = None)
-    :param semtype:  (Default value = None)
-    :param schema:  (Default value = fields.Field())
-
+    :param readonly:  (Default value = False) Is the property read-only?
+    :param description:  (Default value = None) Human readable description of the property
+    :param schema:  (Default value = fields.Field()) Marshmallow schema for the property
+    :type schema: :class:`labthings.fields.Field` or :class:`labthings.schema.Schema`
+    :param semtype:  (Default value = None) Optional semantic object containing schema and annotations
+    :type semtype: :class:`labthings.semantics.Semantic`
     """
 
     # Create a class name
@@ -103,24 +103,26 @@ def action_from(
     action_object: object,
     action_name: str,
     name: str = None,
-    description=None,
     safe=False,
     idempotent=False,
+    description=None,
     args=None,
     schema=None,
     semtype=None,
 ):
     """
-
-    :param action_object: object: 
-    :param action_name: str: 
-    :param description:  (Default value = None)
-    :param safe:  (Default value = False)
-    :param idempotent:  (Default value = False)
-    :param args:  (Default value = None)
-    :param schema:  (Default value = None)
-    :param semtype:  (Default value = None)
-
+    :param action_object: object: Python object containing the action method
+    :param action_name: str: Name of the method on the Python object
+    :param name: str:  (Default value = None)
+    :param safe:  (Default value = False) Is the action safe
+    :param idempotent:  (Default value = False) Is the action idempotent
+    :param description:  (Default value = None) Human readable description of the property
+    :param args:  (Default value = fields.Field()) Marshmallow schema for the method arguments
+    :type args: :class:`labthings.schema.Schema`
+    :param schema:  (Default value = fields.Field()) Marshmallow schema for the method response
+    :type schema: :class:`labthings.fields.Field` or :class:`labthings.schema.Schema`
+    :param semtype:  (Default value = None) Optional semantic object containing schema and annotations
+    :type semtype: :class:`labthings.semantics.Semantic`
     """
 
     # Create a class name
