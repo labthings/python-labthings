@@ -15,6 +15,8 @@ A Python implementation of the LabThings API structure, based on the Flask micro
 
 ## Quickstart example
 
+This example assumes a `PretendSpectrometer` class, which already has `data` and `integration_time` properties, as well as an `average_data(n)` method. LabThings allows you to easily convert this existing instrument control code into a fully documented, standardised web API complete with auto-discovery and automatic background task threading.
+
 ```python
 from labthings import fields, create_app
 from labthings.example_components import PretendSpectrometer
