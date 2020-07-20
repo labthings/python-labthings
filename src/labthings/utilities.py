@@ -337,18 +337,6 @@ def path_relative_to(source_file, *paths):
     return os.path.join(os.path.abspath(os.path.dirname(source_file)), *paths)
 
 
-def get_class_that_defined_method(meth):
-    """
-
-    :param meth: 
-
-    """
-    for cls in inspect.getmro(meth.im_class):
-        if meth.__name__ in cls.__dict__:
-            return cls
-    return None
-
-
 def url_for_property(property_object: object, property_name: str):
     """
 
