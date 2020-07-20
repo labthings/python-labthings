@@ -94,10 +94,10 @@ class Server:
     def start(self):
         """Start the server and register mDNS records"""
         # Unmodified version of app
-        app_to_run = self.app_register_zeroconf
+        app_to_run = self.app
         # Handle zeroconf
         if self.zeroconf:
-            self.register_zeroconf()
+            self._register_zeroconf()
 
         # Handle debug mode
         if self.debug:
