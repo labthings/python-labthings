@@ -192,12 +192,6 @@ def test_url_for(thing, view_cls, app_ctx):
         )
 
 
-def test_owns_endpoint(thing, view_cls, app_ctx):
-    assert not thing.owns_endpoint("index")
-    thing.add_view(view_cls, "/index", endpoint="index")
-    assert thing.owns_endpoint("index")
-
-
 def test_add_root_link(thing, view_cls, app_ctx, schemas_path):
     thing.add_root_link(view_cls, "rel")
     assert {

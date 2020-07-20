@@ -508,14 +508,6 @@ class LabThing:
             values["_external"] = True
         return url_for(endpoint, **values)
 
-    def owns_endpoint(self, endpoint):
-        """
-
-        :param endpoint: 
-
-        """
-        return endpoint in self.endpoints
-
     def add_root_link(self, view, rel, kwargs=None, params=None):
         """
 
