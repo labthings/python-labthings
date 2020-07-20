@@ -9,7 +9,6 @@ from labthings.semantics.base import Semantic
 def test_property_of_no_schema(app, client):
     obj = type("obj", (object,), {"property_name": "propertyValue"})
 
-    # GeneratedClass = builder.property_of(obj, "property_name", schema=fields.String())
     GeneratedClass = builder.property_of(obj, "property_name", schema=fields.String())
     app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
 
@@ -22,7 +21,6 @@ def test_property_of_no_schema(app, client):
 def test_property_of_with_schema(app, client):
     obj = type("obj", (object,), {"property_name": "propertyValue"})
 
-    # GeneratedClass = builder.property_of(obj, "property_name", schema=fields.String())
     GeneratedClass = builder.property_of(obj, "property_name", schema=fields.String())
     app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
 
