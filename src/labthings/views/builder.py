@@ -14,7 +14,7 @@ def property_of(
     name: str = None,
     readonly=False,
     description=None,
-    schema=fields.Field(),
+    schema=None,
     semtype=None,
 ):
     """
@@ -23,7 +23,7 @@ def property_of(
     :param name: str:  (Default value = None)
     :param readonly:  (Default value = False) Is the property read-only?
     :param description:  (Default value = None) Human readable description of the property
-    :param schema:  (Default value = fields.Field()) Marshmallow schema for the property
+    :param schema:  (Default value = None) Marshmallow schema for the property
     :type schema: :class:`labthings.fields.Field` or :class:`labthings.schema.Schema`
     :param semtype:  (Default value = None) Optional semantic object containing schema and annotations
     :type semtype: :class:`labthings.semantics.Semantic`
