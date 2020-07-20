@@ -16,7 +16,9 @@ class TaskKillException(SystemExit):
 
 
 class TaskThread(threading.Thread):
-    """ """
+    """
+    A native thread with extra functionality for tracking progress and thread termination.
+    """
 
     def __init__(self, target=None, name=None, args=None, kwargs=None, daemon=True):
         threading.Thread.__init__(
