@@ -14,9 +14,20 @@ def property_of(
     name: str = None,
     readonly=False,
     description=None,
+    schema=None,
     semtype=None,
-    schema=fields.Field(),
 ):
+    """
+    :param property_object: object: Python object containing the property
+    :param property_name: str: Name of the property on the Python object
+    :param name: str:  (Default value = None)
+    :param readonly:  (Default value = False) Is the property read-only?
+    :param description:  (Default value = None) Human readable description of the property
+    :param schema:  (Default value = None) Marshmallow schema for the property
+    :type schema: :class:`labthings.fields.Field` or :class:`labthings.schema.Schema`
+    :param semtype:  (Default value = None) Optional semantic object containing schema and annotations
+    :type semtype: :class:`labthings.semantics.Semantic`
+    """
 
     # Create a class name
     if not name:
@@ -24,13 +35,24 @@ def property_of(
 
     # Create inner functions
     def _read(self):
+        """ """
         return getattr(property_object, property_name)
 
     def _write(self, args):
+        """
+
+        :param args: 
+
+        """
         setattr(property_object, property_name, args)
         return getattr(property_object, property_name)
 
     def _update(self, args):
+        """
+
+        :param args: 
+
+        """
         getattr(property_object, property_name).update(args)
         return getattr(property_object, property_name)
 
@@ -78,26 +100,55 @@ def property_of(
 
 
 def action_from(
-    function,
+    action_object: object,
+    action_name: str,
     name: str = None,
-    description=None,
     safe=False,
     idempotent=False,
+    description=None,
     args=None,
     schema=None,
     semtype=None,
 ):
+    """
+    :param action_object: object: Python object containing the action method
+    :param action_name: str: Name of the method on the Python object
+    :param name: str:  (Default value = None)
+    :param safe:  (Default value = False) Is the action safe
+    :param idempotent:  (Default value = False) Is the action idempotent
+    :param description:  (Default value = None) Human readable description of the property
+    :param args:  (Default value = fields.Field()) Marshmallow schema for the method arguments
+    :type args: :class:`labthings.schema.Schema`
+    :param schema:  (Default value = fields.Field()) Marshmallow schema for the method response
+    :type schema: :class:`labthings.fields.Field` or :class:`labthings.schema.Schema`
+    :param semtype:  (Default value = None) Optional semantic object containing schema and annotations
+    :type semtype: :class:`labthings.semantics.Semantic`
+    """
 
     # Create a class name
     if not name:
-        name = f"{function.__name__}_action"
+        name = type(action_object).__name__ + f"_{action_name}"
+
+    # Get pointer to action function
+    action_f = getattr(action_object, action_name)
+    # Ensure action function is actually a function
+    if not callable(action_f):
+        raise TypeError(
+            f"Attribute {action_name} of {action_object} must be a callable"
+        )
 
     # Create inner functions
     def _post(self):
-        return function()
+        """ """
+        return action_f()
 
     def _post_with_args(self, args):
-        return function(**args)
+        """
+
+        :param args: 
+
+        """
+        return action_f(**args)
 
     # Add decorators for arguments etc
     if args is not None:
@@ -131,6 +182,12 @@ def action_from(
 
 
 def static_from(static_folder: str, name=None):
+    """
+
+    :param static_folder: str: 
+    :param name:  (Default value = None)
+
+    """
 
     # Create a class name
     if not name:
@@ -139,6 +196,11 @@ def static_from(static_folder: str, name=None):
 
     # Create inner functions
     def _get(self, path=""):
+        """
+
+        :param path:  (Default value = "")
+
+        """
         full_path = os.path.join(static_folder, path)
         if not os.path.exists(full_path):
             return abort(404)

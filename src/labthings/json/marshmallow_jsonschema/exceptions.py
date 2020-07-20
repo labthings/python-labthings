@@ -1,2 +1,3 @@
 class UnsupportedValueError(Exception):
+    """ """
     pass

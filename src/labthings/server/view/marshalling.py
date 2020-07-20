@@ -1,1 +1,1 @@
-from ...view.marshalling import *
+from ...views.marshalling import *

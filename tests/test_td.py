@@ -2,7 +2,7 @@ import pytest
 
 from labthings import fields
 
-from labthings.view import View, PropertyView, ActionView
+from labthings.views import View, PropertyView, ActionView
 
 
 @pytest.fixture

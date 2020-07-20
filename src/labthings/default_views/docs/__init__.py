@@ -1,7 +1,7 @@
 from flask import render_template, Blueprint, make_response
 
-from ...view import View
-from ...find import current_thing
+from ...views import View
+from ...find import current_labthing
 
 
 class APISpecView(View):
@@ -9,13 +9,14 @@ class APISpecView(View):
 
     def get(self):
         """OpenAPI v3 documentation"""
-        return current_thing.spec.to_dict()
+        return current_labthing().spec.to_dict()
 
 
 class SwaggerUIView(View):
     """Swagger UI documentation"""
 
     def get(self):
+        """ """
         return make_response(render_template("swagger-ui.html"))
 
 

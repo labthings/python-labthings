@@ -6,7 +6,11 @@ Welcome to Python-LabThings' documentation!
    :caption: Contents:
 
    core_concepts.rst
+   quickstart.rst
+
    basic_usage/index.rst
+
+   api.rst
 
 
 Installation

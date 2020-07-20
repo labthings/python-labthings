@@ -72,10 +72,17 @@ __all__ = [
 
 
 class Bytes(Field):
+    """ """
     def _jsonschema_type_mapping(self):
+        """ """
         return {"type": "string", "contentEncoding": "base64"}
 
     def _validate(self, value):
+        """
+
+        :param value: 
+
+        """
         if not isinstance(value, bytes):
             raise ValidationError("Invalid input type.")
 
@@ -83,6 +90,14 @@ class Bytes(Field):
             raise ValidationError("Invalid value")
 
     def _deserialize(self, value, attr, data, **kwargs):
+        """
+
+        :param value: 
+        :param attr: 
+        :param data: 
+        :param **kwargs: 
+
+        """
         if isinstance(value, bytes):
             return value
         if isinstance(value, str):

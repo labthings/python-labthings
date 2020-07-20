@@ -39,7 +39,7 @@
 * Code formatting ([a86bc21](https://github.com/labthings/python-labthings/commit/a86bc21))
 * Code formatting ([9399433](https://github.com/labthings/python-labthings/commit/9399433))
 * Code formatting ([cc676b7](https://github.com/labthings/python-labthings/commit/cc676b7))
-* Created a current_thing LocalProxy ([2b421b8](https://github.com/labthings/python-labthings/commit/2b421b8))
+* Created a current_labthing() LocalProxy ([2b421b8](https://github.com/labthings/python-labthings/commit/2b421b8))
 * Deleted test file ([2585abd](https://github.com/labthings/python-labthings/commit/2585abd))
 * Fix HTTP method check ([8ae6060](https://github.com/labthings/python-labthings/commit/8ae6060))
 * FIx OpenAPI formatting ([c90a646](https://github.com/labthings/python-labthings/commit/c90a646))

@@ -1,5 +1,5 @@
 from labthings.apispec import apispec
-from labthings.view import View, PropertyView
+from labthings.views import View, PropertyView
 
 from labthings import fields
 

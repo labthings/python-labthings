@@ -1,7 +1,7 @@
 [run]
 branch = True
 source = ./src/labthings
-omit = .venv/*, ./src/labthings/wsgi.py, ./src/labthings/monkey.py, ./src/labthings/server/*, ./src/labthings/core/*
+omit = .venv/*, ./src/labthings/wsgi.py, ./src/labthings/monkey.py, ./src/labthings/server/*, ./src/labthings/core/*, ./src/labthings/example_components/*
 concurrency = thread
 
 [report]

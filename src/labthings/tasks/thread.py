@@ -16,6 +16,8 @@ class TaskKillException(SystemExit):
 
 
 class TaskThread(threading.Thread):
+    """ """
+
     def __init__(self, target=None, name=None, args=None, kwargs=None, daemon=True):
         threading.Thread.__init__(
             self,
@@ -74,37 +76,49 @@ class TaskThread(threading.Thread):
 
     @property
     def id(self):
-        """Return ID of current TaskThread"""
+        """ """
         return self._ID
 
     @property
     def output(self):
+        """ """
         return self._return_value
 
     @property
     def status(self):
+        """ """
         return self._status
 
     @property
     def dead(self):
+        """ """
         return not self.is_alive()
 
     @property
     def stopped(self):
+        """ """
         return self.stopping.is_set()
 
     def update_progress(self, progress: int):
+        """
+
+        :param progress: int: 
+
+        """
         # Update progress of the task
         self.progress = progress
 
     def update_data(self, data: dict):
+        """
+
+        :param data: dict: 
+
+        """
         # Store data to be used before task finishes (eg for real-time plotting)
         self.data.update(data)
 
     def run(self):
-        """
-        Overrides default threading.Thread run() method
-        """
+        """Overrides default threading.Thread run() method"""
         logging.debug((self._args, self._kwargs))
         try:
             with self._running_lock:
@@ -119,12 +133,20 @@ class TaskThread(threading.Thread):
             del self._target, self._args, self._kwargs
 
     def _thread_proc(self, f):
-        """
-        Wraps the target function to handle recording `status` and `return` to `state`.
+        """Wraps the target function to handle recording `status` and `return` to `state`.
         Happens inside the task thread.
+
+        :param f: 
+
         """
 
         def wrapped(*args, **kwargs):
+            """
+
+            :param *args: 
+            :param **kwargs: 
+
+            """
             nonlocal self
 
             # Capture just this thread's log messages
@@ -156,8 +178,11 @@ class TaskThread(threading.Thread):
         return wrapped
 
     def get(self, block=True, timeout=None):
-        """
-        Start waiting for the task to finish before returning
+        """Start waiting for the task to finish before returning
+
+        :param block:  (Default value = True)
+        :param timeout:  (Default value = None)
+
         """
         if not block:
             if self.is_alive():
@@ -166,7 +191,11 @@ class TaskThread(threading.Thread):
         return self._return_value
 
     def async_raise(self, exc_type):
-        """Raise an exception in this thread."""
+        """
+
+        :param exc_type: 
+
+        """
         # Should only be called on a started thread, so raise otherwise.
         if self.ident is None:
             raise RuntimeError("Only started threads have thread identifier")
@@ -196,11 +225,14 @@ class TaskThread(threading.Thread):
             )
 
     def _is_thread_proc_running(self):
-        """
-        Test if thread funtion (_thread_proc) is running,
+        """Test if thread funtion (_thread_proc) is running,
         by attemtping to acquire the lock _thread_proc acquires at runtime.
-        Returns:
-            bool: If _thread_proc is currently running
+
+
+        :returns: If _thread_proc is currently running
+
+        :rtype: bool
+
         """
         could_acquire = self._running_lock.acquire(0)
         if could_acquire:
@@ -210,8 +242,10 @@ class TaskThread(threading.Thread):
 
     def terminate(self, exception=TaskKillException):
         """
-        Raise TaskKillException in the context of the given thread,
-        which should cause the thread to exit silently.
+
+        :param exception:  (Default value = TaskKillException)
+        :raises which: should cause the thread to exit silently
+
         """
         _LOG.warning(f"Terminating thread {self}")
         if not self.is_alive():
@@ -239,8 +273,10 @@ class TaskThread(threading.Thread):
         """Sets the threads internal stopped event, waits for timeout seconds for the
         thread to stop nicely, then forcefully kills the thread.
 
-        Args:
-            timeout (int, optional): Time to wait before killing thread forecefully. Defaults to 5.
+        :param timeout: Time to wait before killing thread forecefully. Defaults to 5.
+        :type timeout: int
+        :param exception:  (Default value = TaskKillException)
+
         """
         self.stopping.set()
         timeout_tracker = TimeoutTracker(timeout)
@@ -259,19 +295,21 @@ class TaskThread(threading.Thread):
 class ThreadLogHandler(logging.Handler):
     def __init__(self, thread=None, dest=None, level=logging.INFO):
         """Set up a log handler that appends messages to a list.
-
+    
         This log handler will first filter by ``thread``, if one is
         supplied.  This should be a ``threading.Thread`` object.
         Only log entries from the specified thread will be
         saved.
-
+    
         ``dest`` should specify a list, to which we will append
         each log entry as it comes in.  If none is specified, a
         new list will be created.
-
+    
         NB this log handler does not currently rotate or truncate
         the list - so if you use it on a thread that produces a
         lot of log messages, you may run into memory problems.
+
+
         """
         logging.Handler.__init__(self)
         self.setLevel(level)
@@ -280,7 +318,11 @@ class ThreadLogHandler(logging.Handler):
         self.addFilter(self.check_thread)
 
     def check_thread(self, record):
-        """Determine if a thread matches the desired record"""
+        """Determine if a thread matches the desired record
+
+        :param record: 
+
+        """
         if self.thread is None:
             return 1
 
@@ -289,7 +331,11 @@ class ThreadLogHandler(logging.Handler):
         return 0
 
     def emit(self, record):
-        """Do something with a logged message"""
+        """Do something with a logged message
+
+        :param record: 
+
+        """
         record_dict = {"message": record.getMessage()}
         for k in ["created", "levelname", "levelno", "lineno", "filename"]:
             record_dict[k] = getattr(record, k)

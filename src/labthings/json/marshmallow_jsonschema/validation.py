@@ -8,23 +8,24 @@ def handle_length(schema, field, validator, parent_schema):
     values appropriately for ``fields.List``, ``fields.Nested``, and
     ``fields.String``.
 
-    Args:
-        schema (dict): The original JSON schema we generated. This is what we
+    :param schema: The original JSON schema we generated. This is what we
             want to post-process.
-        field (fields.Field): The field that generated the original schema and
+    :type schema: dict
+    :param field: The field that generated the original schema and
             who this post-processor belongs to.
-        validator (marshmallow.validate.Length): The validator attached to the
+    :type field: fields.Field
+    :param validator: The validator attached to the
             passed in field.
-        parent_schema (marshmallow.Schema): The Schema instance that the field
+    :type validator: marshmallow.validate.Length
+    :param parent_schema: The Schema instance that the field
             belongs to.
-
-    Returns:
-        dict: A, possibly, new JSON Schema that has been post processed and
+    :type parent_schema: marshmallow.Schema
+    :returns: A, possibly, new JSON Schema that has been post processed and
             altered.
-
-    Raises:
-        UnsupportedValueError: Raised if the `field` is something other than
+    :rtype: dict
+    :raises UnsupportedValueError: Raised if the `field` is something other than
             `fields.List`, `fields.Nested`, or `fields.String`
+
     """
     if isinstance(field, fields.String):
         minKey = "minLength"
@@ -55,19 +56,22 @@ def handle_one_of(schema, field, validator, parent_schema):
     """Adds the validation logic for ``marshmallow.validate.OneOf`` by setting
     the JSONSchema `enum` property to the allowed choices in the validator.
 
-    Args:
-        schema (dict): The original JSON schema we generated. This is what we
+    :param schema: The original JSON schema we generated. This is what we
             want to post-process.
-        field (fields.Field): The field that generated the original schema and
+    :type schema: dict
+    :param field: The field that generated the original schema and
             who this post-processor belongs to.
-        validator (marshmallow.validate.OneOf): The validator attached to the
+    :type field: fields.Field
+    :param validator: The validator attached to the
             passed in field.
-        parent_schema (marshmallow.Schema): The Schema instance that the field
+    :type validator: marshmallow.validate.OneOf
+    :param parent_schema: The Schema instance that the field
             belongs to.
-
-    Returns:
-        dict: New JSON Schema that has been post processed and
+    :type parent_schema: marshmallow.Schema
+    :returns: New JSON Schema that has been post processed and
             altered.
+    :rtype: dict
+
     """
     schema["enum"] = list(validator.choices)
     schema["enumNames"] = list(validator.labels)
@@ -79,23 +83,24 @@ def handle_range(schema, field, validator, parent_schema):
     """Adds validation logic for ``marshmallow.validate.Range``, setting the
     values appropriately ``fields.Number`` and it's subclasses.
 
-    Args:
-        schema (dict): The original JSON schema we generated. This is what we
+    :param schema: The original JSON schema we generated. This is what we
             want to post-process.
-        field (fields.Field): The field that generated the original schema and
+    :type schema: dict
+    :param field: The field that generated the original schema and
             who this post-processor belongs to.
-        validator (marshmallow.validate.Range): The validator attached to the
+    :type field: fields.Field
+    :param validator: The validator attached to the
             passed in field.
-        parent_schema (marshmallow.Schema): The Schema instance that the field
+    :type validator: marshmallow.validate.Range
+    :param parent_schema: The Schema instance that the field
             belongs to.
-
-    Returns:
-        dict: New JSON Schema that has been post processed and
+    :type parent_schema: marshmallow.Schema
+    :returns: New JSON Schema that has been post processed and
             altered.
-
-    Raises:
-        UnsupportedValueError: Raised if the `field` is not an instance of
+    :rtype: dict
+    :raises UnsupportedValueError: Raised if the `field` is not an instance of
             `fields.Number`.
+
     """
     if not isinstance(field, fields.Number):
         raise UnsupportedValueError(
@@ -126,23 +131,24 @@ def handle_regexp(schema, field, validator, parent_schema):
     """Adds validation logic for ``marshmallow.validate.Regexp``, setting the
     values appropriately ``fields.String`` and it's subclasses.
 
-    Args:
-        schema (dict): The original JSON schema we generated. This is what we
+    :param schema: The original JSON schema we generated. This is what we
             want to post-process.
-        field (fields.Field): The field that generated the original schema and
+    :type schema: dict
+    :param field: The field that generated the original schema and
             who this post-processor belongs to.
-        validator (marshmallow.validate.Regexp): The validator attached to the
+    :type field: fields.Field
+    :param validator: The validator attached to the
             passed in field.
-        parent_schema (marshmallow.Schema): The Schema instance that the field
+    :type validator: marshmallow.validate.Regexp
+    :param parent_schema: The Schema instance that the field
             belongs to.
-
-    Returns:
-        dict: New JSON Schema that has been post processed and
+    :type parent_schema: marshmallow.Schema
+    :returns: New JSON Schema that has been post processed and
             altered.
-
-    Raises:
-        UnsupportedValueError: Raised if the `field` is not an instance of
+    :rtype: dict
+    :raises UnsupportedValueError: Raised if the `field` is not an instance of
             `fields.String`.
+
     """
     if not isinstance(field, fields.String):
         raise UnsupportedValueError(

@@ -7,6 +7,7 @@ sentinel = object()
 
 
 class LockError(RuntimeError):
+    """ """
     ERROR_CODES = {
         "ACQUIRE_ERROR": "Unable to acquire. Lock in use by another thread.",
         "IN_USE_ERROR": "Lock in use by another thread.",
@@ -29,16 +30,12 @@ class LockError(RuntimeError):
 
 
 class StrictLock:
-    """
-    Class that behaves like a Python RLock,
+    """Class that behaves like a Python RLock,
     but with stricter timeout conditions and custom exceptions.
 
-    Args:
-        timeout (int): Time in seconds acquisition will wait before raising an exception
+    :param timeout: Time in seconds acquisition will wait before raising an exception
+    :type timeout: int
 
-    Attributes:
-        _lock (:py:class:`threading.RLock`): Parent RLock object
-        timeout (int): Time in seconds acquisition will wait before raising an exception
     """
 
     def __init__(self, timeout=-1, name=None):
@@ -48,6 +45,7 @@ class StrictLock:
 
     @property
     def _owner(self):
+        """ """
         return self._lock._owner
 
     @contextmanager
@@ -58,9 +56,17 @@ class StrictLock:
             self.release()
 
     def locked(self):
+        """ """
         return bool(self._lock._count)
 
     def acquire(self, blocking=True, timeout=sentinel, _strict=True):
+        """
+
+        :param blocking:  (Default value = True)
+        :param timeout:  (Default value = sentinel)
+        :param _strict:  (Default value = True)
+
+        """
         # If no timeout is given, use object level timeout
         if timeout is sentinel:
             timeout = self.timeout
@@ -80,24 +86,23 @@ class StrictLock:
         self.release()
 
     def release(self):
+        """ """
         self._lock.release()
 
     def _is_owned(self):
+        """ """
         return self._lock._is_owned()
 
 
 class CompositeLock:
-    """
-    Class that behaves like a :py:class:`labthings.core.lock.StrictLock`,
+    """Class that behaves like a :py:class:`labthings.core.lock.StrictLock`,
     but allows multiple locks to be acquired and released.
 
-    Args:
-        locks (list): List of parent RLock objects
-        timeout (int): Time in seconds acquisition will wait before raising an exception
+    :param locks: List of parent RLock objects
+    :type locks: list
+    :param timeout: Time in seconds acquisition will wait before raising an exception
+    :type timeout: int
 
-    Attributes:
-        locks (list): List of parent RLock objects
-        timeout (int): Time in seconds acquisition will wait before raising an exception
     """
 
     def __init__(self, locks, timeout=-1):
@@ -106,6 +111,7 @@ class CompositeLock:
 
     @property
     def _owner(self):
+        """ """
         return [lock._owner for lock in self.locks]
 
     @contextmanager
@@ -116,6 +122,12 @@ class CompositeLock:
             self.release()
 
     def acquire(self, blocking=True, timeout=sentinel):
+        """
+
+        :param blocking:  (Default value = True)
+        :param timeout:  (Default value = sentinel)
+
+        """
         # If no timeout is given, use object level timeout
         if timeout is sentinel:
             timeout = self.timeout
@@ -142,6 +154,7 @@ class CompositeLock:
         return self.release()
 
     def release(self):
+        """ """
         # If not all child locks are owner by caller
         if not all(owner == current_thread().ident for owner in self._owner):
             raise RuntimeError("cannot release un-acquired lock")
@@ -150,12 +163,15 @@ class CompositeLock:
                 lock.release()
 
     def _emergency_release(self):
+        """ """
         for lock in self.locks:
             if lock.locked() and lock._is_owned():
                 lock.release()
 
     def locked(self):
+        """ """
         return any(lock.locked() for lock in self.locks)
 
     def _is_owned(self):
+        """ """
         return all(lock._is_owned() for lock in self.locks)
