@@ -51,7 +51,8 @@ An example Lab Thing built from our ``PretendSpectrometer`` class, complete with
 
     # Averaged measurement action
     labthing.build_action(
-        my_spectrometer.average_data,  # Python function
+        my_spectrometer,  # Python object
+        "average_data",  # Objects method name
         description="Take an averaged measurement",
         args={  # How do we convert from the request input to function arguments?
             "n": fields.Int(description="Number of averages to take", example=5, default=5)
