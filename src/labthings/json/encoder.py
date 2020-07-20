@@ -5,11 +5,14 @@ import json
 
 
 class LabThingsJSONEncoder(JSONEncoder):
-    """
-    A custom JSON encoder, with type conversions for PiCamera fractions, Numpy integers, and Numpy arrays
-    """
+    """A custom JSON encoder, with type conversions for PiCamera fractions, Numpy integers, and Numpy arrays"""
 
     def default(self, o):
+        """
+
+        :param o: 
+
+        """
         if isinstance(o, set):
             return list(o)
         if isinstance(o, bytes):
@@ -21,5 +24,11 @@ class LabThingsJSONEncoder(JSONEncoder):
 
 
 def encode_json(data, encoder=LabThingsJSONEncoder, **settings):
-    """Makes JSON encoded data using the LabThings JSON encoder"""
+    """Makes JSON encoded data using the LabThings JSON encoder
+
+    :param data: 
+    :param encoder:  (Default value = LabThingsJSONEncoder)
+    :param **settings: 
+
+    """
     return json.dumps(data, cls=encoder, **settings) + "\n"

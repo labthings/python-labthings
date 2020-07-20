@@ -16,8 +16,8 @@ def schema_to_converter(schema):
     which takes a value as an argument and returns
     marshalled data
 
-    Args:
-        schema: Input schema
+    :param schema: Input schema
+
     """
     if isinstance(schema, Mapping):
         return Schema.from_dict(schema)().dump
@@ -32,6 +32,12 @@ def schema_to_converter(schema):
 
 
 def marshal(response, converter):
+    """
+
+    :param response: 
+    :param converter: 
+
+    """
     if isinstance(response, ResponseBase):
         response.data = converter(response.data)
         return response
@@ -45,9 +51,9 @@ class marshal_with:
     def __init__(self, schema):
         """Decorator to format the return of a function with a Marshmallow schema
 
-        Args:
-            schema: Marshmallow schema, field, or dict of Fields, describing
+        :param schema: Marshmallow schema, field, or dict of Fields, describing
                 the format of data to be returned by a View
+
         """
         self.schema = schema
         self.converter = schema_to_converter(self.schema)

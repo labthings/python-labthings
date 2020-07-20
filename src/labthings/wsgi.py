@@ -13,6 +13,7 @@ sentinel = object()
 
 
 class Server:
+    """ """
     def __init__(
         self,
         app,
@@ -45,6 +46,7 @@ class Server:
         self.started = threading.Event()
 
     def register_zeroconf(self):
+        """ """
         if self.labthing:
             # Get list of host addresses
             mdns_addresses = {
@@ -72,6 +74,7 @@ class Server:
                 self.zeroconf_server.register_service(service)
 
     def stop(self):
+        """ """
         # Unregister zeroconf service
         if self.zeroconf_server:
             logging.info("Unregistering zeroconf services")
@@ -88,6 +91,7 @@ class Server:
         logging.info("Done")
 
     def start(self):
+        """ """
         # Unmodified version of app
         app_to_run = self.app
 
@@ -149,12 +153,18 @@ class Server:
         """Starts the server allowing for runtime parameters. Designed to immitate
         the old Flask app.run style of starting an app
 
-        Args:
-            host (string, optional): Host IP address. Defaults to None.
-            port (int, optional): Host port. Defaults to None.
-            log (optional): Logger to log to. Defaults to None.
-            debug (bool, optional): Enable server debug mode. Defaults to None.
-            zeroconf (bool, optional): Enable the zeroconf server. Defaults to None.
+        :param host: Host IP address. Defaults to None.
+        :type host: string
+        :param port: Host port. Defaults to None.
+        :type port: int
+        :param log: Logger to log to. Defaults to None.
+        :type log: optional
+        :param debug: Enable server debug mode. Defaults to None.
+        :type debug: bool
+        :param zeroconf: Enable the zeroconf server. Defaults to None.
+        :type zeroconf: bool
+        :param error_log:  (Default value = sentinel)
+
         """
         if port is not None:
             self.port = int(port)

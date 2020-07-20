@@ -22,11 +22,11 @@ __all__ = ["MethodView", "View", "ActionView", "PropertyView"]
 
 
 class View(MethodView):
-    """
-    A LabThing Resource class should make use of functions
+    """A LabThing Resource class should make use of functions
     get(), put(), post(), and delete(), corresponding to HTTP methods.
-
+    
     These functions will allow for automated documentation generation.
+
     """
 
     endpoint = None  # Store the View endpoint for use in specs
@@ -52,8 +52,11 @@ class View(MethodView):
     def get_apispec(cls):
         """Build a basic OpenAPI spec, containing only basic view metadata
 
-        Returns:
-            [dict]: Minimal OpenAPI spec for the view class
+
+        :returns: Minimal OpenAPI spec for the view class
+
+        :rtype: [dict]
+
         """
         d = {}
 
@@ -85,9 +88,11 @@ class View(MethodView):
 
     @classmethod
     def get_tags(cls):
+        """ """
         return cls._cls_tags.union(set(cls.tags))
 
     def get_value(self):
+        """ """
         get_method = getattr(self, "get", None)  # Look for this views GET method
         if get_method is None:
             return None
@@ -100,6 +105,12 @@ class View(MethodView):
             return response
 
     def dispatch_request(self, *args, **kwargs):
+        """
+
+        :param *args: 
+        :param **kwargs: 
+
+        """
         meth = getattr(self, request.method.lower(), None)
 
         # If the request method is HEAD and we don't have a handler for it
@@ -111,9 +122,11 @@ class View(MethodView):
         return self.represent_response(meth(*args, **kwargs))
 
     def represent_response(self, response):
-        """
-        Take the marshalled return value of a function
+        """Take the marshalled return value of a function
         and build a representation response
+
+        :param response: 
+
         """
         if isinstance(response, ResponseBase):  # There may be a better way to test
             return response
@@ -131,6 +144,8 @@ class View(MethodView):
 
 
 class ActionView(View):
+    """ """
+
     # Data formatting
     schema: Schema = None  # Schema for Action response
     args: dict = None  # Schema for input arguments
@@ -154,6 +169,7 @@ class ActionView(View):
     _emergency_pool = Pool()
 
     def get(self):
+        """ """
         queue_schema = build_action_schema(self.schema, self.args)(many=True)
         return queue_schema.dump(self._deque)
 
@@ -161,8 +177,11 @@ class ActionView(View):
     def get_apispec(cls):
         """Build an OpenAPI spec for the Action view
 
-        Returns:
-            [dict]: OpenAPI spec for the view class
+
+        :returns: OpenAPI spec for the view class
+
+        :rtype: [dict]
+
         """
         class_args = schema_to_json(cls.args)
         action_json_schema = schema_to_json(build_action_schema(cls.schema, cls.args)())
@@ -233,6 +252,12 @@ class ActionView(View):
         return d
 
     def dispatch_request(self, *args, **kwargs):
+        """
+
+        :param *args: 
+        :param **kwargs: 
+
+        """
         meth = getattr(self, request.method.lower(), None)
 
         # Let base View handle non-POST requests
@@ -277,6 +302,8 @@ class ActionView(View):
 
 
 class PropertyView(View):
+    """ """
+
     # Data formatting
     schema: Schema = None  # Schema for input AND output
     semtype: str = None  # Semantic type string
@@ -292,8 +319,11 @@ class PropertyView(View):
     def get_apispec(cls):
         """Build an OpenAPI spec for the Property view
 
-        Returns:
-            [dict]: OpenAPI spec for the view class
+
+        :returns: OpenAPI spec for the view class
+
+        :rtype: [dict]
+
         """
         class_json_schema = schema_to_json(cls.schema) if cls.schema else None
 
@@ -357,6 +387,12 @@ class PropertyView(View):
         return d
 
     def dispatch_request(self, *args, **kwargs):
+        """
+
+        :param *args: 
+        :param **kwargs: 
+
+        """
         meth = getattr(self, request.method.lower(), None)
 
         # If the request method is HEAD and we don't have a handler for it

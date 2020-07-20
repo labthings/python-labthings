@@ -16,6 +16,7 @@ class SwaggerUIView(View):
     """Swagger UI documentation"""
 
     def get(self):
+        """ """
         return make_response(render_template("swagger-ui.html"))
 
 

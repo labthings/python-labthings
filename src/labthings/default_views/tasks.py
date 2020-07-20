@@ -8,13 +8,12 @@ from ..find import current_labthing
 
 
 class TaskList(View):
-    """
-    List of all background tasks from the session
-    """
+    """List of all background tasks from the session"""
 
     tags = ["tasks"]
 
     def get(self):
+        """ """
         logging.warning(
             "TaskList is deprecated and will be removed in a future version. Use the Actions list instead."
         )
@@ -22,20 +21,23 @@ class TaskList(View):
 
 
 class TaskView(View):
-    """
-    Manage a particular background task.
-
+    """Manage a particular background task.
+    
     GET will safely return the current task progress.
     DELETE will terminate the background task, if running.
+
+
     """
 
     tags = ["tasks"]
 
     def get(self, task_id):
-        """
-        Show status of a session task
-
+        """Show status of a session task
+        
         Includes progress and intermediate data.
+
+        :param task_id: 
+
         """
         logging.warning(
             "TaskView is deprecated and will be removed in a future version. Use the Action view instead."
@@ -50,10 +52,12 @@ class TaskView(View):
         return TaskSchema().dump(task)
 
     def delete(self, task_id):
-        """
-        Terminate a running task.
-
+        """Terminate a running task.
+        
         If the task is finished, deletes its entry.
+
+        :param task_id: 
+
         """
         logging.warning(
             "TaskView is deprecated and will be removed in a future version. Use the Action view instead."

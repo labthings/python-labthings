@@ -17,6 +17,17 @@ def property_of(
     semtype=None,
     schema=fields.Field(),
 ):
+    """
+
+    :param property_object: object: 
+    :param property_name: str: 
+    :param name: str:  (Default value = None)
+    :param readonly:  (Default value = False)
+    :param description:  (Default value = None)
+    :param semtype:  (Default value = None)
+    :param schema:  (Default value = fields.Field())
+
+    """
 
     # Create a class name
     if not name:
@@ -24,13 +35,24 @@ def property_of(
 
     # Create inner functions
     def _read(self):
+        """ """
         return getattr(property_object, property_name)
 
     def _write(self, args):
+        """
+
+        :param args: 
+
+        """
         setattr(property_object, property_name, args)
         return getattr(property_object, property_name)
 
     def _update(self, args):
+        """
+
+        :param args: 
+
+        """
         getattr(property_object, property_name).update(args)
         return getattr(property_object, property_name)
 
@@ -87,6 +109,18 @@ def action_from(
     schema=None,
     semtype=None,
 ):
+    """
+
+    :param function: 
+    :param name: str:  (Default value = None)
+    :param description:  (Default value = None)
+    :param safe:  (Default value = False)
+    :param idempotent:  (Default value = False)
+    :param args:  (Default value = None)
+    :param schema:  (Default value = None)
+    :param semtype:  (Default value = None)
+
+    """
 
     # Create a class name
     if not name:
@@ -94,9 +128,15 @@ def action_from(
 
     # Create inner functions
     def _post(self):
+        """ """
         return function()
 
     def _post_with_args(self, args):
+        """
+
+        :param args: 
+
+        """
         return function(**args)
 
     # Add decorators for arguments etc
@@ -131,6 +171,12 @@ def action_from(
 
 
 def static_from(static_folder: str, name=None):
+    """
+
+    :param static_folder: str: 
+    :param name:  (Default value = None)
+
+    """
 
     # Create a class name
     if not name:
@@ -139,6 +185,11 @@ def static_from(static_folder: str, name=None):
 
     # Create inner functions
     def _get(self, path=""):
+        """
+
+        :param path:  (Default value = "")
+
+        """
         full_path = os.path.join(static_folder, path)
         if not os.path.exists(full_path):
             return abort(404)

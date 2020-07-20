@@ -17,21 +17,34 @@ def create_app(
     flask_kwargs: dict = None,
 ):
     """QUick-create a LabThings-enabled Flask app
-    
-    Args:
-        import_name: Flask import name. Usually `__name__`.
-        prefix (str, optional): URL prefix for all LabThings views. Defaults to "/api".
-        title (str, optional): Title/name of the LabThings Thing.
-        description (str, optional): Brief description of the LabThings Thing.
-        version (str, optional): Version number/code of the Thing. Defaults to "0.0.0".
-        handle_errors (bool, optional): Use the LabThings error handler,
+
+    :param import_name: Flask import name. Usually `__name__`.
+    :param prefix: URL prefix for all LabThings views. Defaults to "/api".
+    :type prefix: str
+    :param title: Title/name of the LabThings Thing.
+    :type title: str
+    :param description: Brief description of the LabThings Thing.
+    :type description: str
+    :param version: Version number/code of the Thing. Defaults to "0.0.0".
+    :type version: str
+    :param handle_errors: Use the LabThings error handler,
             to JSON format internal exceptions. Defaults to True.
-        handle_cors (bool, optional): Automatically enable CORS on all LabThings views.
+    :type handle_errors: bool
+    :param handle_cors: Automatically enable CORS on all LabThings views.
             Defaults to True.
-        flask_kwargs (dict, optional): Keyword arguments to pass to the Flask instance.
-    
-    Returns:
-        (Flask app object, LabThings object)
+    :type handle_cors: bool
+    :param flask_kwargs: Keyword arguments to pass to the Flask instance.
+    :type flask_kwargs: dict
+    :param prefix: str:  (Default value = "")
+    :param title: str:  (Default value = "")
+    :param description: str:  (Default value = "")
+    :param types: list:  (Default value = None)
+    :param version: str:  (Default value = "0.0.0")
+    :param handle_errors: bool:  (Default value = True)
+    :param handle_cors: bool:  (Default value = True)
+    :param flask_kwargs: dict:  (Default value = None)
+    :returns: (Flask app object, LabThings object)
+
     """
     if types is None:
         types = []

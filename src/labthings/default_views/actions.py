@@ -9,27 +9,29 @@ from .. import fields
 
 
 class ActionQueue(View):
-    """
-    List of all actions from the session
-    """
+    """List of all actions from the session"""
 
     def get(self):
+        """ """
         return ActionSchema(many=True).dump(current_labthing().actions.threads)
 
 
 class ActionView(View):
-    """
-    Manage a particular action.
-
+    """Manage a particular action.
+    
     GET will safely return the current action progress.
     DELETE will cancel the action, if pending or running.
+
+
     """
 
     def get(self, task_id):
-        """
-        Show status of a session task
-
+        """Show status of a session task
+        
         Includes progress and intermediate data.
+
+        :param task_id: 
+
         """
         task_dict = current_labthing().actions.to_dict()
 
@@ -42,10 +44,13 @@ class ActionView(View):
 
     @use_args({"timeout": fields.Int(missing=5)})
     def delete(self, args, task_id):
-        """
-        Terminate a running task.
-
+        """Terminate a running task.
+        
         If the task is finished, deletes its entry.
+
+        :param args: 
+        :param task_id: 
+
         """
         timeout = args.get("timeout", 5)
         task_dict = current_labthing().actions.to_dict()

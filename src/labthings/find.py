@@ -20,6 +20,9 @@ def current_labthing(app=None):
     """The LabThing instance handling current requests.
     
     Searches for a valid LabThing extension attached to the current Flask context.
+
+    :param app:  (Default value = None)
+
     """
     # We use _get_current_object so that Task threads can still
     # reach the Flask app object. Just using current_app returns
@@ -37,13 +40,13 @@ def current_labthing(app=None):
 
 def registered_extensions(labthing_instance=None):
     """Find all LabThings Extensions registered to a LabThing instance
-    
-    Args:
-        labthing_instance (optional): LabThing instance to search for extensions.
+
+    :param labthing_instance: LabThing instance to search for extensions.
             Defaults to current_labthing.
-    
-    Returns:
-        list: LabThing Extension objects
+    :type labthing_instance: optional
+    :returns: LabThing Extension objects
+    :rtype: list
+
     """
     if not labthing_instance:
         labthing_instance = current_labthing()
@@ -53,13 +56,13 @@ def registered_extensions(labthing_instance=None):
 
 def registered_components(labthing_instance=None):
     """Find all LabThings Components registered to a LabThing instance
-    
-    Args:
-        labthing_instance (optional): LabThing instance to search for extensions.
+
+    :param labthing_instance: LabThing instance to search for extensions.
             Defaults to current_labthing.
-    
-    Returns:
-        list: Python objects registered as LabThings components
+    :type labthing_instance: optional
+    :returns: Python objects registered as LabThings components
+    :rtype: list
+
     """
     if not labthing_instance:
         labthing_instance = current_labthing()
@@ -68,14 +71,14 @@ def registered_components(labthing_instance=None):
 
 def find_component(component_name, labthing_instance=None):
     """Find a particular LabThings Component registered to a LabThing instance
-    
-    Args:
-        component_name (str): Fully qualified name of the component
-        labthing_instance (optional): LabThing instance to search for the component.
+
+    :param component_name: Fully qualified name of the component
+    :type component_name: str
+    :param labthing_instance: LabThing instance to search for the component.
             Defaults to current_labthing.
-    
-    Returns:
-        Python object registered as a component, or `None` if not found
+    :type labthing_instance: optional
+    :returns: Python object registered as a component, or `None` if not found
+
     """
     if not labthing_instance:
         labthing_instance = current_labthing()
@@ -88,14 +91,14 @@ def find_component(component_name, labthing_instance=None):
 
 def find_extension(extension_name, labthing_instance=None):
     """Find a particular LabThings Extension registered to a LabThing instance
-    
-    Args:
-        extension_name (str): Fully qualified name of the extension
-        labthing_instance (optional): LabThing instance to search for the extension.
+
+    :param extension_name: Fully qualified name of the extension
+    :type extension_name: str
+    :param labthing_instance: LabThing instance to search for the extension.
             Defaults to current_labthing.
-    
-    Returns:
-        LabThings Extension object, or `None` if not found
+    :type labthing_instance: optional
+    :returns: LabThings Extension object, or `None` if not found
+
     """
     if not labthing_instance:
         labthing_instance = current_labthing()

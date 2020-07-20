@@ -18,25 +18,24 @@ DEFAULT_TYPE = ("string", None)
 
 def rule_to_path(rule):
     """Convert a Flask rule into an JSON schema formatted URL path
-    
-    Args:
-        rule: Flask rule object
-    
-    Returns:
-        str: URL path
+
+    :param rule: Flask rule object
+    :returns: URL path
+    :rtype: str
+
     """
     return PATH_RE.sub(r"{\1}", rule.rule)
 
 
 def rule_to_params(rule, overrides=None):
     """Convert a Flask rule into JSON schema URL parameters description
-    
-    Args:
-        rule: Flask rule object
-        overrides (dict, optional): Optional dictionary to override params with
-    
-    Returns:
-        dict: Dictionary of URL parameters
+
+    :param rule: Flask rule object
+    :param overrides: Optional dictionary to override params with (Default value = None)
+    :type overrides: dict
+    :returns: Dictionary of URL parameters
+    :rtype: dict
+
     """
     overrides = overrides or {}
     result = [
@@ -52,14 +51,15 @@ def rule_to_params(rule, overrides=None):
 
 def argument_to_param(argument, rule, override=None):
     """Convert a Flask rule into APISpec URL parameters description
-    
-    Args:
-        argument (str): URL argument
-        rule: Flask rule object
-        override (dict, optional): Optional dictionary to override params with
-    
-    Returns:
-        dict: Dictionary of URL parameter description
+
+    :param argument: URL argument
+    :type argument: str
+    :param rule: Flask rule object
+    :param override: Optional dictionary to override params with (Default value = None)
+    :type override: dict
+    :returns: Dictionary of URL parameter description
+    :rtype: dict
+
     """
     param = {"in": "path", "name": argument, "required": True}
     type_, format_ = CONVERTER_MAPPING.get(
@@ -78,10 +78,20 @@ def argument_to_param(argument, rule, override=None):
 
 
 def field_to_property(field):
+    """
+
+    :param field: 
+
+    """
     return JSONSchema()._get_schema_for_field(Schema(), field)
 
 
 def map_to_schema(schema_dict: dict):
+    """
+
+    :param schema_dict: dict: 
+
+    """
     d = {}
 
     for k, v in schema_dict.items():
@@ -96,6 +106,11 @@ def map_to_schema(schema_dict: dict):
 
 
 def schema_to_json(schema):
+    """
+
+    :param schema: 
+
+    """
     if schema is None:
         return None
     if isinstance(schema, fields.Field):

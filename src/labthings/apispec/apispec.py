@@ -12,13 +12,16 @@ from http import HTTPStatus
 def rule_to_apispec_path(rule: Rule, view, apispec: APISpec):
     """Generate APISpec Path arguments from a flask Rule and View
 
-    Args:
-        rule (Rule): Flask Rule for path
-        view: View class
-        apispec (APISpec): APISpec object to generate arguments for
+    :param rule: Flask Rule for path
+    :type rule: Rule
+    :param view: View class
+    :param apispec: APISpec object to generate arguments for
+    :type apispec: APISpec
+    :param rule: Rule: 
+    :param apispec: APISpec: 
+    :returns: APISpec `path` funtion argument dictionary
+    :rtype: dict
 
-    Returns:
-        dict: APISpec `path` funtion argument dictionary
     """
 
     params = {

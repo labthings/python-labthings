@@ -17,11 +17,12 @@ __all__ = [
 
 
 class FieldSchema(Schema):
-    """
-    "Virtual schema" for handling individual fields treated as schemas.
-
+    """"Virtual schema" for handling individual fields treated as schemas.
+    
     For example, when serializing/deserializing individual values that are not
     attributes of an object, like passing a single number as the request/response body
+
+
     """
 
     def __init__(self, field: fields.Field):
@@ -34,29 +35,35 @@ class FieldSchema(Schema):
         self.field = field
 
     def deserialize(self, value):
+        """
+
+        :param value: 
+
+        """
         return self.field.deserialize(value)
 
     def serialize(self, value):
         """Serialize a value to Field type
 
-        Args:
-            value: Data to serialize
+        :param value: Data to serialize
+        :returns: Serialized data
 
-        Returns:
-            Serialized data
         """
         obj = type("obj", (object,), {"value": value})
 
         return self.field.serialize("value", obj)
 
     def dump(self, value):
+        """
+
+        :param value: 
+
+        """
         return self.serialize(value)
 
 
 class TaskSchema(Schema):
-    """
-    Legacy schema for background tasks. Will eventually be replaced by ActionSchema,
-    """
+    """Legacy schema for background tasks. Will eventually be replaced by ActionSchema,"""
 
     _ID = fields.String(data_key="id")
     target_string = fields.String(data_key="function")
@@ -72,6 +79,12 @@ class TaskSchema(Schema):
 
     @pre_dump
     def generate_links(self, data, **kwargs):
+        """
+
+        :param data: 
+        :param **kwargs: 
+
+        """
         try:
             url = url_for(TASK_ENDPOINT, task_id=data.id, _external=True)
         except BuildError:
@@ -87,6 +100,7 @@ class TaskSchema(Schema):
 
 
 class ActionSchema(Schema):
+    """ """
     _ID = fields.String(data_key="id")
     _status = fields.String(data_key="status")
     progress = fields.String()
@@ -107,6 +121,12 @@ class ActionSchema(Schema):
 
     @pre_dump
     def generate_links(self, data, **kwargs):
+        """
+
+        :param data: 
+        :param **kwargs: 
+
+        """
         # Add Mozilla format href
         try:
             url = url_for(ACTION_ENDPOINT, task_id=data.id, _external=True)
@@ -127,14 +147,18 @@ class ActionSchema(Schema):
 
 
 def build_action_schema(output_schema: Schema, input_schema: Schema, name: str = None):
-    """
-    Builds a complete schema for a given ActionView. That is, it reads any input and output 
-    schemas attached to the POST method, and nests them within the input/output fields of 
+    """Builds a complete schema for a given ActionView. That is, it reads any input and output
+    schemas attached to the POST method, and nests them within the input/output fields of
     the generic ActionSchema.
     NOTE: This is only for documentation purposes. When Action responses are built by the
     HTTP server, the generic ActionSchema will be used for marshaling. This is because the
     post() functions return value will already be marshaled because of its @marshal_with
     decorator, and thus will already be a formatted dictionary object.
+
+    :param output_schema: Schema: 
+    :param input_schema: Schema: 
+    :param name: str:  (Default value = None)
+
     """
     # Create a name for the generated schema
     if not name:
@@ -170,6 +194,7 @@ def build_action_schema(output_schema: Schema, input_schema: Schema, name: str =
 
 
 class ExtensionSchema(Schema):
+    """ """
     name = fields.String(data_key="title")
     _name_python_safe = fields.String(data_key="pythonName")
     _cls = fields.String(data_key="pythonObject")
@@ -180,6 +205,12 @@ class ExtensionSchema(Schema):
 
     @pre_dump
     def generate_links(self, data, **kwargs):
+        """
+
+        :param data: 
+        :param **kwargs: 
+
+        """
         d = {}
         for view_id, view_data in data.views.items():
             view_cls = view_data.get("view")

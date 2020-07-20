@@ -10,12 +10,15 @@ from .utilities import get_docstring, snake_to_camel
 def view_to_thing_action_forms(rules: list, view: View):
     """Build a W3C form description for an ActionView
 
-    Args:
-        rules (list): List of Flask rules
-        view (View): View class
+    :param rules: List of Flask rules
+    :type rules: list
+    :param view: View class
+    :type view: View
+    :param rules: list: 
+    :param view: View: 
+    :returns: Form description
+    :rtype: [dict]
 
-    Returns:
-        [dict]: Form description
     """
     forms = []
 
@@ -47,12 +50,15 @@ def view_to_thing_action_forms(rules: list, view: View):
 def view_to_thing_property_forms(rules: list, view: View):
     """Build a W3C form description for a PropertyView
 
-    Args:
-        rules (list): List of Flask rules
-        view (View): View class
+    :param rules: List of Flask rules
+    :type rules: list
+    :param view: View class
+    :type view: View
+    :param rules: list: 
+    :param view: View: 
+    :returns: Form description
+    :rtype: [dict]
 
-    Returns:
-        [dict]: Form description
     """
     forms = []
 
@@ -99,6 +105,7 @@ def view_to_thing_property_forms(rules: list, view: View):
 
 
 class ThingDescription:
+    """ """
     def __init__(self):
         self.properties = {}
         self.actions = {}
@@ -108,6 +115,7 @@ class ThingDescription:
 
     @property
     def links(self):
+        """ """
         td_links = []
         for link_description in self._links:
             td_links.append(
@@ -124,6 +132,14 @@ class ThingDescription:
         return td_links
 
     def add_link(self, view, rel, kwargs=None, params=None):
+        """
+
+        :param view: 
+        :param rel: 
+        :param kwargs:  (Default value = None)
+        :param params:  (Default value = None)
+
+        """
         if kwargs is None:
             kwargs = {}
         if params is None:
@@ -133,6 +149,7 @@ class ThingDescription:
         )
 
     def to_dict(self):
+        """ """
         return {
             "@context": [
                 "https://www.w3.org/2019/wot/td/v1",
@@ -152,10 +169,21 @@ class ThingDescription:
         }
 
     def event_to_thing_event(self, event: Event):
+        """
+
+        :param event: Event: 
+
+        """
         # TODO: Include event schema
         return {"forms": []}
 
     def view_to_thing_property(self, rules: list, view: View):
+        """
+
+        :param rules: list: 
+        :param view: View: 
+
+        """
         prop_urls = [rule_to_path(rule) for rule in rules]
 
         # Basic description
@@ -203,6 +231,12 @@ class ThingDescription:
         return prop_description
 
     def view_to_thing_action(self, rules: list, view: View):
+        """
+
+        :param rules: list: 
+        :param view: View: 
+
+        """
         action_urls = [rule_to_path(rule) for rule in rules]
 
         # Basic description
@@ -234,15 +268,25 @@ class ThingDescription:
         return action_description
 
     def property(self, rules: list, view: View):
+        """
+
+        :param rules: list: 
+        :param view: View: 
+
+        """
         endpoint = getattr(view, "endpoint", None) or getattr(rules[0], "endpoint")
         key = snake_to_camel(endpoint)
         self.properties[key] = self.view_to_thing_property(rules, view)
 
     def action(self, rules: list, view: View):
         """Add a view representing an Action.
-
+        
         NB at present this will fail for any view that doesn't support POST
         requests.
+
+        :param rules: list: 
+        :param view: View: 
+
         """
         if not hasattr(view, "post"):
             raise AttributeError(
@@ -253,4 +297,9 @@ class ThingDescription:
         self.actions[key] = self.view_to_thing_action(rules, view)
 
     def event(self, event: Event):
+        """
+
+        :param event: Event: 
+
+        """
         self.events[event.name] = self.event_to_thing_event(event)

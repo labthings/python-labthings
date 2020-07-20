@@ -8,6 +8,11 @@ STATIC_SOCKET_RESPONSES = {"__unittest": "__unittest_response"}
 
 
 def socket_handler(ws):
+    """
+
+    :param ws: 
+
+    """
     # Create a socket subscriber
     wssub = SocketSubscriber(ws)
     current_labthing().subscribers.add(wssub)
@@ -26,6 +31,11 @@ def socket_handler(ws):
 
 
 def process_socket_message(message: str):
+    """
+
+    :param message: str: 
+
+    """
     if message:
         if message in STATIC_SOCKET_RESPONSES:
             return STATIC_SOCKET_RESPONSES.get(message)

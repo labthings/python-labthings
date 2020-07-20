@@ -19,6 +19,12 @@ class use_body:
         # Wrapper function
         @wraps(f)
         def wrapper(*args, **kwargs):
+            """
+
+            :param *args: 
+            :param **kwargs: 
+
+            """
             # Get data from request
             data = request.data or None
 

@@ -6,11 +6,12 @@ from _thread import get_ident
 
 
 class ClientEvent(object):
-    """
-    An event-signaller object with per-client setting and waiting.
-
+    """An event-signaller object with per-client setting and waiting.
+    
     A client can be any Greenlet or native Thread. This can be used, for example,
     to signal to clients that new data is available
+
+
     """
 
     def __init__(self):
@@ -18,7 +19,11 @@ class ClientEvent(object):
         self._setting_lock = threading.Lock()
 
     def wait(self, timeout: int = 5):
-        """Wait for the next data frame (invoked from each client's thread)."""
+        """Wait for the next data frame (invoked from each client's thread).
+
+        :param timeout: int:  (Default value = 5)
+
+        """
         ident = get_ident()
         if ident not in self.events:
             # this is a new client
@@ -29,7 +34,11 @@ class ClientEvent(object):
         return self.events[ident][0].wait(timeout=timeout)
 
     def set(self, timeout=5):
-        """Signal that a new frame is available."""
+        """Signal that a new frame is available.
+
+        :param timeout:  (Default value = 5)
+
+        """
         with self._setting_lock:
             now = time.time()
             remove_keys = set()

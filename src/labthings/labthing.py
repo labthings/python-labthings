@@ -42,14 +42,41 @@ import logging
 
 
 class LabThing:
+    """
+    The main entry point for the application.
+    You need to initialize it with a Flask Application: ::
+
+    >>> app = Flask(__name__)
+    >>> labthing = labthings.LabThing(app)
+
+    Alternatively, you can use :meth:`init_app` to set the Flask application
+    after it has been constructed.
+
+    :param app: the Flask application object
+    :type app: flask.Flask
+    :param prefix: Prefix all routes with a value, eg v1 or 2010-04-01
+    :type prefix: str
+    :param title: Human-readable title of the Thing
+    :type title: str
+    :param description: Human-readable description of the Thing
+    :type description: str
+    :param version: Version number of the Thing
+    :type version: str
+    :param types: List of Thing types, used by clients to filter discovered Things
+    :type types: list of str
+    :param format_flask_exceptions: JSON format all exception responses
+    :type format_flask_exceptions: bool
+    :param json_encoder: JSON encoder class for the app
+    """
+
     def __init__(
         self,
         app=None,
         prefix: str = "",
         title: str = "",
         description: str = "",
-        types: list = None,
         version: str = "0.0.0",
+        types: list = None,
         format_flask_exceptions: bool = True,
         json_encoder=LabThingsJSONEncoder,
     ):
@@ -119,24 +146,41 @@ class LabThing:
 
     @property
     def description(self,):
+        """
+        Human-readable description of the Thing
+        """
         return self._description
 
     @description.setter
     def description(self, description: str):
+        """
+        Human-readable description of the Thing
+        :param description: str: 
+        """
         self._description = description
         self.spec.description = description
 
     @property
     def title(self):
+        """
+        Human-readable title of the Thing
+        """
         return self._title
 
     @title.setter
     def title(self, title: str):
+        """
+        Human-readable title of the Thing
+        :param description: str: 
+        """
         self._title = title
         self.spec.title = title
 
     @property
     def safe_title(self):
+        """
+        Lowercase title with no whitespace
+        """
         title = self.title
         if not title:
             title = "unknown"
@@ -146,16 +190,35 @@ class LabThing:
 
     @property
     def version(self,):
+        """
+        Version number of the Thing
+        """
         return str(self._version)
 
     @version.setter
     def version(self, version: str):
+        """
+        Version number of the Thing
+        :param version: str: 
+        """
         self._version = version
         self.spec.version = version
 
     # Flask stuff
 
     def init_app(self, app):
+        """
+        Initialize this class with the given :class:`flask.Flask` application.
+        :param app: the Flask application or blueprint object
+
+        :type app: flask.Flask
+        :type app: flask.Blueprint
+
+        Examples::
+            labthing = LabThing()
+            labthing.add_view(...)
+            labthing.init_app(app)
+        """
         self.app = app
 
         # Register Flask extension
@@ -186,6 +249,15 @@ class LabThing:
         self.add_event("logging")
 
     def _create_base_routes(self):
+        """
+        Automatically add base HTTP views to the LabThing.
+
+        Creates:
+            Root Thing Description
+            Extensions list
+            Legacy task list and resources
+            Actions queue and resources
+        """
         # Add root representation
         self.add_view(RootView, "/", endpoint="root")
         # Add thing descriptions
@@ -206,6 +278,9 @@ class LabThing:
         self.add_view(ActionView, "/actions/<task_id>", endpoint=ACTION_ENDPOINT)
 
     def _create_base_sockets(self):
+        """
+        Automatically add base WebSocket views to the LabThing.
+        """
         self.sockets.add_view(
             self._complete_url("/ws", ""), socket_handler, endpoint="ws"
         )
@@ -213,22 +288,40 @@ class LabThing:
 
     # Device stuff
 
-    def add_component(self, device_object, device_name: str):
-        self.components[device_name] = device_object
+    def add_component(self, component_object, component_name: str):
+        """
+        Add a component object to the LabThing, allowing it to be
+        used by extensions and other views by name, rather than reference.
+
+        :param device_object: Component object
+        :param device_name: str: Component name, used by extensions to find the object
+
+        """
+        self.components[component_name] = component_object
 
         for extension_object in self.extensions.values():
             # For each on_component function
             for com_func in extension_object._on_components:
                 # If the component matches
-                if com_func.get("component", "") == device_name:
+                if com_func.get("component", "") == component_name:
                     # Call the function
                     com_func.get("function")(
-                        device_object, *com_func.get("args"), **com_func.get("kwargs")
+                        component_object,
+                        *com_func.get("args"),
+                        **com_func.get("kwargs"),
                     )
 
     # Extension stuff
 
     def register_extension(self, extension_object):
+        """
+        Add an extension to the LabThing. This will add API views and lifecycle 
+        functions from the extension to the LabThing
+
+        :param extension_object: Extension instance
+        :type extension_object: labthings.extensions.BaseExtension
+
+        """
         # Type check
         if isinstance(extension_object, BaseExtension):
             self.extensions[extension_object.name] = extension_object
@@ -270,9 +363,11 @@ class LabThing:
     def _complete_url(self, url_part, registration_prefix):
         """This method is used to defer the construction of the final url in
         the case that the Api is created with a Blueprint.
+
         :param url_part: The part of the url the endpoint is registered with
         :param registration_prefix: The part of the url contributed by the
             blueprint.  Generally speaking, BlueprintSetupState.url_prefix
+
         """
         parts = [self.url_prefix, registration_prefix, url_part]
         u = "".join(clean_url_string(part) for part in parts if part)
@@ -280,27 +375,27 @@ class LabThing:
 
     def add_view(self, view, *urls, endpoint=None, **kwargs):
         """Adds a view to the api.
-        :param resource: the class name of your resource
-        :type resource: :class:`Type[Resource]`
-        :param urls: one or more url routes to match for the resource, standard
+
+        :param view: View class
+        :type resource: class:`labthings.views.View`
+        :param *urls: one or more url routes to match for the resource, standard
                     flask routing rules apply.  Any url variables will be
                     passed to the resource method as args.
-        :type urls: str
+        :type *urls: str
         :param endpoint: endpoint name (defaults to :meth:`Resource.__name__`
             Can be used to reference this route in :class:`fields.Url` fields
         :type endpoint: str
-        :param resource_class_args: args to be forwarded to the constructor of
-            the resource.
-        :type resource_class_args: tuple
-        :param resource_class_kwargs: kwargs to be forwarded to the constructor
-            of the resource.
-        :type resource_class_kwargs: dict
+        :param **kwargs: kwargs to be forwarded to the constructor
+            of the view.
+
         Additional keyword arguments not specified above will be passed as-is
         to :meth:`flask.Flask.add_url_rule`.
+
         Examples::
-            api.add_view(HelloWorld, '/', '/hello')
-            api.add_view(Foo, '/foo', endpoint="foo")
-            api.add_view(FooSpecial, '/special/foo', endpoint="foo")
+
+            labthing.add_view(HelloWorld, '/', '/hello')
+            labthing.add_view(Foo, '/foo', endpoint="foo")
+            labthing.add_view(FooSpecial, '/special/foo', endpoint="foo")
         """
         endpoint = endpoint or camel_to_snake(view.__name__)
 
@@ -312,7 +407,15 @@ class LabThing:
         self.views.append((view, urls, endpoint, kwargs))
 
     def view(self, *urls, **kwargs):
+        """
+
+        :param *urls: 
+        :param **kwargs: 
+
+        """
+
         def decorator(cls):
+            """ """
             self.add_view(cls, *urls, **kwargs)
             return cls
 
@@ -352,21 +455,33 @@ class LabThing:
 
     # Event stuff
     def add_event(self, name, schema=None):
+        """
+
+        :param name: 
+        :param schema:  (Default value = None)
+
+        """
         # TODO: Handle schema
         # TODO: Add view for event, returning list of Event.events
         self.events[name] = Event(name, schema=schema)
         self.thing_description.event(self.events[name])
 
     def emit(self, event_type: str, data: dict):
-        """
-        Find a matching event type if one exists, and emit some data to it
+        """Find a matching event type if one exists, and emit some data to it
+
+        :param event_type: str: 
+        :param data: dict: 
+
         """
         event_object = self.events[event_type]
         self.message(event_object, data)
 
     def message(self, event: Event, data: dict):
-        """
-        Emit an event object to all subscribers
+        """Emit an event object to all subscribers
+
+        :param event: Event: 
+        :param data: dict: 
+
         """
         event_response = event.emit(data)
         for sub in self.subscribers:
@@ -376,7 +491,12 @@ class LabThing:
 
     def url_for(self, view, **values):
         """Generates a URL to the given resource.
-        Works like :func:`flask.url_for`."""
+        Works like :func:`flask.url_for`.
+
+        :param view: 
+        :param **values: 
+
+        """
         if isinstance(view, str):
             endpoint = view
         else:
@@ -389,9 +509,22 @@ class LabThing:
         return url_for(endpoint, **values)
 
     def owns_endpoint(self, endpoint):
+        """
+
+        :param endpoint: 
+
+        """
         return endpoint in self.endpoints
 
     def add_root_link(self, view, rel, kwargs=None, params=None):
+        """
+
+        :param view: 
+        :param rel: 
+        :param kwargs:  (Default value = None)
+        :param params:  (Default value = None)
+
+        """
         if kwargs is None:
             kwargs = {}
         if params is None:
@@ -402,14 +535,26 @@ class LabThing:
     def build_property(
         self, property_object: object, property_name: str, urls: list = None, **kwargs
     ):
+        """
+
+        :param property_object: object: 
+        :param property_name: str: 
+        :param urls: list:  (Default value = None)
+        :param **kwargs: 
+
+        """
         if urls is None:
             urls = [url_for_property(property_object, property_name)]
         self.add_view(property_of(property_object, property_name, **kwargs), *urls)
 
     def build_action(self, function: Callable, urls: list = None, **kwargs):
+        """
+
+        :param function: Callable: 
+        :param urls: list:  (Default value = None)
+        :param **kwargs: 
+
+        """
         if urls is None:
             urls = [url_for_action(function)]
         self.add_view(action_from(function, **kwargs), *urls)
-
-    def spawn_action(self, *args, **kwargs):
-        return self.actions.spawn(*args, **kwargs)

@@ -5,9 +5,10 @@ from werkzeug.exceptions import HTTPException
 
 class SerializedExceptionHandler:
 
-    """
-    A class to be registered as a Flask error handler,
+    """A class to be registered as a Flask error handler,
     converts error codes into a serialized response
+
+
     """
 
     def __init__(self, app=None):
@@ -15,6 +16,11 @@ class SerializedExceptionHandler:
             self.init_app(app)
 
     def std_handler(self, error):
+        """
+
+        :param error: 
+
+        """
         if isinstance(error, HTTPException):
             message = error.description
         elif hasattr(error, "message"):
@@ -34,6 +40,11 @@ class SerializedExceptionHandler:
         return (response, status_code)
 
     def init_app(self, app):
+        """
+
+        :param app: 
+
+        """
         self.app = app
         self.register(HTTPException)
         for code, _ in default_exceptions.items():
@@ -41,4 +52,10 @@ class SerializedExceptionHandler:
         self.register(Exception)
 
     def register(self, exception_or_code, handler=None):
+        """
+
+        :param exception_or_code: 
+        :param handler:  (Default value = None)
+
+        """
         self.app.errorhandler(exception_or_code)(handler or self.std_handler)

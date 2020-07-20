@@ -10,10 +10,11 @@ class ExtensionList(View):
     tags = ["extensions"]
 
     def get(self):
-        """
-        List enabled extensions.
-
+        """List enabled extensions.
+        
         Returns a list of Extension representations, including basic documentation.
         Describes server methods, web views, and other relevant Lab Things metadata.
+
+
         """
         return ExtensionSchema(many=True).dump(registered_extensions().values() or [])

@@ -8,12 +8,15 @@ from collections.abc import Mapping
 
 
 def convert_to_schema_or_json(schema, spec: APISpec):
-    """
-    Ensure that a given schema is either a real Marshmallow schema,
+    """Ensure that a given schema is either a real Marshmallow schema,
     or is a dictionary describing the schema inline.
-
+    
     Marshmallow schemas are left as they are so that the APISpec module
     can add them to the "schemas" list in our APISpec documentation.
+
+    :param schema: 
+    :param spec: APISpec: 
+
     """
     # Don't process Nones
     if not schema:
@@ -35,9 +38,12 @@ def convert_to_schema_or_json(schema, spec: APISpec):
 
 
 def map_to_properties(schema, spec: APISpec):
-    """
-    Recursively convert any dictionary-like map of Marshmallow fields
+    """Recursively convert any dictionary-like map of Marshmallow fields
     into a dictionary describing it's JSON schema
+
+    :param schema: 
+    :param spec: APISpec: 
+
     """
 
     d = {}
@@ -53,7 +59,12 @@ def map_to_properties(schema, spec: APISpec):
 
 
 def field_to_property(field, spec: APISpec):
-    """Convert a single Marshmallow field into a JSON schema of that field"""
+    """Convert a single Marshmallow field into a JSON schema of that field
+
+    :param field: 
+    :param spec: APISpec: 
+
+    """
     marshmallow_plugin = next(
         plugin for plugin in spec.plugins if isinstance(plugin, MarshmallowPlugin)
     )
@@ -68,11 +79,14 @@ def field_to_property(field, spec: APISpec):
 
 
 def schema_to_json(schema, spec: APISpec):
-    """
-    Convert any Marshmallow schema stright to a fully expanded JSON schema.
+    """Convert any Marshmallow schema stright to a fully expanded JSON schema.
     This should not be used when generating APISpec documentation,
     otherwise schemas wont be listed in the "schemas" list.
     This is used, for example, in the Thing Description.
+
+    :param schema: 
+    :param spec: APISpec: 
+
     """
 
     if isinstance(schema, Schema):
@@ -89,10 +103,13 @@ def schema_to_json(schema, spec: APISpec):
 
 
 def recursive_expand_refs(schema_dict, spec: APISpec):
-    """
-    Traverse `schema_dict` expanding out all schema $ref values where possible.
-
+    """Traverse `schema_dict` expanding out all schema $ref values where possible.
+    
     Used when generating Thing Descriptions, so each attribute contains full schemas.
+
+    :param schema_dict: 
+    :param spec: APISpec: 
+
     """
     if isinstance(schema_dict, Mapping):
         if "$ref" in schema_dict:
@@ -106,10 +123,13 @@ def recursive_expand_refs(schema_dict, spec: APISpec):
 
 
 def expand_refs(schema_dict, spec: APISpec):
-    """
-    Expand out all schema $ref values where possible.
-
+    """Expand out all schema $ref values where possible.
+    
     Uses the $ref value to look up a particular schema in spec schemas
+
+    :param schema_dict: 
+    :param spec: APISpec: 
+
     """
     if "$ref" not in schema_dict:
         return schema_dict

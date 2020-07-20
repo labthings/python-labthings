@@ -12,10 +12,11 @@ from .utilities import get_docstring, camel_to_snake, snake_to_spine
 
 
 class BaseExtension:
-    """
-    Parent class for all extensions.
-
+    """Parent class for all extensions.
+    
     Handles binding route views and forms.
+
+
     """
 
     # TODO: Allow adding components to extensions
@@ -60,9 +61,18 @@ class BaseExtension:
 
     @property
     def views(self):
+        """ """
         return self._views
 
     def add_view(self, view_class, *urls, endpoint=None, **kwargs):
+        """
+
+        :param view_class: 
+        :param *urls: 
+        :param endpoint:  (Default value = None)
+        :param **kwargs: 
+
+        """
         # Remove all leading slashes from view route
         cleaned_urls = list(urls)
         for i, cleaned_url in enumerate(cleaned_urls):
@@ -89,6 +99,13 @@ class BaseExtension:
             self._rules[url] = self._views[endpoint]
 
     def on_register(self, function, args=None, kwargs=None):
+        """
+
+        :param function: 
+        :param args:  (Default value = None)
+        :param kwargs:  (Default value = None)
+
+        """
         if not callable(function):
             raise TypeError("Function must be a callable")
 
@@ -97,6 +114,14 @@ class BaseExtension:
         )
 
     def on_component(self, component_name: str, function, args=None, kwargs=None):
+        """
+
+        :param component_name: str: 
+        :param function: 
+        :param args:  (Default value = None)
+        :param kwargs:  (Default value = None)
+
+        """
         if not callable(function):
             raise TypeError("Function must be a callable")
 
@@ -111,6 +136,7 @@ class BaseExtension:
 
     @property
     def meta(self):
+        """ """
         d = {}
         for k, v in self._meta.items():
             if callable(v):
@@ -120,23 +146,38 @@ class BaseExtension:
         return d
 
     def add_meta(self, key, val):
+        """
+
+        :param key: 
+        :param val: 
+
+        """
         self._meta[key] = val
 
     @property
     def name(self):
+        """ """
         return self._name
 
     @property
     def _name_python_safe(self):
+        """ """
         name = camel_to_snake(self._name)  # Camel to snake
         name = name.replace(" ", "_")  # Spaces to snake
         return name
 
     @property
     def _name_uri_safe(self):
+        """ """
         return snake_to_spine(self._name_python_safe)
 
     def add_method(self, method, method_name):
+        """
+
+        :param method: 
+        :param method_name: 
+
+        """
         self.methods[method_name] = method
 
         if not hasattr(self, method_name):
@@ -147,6 +188,11 @@ class BaseExtension:
             )
 
     def static_file_url(self, filename: str):
+        """
+
+        :param filename: str: 
+
+        """
         static_repr = self.views.get("static")
         static_view = static_repr.get("view")
         static_endpoint = getattr(static_view, "endpoint", None)
@@ -159,13 +205,13 @@ class BaseExtension:
 
 def find_instances_in_module(module, class_to_find):
     """Find instances of a particular class within a module
-    
-    Args:
-        module: Python module to search
-        class_to_find (class): Python class to search for instances of
-    
-    Returns:
-        list: List of objects derived from `class_to_find`
+
+    :param module: Python module to search
+    :param class_to_find: Python class to search for instances of
+    :type class_to_find: class
+    :returns: List of objects derived from `class_to_find`
+    :rtype: list
+
     """
     objs = []
     for attribute in dir(module):
@@ -178,14 +224,16 @@ def find_instances_in_module(module, class_to_find):
 
 def find_extensions_in_file(extension_path: str, module_name="extensions") -> list:
     """Find LabThings extension objects from a particular Python file
-    
-    Args:
-        extension_path (str): Path to the extension file
-        module_name (str, optional): Name of the module to load extensions into.
+
+    :param extension_path: Path to the extension file
+    :type extension_path: str
+    :param module_name: Name of the module to load extensions into.
             Defaults to "extensions".
-    
-    Returns:
-        list: List of extension objects
+    :type module_name: str
+    :param extension_path: str: 
+    :returns: List of extension objects
+    :rtype: list
+
     """
     logging.debug(f"Loading extensions from {extension_path}")
 
@@ -209,14 +257,16 @@ def find_extensions_in_file(extension_path: str, module_name="extensions") -> li
 
 def find_extensions(extension_dir: str, module_name="extensions") -> list:
     """Find LabThings extension objects from files in an extension directory
-    
-    Args:
-        extension_dir (str): Path to directory contatining extension files
-        module_name (str, optional): Name of the module to load extensions into.
+
+    :param extension_dir: Path to directory contatining extension files
+    :type extension_dir: str
+    :param module_name: Name of the module to load extensions into.
             Defaults to "extensions".
-    
-    Returns:
-        list: List of extension objects
+    :type module_name: str
+    :param extension_dir: str: 
+    :returns: List of extension objects
+    :rtype: list
+
     """
     logging.debug(f"Loading extensions from {extension_dir}")
 

@@ -28,27 +28,33 @@ http_method_funcs = [
 
 
 class TimeoutTracker:
+    """ """
     def __init__(self, timeout: int):
         self.timeout_time = time.time() + timeout
 
     @property
     def stopped(self):
+        """ """
         return time.time() >= self.timeout_time
 
 
 def http_status_message(code):
-    """Maps an HTTP status code to the textual status"""
+    """Maps an HTTP status code to the textual status
+
+    :param code: 
+
+    """
     return HTTP_STATUS_CODES.get(code, "")
 
 
 def description_from_view(view_class):
     """Create a dictionary description of a Flask View
-    
-    Args:
-        view_class (View): Flask View class
-    
-    Returns:
-        dict: Basic metadata such as description and methods from View class
+
+    :param view_class: Flask View class
+    :type view_class: View
+    :returns: Basic metadata such as description and methods from View class
+    :rtype: dict
+
     """
     summary = get_summary(view_class)
 
@@ -68,18 +74,23 @@ def description_from_view(view_class):
 
 def view_class_from_endpoint(endpoint: str):
     """Retrieve a Flask view class from a given endpoint
-    
-    Args:
-        endpoint (str): Endpoint corresponding to View class
-    
-    Returns:
-        View: View class attached to the specified endpoint
+
+    :param endpoint: Endpoint corresponding to View class
+    :type endpoint: str
+    :param endpoint: str: 
+    :returns: View class attached to the specified endpoint
+    :rtype: View
+
     """
     return getattr(current_app.view_functions.get(endpoint), "view_class", None)
 
 
 def unpack(value):
-    """Return a three tuple of data, code, and headers"""
+    """
+
+    :param value: 
+
+    """
     if not isinstance(value, tuple):
         return value, 200, {}
 
@@ -99,6 +110,11 @@ def unpack(value):
 
 
 def clean_url_string(url: str):
+    """
+
+    :param url: str: 
+
+    """
     if not url:
         return "/"
     if url[0] != "/":
@@ -110,12 +126,10 @@ def clean_url_string(url: str):
 def get_docstring(obj, remove_newlines=True):
     """Return the docstring of an object
 
-    Args:
-        obj: Any Python object
-        remove_newlines (bool): Remove newlines from the docstring (default: {True})
+    :param obj: Any Python object
+    :param remove_newlines: bool (Default value = True)
+    :returns: str: Object docstring
 
-    Returns:
-        str: Object docstring
     """
     ds = obj.__doc__
     if ds:
@@ -129,27 +143,28 @@ def get_docstring(obj, remove_newlines=True):
 def get_summary(obj):
     """Return the first line of the dosctring of an object
 
-    Args:
-        obj: Any Python object
+    :param obj: Any Python object
+    :returns: str: First line of object docstring
 
-    Returns:
-        str: First line of object docstring
     """
     return get_docstring(obj, remove_newlines=False).partition("\n")[0].strip()
 
 
 def merge(first: dict, second: dict):
     """Recursively update a dictionary
-
+    
     This will take an "update_dictionary",
     and recursively merge it with "destination_dict".
 
-    Args:
-        first (dict): Original dictionary
-        second (dict): New data dictionary
+    :param first: Original dictionary
+    :type first: dict
+    :param second: New data dictionary
+    :type second: dict
+    :param first: dict: 
+    :param second: dict: 
+    :returns: Merged dictionary
+    :rtype: dict
 
-    Returns:
-        dict: Merged dictionary
     """
     destination_dict = copy.deepcopy(first)
     for k, v in second.items():
@@ -176,16 +191,17 @@ def merge(first: dict, second: dict):
 
 
 def rapply(data, func, *args, apply_to_iterables=True, **kwargs):
-    """
-    Recursively apply a function to a dictionary, list, array, or tuple
+    """Recursively apply a function to a dictionary, list, array, or tuple
 
-    Args:
-        data: Input iterable data
-        func: Function to apply to all non-iterable values
-        apply_to_iterables (bool): Apply the function to elements in lists/tuples
+    :param data: Input iterable data
+    :param func: Function to apply to all non-iterable values
+    :param apply_to_iterables: Apply the function to elements in lists/tuples (Default value = True)
+    :type apply_to_iterables: bool
+    :param *args: 
+    :param **kwargs: 
+    :returns: Updated dictionary
+    :rtype: dict
 
-    Returns:
-        dict: Updated dictionary
     """
 
     # If the object is a dictionary
@@ -212,18 +228,29 @@ def rapply(data, func, *args, apply_to_iterables=True, **kwargs):
 
 
 def get_by_path(root, items):
-    """Access a nested object in root by item sequence."""
+    """Access a nested object in root by item sequence.
+
+    :param root: 
+    :param items: 
+
+    """
     return reduce(operator.getitem, items, root)
 
 
 def set_by_path(root, items, value):
-    """Set a value in a nested object in root by item sequence."""
+    """Set a value in a nested object in root by item sequence.
+
+    :param root: 
+    :param items: 
+    :param value: 
+
+    """
     get_by_path(root, items[:-1])[items[-1]] = value
 
 
 def create_from_path(items):
     """Create a dictionary from a list of nested keys.RuntimeError
-
+    
     E.g. ["foo", "bar", "baz"] will become
     {
         "foo": {
@@ -233,11 +260,11 @@ def create_from_path(items):
         }
     }
 
-    Args:
-        items (list): Key path
+    :param items: Key path
+    :type items: list
+    :returns: Nested dictionary of key path
+    :rtype: dict
 
-    Returns:
-        dict: Nested dictionary of key path
     """
     tree_dict = {}
     for key in reversed(items):
@@ -248,11 +275,11 @@ def create_from_path(items):
 def camel_to_snake(name):
     """Convert a CamelCase string into snake_case
 
-    Args:
-        name (str): CamelCase string
+    :param name: CamelCase string
+    :type name: str
+    :returns: snake_case string
+    :rtype: str
 
-    Returns:
-        str: snake_case string
     """
     s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
@@ -261,11 +288,11 @@ def camel_to_snake(name):
 def camel_to_spine(name):
     """Convert a CamelCase string into spine-case
 
-    Args:
-        name (str): CamelCase string
+    :param name: CamelCase string
+    :type name: str
+    :returns: spine-case string
+    :rtype: str
 
-    Returns:
-        str: spine-case string
     """
     s1 = re.sub("(.)([A-Z][a-z]+)", r"\1-\2", name)
     return re.sub("([a-z0-9])([A-Z])", r"\1-\2", s1).lower()
@@ -274,11 +301,11 @@ def camel_to_spine(name):
 def snake_to_spine(name):
     """Convert a snake_case string into spine-case
 
-    Args:
-        name (str): snake_case string
+    :param name: snake_case string
+    :type name: str
+    :returns: spine-case string
+    :rtype: str
 
-    Returns:
-        str: spine-case string
     """
     return name.replace("_", "-")
 
@@ -286,11 +313,12 @@ def snake_to_spine(name):
 def snake_to_camel(snake_str):
     """Convert a snake_case string into lowerCamelCase
 
-    Args:
-        name (str): snake_case string
+    :param name: snake_case string
+    :type name: str
+    :param snake_str: 
+    :returns: lowerCamelCase string
+    :rtype: str
 
-    Returns:
-        str: lowerCamelCase string
     """
     components = snake_str.split("_")
     return components[0] + "".join(x.title() for x in components[1:])
@@ -298,15 +326,22 @@ def snake_to_camel(snake_str):
 
 def path_relative_to(source_file, *paths):
     """Given a python module __file__, return an absolute path relative to its location
-    
-    Args:
-        source_file: Module __file__ attribute
+
+    :param source_file: Module __file__ attribute
+    :param source_file: Module __file__ attribute
         paths {str} -- Paths to add to source file location
+    :param *paths: 
+
     """
     return os.path.join(os.path.abspath(os.path.dirname(source_file)), *paths)
 
 
 def get_class_that_defined_method(meth):
+    """
+
+    :param meth: 
+
+    """
     for cls in inspect.getmro(meth.im_class):
         if meth.__name__ in cls.__dict__:
             return cls
@@ -314,10 +349,21 @@ def get_class_that_defined_method(meth):
 
 
 def url_for_property(property_object: object, property_name: str):
+    """
+
+    :param property_object: object: 
+    :param property_name: str: 
+
+    """
     return f"/properties/{property_object.__class__.__name__}/{property_name}"
 
 
 def url_for_action(function: Callable):
+    """
+
+    :param function: Callable: 
+
+    """
     full_name = getattr(function, "__qualname__", None) or function.__name__
     full_name_safe = full_name.replace(".", "/")
     return f"/actions/{full_name_safe}"

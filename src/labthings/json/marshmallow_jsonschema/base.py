@@ -89,7 +89,11 @@ class JSONSchema(Schema):
         super(JSONSchema, self).__init__(*args, **kwargs)
 
     def get_properties(self, obj):
-        """Fill out properties field."""
+        """Fill out properties field.
+
+        :param obj: 
+
+        """
         properties = self.dict_class()
 
         if self.props_ordered:
@@ -107,7 +111,11 @@ class JSONSchema(Schema):
         return properties
 
     def get_required(self, obj):
-        """Fill out required field."""
+        """Fill out required field.
+
+        :param obj: 
+
+        """
         required = []
 
         for _, field in sorted(obj.fields.items()):
@@ -117,7 +125,13 @@ class JSONSchema(Schema):
         return required or missing
 
     def _from_python_type(self, obj, field, pytype):
-        """Get schema definition from python type."""
+        """Get schema definition from python type.
+
+        :param obj: 
+        :param field: 
+        :param pytype: 
+
+        """
         json_schema = {}
 
         for key, val in PY_TO_JSON_TYPES_MAP[pytype].items():
@@ -147,7 +161,11 @@ class JSONSchema(Schema):
         return json_schema
 
     def _get_python_type(self, field):
-        """Get python type based on field subclass"""
+        """Get python type based on field subclass
+
+        :param field: 
+
+        """
         for map_class, pytype in MARSHMALLOW_TO_PY_TYPES_PAIRS:
             if issubclass(field.__class__, map_class):
                 return pytype
@@ -155,7 +173,12 @@ class JSONSchema(Schema):
         raise UnsupportedValueError("unsupported field type %s" % field)
 
     def _get_schema_for_field(self, obj, field):
-        """Get schema and validators for field."""
+        """Get schema and validators for field.
+
+        :param obj: 
+        :param field: 
+
+        """
         if hasattr(field, "_jsonschema_type_mapping"):
             schema = field._jsonschema_type_mapping()
         elif "_jsonschema_type_mapping" in field.metadata:
@@ -182,7 +205,12 @@ class JSONSchema(Schema):
         return schema
 
     def _from_nested_schema(self, obj, field):
-        """Support nested field."""
+        """Support nested field.
+
+        :param obj: 
+        :param field: 
+
+        """
         if isinstance(field.nested, (str, bytes)):
             nested = get_class(field.nested)
         else:
@@ -226,6 +254,11 @@ class JSONSchema(Schema):
         return schema
 
     def dump(self, obj, **kwargs):
-        """Take obj for later use: using class name to namespace definition."""
+        """Take obj for later use: using class name to namespace definition.
+
+        :param obj: 
+        :param **kwargs: 
+
+        """
         self.obj = obj
         return super(JSONSchema, self).dump(obj, **kwargs)

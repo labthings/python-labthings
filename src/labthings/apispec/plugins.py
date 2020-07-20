@@ -3,4 +3,5 @@ from .converter import ExtendedOpenAPIConverter
 
 
 class MarshmallowPlugin(_MarshmallowPlugin):
+    """ """
     Converter = ExtendedOpenAPIConverter
