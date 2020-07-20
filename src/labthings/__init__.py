@@ -25,11 +25,13 @@ from .tasks import update_task_progress
 from .tasks import update_task_data
 from .tasks import TaskKillException
 
+# Schema and field
+from .schema import Schema
+from . import fields
+
 # Submodules
 from . import extensions
 from . import views
-from . import fields
-from . import schema
 from . import semantics
 from . import json
 
@@ -53,7 +55,7 @@ __all__ = [
     "extensions",
     "views",
     "fields",
-    "schema",
+    "Schema",
     "semantics",
     "json",
 ]

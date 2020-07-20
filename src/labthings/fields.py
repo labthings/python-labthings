@@ -72,7 +72,10 @@ __all__ = [
 
 
 class Bytes(Field):
-    """ """
+    """
+    Marshmallow field for `bytes` objects
+    """
+
     def _jsonschema_type_mapping(self):
         """ """
         return {"type": "string", "contentEncoding": "base64"}

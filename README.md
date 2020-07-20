@@ -56,6 +56,7 @@ labthing.build_action(
     my_spectrometer,  # Python object
     "average_data",  # Objects method name
     description="Take an averaged measurement",
+    schema=fields.List(fields.Number()),
     args={  # How do we convert from the request input to function arguments?
         "n": fields.Int(description="Number of averages to take", example=5, default=5)
     },
