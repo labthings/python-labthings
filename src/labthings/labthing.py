@@ -51,29 +51,32 @@ class LabThing:
         types: list = None,
         version: str = "0.0.0",
         format_flask_exceptions: bool = True,
+        json_encoder=LabThingsJSONEncoder,
     ):
         if types is None:
             types = []
         self.app = app  # Becomes a Flask app
         self.sockets = None  # Becomes a Socket(app) websocket handler
 
-        self.components = {}
+        self.components = (
+            {}
+        )  # Dictionary of attached component objects, available to extensions
 
-        self.extensions = {}
+        self.extensions = {}  # Dictionary of LabThings extension objects
 
         self.actions = Pool()  # Pool of threads for Actions
 
-        self.events = {}
+        self.events = {}  # Dictionary of Event affordances
 
-        self.views = []
-        self._property_views = {}
-        self._action_views = {}
+        self.views = []  # List of View classes
+        self._property_views = {}  # Dictionary of PropertyView views
+        self._action_views = {}  # Dictionary of ActionView views
 
-        self.subscribers = set()
+        self.subscribers = set()  # Set of connected event subscribers
 
-        self.endpoints = set()
+        self.endpoints = set()  # Set of endpoint strings
 
-        self.url_prefix = prefix
+        self.url_prefix = prefix  # Global URL prefix for all LabThings views
 
         for t in types:
             if ";" in t:
@@ -97,7 +100,7 @@ class LabThing:
         # Representation formatter map
         self.representations = DEFAULT_REPRESENTATIONS
 
-        # API Spec
+        # OpenAPI spec for Swagger docs
         self.spec = APISpec(
             title=self.title,
             version=self.version,
@@ -107,6 +110,9 @@ class LabThing:
 
         # Thing description
         self.thing_description = ThingDescription()
+
+        # JSON encoder class
+        self.json_encoder = json_encoder
 
         if app is not None:
             self.init_app(app)
@@ -162,7 +168,7 @@ class LabThing:
             error_handler.init_app(app)
 
         # Custom JSON encoder
-        app.json_encoder = LabThingsJSONEncoder
+        app.json_encoder = self.json_encoder
 
         # Add resources, if registered before tying to a Flask app
         if len(self.views) > 0:
