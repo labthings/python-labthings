@@ -378,14 +378,14 @@ class LabThing:
 
         :param view: View class
         :type resource: class:`labthings.views.View`
-        :param *urls: one or more url routes to match for the resource, standard
+        :param urls: one or more url routes to match for the resource, standard
                     flask routing rules apply.  Any url variables will be
                     passed to the resource method as args.
-        :type *urls: str
+        :type urls: str
         :param endpoint: endpoint name (defaults to :meth:`Resource.__name__`
             Can be used to reference this route in :class:`fields.Url` fields
         :type endpoint: str
-        :param **kwargs: kwargs to be forwarded to the constructor
+        :param kwargs: kwargs to be forwarded to the constructor
             of the view.
 
         Additional keyword arguments not specified above will be passed as-is
@@ -407,11 +407,20 @@ class LabThing:
         self.views.append((view, urls, endpoint, kwargs))
 
     def view(self, *urls, **kwargs):
-        """
+        """Wraps a :class:`labthings.View` class, adding it to the LabThing. 
+        Parameters are the same as :meth:`~labthings.LabThing.add_view`.
 
-        :param *urls: 
-        :param **kwargs: 
+        Example::
 
+            app = Flask(__name__)
+            labthing = labthings.LabThing(app)
+
+            @labthing.view('/properties/my_property')
+            class Foo(labthings.views.PropertyView):
+                schema = labthings.fields.String()
+
+                def get(self):
+                    return 'Hello, World!'
         """
 
         def decorator(cls):
@@ -494,7 +503,7 @@ class LabThing:
         Works like :func:`flask.url_for`.
 
         :param view: 
-        :param **values: 
+        :param values: 
 
         """
         if isinstance(view, str):
@@ -532,7 +541,7 @@ class LabThing:
         :param property_object: object: 
         :param property_name: str: 
         :param urls: list:  (Default value = None)
-        :param **kwargs: 
+        :param kwargs: 
 
         """
         if urls is None:
@@ -547,7 +556,7 @@ class LabThing:
         :param action_object: object: 
         :param action_name: str: 
         :param urls: list:  (Default value = None)
-        :param **kwargs: 
+        :param kwargs: 
 
         """
         if urls is None:

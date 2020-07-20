@@ -8,6 +8,7 @@ from .thread import TaskThread
 # TODO: Handle discarding old tasks. Action views now use deques
 class Pool:
     """ """
+
     def __init__(self):
         self.threads = set()
 
@@ -129,21 +130,6 @@ def current_task():
     if not isinstance(current_task_thread, TaskThread):
         return None
     return current_task_thread
-
-
-def current_task_stopped():
-    """Return True if the current task is stoppable and flagged to be stopped
-    
-    If this function is called from outside a Task thread, it will return None.
-
-
-    :returns: bool -- Is the current task scheduled to be stopped
-
-    """
-    current_task_thread = threading.current_thread()
-    if not isinstance(current_task_thread, TaskThread):
-        return None
-    return current_task_thread.stopped
 
 
 def update_task_progress(progress: int):

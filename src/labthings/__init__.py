@@ -21,7 +21,6 @@ from .sync import ClientEvent
 
 # Task management functions
 from .tasks import current_task
-from .tasks import current_task_stopped
 from .tasks import update_task_progress
 from .tasks import update_task_data
 from .tasks import TaskKillException
