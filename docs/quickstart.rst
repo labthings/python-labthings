@@ -3,7 +3,7 @@ Quickstart
 
 The easiest way to get started with Python-LabThings is via the :meth:`labthings.create_app` function, and the :class:`labthings.LabThing` builder methods.
 
-We will assume that for basic usage you already have some basic instrument control code. In our example, this is in the form of a ``PretendSpectrometer`` class, which will generate some data like your instrument control code might. Our ``PretendSpectrometer`` class has a ``data`` property which quickly returns a spectrum, an ``x_range`` property which determines the range of data we'll return, a ``magic_denoise`` property for cleaning up our signal, and a slow ``average_data(n)`` method to average ``n`` individual data measurements.
+We will assume that for basic usage you already have some basic instrument control code. In our example, this is in the form of a ``PretendSpectrometer`` class, which will generate some data like your instrument control code might. Our ``PretendSpectrometer`` class has a ``data`` property which quickly returns a spectrum, an ``x_range`` property which determines the range of data we'll return, an ``integration_time`` property for cleaning up our signal, and a slow ``average_data(n)`` method to average ``n`` individual data measurements.
 
 Building an API from this class requires a few extra considerations. In order to tell our API what data to expect from users, we need to construct a schema for each of our interactions. This schema simply maps variable names to JSON-compatible types, and is made simple via the :mod:`labthings.fields` module. 
 
