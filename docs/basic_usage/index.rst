@@ -1,7 +1,7 @@
 Basic usage
 ===========
 
-The easiest way to get started with Python-LabThings is via the :mod:`labthings.quick` module, and the :class:`labthings.LabThing` builder methods.
+The easiest way to get started with Python-LabThings is via the :meth:`labthings.create_app` module, and the :class:`labthings.LabThing` builder methods.
 
 We will assume that for basic usage you already have some basic instrument control code. In our example, this is in the form of a ``PretendSpectrometer`` class, which will generate some data like your instrument control code might. Our ``PretendSpectrometer`` class has a ``data`` property which quickly returns a spectrum, an ``x_range`` property which determines the range of data we'll return, a ``magic_denoise`` property for cleaning up our signal, and a slow ``average_data(n)`` method to average ``n`` individual data measurements.
 
@@ -14,8 +14,7 @@ An example Lab Thing built from our ``PretendSpectrometer`` class, complete with
 
 .. code-block:: python
 
-    from labthings.server.quick import create_app
-    from labthings import fields
+    from labthings import fields, create_app
 
     from my_components import PretendSpectrometer
 
@@ -62,13 +61,13 @@ An example Lab Thing built from our ``PretendSpectrometer`` class, complete with
 
     # Start the app
     if __name__ == "__main__":
-        from labthings.server.wsgi import Server
+        from labthings import Server
         Server(app).run()
 
 
 Once started, the app will build and serve a full web API, and generate the following Thing Description:
 
-.. code-block:: JSON
+.. code-block:: json
 
     {
         "@context": [
@@ -152,8 +151,8 @@ Once started, the app will build and serve a full web API, and generate the foll
                 }
             }
         },
-        "links": [...],
-        "securityDefinitions": {...},
+        "links": [],
+        "securityDefinitions": {},
         "security": "nosec_sc"
     }
 
