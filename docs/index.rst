@@ -9,6 +9,7 @@ Welcome to Python-LabThings' documentation!
    quickstart.rst
 
    basic_usage/index.rst
+   advanced_usage/index.rst
 
    api.rst
 

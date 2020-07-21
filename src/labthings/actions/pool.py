@@ -123,7 +123,7 @@ def current_action():
     If this function is called from outside an ActionThread, it will return None.
 
 
-    :returns: ActionThread -- Currently running ActionThread.
+    :returns: :class:`labthings.actions.ActionThread` -- Currently running ActionThread.
 
     """
     current_action_thread = threading.current_thread()
@@ -133,12 +133,11 @@ def current_action():
 
 
 def update_action_progress(progress: int):
-    """Update the progress of the Task in which the caller is currently running.
+    """Update the progress of the ActionThread in which the caller is currently running.
     
-    If this function is called from outside a Task thread, it will do nothing.
+    If this function is called from outside an ActionThread, it will do nothing.
 
-    :param progress: int
-    :param progress: int: 
+    :param progress: int: Action progress, in percent (0-100)
 
     """
     if current_action():
@@ -148,12 +147,11 @@ def update_action_progress(progress: int):
 
 
 def update_action_data(data: dict):
-    """Update the data of the Task in which the caller is currently running.
+    """Update the data of the ActionThread in which the caller is currently running.
     
-    If this function is called from outside a Task thread, it will do nothing.
+    If this function is called from outside an ActionThread, it will do nothing.
 
-    :param data: dict
-    :param data: dict: 
+    :param data: dict: Action data dictionary
 
     """
     if current_action():

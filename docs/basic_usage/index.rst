@@ -7,7 +7,7 @@ Basic usage
 
    app_thing_server.rst
    http_api_structure.rst
-   websocket_api_structure.rst
+   ws_api_structure.rst
    serialising.rst
-   action_tasks.rst
+   action_threads.rst
    synchronisation.rst

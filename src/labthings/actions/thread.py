@@ -110,7 +110,9 @@ class ActionThread(threading.Thread):
 
     @property
     def dead(self):
-        """ """
+        """
+        Has the thread finished, by any means (return, exception, termination).
+        """
         return not self.is_alive()
 
     @property
@@ -120,8 +122,9 @@ class ActionThread(threading.Thread):
 
     def update_progress(self, progress: int):
         """
+        Update the progress of the ActionThread.
 
-        :param progress: int: 
+        :param progress: int: Action progress, in percent (0-100)
 
         """
         # Update progress of the task
