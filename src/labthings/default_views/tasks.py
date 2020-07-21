@@ -10,11 +10,11 @@ from ..find import current_labthing
 class TaskList(View):
     """List of all background actions from the session"""
 
+    logging.warning(
+        "TaskList is deprecated and will be removed in a future version. Use the Actions list instead."
+    )
+
     def get(self):
-        """ """
-        logging.warning(
-            "TaskList is deprecated and will be removed in a future version. Use the Actions list instead."
-        )
         return TaskSchema(many=True).dump(current_labthing().actions.threads)
 
 
@@ -23,9 +23,11 @@ class TaskView(View):
     
     GET will safely return the current task progress.
     DELETE will terminate the background task, if running.
-
-
     """
+
+    logging.warning(
+        "TaskList is deprecated and will be removed in a future version. Use the Actions list instead."
+    )
 
     def get(self, task_id):
         """Show status of a session task
@@ -35,9 +37,6 @@ class TaskView(View):
         :param task_id: 
 
         """
-        logging.warning(
-            "TaskView is deprecated and will be removed in a future version. Use the Action view instead."
-        )
         task_dict = current_labthing().actions.to_dict()
 
         if task_id not in task_dict:
@@ -55,9 +54,7 @@ class TaskView(View):
         :param task_id: 
 
         """
-        logging.warning(
-            "TaskView is deprecated and will be removed in a future version. Use the Action view instead."
-        )
+
         task_dict = current_labthing().actions.to_dict()
 
         if task_id not in task_dict:
