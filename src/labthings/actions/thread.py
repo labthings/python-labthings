@@ -274,7 +274,7 @@ class ActionThread(threading.Thread):
     def terminate(self, exception=ActionKilledException):
         """
 
-        :param exception:  (Default value = TaskKillException)
+        :param exception:  (Default value = ActionKilledException)
         :raises which: should cause the thread to exit silently
 
         """
@@ -306,7 +306,7 @@ class ActionThread(threading.Thread):
 
         :param timeout: Time to wait before killing thread forecefully. Defaults to ``self.default_stop_timeout``
         :type timeout: int
-        :param exception:  (Default value = TaskKillException)
+        :param exception:  (Default value = ActionKilledException)
 
         """
         if timeout is None:
