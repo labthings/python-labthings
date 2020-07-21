@@ -1,5 +1,5 @@
 from labthings.find import current_labthing
-from labthings.tasks import current_task
+from labthings.actions import current_action
 
 import time
 
@@ -50,7 +50,7 @@ def test_action_representation_missing(thing_client):
 
 def test_action_stop(thing_client):
     def task_func():
-        while not current_task().stopping:
+        while not current_action().stopping:
             time.sleep(0)
 
     task_obj = current_labthing().actions.spawn(task_func)
@@ -103,7 +103,7 @@ def test_tasks_list(thing_client):
     task_obj = current_labthing().actions.spawn(task_func)
 
     with thing_client as c:
-        response = c.get("/tasks").json
+        response = c.get("/actions").json
         ids = [task.get("id") for task in response]
         assert str(task_obj.id) in ids
 
@@ -116,18 +116,18 @@ def test_task_representation(thing_client):
     task_id = str(task_obj.id)
 
     with thing_client as c:
-        response = c.get(f"/tasks/{task_id}").json
+        response = c.get(f"/actions/{task_id}").json
         assert response
 
 
 def test_task_representation_missing(thing_client):
     with thing_client as c:
-        assert c.get("/tasks/missing_id").status_code == 404
+        assert c.get("/actions/missing_id").status_code == 404
 
 
 def test_task_kill(thing_client):
     def task_func():
-        while not current_task().stopping:
+        while not current_action().stopping:
             time.sleep(0)
 
     task_obj = current_labthing().actions.spawn(task_func)
@@ -139,7 +139,7 @@ def test_task_kill(thing_client):
 
     # Send a DELETE request to terminate the task
     with thing_client as c:
-        response = c.delete(f"/tasks/{task_id}")
+        response = c.delete(f"/actions/{task_id}")
         assert response.status_code == 200
     # Test task was stopped
     assert task_obj._status == "stopped"
@@ -147,4 +147,4 @@ def test_task_kill(thing_client):
 
 def test_task_kill_missing(thing_client):
     with thing_client as c:
-        assert c.delete("/tasks/missing_id").status_code == 404
+        assert c.delete("/actions/missing_id").status_code == 404

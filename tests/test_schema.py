@@ -1,7 +1,7 @@
 from labthings import schema
 from labthings import fields
 
-from labthings.tasks.thread import TaskThread
+from labthings.actions.thread import ActionThread
 from labthings.extensions import BaseExtension
 
 import pytest
@@ -17,7 +17,7 @@ def test_field_schema(app_ctx):
 
 def test_task_schema(app_ctx):
     test_schema = schema.TaskSchema()
-    test_task_thread = TaskThread(None)
+    test_task_thread = ActionThread(None)
 
     with app_ctx.test_request_context():
         d = test_schema.dump(test_task_thread)

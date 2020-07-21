@@ -11,11 +11,11 @@ from ..utilities import TimeoutTracker
 _LOG = logging.getLogger(__name__)
 
 
-class TaskKillException(SystemExit):
+class ActionKilledException(SystemExit):
     """Sibling of SystemExit, but specific to thread termination."""
 
 
-class TaskThread(threading.Thread):
+class ActionThread(threading.Thread):
     """
     A native thread with extra functionality for tracking progress and thread termination.
     """
@@ -35,7 +35,7 @@ class TaskThread(threading.Thread):
         args = args or ()
         kwargs = kwargs or {}
 
-        # A UUID for the TaskThread (not the same as the threading.Thread ident)
+        # A UUID for the ActionThread (not the same as the threading.Thread ident)
         self._ID = uuid.uuid4()  # Task ID
 
         # Event to track if the task has started
@@ -78,17 +78,34 @@ class TaskThread(threading.Thread):
 
     @property
     def id(self):
-        """ """
+        """
+        UUID for the thread. Note this not the same as the native thread ident.
+        """
         return self._ID
 
     @property
     def output(self):
-        """ """
+        """
+        Return value of the Action function. If the Action is still running, returns None.
+        """
         return self._return_value
 
     @property
     def status(self):
-        """ """
+        """
+        Current running status of the thread.
+
+        ==============  =============================================
+        Status          Meaning     
+        ==============  =============================================
+        ``pending``     Not yet started
+        ``running``     Currently in-progress
+        ``success``     Finished without error
+        ``error``       Exception occured in thread
+        ``stopped``     Thread finished cleanly after a stop request
+        ``terminated``  Thread killed after stop request timed out
+        ==============  =============================================
+        """
         return self._status
 
     @property
@@ -126,7 +143,7 @@ class TaskThread(threading.Thread):
             with self._running_lock:
                 # Don't run if the thread was stopped before starting
                 if self.stopping.is_set():
-                    raise TaskKillException
+                    raise ActionKilledException
                 if self._target:
                     self._thread_proc(self._target)(*self._args, **self._kwargs)
         finally:
@@ -161,7 +178,7 @@ class TaskThread(threading.Thread):
             try:
                 self._return_value = f(*args, **kwargs)
                 self._status = "success"
-            except (TaskKillException, SystemExit) as e:
+            except (ActionKilledException, SystemExit) as e:
                 logging.error(e)
                 # Set state to terminated
                 self._status = "terminated"
@@ -192,7 +209,7 @@ class TaskThread(threading.Thread):
         self.join(timeout=timeout)
         return self._return_value
 
-    def async_raise(self, exc_type):
+    def _async_raise(self, exc_type):
         """
 
         :param exc_type: 
@@ -242,7 +259,7 @@ class TaskThread(threading.Thread):
             return False
         return True
 
-    def terminate(self, exception=TaskKillException):
+    def terminate(self, exception=ActionKilledException):
         """
 
         :param exception:  (Default value = TaskKillException)
@@ -259,7 +276,7 @@ class TaskThread(threading.Thread):
                 "will not kill; letting thread exit gracefully."
             )
             return
-        self.async_raise(exception)
+        self._async_raise(exception)
 
         # Wait (block) for the thread to finish closing. If the threaded function has cleanup code in a try-except,
         # this pause allows it to finish running before the main thread can continue.
@@ -271,7 +288,7 @@ class TaskThread(threading.Thread):
         self.progress = None
         return True
 
-    def stop(self, timeout=5, exception=TaskKillException):
+    def stop(self, timeout=5, exception=ActionKilledException):
         """Sets the threads internal stopped event, waits for timeout seconds for the
         thread to stop nicely, then forcefully kills the thread.
 
@@ -346,3 +363,7 @@ class ThreadLogHandler(logging.Handler):
         # We probably need to check the size of the list...
         # TODO: think about whether any of the keys are security flaws
         # (this is why I don't dump the whole logrecord)
+
+
+# Backwards compatibility
+ActionThread = ActionThread

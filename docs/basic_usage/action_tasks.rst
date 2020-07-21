@@ -17,25 +17,24 @@ All Actions will return a serialized representation of the task, when your POST 
 
 Most users will not need to create instances of this class. Instead, they will be created automatically when a function is started by an API Action view.
 
-.. autoclass:: labthings.tasks.TaskThread
+.. autoclass:: labthings.actions.ActionThread
    :members:
 
+Accessing the current action thread
++++++++++++++++++++++++++++++++++++
 
-Accessing the current task
-++++++++++++++++++++++++++
+A function running inside a :class:`labthings.actions.ActionThread` is able to access the instance it is running in using the :meth:`labthings.current_action` function. This allows the state of the Action to be modified freely.
 
-A function running inside a :class:`labthings.tasks.TaskThread` is able to access the instance it is running in using the :meth:`labthings.current_task` function. This allows the state of the Action to be modified freely.
-
-.. autofunction:: labthings.current_task
+.. autofunction:: labthings.current_action
    :noindex:
 
 
-Updating task progress
-++++++++++++++++++++++
+Updating action progress
+++++++++++++++++++++++++
 
-Some client applications may be able to display progress bars showing the progress of an action. Implementing progress updates in your actions is made easy with the :py:meth:`labthings.update_task_progress` function. This function takes a single argument, which is the action progress as an integer percent (0 - 100).
+Some client applications may be able to display progress bars showing the progress of an action. Implementing progress updates in your actions is made easy with the :py:meth:`labthings.update_action_progress` function. This function takes a single argument, which is the action progress as an integer percent (0 - 100).
 
 If your long running function was started within a background task, this function will update the state of the corresponding action object. If your function is called outside of a long-running task (e.g. by some internal code, not the web API), then this function will silently do nothing.
 
-.. autofunction:: labthings.update_task_progress
+.. autofunction:: labthings.update_action_progress
    :noindex:

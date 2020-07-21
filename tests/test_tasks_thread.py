@@ -1,4 +1,4 @@
-from labthings.tasks import thread, pool
+from labthings.actions import thread, pool
 import threading
 
 import time
@@ -8,7 +8,7 @@ def test_task_with_args():
     def task_func(arg, kwarg=False):
         pass
 
-    task_obj = thread.TaskThread(
+    task_obj = thread.ActionThread(
         target=task_func, args=("String arg",), kwargs={"kwarg": True}
     )
     assert isinstance(task_obj, threading.Thread)
@@ -21,7 +21,7 @@ def test_task_without_args():
     def task_func():
         pass
 
-    task_obj = thread.TaskThread(target=task_func)
+    task_obj = thread.ActionThread(target=task_func)
 
     assert isinstance(task_obj, threading.Thread)
     assert task_obj._target == task_func
@@ -33,7 +33,7 @@ def test_task_start():
     def task_func():
         return "Return value"
 
-    task_obj = thread.TaskThread(target=task_func)
+    task_obj = thread.ActionThread(target=task_func)
 
     assert task_obj._status == "pending"
     assert task_obj._return_value is None
@@ -50,7 +50,7 @@ def test_task_exception():
     def task_func():
         raise exc_to_raise
 
-    task_obj = thread.TaskThread(target=task_func)
+    task_obj = thread.ActionThread(target=task_func)
     task_obj.start()
     task_obj.join()
 
@@ -60,10 +60,10 @@ def test_task_exception():
 
 def test_task_stop():
     def task_func():
-        while not pool.current_task().stopped:
+        while not pool.current_action().stopped:
             time.sleep(0)
 
-    task_obj = thread.TaskThread(target=task_func)
+    task_obj = thread.ActionThread(target=task_func)
     task_obj.start()
     task_obj.started.wait()
     assert task_obj._status == "running"
@@ -78,7 +78,7 @@ def test_task_terminate():
         while True:
             time.sleep(0.5)
 
-    task_obj = thread.TaskThread(target=task_func)
+    task_obj = thread.ActionThread(target=task_func)
     task_obj.start()
     task_obj.started.wait()
     assert task_obj._status == "running"
@@ -100,7 +100,7 @@ def test_task_log_list():
             time.sleep(0.001)
             logging.info(f"Counted to {i}")
 
-    task_obj = thread.TaskThread(target=task_func)
+    task_obj = thread.ActionThread(target=task_func)
     task_obj.start()
     task_obj.started.wait()
 
@@ -125,7 +125,7 @@ def test_task_log_without_thread():
 
 def test_task_log_with_incorrect_thread():
 
-    task_obj = thread.TaskThread(None)
+    task_obj = thread.ActionThread(None)
     task_log_handler = thread.ThreadLogHandler(thread=task_obj)
 
     # Should always return False if called from outside the log handlers thread

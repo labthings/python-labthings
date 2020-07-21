@@ -13,7 +13,7 @@ from ..event import PropertyStatusEvent
 from ..schema import Schema, ActionSchema, build_action_schema
 from ..deque import Deque, resize_deque
 from ..json.schemas import schema_to_json
-from ..tasks.pool import Pool
+from ..actions.pool import Pool
 from .. import fields
 
 import logging
