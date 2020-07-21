@@ -78,17 +78,34 @@ class ActionThread(threading.Thread):
 
     @property
     def id(self):
-        """ """
+        """
+        UUID for the thread. Note this not the same as the native thread ident.
+        """
         return self._ID
 
     @property
     def output(self):
-        """ """
+        """
+        Return value of the Action function. If the Action is still running, returns None.
+        """
         return self._return_value
 
     @property
     def status(self):
-        """ """
+        """
+        Current running status of the thread.
+
+        ==============  =============================================
+        Status          Meaning     
+        ==============  =============================================
+        ``pending``     Not yet started
+        ``running``     Currently in-progress
+        ``success``     Finished without error
+        ``error``       Exception occured in thread
+        ``stopped``     Thread finished cleanly after a stop request
+        ``terminated``  Thread killed after stop request timed out
+        ==============  =============================================
+        """
         return self._status
 
     @property
@@ -192,7 +209,7 @@ class ActionThread(threading.Thread):
         self.join(timeout=timeout)
         return self._return_value
 
-    def async_raise(self, exc_type):
+    def _async_raise(self, exc_type):
         """
 
         :param exc_type: 
@@ -259,7 +276,7 @@ class ActionThread(threading.Thread):
                 "will not kill; letting thread exit gracefully."
             )
             return
-        self.async_raise(exception)
+        self._async_raise(exception)
 
         # Wait (block) for the thread to finish closing. If the threaded function has cleanup code in a try-except,
         # this pause allows it to finish running before the main thread can continue.
