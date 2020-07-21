@@ -47,7 +47,7 @@ labthing.build_property(
 labthing.build_property(
     my_spectrometer,  # Python object
     "integration_time",  # Objects attribute name
-    description="A magic denoise property",
+    description="Single-shot integration time",
     schema=fields.Int(min=100, max=500, example=200, unit="microsecond")
 )
 

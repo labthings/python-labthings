@@ -43,7 +43,7 @@ An example Lab Thing built from our ``PretendSpectrometer`` class, complete with
     labthing.build_property(
         my_spectrometer,  # Python object
         "integration_time",  # Objects attribute name
-        description="A magic denoise property",
+        description="Single-shot integration time",
         schema=fields.Int(min=100, max=500, example=200, unit="microsecond")
     )
 
@@ -100,7 +100,7 @@ Once started, the app will build and serve a full web API, and generate the foll
             },
             "pretendSpectrometerMagicDenoise": {
                 "title": "PretendSpectrometer_magic_denoise",
-                "description": "A magic denoise property",
+                "description": "Single-shot integration time",
                 "links": [{
                     "href": "/properties/PretendSpectrometer/magic_denoise"
                 }],
