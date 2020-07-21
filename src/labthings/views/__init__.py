@@ -169,10 +169,13 @@ class ActionView(View):
     _deque = Deque()  # Action queue
     _emergency_pool = Pool()
 
-    def get(self):
-        """ """
-        queue_schema = build_action_schema(self.schema, self.args)(many=True)
-        return queue_schema.dump(self._deque)
+    @classmethod
+    def get(cls):
+        """
+        Default method for GET requests. Returns the action queue (including already finished actions) for this action
+        """
+        queue_schema = build_action_schema(cls.schema, cls.args)(many=True)
+        return queue_schema.dump(cls._deque)
 
     @classmethod
     def get_apispec(cls):
