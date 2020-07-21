@@ -97,19 +97,16 @@ def test_task_log_list():
     def task_func():
         logging.warning("Task warning")
         for i in range(10):
-            time.sleep(0.001)
             logging.info(f"Counted to {i}")
 
     task_obj = thread.ActionThread(target=task_func)
     task_obj.start()
     task_obj.started.wait()
 
-    assert len(task_obj.log) >= 1
+    task_obj.join()
     assert task_obj.log[0]["message"] == "Task warning"
     assert task_obj.log[0]["levelname"] == "WARNING"
     assert task_obj.log[0]["filename"] == os.path.basename(__file__)
-
-    task_obj.join()
     assert (
         len(task_obj.log) == 11
     ), "Didn't get the right number of log entries - are INFO entries being logged?"
