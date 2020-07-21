@@ -8,7 +8,6 @@ __all__ = [
     "current_app",
     "url_for",
     "current_labthing",
-    "current_labthing()",
     "registered_extensions",
     "registered_components",
     "find_component",
