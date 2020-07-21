@@ -2,28 +2,28 @@ import logging
 from functools import wraps
 
 import threading
-from .thread import TaskThread
+from .thread import ActionThread
 
 
-# TODO: Handle discarding old tasks. Action views now use deques
+# TODO: Handle discarding old actions. Action views now use deques
 class Pool:
     """ """
 
     def __init__(self):
         self.threads = set()
 
-    def add(self, thread: TaskThread):
+    def add(self, thread: ActionThread):
         """
 
-        :param thread: TaskThread: 
+        :param thread: ActionThread: 
 
         """
         self.threads.add(thread)
 
-    def start(self, thread: TaskThread):
+    def start(self, thread: ActionThread):
         """
 
-        :param thread: TaskThread: 
+        :param thread: ActionThread: 
 
         """
         self.add(thread)
@@ -37,7 +37,7 @@ class Pool:
         :param **kwargs: 
 
         """
-        thread = TaskThread(target=function, args=args, kwargs=kwargs)
+        thread = ActionThread(target=function, args=args, kwargs=kwargs)
         self.start(thread)
         return thread
 
@@ -55,7 +55,7 @@ class Pool:
         """
 
 
-        :returns: List of TaskThread objects.
+        :returns: List of ActionThread objects.
 
         :rtype: list
 
@@ -66,7 +66,7 @@ class Pool:
         """
 
 
-        :returns: Dictionary of TaskThread.state dictionaries. Key is TaskThread ID.
+        :returns: Dictionary of ActionThread.state dictionaries. Key is ActionThread ID.
 
         :rtype: dict
 
@@ -77,7 +77,7 @@ class Pool:
         """
 
 
-        :returns: Dictionary of TaskThread objects. Key is TaskThread ID.
+        :returns: Dictionary of ActionThread objects. Key is ActionThread ID.
 
         :rtype: dict
 
@@ -117,22 +117,22 @@ class Pool:
 # Operations on the current task
 
 
-def current_task():
-    """Return the Task instance in which the caller is currently running.
+def current_action():
+    """Return the ActionThread instance in which the caller is currently running.
     
-    If this function is called from outside a Task thread, it will return None.
+    If this function is called from outside an ActionThread, it will return None.
 
 
-    :returns: TaskThread -- Currently running Task thread.
+    :returns: ActionThread -- Currently running ActionThread.
 
     """
-    current_task_thread = threading.current_thread()
-    if not isinstance(current_task_thread, TaskThread):
+    current_action_thread = threading.current_thread()
+    if not isinstance(current_action_thread, ActionThread):
         return None
-    return current_task_thread
+    return current_action_thread
 
 
-def update_task_progress(progress: int):
+def update_action_progress(progress: int):
     """Update the progress of the Task in which the caller is currently running.
     
     If this function is called from outside a Task thread, it will do nothing.
@@ -141,13 +141,13 @@ def update_task_progress(progress: int):
     :param progress: int: 
 
     """
-    if current_task():
-        current_task().update_progress(progress)
+    if current_action():
+        current_action().update_progress(progress)
     else:
         logging.info("Cannot update task progress of __main__ thread. Skipping.")
 
 
-def update_task_data(data: dict):
+def update_action_data(data: dict):
     """Update the data of the Task in which the caller is currently running.
     
     If this function is called from outside a Task thread, it will do nothing.
@@ -156,7 +156,7 @@ def update_task_data(data: dict):
     :param data: dict: 
 
     """
-    if current_task():
-        current_task().update_data(data)
+    if current_action():
+        current_action().update_data(data)
     else:
         logging.info("Cannot update task data of __main__ thread. Skipping.")

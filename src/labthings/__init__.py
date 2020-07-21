@@ -19,11 +19,11 @@ from .sync import StrictLock
 from .sync import CompositeLock
 from .sync import ClientEvent
 
-# Task management functions
-from .tasks import current_task
-from .tasks import update_task_progress
-from .tasks import update_task_data
-from .tasks import TaskKillException
+# Action threads
+from .actions import current_action
+from .actions import update_action_progress
+from .actions import update_action_data
+from .actions import ActionKilledException
 
 # Schema and field
 from .schema import Schema
@@ -47,11 +47,10 @@ __all__ = [
     "StrictLock",
     "CompositeLock",
     "ClientEvent",
-    "current_task",
-    "current_task_stopped"
-    "update_task_progress"
-    "update_task_data"
-    "TaskKillException",
+    "current_action",
+    "update_action_progress",
+    "update_action_data",
+    "ActionKilledException",
     "extensions",
     "views",
     "fields",

@@ -63,7 +63,7 @@ class FieldSchema(Schema):
 
 
 class TaskSchema(Schema):
-    """Legacy schema for background tasks. Will eventually be replaced by ActionSchema,"""
+    """Legacy schema for background actions. Will eventually be replaced by ActionSchema,"""
 
     _ID = fields.String(data_key="id")
     target_string = fields.String(data_key="function")

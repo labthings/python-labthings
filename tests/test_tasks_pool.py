@@ -1,4 +1,4 @@
-from labthings import tasks
+from labthings import actions
 
 import threading
 
@@ -22,7 +22,7 @@ def test_spawn_with_context(app_ctx, task_pool):
 
 def test_update_task_data(task_pool):
     def task_func():
-        tasks.update_task_data({"key": "value"})
+        actions.update_action_data({"key": "value"})
 
     task_obj = task_pool.spawn(task_func)
     task_obj.join()
@@ -31,12 +31,12 @@ def test_update_task_data(task_pool):
 
 def test_update_task_data_main_thread():
     # Should do nothing
-    tasks.update_task_data({"key": "value"})
+    actions.update_action_data({"key": "value"})
 
 
 def test_update_task_progress(task_pool):
     def task_func():
-        tasks.update_task_progress(100)
+        actions.update_action_progress(100)
 
     task_obj = task_pool.spawn(task_func)
     task_obj.join()
@@ -45,7 +45,7 @@ def test_update_task_progress(task_pool):
 
 def test_update_task_progress_main_thread():
     # Should do nothing
-    tasks.update_task_progress(100)
+    actions.update_action_progress(100)
 
 
 def test_tasks_list(task_pool):
@@ -79,10 +79,10 @@ def test_cleanup_task(task_pool):
     def task_func():
         pass
 
-    # Make sure at least 1 tasks is around
+    # Make sure at least 1 actions is around
     task_pool.spawn(task_func)
 
-    # Wait for all tasks to finish
+    # Wait for all actions to finish
     task_pool.join()
 
     assert len(task_pool.threads) > 0

@@ -22,7 +22,7 @@ from .apispec import MarshmallowPlugin, rule_to_apispec_path
 from .td import ThingDescription
 from .event import Event
 
-from .tasks.pool import Pool
+from .actions.pool import Pool
 
 from .views.builder import property_of, action_from
 
@@ -270,8 +270,8 @@ class LabThing:
         self.add_view(ExtensionList, "/extensions", endpoint=EXTENSION_LIST_ENDPOINT)
         self.add_root_link(ExtensionList, "extensions")
         # Add task routes
-        self.add_view(TaskList, "/tasks", endpoint=TASK_LIST_ENDPOINT)
-        self.add_view(TaskView, "/tasks/<task_id>", endpoint=TASK_ENDPOINT)
+        self.add_view(TaskList, "/actions", endpoint=TASK_LIST_ENDPOINT)
+        self.add_view(TaskView, "/actions/<task_id>", endpoint=TASK_ENDPOINT)
         # Add action routes
         self.add_view(ActionQueue, "/actions", endpoint=ACTION_LIST_ENDPOINT)
         self.add_root_link(ActionQueue, "actions")

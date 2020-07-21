@@ -1,1 +1,1 @@
-from ...tasks.thread import *
+from ...actions.thread import *

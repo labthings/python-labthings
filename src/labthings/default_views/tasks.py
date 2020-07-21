@@ -8,9 +8,7 @@ from ..find import current_labthing
 
 
 class TaskList(View):
-    """List of all background tasks from the session"""
-
-    tags = ["tasks"]
+    """List of all background actions from the session"""
 
     def get(self):
         """ """
@@ -28,8 +26,6 @@ class TaskView(View):
 
 
     """
-
-    tags = ["tasks"]
 
     def get(self, task_id):
         """Show status of a session task
