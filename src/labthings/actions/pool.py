@@ -84,6 +84,9 @@ class Pool:
         """
         return {str(t.id): t for t in self.threads}
 
+    def get(self, task_id):
+        return self.to_dict.get(task_id, None)
+
     def discard_id(self, task_id):
         """
 
