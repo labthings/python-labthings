@@ -5,7 +5,7 @@ Many actions in your LabThing may perform tasks that take a long time (compared 
 
 This introduces a couple of problems. Firstly, a request that triggers a long function will, by default, block the Python interpreter for the duration of the function. This usually causes the connection to timeout, and the response will never be revieved.
 
-Tasks are introduced to manage long-running functions in a way that does not block HTTP requests. Any API Action will automatically run as a background thread.
+Action threads are introduced to manage long-running functions in a way that does not block HTTP requests. Any API Action will automatically run as a background thread.
 
 Internally, the :class:`labthings.LabThing` object stores a list of all requested actions, and their states. This state stores the running status of the action (if itis idle, running, error, or success), information about the start and end times, a unique ID, and, upon completion, the return value of the long-running function. 
 
