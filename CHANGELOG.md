@@ -1,3 +1,14 @@
+# [0.8.0-rc.1](https://github.com/labthings/python-labthings/compare/v0.8.0-beta.3...v0.8.0-rc.1) (2020-07-21)
+
+
+* Expanded documentation ([17d4f23](https://github.com/labthings/python-labthings/commit/17d4f23) [a4f3949](https://github.com/labthings/python-labthings/commit/a4f3949) [9d1aa13](https://github.com/labthings/python-labthings/commit/9d1aa13) [f57f513](https://github.com/labthings/python-labthings/commit/f57f513))
+* Fixed broken zeroconf registration ([1af31b4](https://github.com/labthings/python-labthings/commit/1af31b4))
+* Fixed legacy task view URL ([2e96bba](https://github.com/labthings/python-labthings/commit/2e96bba))
+* Fixed typo in __all__ ([3620a1e](https://github.com/labthings/python-labthings/commit/3620a1e))
+* Log caught werkzeug errors ([d1c28b2](https://github.com/labthings/python-labthings/commit/d1c28b2))
+* Refactored tasks.TaskThread to actions.ActionThread ([4325806](https://github.com/labthings/python-labthings/commit/4325806))
+
+
 # [0.8.0-beta.3](https://github.com/labthings/python-labthings/compare/v0.8.0-beta.2...v0.8.0-beta.3) (2020-07-20)
 
 * Started API documentation
