@@ -2,6 +2,7 @@ from flask import escape
 from werkzeug.exceptions import default_exceptions
 from werkzeug.exceptions import HTTPException
 
+import logging
 
 class SerializedExceptionHandler:
 
@@ -21,6 +22,8 @@ class SerializedExceptionHandler:
         :param error: 
 
         """
+        logging.error(error)
+
         if isinstance(error, HTTPException):
             message = error.description
         elif hasattr(error, "message"):
