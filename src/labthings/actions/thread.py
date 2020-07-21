@@ -20,7 +20,15 @@ class ActionThread(threading.Thread):
     A native thread with extra functionality for tracking progress and thread termination.
     """
 
-    def __init__(self, target=None, name=None, args=None, kwargs=None, daemon=True):
+    def __init__(
+        self,
+        target=None,
+        name=None,
+        args=None,
+        kwargs=None,
+        daemon=True,
+        default_stop_timeout: int = 5,
+    ):
         threading.Thread.__init__(
             self,
             group=None,
@@ -42,6 +50,7 @@ class ActionThread(threading.Thread):
         self.started = threading.Event()
         # Event to track if the user has requested stop
         self.stopping = threading.Event()
+        self.default_stop_timeout = default_stop_timeout
 
         # Make _target, _args, and _kwargs available to the subclass
         self._target = target
@@ -291,15 +300,18 @@ class ActionThread(threading.Thread):
         self.progress = None
         return True
 
-    def stop(self, timeout=5, exception=ActionKilledException):
+    def stop(self, timeout=None, exception=ActionKilledException):
         """Sets the threads internal stopped event, waits for timeout seconds for the
         thread to stop nicely, then forcefully kills the thread.
 
-        :param timeout: Time to wait before killing thread forecefully. Defaults to 5.
+        :param timeout: Time to wait before killing thread forecefully. Defaults to ``self.default_stop_timeout``
         :type timeout: int
         :param exception:  (Default value = TaskKillException)
 
         """
+        if timeout is None:
+            timeout = self.default_stop_timeout
+
         self.stopping.set()
         timeout_tracker = TimeoutTracker(timeout)
         # While the timeout hasn't expired

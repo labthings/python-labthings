@@ -3,6 +3,7 @@ from werkzeug.http import parse_set_header
 from werkzeug.wrappers import Response as ResponseBase
 from flask import make_response
 
+import time
 import json
 
 import pytest
@@ -157,7 +158,7 @@ def test_get_value_response_json(app_ctx):
         assert Index().get_value() == {"json": "body"}
 
 
-def test_action_view_get_responses(app_ctx):
+def test_action_view_get_responses():
     class Index(views.ActionView):
         def post(self):
             return {}
@@ -166,3 +167,25 @@ def test_action_view_get_responses(app_ctx):
     assert 201 in responses
     assert "application/json" in responses[201]["content"]
     assert "schema" in responses[201]["content"]["application/json"]
+
+
+def test_action_view_stop(app):
+    class Index(views.ActionView):
+        default_stop_timeout = 0
+
+        def post(self):
+            while True:
+                time.sleep(1)
+
+    app.add_url_rule("/", view_func=Index.as_view("index"))
+    c = app.test_client()
+
+    response = c.post("/")
+    assert response.status_code == 201
+    assert response.json.get("status") == "running"
+    # Assert we only have a single running Action thread
+    assert len(Index._deque) == 1
+    action_thread = Index._deque[0]
+    assert action_thread.default_stop_timeout == 0
+    action_thread.stop()
+    assert action_thread.status == "terminated"

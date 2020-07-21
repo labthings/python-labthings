@@ -162,6 +162,7 @@ class ActionView(View):
 
     # Action handling
     wait_for: int = 1  # Time in seconds to wait before returning the action as pending/running
+    default_stop_timeout: int = None  # Time in seconds to wait for the action thread to end after a stop request before terminating it forcefully
 
     # Internal
     _cls_tags = {"actions"}
@@ -278,6 +279,9 @@ class ActionView(View):
         )
         # Make a task out of the views `post` method
         task = pool.spawn(meth, *args, **kwargs)
+        # Optionally override the threads default_stop_timeout
+        if self.default_stop_timeout is not None:
+            task.default_stop_timeout = self.default_stop_timeout
 
         # Keep a copy of the raw, unmarshalled JSON input in the task
         try:

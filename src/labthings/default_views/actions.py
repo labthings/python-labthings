@@ -42,7 +42,7 @@ class ActionView(View):
 
         return ActionSchema().dump(task)
 
-    @use_args({"timeout": fields.Int(missing=5)})
+    @use_args({"timeout": fields.Int()})
     def delete(self, args, task_id):
         """Terminate a running task.
         
@@ -52,7 +52,7 @@ class ActionView(View):
         :param task_id: 
 
         """
-        timeout = args.get("timeout", 5)
+        timeout = args.get("timeout", None)
         task_dict = current_labthing().actions.to_dict()
 
         if task_id not in task_dict:
