@@ -1,6 +1,7 @@
 # Flask JSON encoder so we get UUID, datetime etc support
 from flask.json import JSONEncoder
 from base64 import b64encode
+from collections import UserString
 import json
 
 
@@ -20,6 +21,8 @@ class LabThingsJSONEncoder(JSONEncoder):
                 return o.decode()
             except UnicodeDecodeError:  # Otherwise, base64
                 return b64encode(o).decode()
+        if isinstance(o, UserString):
+            return str(o)
         return JSONEncoder.default(self, o)
 
 
