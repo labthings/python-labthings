@@ -2,6 +2,7 @@ from labthings.actions import thread, pool
 import threading
 
 import time
+import pytest
 
 
 def test_task_with_args():
@@ -29,6 +30,43 @@ def test_task_without_args():
     assert task_obj._kwargs == {}
 
 
+def test_task_properties():
+    def task_func(arg, kwarg=False):
+        pass
+
+    task_obj = thread.ActionThread(
+        target=task_func, args=("String arg",), kwargs={"kwarg": True}
+    )
+    assert task_obj.status == task_obj._status
+    assert task_obj.id == task_obj._ID
+    assert task_obj.status == task_obj._status
+    assert task_obj.output == task_obj._return_value
+
+
+def test_task_update_progress():
+    def task_func():
+        pool.current_action().update_progress(100)
+        return
+
+    task_obj = thread.ActionThread(target=task_func)
+
+    task_obj.start()
+    task_obj.join()
+    assert task_obj.progress == 100
+
+
+def test_task_update_data():
+    def task_func():
+        pool.current_action().update_data({"key": "value"})
+        return
+
+    task_obj = thread.ActionThread(target=task_func)
+
+    task_obj.start()
+    task_obj.join()
+    assert task_obj.data == {"key": "value"}
+
+
 def test_task_start():
     def task_func():
         return "Return value"
@@ -42,6 +80,38 @@ def test_task_start():
     task_obj.join()
     assert task_obj._return_value == "Return value"
     assert task_obj._status == "success"
+
+
+def test_task_get():
+    def task_func():
+        time.sleep(0.1)
+        return "Return value"
+
+    task_obj = thread.ActionThread(target=task_func)
+    task_obj.start()
+    assert task_obj.get() == "Return value"
+
+
+def test_task_get_noblock():
+    def task_func():
+        time.sleep(0.1)
+        return "Return value"
+
+    task_obj = thread.ActionThread(target=task_func)
+    task_obj.start()
+    task_obj.join()
+    assert task_obj.get(block=False, timeout=0) == "Return value"
+
+
+def test_task_get_noblock_timeout():
+    def task_func():
+        time.sleep(0.1)
+        return "Return value"
+
+    task_obj = thread.ActionThread(target=task_func)
+    task_obj.start()
+    with pytest.raises(TimeoutError):
+        assert task_obj.get(block=False, timeout=0)
 
 
 def test_task_exception():
@@ -73,6 +143,21 @@ def test_task_stop():
     assert task_obj._return_value is None
 
 
+def test_task_stop_timeout():
+    def task_func():
+        while True:
+            time.sleep(0)
+
+    task_obj = thread.ActionThread(target=task_func)
+    task_obj.start()
+    task_obj.started.wait()
+    assert task_obj._status == "running"
+    task_obj.stop(timeout=0)
+    task_obj.join()
+    assert task_obj._status == "terminated"
+    assert task_obj._return_value is None
+
+
 def test_task_terminate():
     def task_func():
         while True:
@@ -86,6 +171,16 @@ def test_task_terminate():
     task_obj.join()
     assert task_obj._status == "terminated"
     assert task_obj._return_value is None
+
+
+def test_task_terminate_not_running():
+    def task_func():
+        return
+
+    task_obj = thread.ActionThread(target=task_func)
+    task_obj.start()
+    task_obj.join()
+    assert task_obj.terminate() is False
 
 
 def test_task_log_list():
