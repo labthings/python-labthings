@@ -12,6 +12,7 @@ def create_app(
     description: str = "",
     types: list = None,
     version: str = "0.0.0",
+    external_links: bool = True,
     handle_errors: bool = True,
     handle_cors: bool = True,
     flask_kwargs: dict = None,
@@ -40,6 +41,7 @@ def create_app(
     :param description: str:  (Default value = "")
     :param types: list:  (Default value = None)
     :param version: str:  (Default value = "0.0.0")
+    :param external_links: bool: Use external links in Thing Description where possible
     :param handle_errors: bool:  (Default value = True)
     :param handle_cors: bool:  (Default value = True)
     :param flask_kwargs: dict:  (Default value = None)
@@ -69,6 +71,7 @@ def create_app(
         types=types,
         version=str(version),
         format_flask_exceptions=handle_errors,
+        external_links=external_links,
     )
 
     return app, labthing

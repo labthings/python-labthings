@@ -66,6 +66,8 @@ class LabThing:
     :type types: list of str
     :param format_flask_exceptions: JSON format all exception responses
     :type format_flask_exceptions: bool
+    :param external_links: Use external links in Thing Description where possible
+    :type external_links: bool
     :param json_encoder: JSON encoder class for the app
     """
 
@@ -78,6 +80,7 @@ class LabThing:
         version: str = "0.0.0",
         types: list = None,
         format_flask_exceptions: bool = True,
+        external_links: bool = True,
         json_encoder=LabThingsJSONEncoder,
     ):
         if types is None:
@@ -136,7 +139,7 @@ class LabThing:
         )
 
         # Thing description
-        self.thing_description = ThingDescription()
+        self.thing_description = ThingDescription(external_links=external_links)
 
         # JSON encoder class
         self.json_encoder = json_encoder

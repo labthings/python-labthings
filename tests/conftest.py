@@ -5,8 +5,9 @@ import jsonschema
 from flask import Flask
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
-from labthings.server.labthing import LabThing
-from labthings.actions.pool import Pool
+from labthings import LabThing
+from labthings.actions import Pool
+from labthings.json import encode_json
 
 from flask.views import MethodView
 from labthings.views import View
@@ -21,11 +22,16 @@ class Helpers:
         schema = json.load(open(os.path.join(schemas_path, "w3c_td_schema.json"), "r"))
         jsonschema.Draft7Validator.check_schema(schema)
 
+        # Build a TD dictionary
         with app_ctx.test_request_context():
-            td_json = thing_description.to_dict()
-            assert td_json
+            td_dict = thing_description.to_dict()
 
-        jsonschema.validate(instance=td_json, schema=schema)
+        # Allow our LabThingsJSONEncoder to encode the RD
+        td_json = encode_json(td_dict)
+        # Decode the JSON back into a primitive dictionary
+        td_json_dict = json.loads(td_json)
+        # Validate
+        jsonschema.validate(instance=td_json_dict, schema=schema)
 
 
 @pytest.fixture
@@ -211,7 +217,7 @@ def app(request):
 
 @pytest.fixture
 def thing(app):
-    thing = LabThing(app)
+    thing = LabThing(app, external_links=False)
     with app.app_context():
         return thing
 
