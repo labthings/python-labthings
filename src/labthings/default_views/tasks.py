@@ -3,8 +3,10 @@ import logging
 
 from ..views import View
 from ..views.marshalling import marshal_with
+from ..views.args import use_args
 from ..schema import TaskSchema
 from ..find import current_labthing
+from .. import fields
 
 
 class TaskList(View):
@@ -46,7 +48,8 @@ class TaskView(View):
 
         return TaskSchema().dump(task)
 
-    def delete(self, task_id):
+    @use_args({"timeout": fields.Int()})
+    def delete(self, args, task_id):
         """Terminate a running task.
         
         If the task is finished, deletes its entry.
@@ -54,13 +57,13 @@ class TaskView(View):
         :param task_id: 
 
         """
-
+        timeout = args.get("timeout", None)
         task_dict = current_labthing().actions.to_dict()
 
         if task_id not in task_dict:
             return abort(404)  # 404 Not Found
 
         task = task_dict.get(task_id)
-        task.stop(timeout=5)
+        task.stop(timeout=timeout)
 
         return TaskSchema().dump(task)
