@@ -1,3 +1,9 @@
+# [0.8.0](https://github.com/labthings/python-labthings/compare/v0.8.0-rc.2...v0.8.0) (2020-07-22)
+
+
+* Support View class stop timeout from /tasks resources ([375ed71](https://github.com/labthings/python-labthings/commit/375ed71))
+
+
 # [0.8.0-rc.2](https://github.com/labthings/python-labthings/compare/v0.8.0-rc.1...v0.8.0-rc.2) (2020-07-22)
 
 
