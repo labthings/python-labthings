@@ -152,11 +152,8 @@ class ActionThread(threading.Thread):
         """Overrides default threading.Thread run() method"""
         logging.debug((self._args, self._kwargs))
         try:
-            with self._running_lock:
-                # Don't run if the thread was stopped before starting
-                if self.stopping.is_set():
-                    raise ActionKilledException
-                if self._target:
+            if self._target:
+                with self._running_lock:
                     self._thread_proc(self._target)(*self._args, **self._kwargs)
         finally:
             # Avoid a refcycle if the thread is running a function with
@@ -279,15 +276,9 @@ class ActionThread(threading.Thread):
 
         """
         _LOG.warning(f"Terminating thread {self}")
-        if not self.is_alive():
+        if not (self.is_alive() or self._is_thread_proc_running()):
             logging.debug("Cannot kill thread that is no longer running.")
-            return
-        if not self._is_thread_proc_running():
-            logging.debug(
-                "Thread's _thread_proc function is no longer running, "
-                "will not kill; letting thread exit gracefully."
-            )
-            return
+            return False
         self._async_raise(exception)
 
         # Wait (block) for the thread to finish closing. If the threaded function has cleanup code in a try-except,
