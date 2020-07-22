@@ -1,13 +1,13 @@
-from flask import url_for, request
+from flask import url_for, request, has_request_context
 
 from .views import View
 from .event import Event
 from .json.schemas import schema_to_json, rule_to_params, rule_to_path
 from .find import current_labthing
-from .utilities import get_docstring, snake_to_camel
+from .utilities import ResourceURL, get_docstring, snake_to_camel
 
 
-def view_to_thing_action_forms(rules: list, view: View):
+def view_to_thing_action_forms(rules: list, view: View, external: bool = True):
     """Build a W3C form description for an ActionView
 
     :param rules: List of Flask rules
@@ -16,6 +16,7 @@ def view_to_thing_action_forms(rules: list, view: View):
     :type view: View
     :param rules: list: 
     :param view: View: 
+    :param external: bool: Use external links where possible
     :returns: Form description
     :rtype: [dict]
 
@@ -36,7 +37,7 @@ def view_to_thing_action_forms(rules: list, view: View):
             form = {
                 "op": "invokeaction",
                 "htv:methodName": "POST",
-                "href": url,
+                "href": ResourceURL(url, external=external),
                 "contentType": content_type,
             }
             if response_content_type != content_type:
@@ -47,7 +48,7 @@ def view_to_thing_action_forms(rules: list, view: View):
     return forms
 
 
-def view_to_thing_property_forms(rules: list, view: View):
+def view_to_thing_property_forms(rules: list, view: View, external: bool = True):
     """Build a W3C form description for a PropertyView
 
     :param rules: List of Flask rules
@@ -56,6 +57,7 @@ def view_to_thing_property_forms(rules: list, view: View):
     :type view: View
     :param rules: list: 
     :param view: View: 
+    :param external: bool: Use external links where possible
     :returns: Form description
     :rtype: [dict]
 
@@ -74,7 +76,7 @@ def view_to_thing_property_forms(rules: list, view: View):
             form = {
                 "op": "readproperty",
                 "htv:methodName": "GET",
-                "href": url,
+                "href": ResourceURL(url, external=external),
                 "contentType": content_type,
             }
             forms.append(form)
@@ -85,7 +87,7 @@ def view_to_thing_property_forms(rules: list, view: View):
             form = {
                 "op": "writeproperty",
                 "htv:methodName": "PUT",
-                "href": url,
+                "href": ResourceURL(url, external=external),
                 "contentType": content_type,
             }
             forms.append(form)
@@ -96,7 +98,7 @@ def view_to_thing_property_forms(rules: list, view: View):
             form = {
                 "op": "writeproperty",
                 "htv:methodName": "POST",
-                "href": url,
+                "href": ResourceURL(url, external=external),
                 "contentType": content_type,
             }
             forms.append(form)
@@ -106,11 +108,20 @@ def view_to_thing_property_forms(rules: list, view: View):
 
 class ThingDescription:
     """ """
-    def __init__(self):
+
+    def __init__(self, external_links: bool = True):
+        # Public attributes
         self.properties = {}
         self.actions = {}
         self.events = {}
+
+        # Private attributes
         self._links = []
+
+        # Settings
+        self.external_links = external_links
+
+        # Init
         super().__init__()
 
     @property
@@ -124,7 +135,7 @@ class ThingDescription:
                     "href": current_labthing().url_for(
                         link_description.get("view"),
                         **link_description.get("params"),
-                        _external=True,
+                        _external=self.external_links,
                     ),
                     **link_description.get("kwargs"),
                 }
@@ -150,14 +161,13 @@ class ThingDescription:
 
     def to_dict(self):
         """ """
-        return {
+        td = {
             "@context": [
                 "https://www.w3.org/2019/wot/td/v1",
                 "https://iot.mozilla.org/schemas/",
             ],
             "@type": current_labthing().types,
             "id": url_for("root", _external=True),
-            "base": request.host_url,
             "title": current_labthing().title,
             "description": current_labthing().description,
             "properties": self.properties,
@@ -167,6 +177,11 @@ class ThingDescription:
             "securityDefinitions": {"nosec_sc": {"scheme": "nosec"}},
             "security": "nosec_sc",
         }
+
+        if not self.external_links and has_request_context():
+            td["base"] = request.host_url
+
+        return td
 
     def event_to_thing_event(self, event: Event):
         """
@@ -194,8 +209,13 @@ class ThingDescription:
                 hasattr(view, "post") or hasattr(view, "put") or hasattr(view, "delete")
             ),
             "writeOnly": not hasattr(view, "get"),
-            "links": [{"href": f"{url}"} for url in prop_urls],
-            "forms": view_to_thing_property_forms(rules, view),
+            "links": [
+                {"href": ResourceURL(url, external=self.external_links)}
+                for url in prop_urls
+            ],
+            "forms": view_to_thing_property_forms(
+                rules, view, external=self.external_links
+            ),
             "uriVariables": {},
         }
 
@@ -243,10 +263,15 @@ class ThingDescription:
         action_description = {
             "title": getattr(view, "title", None) or view.__name__,
             "description": getattr(view, "description", None) or get_docstring(view),
-            "links": [{"href": f"{url}"} for url in action_urls],
+            "links": [
+                {"href": ResourceURL(url, external=self.external_links)}
+                for url in action_urls
+            ],
             "safe": getattr(view, "safe", False),
             "idempotent": getattr(view, "idempotent", False),
-            "forms": view_to_thing_action_forms(rules, view),
+            "forms": view_to_thing_action_forms(
+                rules, view, external=self.external_links
+            ),
         }
 
         # Look for a _params in the Action classes API Spec

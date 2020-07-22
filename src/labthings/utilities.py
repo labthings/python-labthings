@@ -1,7 +1,8 @@
 from werkzeug.http import HTTP_STATUS_CODES
-from flask import current_app
+from flask import current_app, has_request_context, request
 
 import collections.abc
+from collections import UserString
 import re
 import operator
 import sys
@@ -37,6 +38,32 @@ class TimeoutTracker:
     def stopped(self):
         """ """
         return time.time() >= self.timeout_time
+
+
+class ResourceURL(UserString):
+    """
+    Takes a URL path relative to the host_url (e.g. /api/myresource),
+    and optionally prepends the host URL to generate a complete URL
+    (e.g. http://localhost:7485/api/myresource).
+    Behaves as a Python string.
+    """
+
+    def __init__(self, path: str, external: bool = True):
+        self.path = path
+        self.external = external
+        UserString.__init__(self, path)
+
+    @property
+    def data(self):
+        if self.external and has_request_context():
+            prefix = request.host_url.rstrip("/")
+        else:
+            prefix = ""
+        return prefix + self.path
+
+    @data.setter
+    def data(self, path: str):
+        self.path = path
 
 
 def http_status_message(code):
