@@ -78,4 +78,4 @@ Much of the code surrounding default response formatting has been liberally take
 ### Changelog generation
 
 * `npm install -g conventional-changelog-cli`
-* `conventional-changelog -r 0 --config ./changelog.config.js -i CHANGELOG.md -s`
+* `conventional-changelog -r 1 --config ./changelog.config.js -i CHANGELOG.md -s`
