@@ -1,4 +1,4 @@
-# [0.8.0-rc.2](https://github.com/labthings/python-labthings/compare/v0.8.0-rc.1...vv0.8.0-rc.2) (2020-07-22)
+# [0.8.0-rc.2](https://github.com/labthings/python-labthings/compare/v0.8.0-rc.1...v0.8.0-rc.2) (2020-07-22)
 
 
 * Added ActionView class attribute to override thread default_stop_timeout ([4e103eb](https://github.com/labthings/python-labthings/commit/4e103eb))
