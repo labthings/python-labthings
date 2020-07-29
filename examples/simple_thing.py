@@ -7,6 +7,8 @@ import atexit
 
 from labthings import create_app, semantics, find_component, fields
 from labthings.views import ActionView, PropertyView, op
+from labthings.example_components import PretendSpectrometer
+from labthings.json import encode_json
 
 
 """
@@ -15,44 +17,8 @@ equipment API calls, network requests, or a "virtual" device as seen here.
 """
 
 
-class MyComponent:
-    def __init__(self):
-        self.x_range = range(-100, 100)
-        self.magic_denoise = 200
-
-    def noisy_pdf(self, x, mu=0.0, sigma=25.0):
-        """
-        Generate a noisy gaussian function (to act as some pretend data)
-        
-        Our noise is inversely proportional to self.magic_denoise
-        """
-        x = float(x - mu) / sigma
-        return (
-            math.exp(-x * x / 2.0) / math.sqrt(2.0 * math.pi) / sigma
-            + (1 / self.magic_denoise) * random.random()
-        )
-
-    @property
-    def data(self):
-        """Return a 1D data trace."""
-        return [self.noisy_pdf(x) for x in self.x_range]
-
-    def average_data(self, n: int):
-        """Average n-sets of data. Emulates a measurement that may take a while."""
-        summed_data = self.data
-
-        logging.warning("Starting an averaged measurement. This may take a while...")
-        for _ in range(n):
-            summed_data = [summed_data[i] + el for i, el in enumerate(self.data)]
-            time.sleep(0.1)
-
-        summed_data = [i / n for i in summed_data]
-
-        return summed_data
-
-
 """
-Create a view to view and change our magic_denoise value,
+Create a view to view and change our integration_time value,
 and register is as a Thing property
 """
 
@@ -60,13 +26,13 @@ and register is as a Thing property
 # Wrap in a semantic annotation to autmatically set schema and args
 @semantics.moz.LevelProperty(100, 500, example=200)
 class DenoiseProperty(PropertyView):
-    """Value of magic_denoise"""
+    """Value of integration_time"""
 
     @op.readproperty
     def get(self):
         # When a GET request is made, we'll find our attached component
         my_component = find_component("org.labthings.example.mycomponent")
-        return my_component.magic_denoise
+        return my_component.integration_time
 
     @op.writeproperty
     def put(self, new_property_value):
@@ -74,9 +40,9 @@ class DenoiseProperty(PropertyView):
         my_component = find_component("org.labthings.example.mycomponent")
 
         # Apply the new value
-        my_component.magic_denoise = new_property_value
+        my_component.integration_time = new_property_value
 
-        return my_component.magic_denoise
+        return my_component.integration_time
 
 
 """
@@ -95,6 +61,14 @@ class QuickDataProperty(PropertyView):
         # Find our attached component
         my_component = find_component("org.labthings.example.mycomponent")
         return my_component.data
+
+    @op.observeproperty
+    def websocket(self, ws):
+        # Find our attached component
+        my_component = find_component("org.labthings.example.mycomponent")
+        while not ws.closed:
+            ws.send(encode_json(my_component.data))
+            # time.sleep(0.5)
 
 
 """
@@ -144,10 +118,13 @@ app, labthing = create_app(
 )
 
 # Attach an instance of our component
-labthing.add_component(MyComponent(), "org.labthings.example.mycomponent")
+# Usually a Python object controlling some piece of hardware
+my_spectrometer = PretendSpectrometer()
+labthing.add_component(my_spectrometer, "org.labthings.example.mycomponent")
+
 
 # Add routes for the API views we created
-labthing.add_view(DenoiseProperty, "/denoise")
+labthing.add_view(DenoiseProperty, "/integration_time")
 labthing.add_view(QuickDataProperty, "/quick-data")
 labthing.add_view(MeasurementAction, "/actions/measure")
 
