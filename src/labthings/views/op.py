@@ -24,3 +24,7 @@ class writeproperty(_opannotation):
 
 class observeproperty(_opannotation):
     pass
+
+
+class invokeaction(_opannotation):
+    pass
