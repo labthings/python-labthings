@@ -5,8 +5,8 @@ import time
 import logging
 import atexit
 
-from labthings.server.quick import create_app, semantics, find_component, fields
-from labthings.views import ActionView, PropertyView
+from labthings import create_app, semantics, find_component, fields
+from labthings.views import ActionView, PropertyView, op
 
 
 """
@@ -62,11 +62,13 @@ and register is as a Thing property
 class DenoiseProperty(PropertyView):
     """Value of magic_denoise"""
 
+    @op.readproperty
     def get(self):
         # When a GET request is made, we'll find our attached component
         my_component = find_component("org.labthings.example.mycomponent")
         return my_component.magic_denoise
 
+    @op.writeproperty
     def put(self, new_property_value):
         # Find our attached component
         my_component = find_component("org.labthings.example.mycomponent")
@@ -88,6 +90,7 @@ class QuickDataProperty(PropertyView):
     # Marshal the response as a list of floats
     schema = fields.List(fields.Float())
 
+    @op.readproperty
     def get(self):
         # Find our attached component
         my_component = find_component("org.labthings.example.mycomponent")
@@ -111,6 +114,7 @@ class MeasurementAction(ActionView):
     schema = fields.List(fields.Number)
 
     # Main function to handle POST requests
+    @op.invokeaction
     def post(self, args):
         """Start an averaged measurement"""
 
@@ -134,7 +138,6 @@ atexit.register(cleanup)
 # Create LabThings Flask app
 app, labthing = create_app(
     __name__,
-    prefix="/api",
     title=f"My Lab Device API",
     description="Test LabThing-based API",
     version="0.1.0",
