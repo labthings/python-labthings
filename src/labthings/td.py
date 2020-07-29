@@ -23,8 +23,9 @@ def view_to_thing_action_forms(rules: list, view: View, external: bool = True):
     """
     forms = []
 
-    # HTTP invokeaction requires POST method
-    if hasattr(view, "post"):
+    # Get map from invokeaction to HTTP method
+    meth = getattr(view, "_opmap", {}).get("invokeaction", "post")
+    if hasattr(view, meth):
         prop_urls = [rule_to_path(rule) for rule in rules]
 
         # Get input content_type
@@ -36,7 +37,7 @@ def view_to_thing_action_forms(rules: list, view: View, external: bool = True):
         for url in prop_urls:
             form = {
                 "op": "invokeaction",
-                "htv:methodName": "POST",
+                "htv:methodName": meth.upper(),
                 "href": ResourceURL(url, external=external),
                 "contentType": content_type,
             }
@@ -70,38 +71,17 @@ def view_to_thing_property_forms(rules: list, view: View, external: bool = True)
     # Get input content_type
     content_type = getattr(view, "content_type", "application/json")
 
-    # HTTP readproperty requires GET method
-    if hasattr(view, "get"):
-        for url in prop_urls:
-            form = {
-                "op": "readproperty",
-                "htv:methodName": "GET",
-                "href": ResourceURL(url, external=external),
-                "contentType": content_type,
-            }
-            forms.append(form)
-
-    # HTTP writeproperty requires PUT method
-    if hasattr(view, "put"):
-        for url in prop_urls:
-            form = {
-                "op": "writeproperty",
-                "htv:methodName": "PUT",
-                "href": ResourceURL(url, external=external),
-                "contentType": content_type,
-            }
-            forms.append(form)
-
-    # HTTP writeproperty may use POST method
-    elif hasattr(view, "post"):
-        for url in prop_urls:
-            form = {
-                "op": "writeproperty",
-                "htv:methodName": "POST",
-                "href": ResourceURL(url, external=external),
-                "contentType": content_type,
-            }
-            forms.append(form)
+    # Get map from ops to HTTP methods
+    for op, meth in getattr(view, "_opmap", {}).items():
+        if hasattr(view, meth):
+            for url in prop_urls:
+                form = {
+                    "op": op,
+                    "htv:methodName": meth.upper(),
+                    "href": ResourceURL(url, external=external),
+                    "contentType": content_type,
+                }
+                forms.append(form)
 
     return forms
 

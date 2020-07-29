@@ -6,6 +6,8 @@ from werkzeug.exceptions import BadRequest
 from .args import use_args
 from .marshalling import marshal_with
 
+from . import op
+
 from ..utilities import unpack, get_docstring, get_summary, merge
 from ..representations import DEFAULT_REPRESENTATIONS
 from ..find import current_labthing
@@ -18,7 +20,7 @@ from .. import fields
 
 import logging
 
-__all__ = ["MethodView", "View", "ActionView", "PropertyView"]
+__all__ = ["MethodView", "View", "ActionView", "PropertyView", "op"]
 
 
 class View(MethodView):
@@ -37,6 +39,7 @@ class View(MethodView):
 
     # Internal
     _cls_tags = set()  # Class tags that shouldn't be removed
+    _opmap = {}  # Mapping of Thing Description ops to class methods
 
     def __init__(self, *args, **kwargs):
         MethodView.__init__(self, *args, **kwargs)
@@ -165,9 +168,16 @@ class ActionView(View):
     default_stop_timeout: int = None  # Time in seconds to wait for the action thread to end after a stop request before terminating it forcefully
 
     # Internal
+    _opmap = {
+        "invokeaction": "post"
+    }  # Mapping of Thing Description ops to class methods
     _cls_tags = {"actions"}
     _deque = Deque()  # Action queue
     _emergency_pool = Pool()
+
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
 
     @classmethod
     def get(cls):
@@ -320,6 +330,10 @@ class PropertyView(View):
     responses = {}  # Custom responses for all interactions
 
     # Internal
+    _opmap = {
+        "readproperty": "get",
+        "writeproperty": "put",
+    }  # Mapping of Thing Description ops to class methods
     _cls_tags = {"properties"}
 
     @classmethod

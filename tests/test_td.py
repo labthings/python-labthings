@@ -2,7 +2,7 @@ import pytest
 
 from labthings import fields
 
-from labthings.views import View, PropertyView, ActionView
+from labthings.views import View, PropertyView, ActionView, op
 
 
 @pytest.fixture
@@ -170,6 +170,7 @@ def test_td_property_post_to_write(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
     class Index(PropertyView):
+        @op.writeproperty
         def post(self):
             return "POST"
 
@@ -197,11 +198,8 @@ def test_td_property_post_to_write(
 def test_td_property_different_content_type(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
-    class Index(ActionView):
+    class Index(PropertyView):
         content_type = "text/plain; charset=us-ascii"
-
-        def get(self):
-            return "GET"
 
         def put(self):
             return "PUT"
@@ -226,7 +224,7 @@ def test_td_action_different_response_type(
         response_content_type = "text/plain; charset=us-ascii"
 
         def post(self):
-            return "PUT"
+            return "POST"
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
     rules = app.url_map._rules_by_endpoint["index"]

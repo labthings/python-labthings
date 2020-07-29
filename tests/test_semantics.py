@@ -1,6 +1,6 @@
 import pytest
 
-from labthings.views import View
+from labthings.views import View, op
 from labthings import semantics
 
 
@@ -12,6 +12,7 @@ def thing_description(thing):
 def test_moz_BooleanProperty(helpers, app, thing_description, app_ctx, schemas_path):
     @semantics.moz.BooleanProperty()
     class Index(View):
+        @op.readproperty
         def get(self):
             return "GET"
 
@@ -32,6 +33,7 @@ def test_moz_BooleanProperty(helpers, app, thing_description, app_ctx, schemas_p
 def test_moz_LevelProperty(helpers, app, thing_description, app_ctx, schemas_path):
     @semantics.moz.LevelProperty(0, 100)
     class Index(View):
+        @op.readproperty
         def get(self):
             return "GET"
 
@@ -55,6 +57,7 @@ def test_moz_LevelProperty(helpers, app, thing_description, app_ctx, schemas_pat
 def test_moz_BrightnessProperty(helpers, app, thing_description, app_ctx, schemas_path):
     @semantics.moz.BrightnessProperty()
     class Index(View):
+        @op.readproperty
         def get(self):
             return "GET"
 
@@ -78,6 +81,7 @@ def test_moz_BrightnessProperty(helpers, app, thing_description, app_ctx, schema
 def test_moz_OnOffProperty(helpers, app, thing_description, app_ctx, schemas_path):
     @semantics.moz.OnOffProperty()
     class Index(View):
+        @op.readproperty
         def get(self):
             return "GET"
 
