@@ -236,6 +236,9 @@ class LabThing:
         # Custom JSON encoder
         app.json_encoder = self.json_encoder
 
+        # Create socket handler
+        self.sockets = Sockets(app)
+
         # Add resources, if registered before tying to a Flask app
         if len(self.views) > 0:
             for resource, urls, endpoint, kwargs in self.views:
@@ -244,8 +247,7 @@ class LabThing:
         # Create base routes
         self._create_base_routes()
 
-        # Create socket handler
-        self.sockets = Sockets(app)
+        # Create base sockets
         self._create_base_sockets()
 
         # Create base events
@@ -448,7 +450,13 @@ class LabThing:
             # If we've got no Blueprint, just build a url with no prefix
             rule = self._complete_url(url, "")
             # Add the url to the application or blueprint
-            app.add_url_rule(rule, view_func=resource_func, **kwargs)
+            app.add_url_rule(rule, view_func=resource_func, endpoint=endpoint, **kwargs)
+            # Add to self.sockets so that the socket middleware may
+            # intercept the connection
+            if hasattr(view, "websocket"):
+                self.sockets.add_url_rule(
+                    rule, view_func=resource_func, endpoint=endpoint
+                )
 
         # There might be a better way to do this than _rules_by_endpoint,
         # but I can't find one so this will do for now. Skipping PYL-W0212
