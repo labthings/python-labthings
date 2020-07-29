@@ -7,8 +7,8 @@ from .find import current_labthing
 from .utilities import ResourceURL, get_docstring, snake_to_camel
 
 
-def view_to_thing_action_forms(rules: list, view: View, external: bool = True):
-    """Build a W3C form description for an ActionView
+def view_to_thing_forms(rules: list, view: View, external: bool = True):
+    """Build a W3C form description for an general View
 
     :param rules: List of Flask rules
     :type rules: list
@@ -22,65 +22,36 @@ def view_to_thing_action_forms(rules: list, view: View, external: bool = True):
 
     """
     forms = []
-
-    # Get map from invokeaction to HTTP method
-    meth = getattr(view, "_opmap", {}).get("invokeaction", "post")
-    if hasattr(view, meth):
-        prop_urls = [rule_to_path(rule) for rule in rules]
-
-        # Get input content_type
-        content_type = getattr(view, "content_type", "application/json")
-        response_content_type = getattr(
-            view, "response_content_type", "application/json"
-        )
-
-        for url in prop_urls:
-            form = {
-                "op": "invokeaction",
-                "htv:methodName": meth.upper(),
-                "href": ResourceURL(url, external=external),
-                "contentType": content_type,
-            }
-            if response_content_type != content_type:
-                form["response"] = {"contentType": response_content_type}
-
-            forms.append(form)
-
-    return forms
-
-
-def view_to_thing_property_forms(rules: list, view: View, external: bool = True):
-    """Build a W3C form description for a PropertyView
-
-    :param rules: List of Flask rules
-    :type rules: list
-    :param view: View class
-    :type view: View
-    :param rules: list: 
-    :param view: View: 
-    :param external: bool: Use external links where possible
-    :returns: Form description
-    :rtype: [dict]
-
-    """
-    forms = []
-
-    # Get basic information
-    prop_urls = [rule_to_path(rule) for rule in rules]
-
-    # Get input content_type
-    content_type = getattr(view, "content_type", "application/json")
 
     # Get map from ops to HTTP methods
     for op, meth in getattr(view, "_opmap", {}).items():
         if hasattr(view, meth):
+            prop_urls = [rule_to_path(rule) for rule in rules]
+
+            # Get content_types
+            content_type = getattr(view, "content_type", "application/json")
+            response_content_type = getattr(
+                view, "response_content_type", "application/json"
+            )
+
             for url in prop_urls:
+                # Basic form parameters
                 form = {
                     "op": op,
-                    "htv:methodName": meth.upper(),
                     "href": ResourceURL(url, external=external),
                     "contentType": content_type,
                 }
+                # Optional override response content type
+                if response_content_type != content_type:
+                    form["response"] = {"contentType": response_content_type}
+                # Fix URL for the View's websocket method
+                if meth.upper() == "WEBSOCKET":
+                    form["href"] = ResourceURL(url, external=external, protocol="ws")
+                # Add HTTP methods for non-websocket forms
+                else:
+                    form["htv:methodName"] = meth.upper()
+                    form["href"] = ResourceURL(url, external=external)
+
                 forms.append(form)
 
     return forms
@@ -193,9 +164,7 @@ class ThingDescription:
                 {"href": ResourceURL(url, external=self.external_links)}
                 for url in prop_urls
             ],
-            "forms": view_to_thing_property_forms(
-                rules, view, external=self.external_links
-            ),
+            "forms": view_to_thing_forms(rules, view, external=self.external_links),
             "uriVariables": {},
         }
 
@@ -249,9 +218,7 @@ class ThingDescription:
             ],
             "safe": getattr(view, "safe", False),
             "idempotent": getattr(view, "idempotent", False),
-            "forms": view_to_thing_action_forms(
-                rules, view, external=self.external_links
-            ),
+            "forms": view_to_thing_forms(rules, view, external=self.external_links),
         }
 
         # Look for a _params in the Action classes API Spec
