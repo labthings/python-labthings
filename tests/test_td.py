@@ -50,33 +50,39 @@ def test_td_links(thing_description, app_ctx, view_cls):
         )
 
 
-def test_td_action(helpers, app, thing_description, view_cls, app_ctx, schemas_path):
-    app.add_url_rule("/", view_func=view_cls.as_view("index"))
+def test_td_action(helpers, app, thing_description, app_ctx, schemas_path):
+    class Index(ActionView):
+        def post(self):
+            return "POST"
+
+    app.add_url_rule("/", view_func=Index.as_view("index"))
     rules = app.url_map._rules_by_endpoint["index"]
 
-    thing_description.action(rules, view_cls)
+    thing_description.action(rules, Index)
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("actions")
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
 
 
-def test_td_action_with_schema(
-    helpers, app, thing_description, view_cls, app_ctx, schemas_path
-):
-    view_cls.args = {"integer": fields.Int()}
-    view_cls.semtype = "ToggleAction"
+def test_td_action_with_schema(helpers, app, thing_description, app_ctx, schemas_path):
+    class Index(ActionView):
+        args = {"integer": fields.Int()}
+        semtype = "ToggleAction"
 
-    app.add_url_rule("/", view_func=view_cls.as_view("index"))
+        def post(self):
+            return "POST"
+
+    app.add_url_rule("/", view_func=Index.as_view("index"))
     rules = app.url_map._rules_by_endpoint["index"]
 
-    thing_description.action(rules, view_cls)
+    thing_description.action(rules, Index)
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("actions")
 
         assert thing_description.to_dict().get("actions").get("index") == {
-            "title": "ViewClass",
+            "title": "Index",
             "description": "",
             "links": [{"href": "/"}],
             "safe": False,
