@@ -18,11 +18,15 @@ class readproperty(_opannotation):
     pass
 
 
-class writeproperty(_opannotation):
+class observeproperty(_opannotation):
     pass
 
 
-class observeproperty(_opannotation):
+class unobserveproperty(_opannotation):
+    pass
+
+
+class writeproperty(_opannotation):
     pass
 
 
