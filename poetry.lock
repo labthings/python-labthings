@@ -190,7 +190,7 @@ description = "Barebones websocket extension for Flask, using Pythonthreading fo
 name = "flask-threaded-sockets"
 optional = false
 python-versions = ">=3.6,<4.0"
-version = "0.2.0"
+version = "0.3.0"
 
 [package.dependencies]
 flask = ">=1.1.2,<2.0.0"
@@ -780,7 +780,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "a7d2bff6345f5f23557cc888802ea19d34b896817341dfbb79ca58eb585ba82c"
+content-hash = "2c58b551379f181b3a8a4357df8090af08a5ac9d55058ae0199cde73aa0cb056"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -881,8 +881,8 @@ flask-cors = [
     {file = "Flask_Cors-3.0.8-py2.py3-none-any.whl", hash = "sha256:f4d97201660e6bbcff2d89d082b5b6d31abee04b1b3003ee073a6fd25ad1d69a"},
 ]
 flask-threaded-sockets = [
-    {file = "flask_threaded_sockets-0.2.0-py3-none-any.whl", hash = "sha256:e3fc55ccf7f22e801b967f15efd4d30ae8627c1fdc3c27e0195ba1bd369e32e1"},
-    {file = "flask_threaded_sockets-0.2.0.tar.gz", hash = "sha256:e9d2ee66ae1c9c2ac86373510c2a4295e0230109130b7bc6d2499f5cd4140361"},
+    {file = "flask_threaded_sockets-0.3.0-py3-none-any.whl", hash = "sha256:d9d070229ad11e3fdf01148b7d1ea69623c9bcf4b5b3be810d424fd479e2b42c"},
+    {file = "flask_threaded_sockets-0.3.0.tar.gz", hash = "sha256:3dee7017abe3e70216740997bd8c1d8ca816b3a0908c0a90fdaac00da2fbdedf"},
 ]
 idna = [
     {file = "idna-2.10-py2.py3-none-any.whl", hash = "sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0"},
