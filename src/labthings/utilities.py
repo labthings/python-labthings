@@ -48,15 +48,21 @@ class ResourceURL(UserString):
     Behaves as a Python string.
     """
 
-    def __init__(self, path: str, external: bool = True):
+    def __init__(self, path: str, external: bool = True, protocol: str = ""):
         self.path = path
         self.external = external
+        # Strip :// if the user mistakenly included it in the argument
+        self.protocol = protocol.rstrip("://")
         UserString.__init__(self, path)
 
     @property
     def data(self):
         if self.external and has_request_context():
             prefix = request.host_url.rstrip("/")
+            # Optional protocol override
+            if self.protocol:
+                # Strip old protocol and replace with custom protocol
+                prefix = self.protocol + "://" + prefix.split("://")[1]
         else:
             prefix = ""
         return prefix + self.path

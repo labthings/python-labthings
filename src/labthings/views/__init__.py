@@ -1,10 +1,12 @@
 from flask.views import MethodView, http_method_funcs
-from flask import request
+from flask import request, abort
 from werkzeug.wrappers import Response as ResponseBase
 from werkzeug.exceptions import BadRequest
 
 from .args import use_args
 from .marshalling import marshal_with
+
+from . import op
 
 from ..utilities import unpack, get_docstring, get_summary, merge
 from ..representations import DEFAULT_REPRESENTATIONS
@@ -18,7 +20,7 @@ from .. import fields
 
 import logging
 
-__all__ = ["MethodView", "View", "ActionView", "PropertyView"]
+__all__ = ["MethodView", "View", "ActionView", "PropertyView", "op"]
 
 
 class View(MethodView):
@@ -37,6 +39,7 @@ class View(MethodView):
 
     # Internal
     _cls_tags = set()  # Class tags that shouldn't be removed
+    _opmap = {}  # Mapping of Thing Description ops to class methods
 
     def __init__(self, *args, **kwargs):
         MethodView.__init__(self, *args, **kwargs)
@@ -104,6 +107,21 @@ class View(MethodView):
         else:  # Unless somehow an HTTP response isn't returned...
             return response
 
+    def _find_request_method(self):
+        meth = getattr(self, request.method.lower(), None)
+        if meth is None and request.method == "HEAD":
+            meth = getattr(self, "get", None)
+
+        # Handle the case of a GET request asking for WS upgrade where
+        # no websocket method is defined on the view
+        if request.method == "GET" and request.environ.get("wsgi.websocket"):
+            ws_meth = getattr(self, "websocket", None)
+            if ws_meth is None:
+                abort(400, "Unable to upgrade websocket connection")
+            return ws_meth
+
+        return meth
+
     def dispatch_request(self, *args, **kwargs):
         """
 
@@ -111,12 +129,7 @@ class View(MethodView):
         :param **kwargs: 
 
         """
-        meth = getattr(self, request.method.lower(), None)
-
-        # If the request method is HEAD and we don't have a handler for it
-        # retry with GET.
-        if meth is None and request.method == "HEAD":
-            meth = getattr(self, "get", None)
+        meth = self._find_request_method()
 
         # Generate basic response
         return self.represent_response(meth(*args, **kwargs))
@@ -165,9 +178,16 @@ class ActionView(View):
     default_stop_timeout: int = None  # Time in seconds to wait for the action thread to end after a stop request before terminating it forcefully
 
     # Internal
+    _opmap = {
+        "invokeaction": "post"
+    }  # Mapping of Thing Description ops to class methods
     _cls_tags = {"actions"}
     _deque = Deque()  # Action queue
     _emergency_pool = Pool()
+
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
 
     @classmethod
     def get(cls):
@@ -262,7 +282,7 @@ class ActionView(View):
         :param **kwargs: 
 
         """
-        meth = getattr(self, request.method.lower(), None)
+        meth = self._find_request_method()
 
         # Let base View handle non-POST requests
         if request.method != "POST":
@@ -320,6 +340,10 @@ class PropertyView(View):
     responses = {}  # Custom responses for all interactions
 
     # Internal
+    _opmap = {
+        "readproperty": "get",
+        "writeproperty": "put",
+    }  # Mapping of Thing Description ops to class methods
     _cls_tags = {"properties"}
 
     @classmethod
@@ -400,12 +424,7 @@ class PropertyView(View):
         :param **kwargs: 
 
         """
-        meth = getattr(self, request.method.lower(), None)
-
-        # If the request method is HEAD and we don't have a handler for it
-        # retry with GET.
-        if meth is None and request.method == "HEAD":
-            meth = getattr(self, "get", None)
+        meth = self._find_request_method()
 
         # POST and PUT methods can be used to write properties
         # In all other cases, ignore arguments
