@@ -13,10 +13,10 @@ class ActionQueue(View):
 
     def get(self):
         """ """
-        return ActionSchema(many=True).dump(current_labthing().actions.threads)
+        return ActionSchema(many=True).dump(current_labthing().action_pool.threads)
 
 
-class ActionView(View):
+class ActionObjectView(View):
     """Manage a particular action.
     
     GET will safely return the current action progress.
@@ -33,7 +33,7 @@ class ActionView(View):
         :param task_id: 
 
         """
-        task_dict = current_labthing().actions.to_dict()
+        task_dict = current_labthing().action_pool.to_dict()
 
         if task_id not in task_dict:
             return abort(404)  # 404 Not Found
@@ -53,7 +53,7 @@ class ActionView(View):
 
         """
         timeout = args.get("timeout", None)
-        task_dict = current_labthing().actions.to_dict()
+        task_dict = current_labthing().action_pool.to_dict()
 
         if task_id not in task_dict:
             return abort(404)  # 404 Not Found

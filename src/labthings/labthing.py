@@ -21,14 +21,14 @@ from .json.encoder import LabThingsJSONEncoder
 from .representations import DEFAULT_REPRESENTATIONS
 from .apispec import MarshmallowPlugin, rule_to_apispec_path
 from .td import ThingDescription
-from .event import Event
 
 from .actions.pool import Pool
 
+from .views.methodview import ActionView, PropertyView
 from .views.builder import property_of, action_from
 
 from .default_views.extensions import ExtensionList
-from .default_views.actions import ActionQueue, ActionView
+from .default_views.actions import ActionQueue, ActionObjectView
 from .default_views.docs import docs_blueprint, SwaggerUIView
 from .default_views.root import RootView
 from .default_views.sockets import socket_handler
@@ -94,7 +94,7 @@ class LabThing:
 
         self.extensions = {}  # Dictionary of LabThings extension objects
 
-        self.actions = Pool()  # Pool of threads for Actions
+        self.action_pool = Pool()  # Pool of threads for Actions
 
         self.events = {}  # Dictionary of Event affordances
 
@@ -241,8 +241,8 @@ class LabThing:
 
         # Add resources, if registered before tying to a Flask app
         if len(self.views) > 0:
-            for resource, urls, endpoint, kwargs in self.views:
-                self._register_view(app, resource, *urls, endpoint=endpoint, **kwargs)
+            for resource, url, endpoint, kwargs in self.views:
+                self._register_view(app, resource, url, endpoint=endpoint, **kwargs)
 
         # Create base routes
         self._create_base_routes()
@@ -251,7 +251,8 @@ class LabThing:
         self._create_base_sockets()
 
         # Create base events
-        self.add_event("logging")
+        # TODO: Update to new event system
+        # self.add_event("logging")
 
     def _create_base_routes(self):
         """
@@ -277,7 +278,7 @@ class LabThing:
         # Add action routes
         self.add_view(ActionQueue, "/actions", endpoint=ACTION_LIST_ENDPOINT)
         self.add_root_link(ActionQueue, "actions")
-        self.add_view(ActionView, "/actions/<task_id>", endpoint=ACTION_ENDPOINT)
+        self.add_view(ActionObjectView, "/actions/<task_id>", endpoint=ACTION_ENDPOINT)
 
     def _create_base_sockets(self):
         """
@@ -380,11 +381,11 @@ class LabThing:
 
         :param view: View class
         :type resource: :class:`labthings.views.View`
-        :param urls: one or more url routes to match for the resource, standard
-                    flask routing rules apply.  Any url variables will be
+        :param url: url route to match for the resource, standard
+                    flask routing rules apply. Any url variables will be
                     passed to the resource method as args.
-        :type urls: str
-        :param endpoint: endpoint name (defaults to :meth:`Resource.__name__`
+        :type url: str
+        :param endpoint: endpoint name (defaults to :meth:`View.__name__`
             Can be used to reference this route in :class:`fields.Url` fields
         :type endpoint: str
         :param kwargs: kwargs to be forwarded to the constructor
@@ -401,10 +402,23 @@ class LabThing:
         """
         endpoint = endpoint or camel_to_snake(view.__name__)
 
-        if self.app is not None:
-            self._register_view(self.app, view, url, endpoint=endpoint, **kwargs)
-
-        self.views.append((view, url, endpoint, kwargs))
+        if issubclass(view, PropertyView):
+            prop = view.as_interaction(endpoint=endpoint)
+            if self.app is not None:
+                self._register_interaction(self.app, prop, url)
+            self.properties[prop.name] = prop
+        elif issubclass(view, ActionView):
+            action = view.as_interaction(endpoint=endpoint)
+            if self.app is not None:
+                self._register_interaction(self.app, action, url)
+            self.actions[action.name] = action
+        else:
+            view_to_register = view
+            if self.app is not None:
+                self._register_view(
+                    self.app, view_to_register, url, endpoint=endpoint, **kwargs
+                )
+            self.views.append((view_to_register, url, endpoint, kwargs))
 
     def view(self, url, **kwargs):
         """Wraps a :class:`labthings.View` class, adding it to the LabThing. 
@@ -554,3 +568,6 @@ class LabThing:
         if urls is None:
             urls = [url_for_action(action_object, action_name)]
         self.add_view(action_from(action_object, action_name, **kwargs), *urls)
+
+    def emit(self, *args, **kwargs):
+        print("Swallowing emit as I haven't implemented it yet...")

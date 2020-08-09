@@ -240,7 +240,9 @@ class Action(Interaction):
         # Try to find a pool on the current LabThing,
         # but fall back to Views emergency pool
         pool = (
-            current_labthing().actions if current_labthing() else self._emergency_pool
+            current_labthing().action_pool
+            if current_labthing()
+            else self._emergency_pool
         )
         # Make a task out of the views `post` method
         task = pool.spawn(method, *args, **kwargs)

@@ -6,13 +6,12 @@ from werkzeug.exceptions import BadRequest
 from .args import use_args
 from .marshalling import marshal_with
 
-from . import methods as op
+from . import op
 from .interactions import Property, Action
 
 from ..utilities import unpack, get_docstring, get_summary, merge
 from ..representations import DEFAULT_REPRESENTATIONS
 from ..find import current_labthing
-from ..event import PropertyStatusEvent
 from ..schema import Schema, ActionSchema, build_action_schema
 from ..deque import Deque, resize_deque
 from ..json.schemas import schema_to_json
@@ -44,6 +43,43 @@ class View(MethodView):
     def __init__(self, *args, **kwargs):
         MethodView.__init__(self, *args, **kwargs)
 
+        self.representations = (
+            current_labthing().representations
+            if current_labthing()
+            else DEFAULT_REPRESENTATIONS
+        )
+
+    def dispatch_request(self, *args, **kwargs):
+        """
+        :param *args: 
+        :param **kwargs: 
+        """
+        meth = getattr(self, request.method.lower(), None)
+        if meth is None and request.method == "HEAD":
+            meth = getattr(self, "get", None)
+
+        # Generate basic response
+        return self.represent_response(meth(*args, **kwargs))
+
+    def represent_response(self, response):
+        """Take the marshalled return value of a function
+        and build a representation response
+        :param response: 
+        """
+        if isinstance(response, ResponseBase):  # There may be a better way to test
+            return response
+
+        representations = self.representations
+
+        # noinspection PyUnresolvedReferences
+        mediatype = request.accept_mimetypes.best_match(representations, default=None)
+        if mediatype in representations:
+            data, code, headers = unpack(response)
+            response = representations[mediatype](data, code, headers)
+            response.headers["Content-Type"] = mediatype
+            return response
+        return response
+
 
 class ActionView(View):
     """ """
@@ -71,8 +107,6 @@ class ActionView(View):
         "invokeaction": "post"
     }  # Mapping of Thing Description ops to class methods
     _cls_tags = {"actions"}
-    _deque = Deque()  # Action queue
-    _emergency_pool = Pool()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -80,10 +114,31 @@ class ActionView(View):
     @classmethod
     def get(cls):
         """
-        Default method for GET requests. Returns the action queue (including already finished actions) for this action
+        Default method for GET requests. 
+        Returns the action queue (including already finished actions) for this action
         """
         queue_schema = build_action_schema(cls.schema, cls.args)(many=True)
         return queue_schema.dump(cls._deque)
+
+    @classmethod
+    def as_interaction(cls, endpoint=None):
+        action = Action(
+            endpoint or cls.__name__,
+            None,
+            None,
+            schema=cls.schema,
+            args=cls.args,
+            semtype=cls.semtype,
+            safe=cls.safe,
+            idempotent=cls.idempotent,
+        )
+        action.content_type = cls.content_type
+        action.response_content_type = cls.response_content_type
+        for thing_op, http_meth in cls._opmap.items():
+            setattr(action, thing_op, getattr(cls, http_meth))
+            action._methodmap[http_meth] = thing_op
+
+        return action
 
 
 class PropertyView(View):
@@ -105,9 +160,22 @@ class PropertyView(View):
     _cls_tags = {"properties"}
 
     @classmethod
-    def as_interaction(cls):
-        prop = Property(cls.__name__, schema=cls.schema, semtype=cls.semtype)
+    def _is_readonly(cls):
+        return hasattr(cls, cls._opmap.get("writeproperty"))
+
+    @classmethod
+    def as_interaction(cls, endpoint=None):
+        prop = Property(
+            endpoint or cls.__name__,
+            None,
+            None,
+            schema=cls.schema,
+            semtype=cls.semtype,
+            readonly=cls._is_readonly(),
+        )
         prop.content_type = cls.content_type
         for thing_op, http_meth in cls._opmap.items():
-            setattr(prop, thing_op, cls.getattr(http_meth))
+            setattr(prop, thing_op, getattr(cls, http_meth))
             prop._methodmap[http_meth] = thing_op
+
+        return prop

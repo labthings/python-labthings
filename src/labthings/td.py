@@ -1,7 +1,6 @@
 from flask import url_for, request, has_request_context
 
 from .views import View
-from .event import Event
 from .json.schemas import schema_to_json, rule_to_params, rule_to_path
 from .find import current_labthing
 from .utilities import ResourceURL, get_docstring, snake_to_camel
@@ -134,15 +133,6 @@ class ThingDescription:
 
         return td
 
-    def event_to_thing_event(self, event: Event):
-        """
-
-        :param event: Event: 
-
-        """
-        # TODO: Include event schema
-        return {"forms": []}
-
     def view_to_thing_property(self, rules: list, view: View):
         """
 
@@ -267,11 +257,3 @@ class ThingDescription:
         endpoint = getattr(view, "endpoint", None) or getattr(rules[0], "endpoint")
         key = snake_to_camel(endpoint)
         self.actions[key] = self.view_to_thing_action(rules, view)
-
-    def event(self, event: Event):
-        """
-
-        :param event: Event: 
-
-        """
-        self.events[event.name] = self.event_to_thing_event(event)
