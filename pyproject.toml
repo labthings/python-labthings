@@ -20,6 +20,7 @@ apispec = "^3.2.0"
 flask-cors = "^3.0.8"
 zeroconf = ">=0.24.5,<0.29.0"
 flask-threaded-sockets = "^0.3.0"
+apispec_webframeworks = "^0.5.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.4"
