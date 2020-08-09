@@ -1,6 +1,7 @@
 from flask import url_for
 from flask_threaded_sockets import Sockets
 from apispec import APISpec
+from apispec_webframeworks.flask import FlaskPlugin
 
 # from apispec.ext.marshmallow import MarshmallowPlugin
 
@@ -98,8 +99,8 @@ class LabThing:
         self.events = {}  # Dictionary of Event affordances
 
         self.views = []  # List of View classes
-        self._property_views = {}  # Dictionary of PropertyView views
-        self._action_views = {}  # Dictionary of ActionView views
+        self.properties = {}  # Dictionary of Property instances
+        self.actions = {}  # Dictionary of Action instances
 
         self.subscribers = set()  # Set of connected event subscribers
 
@@ -134,7 +135,7 @@ class LabThing:
             title=self.title,
             version=self.version,
             openapi_version="3.0.2",
-            plugins=[MarshmallowPlugin()],
+            plugins=[FlaskPlugin(), MarshmallowPlugin()],
         )
 
         # Thing description
@@ -400,8 +401,6 @@ class LabThing:
         """
         endpoint = endpoint or camel_to_snake(view.__name__)
 
-        logging.debug(f"{endpoint}: {type(view)} @ {urls}")
-
         if self.app is not None:
             self._register_view(self.app, view, url, endpoint=endpoint, **kwargs)
 
@@ -446,30 +445,18 @@ class LabThing:
         rule = self._complete_url(url, "")
         # Add the url to the application or blueprint
         app.add_url_rule(rule, view_func=resource_func, endpoint=endpoint, **kwargs)
-        # Add to self.sockets so that the socket middleware may
-        # intercept the connection
-        if hasattr(view, "websocket"):
-            self.sockets.add_url_rule(rule, view_func=resource_func, endpoint=endpoint)
 
-        # There might be a better way to do this than _rules_by_endpoint,
-        # but I can't find one so this will do for now. Skipping PYL-W0212
-        flask_rules = app.url_map._rules_by_endpoint.get(endpoint)  # skipcq: PYL-W0212
-        for flask_rule in flask_rules:
-            self.spec.path(**rule_to_apispec_path(flask_rule, view, self.spec))
+        with app.test_request_context():
+            # TODO: Create a custom APIspec plugin for Interactions
+            self.spec.path(view=resource_func)
 
-        # Handle resource groups listed in API spec
-        if hasattr(view, "get_tags"):
-            if "actions" in view.get_tags():
-                self.thing_description.action(flask_rules, view)
-                self._action_views[view.endpoint] = view
-            if "properties" in view.get_tags():
-                self.thing_description.property(flask_rules, view)
-                self._property_views[view.endpoint] = view
+        logging.debug(f"{endpoint}: {type(view)} @ {url}")
 
     def _register_interaction(self, app, interaction, url, **kwargs):
         endpoint = interaction.name
         self.endpoints.add(endpoint)
 
+        interaction.endpoint = endpoint
         resource_func = interaction.dispatch_request
 
         # Build a complete URL
