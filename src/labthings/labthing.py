@@ -374,7 +374,7 @@ class LabThing:
         u = "".join(clean_url_string(part) for part in parts if part)
         return u if u else "/"
 
-    def add_view(self, view, *urls, endpoint=None, **kwargs):
+    def add_view(self, view, url, endpoint=None, **kwargs):
         """Adds a view to the api.
 
         :param view: View class
@@ -394,7 +394,7 @@ class LabThing:
 
         Examples::
 
-            labthing.add_view(HelloWorld, '/', '/hello')
+            labthing.add_view(HelloWorld, '/',)
             labthing.add_view(Foo, '/foo', endpoint="foo")
             labthing.add_view(FooSpecial, '/special/foo', endpoint="foo")
         """
@@ -403,11 +403,11 @@ class LabThing:
         logging.debug(f"{endpoint}: {type(view)} @ {urls}")
 
         if self.app is not None:
-            self._register_view(self.app, view, *urls, endpoint=endpoint, **kwargs)
+            self._register_view(self.app, view, url, endpoint=endpoint, **kwargs)
 
-        self.views.append((view, urls, endpoint, kwargs))
+        self.views.append((view, url, endpoint, kwargs))
 
-    def view(self, *urls, **kwargs):
+    def view(self, url, **kwargs):
         """Wraps a :class:`labthings.View` class, adding it to the LabThing. 
         Parameters are the same as :meth:`~labthings.LabThing.add_view`.
 
@@ -426,12 +426,12 @@ class LabThing:
 
         def decorator(cls):
             """ """
-            self.add_view(cls, *urls, **kwargs)
+            self.add_view(cls, url, **kwargs)
             return cls
 
         return decorator
 
-    def _register_view(self, app, view, *urls, endpoint=None, **kwargs):
+    def _register_view(self, app, view, url, endpoint=None, **kwargs):
         endpoint = endpoint or camel_to_snake(view.__name__)
         self.endpoints.add(endpoint)
         resource_class_args = kwargs.pop("resource_class_args", ())
@@ -442,17 +442,14 @@ class LabThing:
             endpoint, *resource_class_args, **resource_class_kwargs
         )
 
-        for url in urls:
-            # If we've got no Blueprint, just build a url with no prefix
-            rule = self._complete_url(url, "")
-            # Add the url to the application or blueprint
-            app.add_url_rule(rule, view_func=resource_func, endpoint=endpoint, **kwargs)
-            # Add to self.sockets so that the socket middleware may
-            # intercept the connection
-            if hasattr(view, "websocket"):
-                self.sockets.add_url_rule(
-                    rule, view_func=resource_func, endpoint=endpoint
-                )
+        # If we've got no Blueprint, just build a url with no prefix
+        rule = self._complete_url(url, "")
+        # Add the url to the application or blueprint
+        app.add_url_rule(rule, view_func=resource_func, endpoint=endpoint, **kwargs)
+        # Add to self.sockets so that the socket middleware may
+        # intercept the connection
+        if hasattr(view, "websocket"):
+            self.sockets.add_url_rule(rule, view_func=resource_func, endpoint=endpoint)
 
         # There might be a better way to do this than _rules_by_endpoint,
         # but I can't find one so this will do for now. Skipping PYL-W0212
@@ -469,39 +466,26 @@ class LabThing:
                 self.thing_description.property(flask_rules, view)
                 self._property_views[view.endpoint] = view
 
+    def _register_interaction(self, app, interaction, url, **kwargs):
+        endpoint = interaction.name
+        self.endpoints.add(endpoint)
+
+        resource_func = interaction.dispatch_request
+
+        # Build a complete URL
+        rule = self._complete_url(url, "")
+
+        # Add the url to the application or blueprint
+        app.add_url_rule(rule, view_func=resource_func, endpoint=endpoint, **kwargs)
+        # Add to self.sockets so that the socket middleware may
+        # intercept the connection
+        if "websocket" in interaction._methodmap:
+            self.sockets.add_url_rule(rule, view_func=resource_func, endpoint=endpoint)
+
+        # TODO: Add to API spec
+        # TODO: Add to Thing Description
+
     # Event stuff
-    def add_event(self, name, schema=None):
-        """
-
-        :param name: 
-        :param schema:  (Default value = None)
-
-        """
-        # TODO: Handle schema
-        # TODO: Add view for event, returning list of Event.events
-        self.events[name] = Event(name, schema=schema)
-        self.thing_description.event(self.events[name])
-
-    def emit(self, event_type: str, data: dict):
-        """Find a matching event type if one exists, and emit some data to it
-
-        :param event_type: str: 
-        :param data: dict: 
-
-        """
-        event_object = self.events[event_type]
-        self.message(event_object, data)
-
-    def message(self, event: Event, data: dict):
-        """Emit an event object to all subscribers
-
-        :param event: Event: 
-        :param data: dict: 
-
-        """
-        event_response = event.emit(data)
-        for sub in self.subscribers:
-            sub.emit(event_response)
 
     # Utilities
 

@@ -1,4 +1,4 @@
-from flask.views import MethodView, http_method_funcs
+from typing import Callable, Dict, List, Union
 from flask import request, abort
 from werkzeug.wrappers import Response as ResponseBase
 from werkzeug.exceptions import BadRequest
@@ -6,145 +6,45 @@ from werkzeug.exceptions import BadRequest
 from .args import use_args
 from .marshalling import marshal_with
 
-from . import op
-
-from ..utilities import unpack, get_docstring, get_summary, merge
-from ..representations import DEFAULT_REPRESENTATIONS
-from ..find import current_labthing
-from ..event import PropertyStatusEvent
 from ..schema import Schema, ActionSchema, build_action_schema
-from ..deque import Deque, resize_deque
-from ..json.schemas import schema_to_json
+from ..fields import Field
+from ..semantics.base import Semantic
+
+from ..deque import Deque
+from ..find import current_labthing
+from ..utilities import unpack
+from ..representations import DEFAULT_REPRESENTATIONS
 from ..actions.pool import Pool
-from .. import fields
 
-import logging
-
-__all__ = ["MethodView", "View", "ActionView", "PropertyView", "op"]
+from .methodview import MethodView, View, ActionView, PropertyView
 
 
-class View(MethodView):
-    """A LabThing Resource class should make use of functions
-    get(), put(), post(), and delete(), corresponding to HTTP methods.
-    
-    These functions will allow for automated documentation generation.
+class Interaction:
+    def __init__(self, name: str):
+        self.name = name
 
-    """
+        self.content_type = "application/json"  # Input contentType
+        self.response_content_type = "application/json"  # Output contentType
 
-    endpoint = None  # Store the View endpoint for use in specs
-
-    # Basic view spec metadata
-    tags: list = []  # Custom tags the user can add
-    title: None
-
-    # Internal
-    _cls_tags = set()  # Class tags that shouldn't be removed
-    _opmap = {}  # Mapping of Thing Description ops to class methods
-
-    def __init__(self, *args, **kwargs):
-        MethodView.__init__(self, *args, **kwargs)
-
+        self._methodmap = {}
         # Set the default representations
-        self.representations = (
+        self._representations = (
             current_labthing().representations
             if current_labthing()
             else DEFAULT_REPRESENTATIONS
         )
 
-    @classmethod
-    def get_apispec(cls):
-        """Build a basic OpenAPI spec, containing only basic view metadata
-
-
-        :returns: Minimal OpenAPI spec for the view class
-
-        :rtype: [dict]
-
-        """
-        d = {}
-
-        for method in http_method_funcs:
-            if hasattr(cls, method):
-                d[method] = {
-                    "description": getattr(cls, "description", None)
-                    or get_docstring(cls),
-                    "summary": getattr(cls, "summary", None) or get_summary(cls),
-                    "tags": list(cls.get_tags()),
-                    "responses": {
-                        "default": {
-                            "description": "Unexpected error",
-                            "content": {
-                                "application/json": {
-                                    "schema": schema_to_json(
-                                        {
-                                            "code": fields.Integer(),
-                                            "message": fields.String(),
-                                            "name": fields.String(),
-                                        }
-                                    )
-                                }
-                            },
-                        }
-                    },
-                }
-        return d
-
-    @classmethod
-    def get_tags(cls):
-        """ """
-        return cls._cls_tags.union(set(cls.tags))
-
-    def get_value(self):
-        """ """
-        get_method = getattr(self, "get", None)  # Look for this views GET method
-        if get_method is None:
-            return None
-        if not callable(get_method):
-            raise TypeError("Attribute 'get' of View must be a callable")
-        response = get_method()  # pylint: disable=not-callable
-        if isinstance(response, ResponseBase):  # Pluck useful data out of HTTP response
-            return response.json if response.json else response.data
-        else:  # Unless somehow an HTTP response isn't returned...
-            return response
-
-    def _find_request_method(self):
-        meth = getattr(self, request.method.lower(), None)
-        if meth is None and request.method == "HEAD":
-            meth = getattr(self, "get", None)
-
-        # Handle the case of a GET request asking for WS upgrade where
-        # no websocket method is defined on the view
-        if request.method == "GET" and request.environ.get("wsgi.websocket"):
-            ws_meth = getattr(self, "websocket", None)
-            if ws_meth is None:
-                abort(400, "Unable to upgrade websocket connection")
-            return ws_meth
-
-        return meth
-
-    def dispatch_request(self, *args, **kwargs):
-        """
-
-        :param *args: 
-        :param **kwargs: 
-
-        """
-        meth = self._find_request_method()
-
-        # Generate basic response
-        return self.represent_response(meth(*args, **kwargs))
-
-    def represent_response(self, response):
+    def _represent_response(self, response):
         """Take the marshalled return value of a function
         and build a representation response
 
-        :param response: 
+        :param response:
 
         """
         if isinstance(response, ResponseBase):  # There may be a better way to test
             return response
 
-        representations = self.representations or OrderedDict()
+        representations = self._representations
 
         # noinspection PyUnresolvedReferences
         mediatype = request.accept_mimetypes.best_match(representations, default=None)
@@ -155,125 +55,18 @@ class View(MethodView):
             return response
         return response
 
+    def _find_request_method(self):
+        request_meth = request.method.lower()
+        if request_meth == "get" and request.environ.get("wsgi.websocket"):
+            response_meth = self._methodmap.get("websocket", None)
+            if response_meth is None:
+                abort(400, "Unable to upgrade websocket connection")
+        else:
+            response_meth = self._methodmap.get(request_meth, None)
+            if response_meth is None:
+                abort(405)
 
-class ActionView(View):
-    """ """
-
-    # Data formatting
-    schema: Schema = None  # Schema for Action response
-    args: dict = None  # Schema for input arguments
-    semtype: str = None  # Semantic type string
-
-    # Spec overrides
-    content_type = "application/json"  # Input contentType
-    response_content_type = "application/json"  # Output contentType
-    responses = {}  # Custom responses for invokeaction
-
-    # Spec parameters
-    safe: bool = False  # Does the action complete WITHOUT changing the Thing state
-    idempotent: bool = False  # Can the action be performed idempotently
-
-    # Action handling
-    wait_for: int = 1  # Time in seconds to wait before returning the action as pending/running
-    default_stop_timeout: int = None  # Time in seconds to wait for the action thread to end after a stop request before terminating it forcefully
-
-    # Internal
-    _opmap = {
-        "invokeaction": "post"
-    }  # Mapping of Thing Description ops to class methods
-    _cls_tags = {"actions"}
-    _deque = Deque()  # Action queue
-    _emergency_pool = Pool()
-
-    def __init__(self, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
-
-    @classmethod
-    def get(cls):
-        """
-        Default method for GET requests. Returns the action queue (including already finished actions) for this action
-        """
-        queue_schema = build_action_schema(cls.schema, cls.args)(many=True)
-        return queue_schema.dump(cls._deque)
-
-    @classmethod
-    def get_apispec(cls):
-        """Build an OpenAPI spec for the Action view
-
-
-        :returns: OpenAPI spec for the view class
-
-        :rtype: [dict]
-
-        """
-        class_args = schema_to_json(cls.args)
-        action_json_schema = schema_to_json(build_action_schema(cls.schema, cls.args)())
-        queue_json_schema = schema_to_json(
-            build_action_schema(cls.schema, cls.args)(many=True)
-        )
-        class_json_schema = schema_to_json(cls.schema)
-
-        # Get basic view spec
-        d = super(ActionView, cls).get_apispec()
-        # Add in Action spec
-        d = merge(
-            d,
-            {
-                "post": {
-                    "requestBody": {
-                        "content": {
-                            cls.content_type: (
-                                {"schema": class_args} if class_args else {}
-                            )
-                        }
-                    },
-                    "responses": {
-                        # Responses like images must be added as 200 responses with cls.responses = {200: {...}}
-                        200: {
-                            "description": "Action completed immediately",
-                            # Allow customising 200 (immediate response) content type
-                            "content": {
-                                cls.response_content_type: (
-                                    {"schema": action_json_schema}
-                                    if action_json_schema
-                                    else {}
-                                )
-                            },
-                        },
-                        201: {
-                            "description": "Action started",
-                            # Our POST 201 MUST be application/json
-                            "content": {
-                                "application/json": (
-                                    {"schema": action_json_schema}
-                                    if action_json_schema
-                                    else {}
-                                )
-                            },
-                        },
-                    },
-                },
-                "get": {
-                    "responses": {
-                        # Our GET 200 MUST be application/json
-                        200: {
-                            "description": "Action queue",
-                            "content": {
-                                "application/json": (
-                                    {"schema": queue_json_schema}
-                                    if queue_json_schema
-                                    else {}
-                                )
-                            },
-                        }
-                    },
-                },
-            },
-        )
-        # Enable custom responses from POST
-        d["post"]["responses"].update(cls.responses)
-        return d
+        return response_meth
 
     def dispatch_request(self, *args, **kwargs):
         """
@@ -282,26 +75,175 @@ class ActionView(View):
         :param **kwargs: 
 
         """
-        meth = self._find_request_method()
+        method_name = self._find_request_method()
+        method = getattr(self, method_name, None)
 
-        # Let base View handle non-POST requests
-        if request.method != "POST":
-            return View.dispatch_request(self, *args, **kwargs)
+        # Generate basic response
+        return self._represent_response(method(*args, **kwargs))
+
+
+class Property(Interaction):
+    def __init__(
+        self,
+        name: str,
+        writeproperty_forwarder: Callable,
+        readproperty_forwarder: Callable,
+        readonly: bool = False,
+        description: str = None,
+        tags: List[str] = [],
+        schema: Union[Schema, Field, Dict[str, Field]] = None,
+        semtype: Semantic = None,
+    ):
+        super().__init__(name)
+        self.writeproperty_forwarder = writeproperty_forwarder
+        self.readproperty_forwarder = readproperty_forwarder
+        self.readonly = readonly
+        self.description = description
+        self.schema = schema
+        self.semtype = semtype
+
+        self._tags = tags
+        self._value = None
+
+        self._methodmap = {
+            "get": "readproperty",
+            "put": "writeproperty",
+            "websocket": None,
+        }
+
+    @property
+    def tags(self):
+        tags = set(self._tags)
+        tags.add("properties")
+        return tags
+
+    @property
+    def value(self):
+        if self.readproperty_forwarder:
+            self._value = self.readproperty_forwarder()
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self._value = value
+        if self.writeproperty_forwarder:
+            self.writeproperty_forwarder(value)
+
+    def readproperty(self):
+        return self.value
+
+    def writeproperty(self, value):
+        # TODO: Event emitter
+        self.value = value
+
+    def dispatch_request(self, *args, **kwargs):
+        """
+
+        :param *args: 
+        :param **kwargs: 
+
+        """
+        method_name = self._find_request_method()
+        method = getattr(self, method_name, None)
+
+        # POST and PUT methods can be used to write properties
+        # In all other cases, ignore arguments
+        if method_name == "writeproperty" and self.schema:
+            method = use_args(self.schema)(method)
+
+        # All methods should serialise properties
+        if self.schema:
+            method = marshal_with(self.schema)(method)
+
+        # Generate basic response
+        return self._represent_response(method(*args, **kwargs))
+
+
+class Action(Interaction):
+    def __init__(
+        self,
+        name: str,
+        invokeaction_forwarder: Callable,
+        readonly: bool = False,
+        description: str = None,
+        tags: List[str] = [],
+        safe: bool = False,
+        idempotent: bool = False,
+        args: Union[Schema, Field, Dict[str, Field]] = None,
+        schema: Union[Schema, Field, Dict[str, Field]] = None,
+        semtype: Semantic = None,
+        wait_for: int = 1,
+        default_stop_timeout: int = None,
+    ):
+        super().__init__(name)
+        self.invokeaction_forwarder = invokeaction_forwarder
+        self.description = description
+        self.safe = safe
+        self.idempotent = idempotent
+
+        self.args = args
+        self.schema = schema
+
+        self.semtype = semtype
+        self._tags = tags
+
+        # Action handling
+        self.wait_for = wait_for
+        self.default_stop_timeout: default_stop_timeout
+
+        # Action queue
+        self._queue_schema = build_action_schema(self.schema, self.args)(many=True)
+        self._deque = Deque()  # Action queue
+        self._emergency_pool = Pool()
+
+        self._methodmap = {
+            "post": "invokeaction",
+        }
+
+    @property
+    def tags(self):
+        tags = set(self._tags)
+        tags.add("actions")
+        return tags
+
+    def invokeaction(self, args):
+        # TODO: Event emitter
+        if self.invokeaction_forwarder:
+            self.invokeaction_forwarder(args)
+
+    def queue(self):
+        """
+        Default method for GET requests. 
+        Returns the action queue (including already finished actions) for this action
+        """
+
+        return self._queue_schema.dump(self._deque)
+
+    def dispatch_request(self, *args, **kwargs):
+        """
+
+        :param *args: 
+        :param **kwargs: 
+
+        """
+        method_name = self._find_request_method()
+        method = getattr(self, method_name, None)
 
         # Inject request arguments if an args schema is defined
         if self.args:
-            meth = use_args(self.args)(meth)
+            method = use_args(self.args)(method)
 
         # Marhal response if a response schema is defined
         if self.schema:
-            meth = marshal_with(self.schema)(meth)
+            method = marshal_with(self.schema)(method)
 
-        # Try to find a pool on the current LabThing, but fall back to Views emergency pool
+        # Try to find a pool on the current LabThing,
+        # but fall back to Views emergency pool
         pool = (
             current_labthing().actions if current_labthing() else self._emergency_pool
         )
         # Make a task out of the views `post` method
-        task = pool.spawn(meth, *args, **kwargs)
+        task = pool.spawn(method, *args, **kwargs)
         # Optionally override the threads default_stop_timeout
         if self.default_stop_timeout is not None:
             task.default_stop_timeout = self.default_stop_timeout
@@ -323,131 +265,8 @@ class ActionView(View):
 
         # If the action returns quickly, and returns a valid Response, return it as-is
         if task.output and isinstance(task.output, ResponseBase):
-            return self.represent_response(task.output, 200)
+            return self._represent_response((task.output, 200))
 
-        return self.represent_response((ActionSchema().dump(task), 201))
+        return self._represent_response((ActionSchema().dump(task), 201))
 
-
-class PropertyView(View):
-    """ """
-
-    # Data formatting
-    schema: Schema = None  # Schema for input AND output
-    semtype: str = None  # Semantic type string
-
-    # Spec overrides
-    content_type = "application/json"  # Input and output contentType
-    responses = {}  # Custom responses for all interactions
-
-    # Internal
-    _opmap = {
-        "readproperty": "get",
-        "writeproperty": "put",
-    }  # Mapping of Thing Description ops to class methods
-    _cls_tags = {"properties"}
-
-    @classmethod
-    def get_apispec(cls):
-        """Build an OpenAPI spec for the Property view
-
-
-        :returns: OpenAPI spec for the view class
-
-        :rtype: [dict]
-
-        """
-        class_json_schema = schema_to_json(cls.schema) if cls.schema else None
-
-        # Get basic view spec
-        d = super(PropertyView, cls).get_apispec()
-
-        # Add in writeproperty methods
-        for method in ("put", "post"):
-            if hasattr(cls, method):
-                d[method] = merge(
-                    d.get(method, {}),
-                    {
-                        "requestBody": {
-                            "content": {
-                                cls.content_type: (
-                                    {"schema": class_json_schema}
-                                    if class_json_schema
-                                    else {}
-                                )
-                            }
-                        },
-                        "responses": {
-                            200: {
-                                "content": {
-                                    cls.content_type: (
-                                        {"schema": class_json_schema}
-                                        if class_json_schema
-                                        else {}
-                                    )
-                                },
-                                "description": "Write property",
-                            }
-                        },
-                    },
-                )
-
-        # Add in readproperty methods
-        if hasattr(cls, "get"):
-            d["get"] = merge(
-                d.get("get", {}),
-                {
-                    "responses": {
-                        200: {
-                            "content": {
-                                cls.content_type: (
-                                    {"schema": class_json_schema}
-                                    if class_json_schema
-                                    else {}
-                                )
-                            },
-                            "description": "Read property",
-                        }
-                    },
-                },
-            )
-
-        # Enable custom responses from all methods
-        for method in d.keys():
-            d[method]["responses"].update(cls.responses)
-
-        return d
-
-    def dispatch_request(self, *args, **kwargs):
-        """
-
-        :param *args: 
-        :param **kwargs: 
-
-        """
-        meth = self._find_request_method()
-
-        # POST and PUT methods can be used to write properties
-        # In all other cases, ignore arguments
-        if request.method in ("PUT", "POST") and self.schema:
-            meth = use_args(self.schema)(meth)
-
-        # All methods should serialise properties
-        if self.schema:
-            meth = marshal_with(self.schema)(meth)
-
-        # Generate basic response
-        resp = self.represent_response(meth(*args, **kwargs))
-
-        # Emit property event
-        if request.method in ("POST", "PUT"):
-            property_value = self.get_value()
-            property_name = getattr(self, "endpoint", None) or getattr(
-                self, "__name__", "unknown"
-            )
-
-            if current_labthing():
-                current_labthing().message(
-                    PropertyStatusEvent(property_name), property_value,
-                )
-
-        return resp
+def propertyview_to_property(view)
