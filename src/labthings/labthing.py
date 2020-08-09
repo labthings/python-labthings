@@ -27,7 +27,6 @@ from .actions.pool import Pool
 from .views.builder import property_of, action_from
 
 from .default_views.extensions import ExtensionList
-from .default_views.tasks import TaskList, TaskView
 from .default_views.actions import ActionQueue, ActionView
 from .default_views.docs import docs_blueprint, SwaggerUIView
 from .default_views.root import RootView
@@ -274,9 +273,6 @@ class LabThing:
         # Add extension overview
         self.add_view(ExtensionList, "/extensions", endpoint=EXTENSION_LIST_ENDPOINT)
         self.add_root_link(ExtensionList, "extensions")
-        # Add task routes
-        self.add_view(TaskList, "/tasks", endpoint=TASK_LIST_ENDPOINT)
-        self.add_view(TaskView, "/tasks/<task_id>", endpoint=TASK_ENDPOINT)
         # Add action routes
         self.add_view(ActionQueue, "/actions", endpoint=ACTION_LIST_ENDPOINT)
         self.add_root_link(ActionQueue, "actions")
