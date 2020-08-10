@@ -505,8 +505,9 @@ class LabThing:
         if "websocket" in interaction._methodmap:
             self.sockets.add_url_rule(rule, view_func=resource_func, endpoint=endpoint)
 
+        flask_rules = app.url_map._rules_by_endpoint.get(endpoint)  # skipcq: PYL-W0212
+        self.thing_description.add(flask_rules, interaction)
         # TODO: Add to API spec
-        # TODO: Add to Thing Description
 
     # Event stuff
 

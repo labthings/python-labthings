@@ -21,6 +21,7 @@ from ..actions.pool import Pool
 class Interaction:
     def __init__(self, name: str):
         self.name = name
+        self.title = name
         self.endpoint = None
 
         self.content_type = "application/json"  # Input contentType
@@ -33,6 +34,12 @@ class Interaction:
             if current_labthing()
             else DEFAULT_REPRESENTATIONS
         )
+
+    def op(self, thing_op: str, http_method: str):
+        if thing_op is None and http_method in self._methodmap:
+            del self._methodmap[http_method]
+        else:
+            self._methodmap[http_method] = thing_op
 
     @property
     def methods(self):
@@ -67,7 +74,6 @@ class Interaction:
 
     def _find_request_method(self):
         request_meth = request.method.lower()
-        print("Running _find_request_method")
         if request_meth == "get" and request.environ.get("wsgi.websocket"):
             response_meth = self._methodmap.get("websocket", None)
             if response_meth is None:
@@ -86,7 +92,6 @@ class Interaction:
         :param **kwargs: 
 
         """
-        print("Interaction.dispatch_request")
         method_name = self._find_request_method()
         method = getattr(self, method_name, None)
 

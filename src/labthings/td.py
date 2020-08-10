@@ -1,12 +1,12 @@
 from flask import url_for, request, has_request_context
 
-from .views import View
+from .views import Interaction, Property, Action
 from .json.schemas import schema_to_json, rule_to_params, rule_to_path
 from .find import current_labthing
 from .utilities import ResourceURL, get_docstring, snake_to_camel
 
 
-def view_to_thing_forms(rules: list, view: View, external: bool = True):
+def interaction_to_thing_forms(rules: list, view: Interaction, external: bool = True):
     """Build a W3C form description for an general View
 
     :param rules: List of Flask rules
@@ -23,8 +23,8 @@ def view_to_thing_forms(rules: list, view: View, external: bool = True):
     forms = []
 
     # Get map from ops to HTTP methods
-    for op, meth in getattr(view, "_opmap", {}).items():
-        if hasattr(view, meth):
+    for meth, op in getattr(view, "_methodmap", {}).items():
+        if op and hasattr(view, op):
             prop_urls = [rule_to_path(rule) for rule in rules]
 
             # Get content_types
@@ -133,7 +133,7 @@ class ThingDescription:
 
         return td
 
-    def view_to_thing_property(self, rules: list, view: View):
+    def interaction_to_thing_property(self, rules: list, view: Interaction):
         """
 
         :param rules: list: 
@@ -144,17 +144,16 @@ class ThingDescription:
 
         # Basic description
         prop_description = {
-            "title": getattr(view, "title", None) or view.__name__,
-            "description": getattr(view, "description", None) or get_docstring(view),
-            "readOnly": not (
-                hasattr(view, "post") or hasattr(view, "put") or hasattr(view, "delete")
-            ),
-            "writeOnly": not hasattr(view, "get"),
+            "title": view.title,
+            "description": view.description,
+            "readOnly": view.readonly,
             "links": [
                 {"href": ResourceURL(url, external=self.external_links)}
                 for url in prop_urls
             ],
-            "forms": view_to_thing_forms(rules, view, external=self.external_links),
+            "forms": interaction_to_thing_forms(
+                rules, view, external=self.external_links
+            ),
             "uriVariables": {},
         }
 
@@ -189,7 +188,7 @@ class ThingDescription:
 
         return prop_description
 
-    def view_to_thing_action(self, rules: list, view: View):
+    def interaction_to_thing_action(self, rules: list, view: Interaction):
         """
 
         :param rules: list: 
@@ -200,15 +199,17 @@ class ThingDescription:
 
         # Basic description
         action_description = {
-            "title": getattr(view, "title", None) or view.__name__,
-            "description": getattr(view, "description", None) or get_docstring(view),
+            "title": view.title,
+            "description": view.description,
             "links": [
                 {"href": ResourceURL(url, external=self.external_links)}
                 for url in action_urls
             ],
             "safe": getattr(view, "safe", False),
             "idempotent": getattr(view, "idempotent", False),
-            "forms": view_to_thing_forms(rules, view, external=self.external_links),
+            "forms": interaction_to_thing_forms(
+                rules, view, external=self.external_links
+            ),
         }
 
         # Look for a _params in the Action classes API Spec
@@ -229,31 +230,13 @@ class ThingDescription:
 
         return action_description
 
-    def property(self, rules: list, view: View):
-        """
-
-        :param rules: list: 
-        :param view: View: 
-
-        """
-        endpoint = getattr(view, "endpoint", None) or getattr(rules[0], "endpoint")
-        key = snake_to_camel(endpoint)
-        self.properties[key] = self.view_to_thing_property(rules, view)
-
-    def action(self, rules: list, view: View):
-        """Add a view representing an Action.
-        
-        NB at present this will fail for any view that doesn't support POST
-        requests.
-
-        :param rules: list: 
-        :param view: View: 
-
-        """
-        if not hasattr(view, "post"):
-            raise AttributeError(
-                f"The API View '{view}' was added as an Action, but it does not have a POST method."
+    def add(self, rules: list, interaction: Interaction):
+        if isinstance(interaction, Property):
+            self.properties[interaction.name] = self.interaction_to_thing_property(
+                rules, interaction
             )
-        endpoint = getattr(view, "endpoint", None) or getattr(rules[0], "endpoint")
-        key = snake_to_camel(endpoint)
-        self.actions[key] = self.view_to_thing_action(rules, view)
+        elif isinstance(interaction, Action):
+            self.actions[interaction.name] = self.interaction_to_thing_action(
+                rules, interaction
+            )
+

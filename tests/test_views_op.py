@@ -1,6 +1,6 @@
 import pytest
 
-from labthings.views import View, op
+from labthings.views import PropertyView, op
 
 
 @pytest.fixture
@@ -9,25 +9,28 @@ def thing_description(thing):
 
 
 def test_op_readproperty(helpers, app, thing_description, app_ctx, schemas_path):
-    class Index(View):
+    class Index(PropertyView):
         @op.readproperty
         def get(self):
             return "GET"
 
-    app.add_url_rule("/", view_func=Index.as_view("index"))
-    rules = app.url_map._rules_by_endpoint["index"]
+    interaction = Index.as_interaction()
+    app.add_url_rule("/", view_func=Index.as_view("index"), endpoint=interaction.name)
+    rules = app.url_map._rules_by_endpoint[interaction.name]
 
-    thing_description.property(rules, Index)
+    thing_description.add(rules, interaction)
 
     with app_ctx.test_request_context():
-        assert "index" in thing_description.to_dict()["properties"]
+        assert interaction.name in thing_description.to_dict()["properties"]
         assert (
-            thing_description.to_dict()["properties"]["index"]["forms"][0]["op"]
+            thing_description.to_dict()["properties"][interaction.name]["forms"][0][
+                "op"
+            ]
             == "readproperty"
         )
 
         assert (
-            thing_description.to_dict()["properties"]["index"]["forms"][0][
+            thing_description.to_dict()["properties"][interaction.name]["forms"][0][
                 "htv:methodName"
             ]
             == "GET"
@@ -36,25 +39,28 @@ def test_op_readproperty(helpers, app, thing_description, app_ctx, schemas_path)
 
 
 def test_op_writeproperty(helpers, app, thing_description, app_ctx, schemas_path):
-    class Index(View):
+    class Index(PropertyView):
         @op.writeproperty
         def put(self):
             return "PUT"
 
-    app.add_url_rule("/", view_func=Index.as_view("index"))
-    rules = app.url_map._rules_by_endpoint["index"]
+    interaction = Index.as_interaction()
+    app.add_url_rule("/", view_func=Index.as_view("index"), endpoint=interaction.name)
+    rules = app.url_map._rules_by_endpoint[interaction.name]
 
-    thing_description.property(rules, Index)
+    thing_description.add(rules, interaction)
 
     with app_ctx.test_request_context():
-        assert "index" in thing_description.to_dict()["properties"]
+        assert interaction.name in thing_description.to_dict()["properties"]
         assert (
-            thing_description.to_dict()["properties"]["index"]["forms"][0]["op"]
+            thing_description.to_dict()["properties"][interaction.name]["forms"][1][
+                "op"
+            ]
             == "writeproperty"
         )
 
         assert (
-            thing_description.to_dict()["properties"]["index"]["forms"][0][
+            thing_description.to_dict()["properties"][interaction.name]["forms"][1][
                 "htv:methodName"
             ]
             == "PUT"

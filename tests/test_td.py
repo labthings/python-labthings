@@ -2,7 +2,7 @@ import pytest
 
 from labthings import fields
 
-from labthings.views import View, PropertyView, ActionView, op
+from labthings.views import Action, Property, op
 
 
 @pytest.fixture
@@ -51,14 +51,11 @@ def test_td_links(thing_description, app_ctx, view_cls):
 
 
 def test_td_action(helpers, app, thing_description, app_ctx, schemas_path):
-    class Index(ActionView):
-        def post(self):
-            return "POST"
+    interaction = Action("index", None, None)
 
-    app.add_url_rule("/", view_func=Index.as_view("index"))
-    rules = app.url_map._rules_by_endpoint["index"]
-
-    thing_description.action(rules, Index)
+    app.add_url_rule("/", view_func=interaction, endpoint=interaction.name)
+    rules = app.url_map._rules_by_endpoint[interaction.name]
+    thing_description.add(rules, interaction)
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("actions")
@@ -66,23 +63,19 @@ def test_td_action(helpers, app, thing_description, app_ctx, schemas_path):
 
 
 def test_td_action_with_schema(helpers, app, thing_description, app_ctx, schemas_path):
-    class Index(ActionView):
-        args = {"integer": fields.Int()}
-        semtype = "ToggleAction"
+    interaction = Action(
+        "index", None, None, args={"integer": fields.Int()}, semtype="ToggleAction"
+    )
 
-        def post(self):
-            return "POST"
-
-    app.add_url_rule("/", view_func=Index.as_view("index"))
-    rules = app.url_map._rules_by_endpoint["index"]
-
-    thing_description.action(rules, Index)
+    app.add_url_rule("/", view_func=interaction, endpoint=interaction.name)
+    rules = app.url_map._rules_by_endpoint[interaction.name]
+    thing_description.add(rules, interaction)
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("actions")
 
         assert thing_description.to_dict().get("actions").get("index") == {
-            "title": "Index",
+            "title": "index",
             "description": "",
             "links": [{"href": "/"}],
             "safe": False,
@@ -105,14 +98,11 @@ def test_td_action_with_schema(helpers, app, thing_description, app_ctx, schemas
 
 
 def test_td_property(helpers, app, thing_description, app_ctx, schemas_path):
-    class Index(PropertyView):
-        def get(self):
-            return "GET"
+    interaction = Property("index", None, None)
 
-    app.add_url_rule("/", view_func=Index.as_view("index"))
-    rules = app.url_map._rules_by_endpoint["index"]
-
-    thing_description.property(rules, Index)
+    app.add_url_rule("/", view_func=interaction, endpoint=interaction.name)
+    rules = app.url_map._rules_by_endpoint[interaction.name]
+    thing_description.add(rules, interaction)
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("properties")
@@ -122,16 +112,11 @@ def test_td_property(helpers, app, thing_description, app_ctx, schemas_path):
 def test_td_property_with_schema(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
-    class Index(PropertyView):
-        schema = fields.Int(required=True)
+    interaction = Property("index", None, None, schema=fields.Int(required=True))
 
-        def get(self):
-            return "GET"
-
-    app.add_url_rule("/", view_func=Index.as_view("index"))
-    rules = app.url_map._rules_by_endpoint["index"]
-
-    thing_description.property(rules, Index)
+    app.add_url_rule("/", view_func=interaction, endpoint=interaction.name)
+    rules = app.url_map._rules_by_endpoint[interaction.name]
+    thing_description.add(rules, interaction)
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("properties")
@@ -141,31 +126,13 @@ def test_td_property_with_schema(
 def test_td_property_with_url_param(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
-    class Index(PropertyView):
-        def get(self):
-            return "GET"
+    interaction = Property("index", None, None)
 
-    app.add_url_rule("/path/<int:id>/", view_func=Index.as_view("index"))
-    rules = app.url_map._rules_by_endpoint["index"]
-
-    thing_description.property(rules, Index)
-
-    with app_ctx.test_request_context():
-        assert "index" in thing_description.to_dict().get("properties")
-        helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
-
-
-def test_td_property_write_only(helpers, app, thing_description, app_ctx, schemas_path):
-    class Index(PropertyView):
-        schema = fields.Int()
-
-        def put(self):
-            return "PUT"
-
-    app.add_url_rule("/", view_func=Index.as_view("index"))
-    rules = app.url_map._rules_by_endpoint["index"]
-
-    thing_description.property(rules, Index)
+    app.add_url_rule(
+        "/path/<int:id>/", view_func=interaction, endpoint=interaction.name
+    )
+    rules = app.url_map._rules_by_endpoint[interaction.name]
+    thing_description.add(rules, interaction)
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("properties")
@@ -175,25 +142,23 @@ def test_td_property_write_only(helpers, app, thing_description, app_ctx, schema
 def test_td_property_post_to_write(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
-    class Index(PropertyView):
-        @op.writeproperty
-        def post(self):
-            return "POST"
+    interaction = Property("index", None, None)
+    interaction.op("writeproperty", "post")
+    interaction.op(None, "put")
 
-    app.add_url_rule("/", view_func=Index.as_view("index"))
-    rules = app.url_map._rules_by_endpoint["index"]
-
-    thing_description.property(rules, Index)
+    app.add_url_rule("/", view_func=interaction, endpoint=interaction.name)
+    rules = app.url_map._rules_by_endpoint[interaction.name]
+    thing_description.add(rules, interaction)
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict()["properties"]
         assert (
-            thing_description.to_dict()["properties"]["index"]["forms"][0]["op"]
+            thing_description.to_dict()["properties"]["index"]["forms"][1]["op"]
             == "writeproperty"
         )
 
         assert (
-            thing_description.to_dict()["properties"]["index"]["forms"][0][
+            thing_description.to_dict()["properties"]["index"]["forms"][1][
                 "htv:methodName"
             ]
             == "POST"
@@ -204,16 +169,12 @@ def test_td_property_post_to_write(
 def test_td_property_different_content_type(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
-    class Index(PropertyView):
-        content_type = "text/plain; charset=us-ascii"
+    interaction = Property("index", None, None)
+    interaction.content_type = "text/plain; charset=us-ascii"
 
-        def put(self):
-            return "PUT"
-
-    app.add_url_rule("/", view_func=Index.as_view("index"))
-    rules = app.url_map._rules_by_endpoint["index"]
-
-    thing_description.property(rules, Index)
+    app.add_url_rule("/", view_func=interaction, endpoint=interaction.name)
+    rules = app.url_map._rules_by_endpoint[interaction.name]
+    thing_description.add(rules, interaction)
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict()["properties"]
@@ -225,17 +186,13 @@ def test_td_property_different_content_type(
 def test_td_action_different_response_type(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
-    class Index(ActionView):
-        schema = fields.Int()
-        response_content_type = "text/plain; charset=us-ascii"
 
-        def post(self):
-            return "POST"
+    interaction = Action("index", None, None)
+    interaction.response_content_type = "text/plain; charset=us-ascii"
 
-    app.add_url_rule("/", view_func=Index.as_view("index"))
-    rules = app.url_map._rules_by_endpoint["index"]
-
-    thing_description.action(rules, Index)
+    app.add_url_rule("/", view_func=interaction, endpoint=interaction.name)
+    rules = app.url_map._rules_by_endpoint[interaction.name]
+    thing_description.add(rules, interaction)
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict()["actions"]
