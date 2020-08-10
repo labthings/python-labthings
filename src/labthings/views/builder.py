@@ -33,14 +33,14 @@ def property_of(
     name = name or type(property_object).__name__ + f"_{property_name}"
 
     # Create inner functions
-    def _read(self):
+    def _read():
         return getattr(property_object, property_name)
 
-    def _write(self, args):
+    def _write(args):
         setattr(property_object, property_name, args)
         return getattr(property_object, property_name)
 
-    def _update(self, args):
+    def _update(args):
         getattr(property_object, property_name).update(args)
         return getattr(property_object, property_name)
 
@@ -106,10 +106,10 @@ def action_from(
         )
 
     # Create inner functions
-    def _post(self):
+    def _post():
         return action_f()
 
-    def _post_with_args(self, args):
+    def _post_with_args(args):
         return action_f(**args)
 
     # Add decorators for arguments etc

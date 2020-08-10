@@ -3,7 +3,7 @@ from labthings.apispec.converter import ExtendedOpenAPIConverter
 from labthings import fields
 
 
-class TestField(fields.Field):
+class ExampleField(fields.Field):
     def _jsonschema_type_mapping(self):
         """ """
         return {"type": "string"}
@@ -12,7 +12,7 @@ class TestField(fields.Field):
 def test_jsonschema_type_mapping(spec):
     converter = ExtendedOpenAPIConverter("3.0.2", lambda _: None, spec)
 
-    assert converter.jsonschema_type_mapping(TestField()) == {"type": "string"}
+    assert converter.jsonschema_type_mapping(ExampleField()) == {"type": "string"}
 
 
 def test_jsonschema_type_mapping_missing(spec):

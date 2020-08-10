@@ -9,8 +9,13 @@ from labthings.semantics.base import Semantic
 def test_property_of_no_schema(app, client):
     obj = type("obj", (object,), {"property_name": "propertyValue"})
 
-    GeneratedClass = builder.property_of(obj, "property_name", schema=fields.String())
-    app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
+    interaction = builder.property_of(obj, "property_name", schema=fields.String())
+    app.add_url_rule(
+        "/",
+        view_func=interaction.dispatch_request,
+        methods=interaction.methods,
+        endpoint=interaction.name,
+    )
 
     with client as c:
         assert c.get("/").data == b'"propertyValue"\n'
@@ -21,8 +26,13 @@ def test_property_of_no_schema(app, client):
 def test_property_of_with_schema(app, client):
     obj = type("obj", (object,), {"property_name": "propertyValue"})
 
-    GeneratedClass = builder.property_of(obj, "property_name", schema=fields.String())
-    app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
+    interaction = builder.property_of(obj, "property_name", schema=fields.String())
+    app.add_url_rule(
+        "/",
+        view_func=interaction.dispatch_request,
+        methods=interaction.methods,
+        endpoint=interaction.name,
+    )
 
     with client as c:
         assert c.get("/").data == b'"propertyValue"\n'
@@ -42,12 +52,17 @@ def test_property_of_dict(app, client):
         },
     )
 
-    GeneratedClass = builder.property_of(
+    interaction = builder.property_of(
         obj,
         "properties",
         schema={"property_name": fields.String(), "property_name_2": fields.String(),},
     )
-    app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
+    app.add_url_rule(
+        "/",
+        view_func=interaction.dispatch_request,
+        methods=interaction.methods,
+        endpoint=interaction.name,
+    )
 
     with client as c:
         assert c.get("/").json == {
@@ -63,29 +78,29 @@ def test_property_of_dict(app, client):
 def test_property_of_readonly():
     obj = type("obj", (object,), {"property_name": "propertyValue"})
 
-    GeneratedClass = builder.property_of(obj, "property_name", readonly=True)
+    interaction = builder.property_of(obj, "property_name", readonly=True)
 
-    assert callable(GeneratedClass.get)
-    assert not hasattr(GeneratedClass, "post")
+    assert callable(interaction.readproperty)
+    assert not interaction.writeproperty
 
 
 def test_property_of_name_description():
     obj = type("obj", (object,), {"property_name": "propertyValue"})
-    GeneratedClass = builder.property_of(
+    interaction = builder.property_of(
         obj, "property_name", name="property_name", description="property description"
     )
 
-    assert GeneratedClass.description == "property description"
-    assert GeneratedClass.summary == "property description"
+    assert interaction.description == "property description"
+    assert interaction.summary == "property description"
 
 
 def test_property_of_semtype_string():
     obj = type("obj", (object,), {"property_name": "propertyValue"})
-    GeneratedClass = builder.property_of(
+    interaction = builder.property_of(
         obj, "property_name", name="property_name", semtype="SemanticType"
     )
 
-    assert GeneratedClass.semtype == "SemanticType"
+    assert interaction.semtype == "SemanticType"
 
 
 def test_property_of_semtype_semantic():
@@ -93,11 +108,11 @@ def test_property_of_semtype_semantic():
 
     semantic_annotation = Semantic()
 
-    GeneratedClass = builder.property_of(
+    interaction = builder.property_of(
         obj, "property_name", name="property_name", semtype=semantic_annotation
     )
 
-    assert GeneratedClass.semtype == "Semantic"
+    assert interaction.semtype == "Semantic"
 
 
 def test_property_of_semtype_invalid():
@@ -106,21 +121,26 @@ def test_property_of_semtype_invalid():
     semantic_annotation = object
 
     with pytest.raises(TypeError):
-        GeneratedClass = builder.property_of(
+        interaction = builder.property_of(
             obj, "property_name", name="property_name", semtype=semantic_annotation
         )
 
 
-def test_action_from(debug_app, debug_client):
+def test_action_from(app, client):
     def f():
         return "response"
 
     obj = type("obj", (object,), {"f": f})
 
-    GeneratedClass = builder.action_from(obj, "f")
-    debug_app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
+    interaction = builder.action_from(obj, "f")
+    app.add_url_rule(
+        "/",
+        view_func=interaction.dispatch_request,
+        methods=interaction.methods,
+        endpoint=interaction.name,
+    )
 
-    with debug_client as c:
+    with client as c:
         response = c.post("/").json
         assert "status" in response
 
@@ -131,10 +151,15 @@ def test_action_from_with_args(app, client):
 
     obj = type("obj", (object,), {"f": f})
 
-    GeneratedClass = builder.action_from(
+    interaction = builder.action_from(
         obj, "f", args={"arg1": fields.Int(), "arg2": fields.Int(required=False)}
     )
-    app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
+    app.add_url_rule(
+        "/",
+        view_func=interaction.dispatch_request,
+        methods=interaction.methods,
+        endpoint=interaction.name,
+    )
 
     with client as c:
         input_json = {"arg1": 5}
@@ -149,8 +174,13 @@ def test_action_from_with_schema(app, client):
 
     obj = type("obj", (object,), {"f": f})
 
-    GeneratedClass = builder.action_from(obj, "f", schema=fields.String())
-    app.add_url_rule("/", view_func=GeneratedClass.as_view("index"))
+    interaction = builder.action_from(obj, "f", schema=fields.String())
+    app.add_url_rule(
+        "/",
+        view_func=interaction.dispatch_request,
+        methods=interaction.methods,
+        endpoint=interaction.name,
+    )
 
     with client as c:
         response = c.post("/").json
@@ -180,9 +210,9 @@ def test_action_from_semtype_string():
 
     obj = type("obj", (object,), {"f": f})
 
-    GeneratedClass = builder.action_from(obj, "f", semtype="SemanticType")
+    interaction = builder.action_from(obj, "f", semtype="SemanticType")
 
-    assert GeneratedClass.semtype == "SemanticType"
+    assert interaction.semtype == "SemanticType"
 
 
 def test_action_from_semtype_semantic():
@@ -193,9 +223,9 @@ def test_action_from_semtype_semantic():
 
     semantic_annotation = Semantic()
 
-    GeneratedClass = builder.action_from(obj, "f", semtype=semantic_annotation)
+    interaction = builder.action_from(obj, "f", semtype=semantic_annotation)
 
-    assert GeneratedClass.semtype == "Semantic"
+    assert interaction.semtype == "Semantic"
 
 
 def test_action_from_semtype_invalid():
@@ -207,7 +237,7 @@ def test_action_from_semtype_invalid():
     semantic_annotation = object
 
     with pytest.raises(TypeError):
-        GeneratedClass = builder.action_from(obj, "f", semtype=semantic_annotation)
+        interaction = builder.action_from(obj, "f", semtype=semantic_annotation)
 
 
 def test_static_from(app, client, app_ctx, static_path):

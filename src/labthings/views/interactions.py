@@ -38,7 +38,9 @@ class Interaction:
     def methods(self):
         allowed_methods = set()
         for http_meth in http_method_funcs:
-            if http_meth in self._methodmap:
+            if http_meth in self._methodmap and hasattr(
+                self, self._methodmap.get(http_meth)
+            ):
                 allowed_methods.add(http_meth)
         return allowed_methods
 
@@ -102,7 +104,7 @@ class Property(Interaction):
         description: str = "",
         tags: List[str] = [],
         schema: Union[Schema, Field, Dict[str, Field]] = None,
-        semtype: Semantic = None,
+        semtype: Union[Semantic, str] = None,
     ):
         super().__init__(name)
         self.writeproperty_forwarder = writeproperty_forwarder
@@ -111,7 +113,13 @@ class Property(Interaction):
         self.description = description or ""
         self.summary = self.description.partition("\n")[0].strip()
         self.schema = schema
-        self.semtype = semtype
+
+        if isinstance(semtype, Semantic):
+            self = semtype(self)
+        elif isinstance(semtype, str) or semtype is None:
+            self.semtype = semtype
+        else:
+            raise TypeError("Argument semtype must be a Semantic object or string")
 
         self._tags = tags
         self._value = None
@@ -121,6 +129,9 @@ class Property(Interaction):
             "put": "writeproperty",
             "websocket": None,
         }
+
+        if self.readonly:
+            self.writeproperty = None
 
     @property
     def tags(self):
@@ -146,6 +157,7 @@ class Property(Interaction):
     def writeproperty(self, value):
         # TODO: Event emitter
         self.value = value
+        return self.value
 
     def dispatch_request(self, *args, **kwargs):
         """
@@ -195,7 +207,13 @@ class Action(Interaction):
         self.args = args
         self.schema = schema
 
-        self.semtype = semtype
+        if isinstance(semtype, Semantic):
+            self = semtype(self)
+        elif isinstance(semtype, str) or semtype is None:
+            self.semtype = semtype
+        else:
+            raise TypeError("Argument semtype must be a Semantic object or string")
+
         self._tags = tags
 
         # Action handling
@@ -217,10 +235,10 @@ class Action(Interaction):
         tags.add("actions")
         return tags
 
-    def invokeaction(self, args):
+    def invokeaction(self, *args, **kwargs):
         # TODO: Event emitter
         if self.invokeaction_forwarder:
-            self.invokeaction_forwarder(args)
+            return self.invokeaction_forwarder(*args, **kwargs)
 
     def queue(self):
         """
