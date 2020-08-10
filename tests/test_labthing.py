@@ -2,7 +2,7 @@ import pytest
 
 from labthings import LabThing
 
-from labthings.views import View
+from labthings.views import View, ActionView, PropertyView
 from labthings.representations import LabThingsJSONEncoder
 from labthings.names import EXTENSION_NAME
 from labthings.extensions import BaseExtension
@@ -60,16 +60,14 @@ def test_view_decorator(thing, client):
         assert c.get("/index").data == b'"GET"\n'
 
 
-def test_add_view_action(thing, view_cls, client):
-    view_cls.tags = ["actions"]
-    thing.add_view(view_cls, "/index", endpoint="index")
-    assert view_cls in thing._action_views.values()
+def test_add_view_action(thing, client):
+    thing.add_view(ActionView, "/index", endpoint="index")
+    assert "index" in thing.actions
 
 
 def test_add_view_property(thing, view_cls, client):
-    view_cls.tags = ["properties"]
-    thing.add_view(view_cls, "/index", endpoint="index")
-    assert view_cls in thing._property_views.values()
+    thing.add_view(PropertyView, "/index", endpoint="index")
+    assert "index" in thing.properties
 
 
 def test_init_app_early_views(app, view_cls, client):
@@ -248,7 +246,7 @@ def test_build_property(thing):
     thing.build_property(obj, "property_name")
     # -1 index for last view added
     # 1 index for URL tuple
-    assert "/properties/type/property_name" in thing.views[-1][1]
+    assert "type_property_name" in thing.properties
 
 
 def test_build_action(thing):
@@ -260,4 +258,4 @@ def test_build_action(thing):
     thing.build_action(obj, "f")
     # -1 index for last view added
     # 1 index for URL tuple
-    assert "/actions/type/f" in thing.views[-1][1]
+    assert "type_f" in thing.actions

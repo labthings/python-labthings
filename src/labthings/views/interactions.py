@@ -89,7 +89,7 @@ class Property(Interaction):
         writeproperty_forwarder: Callable,
         readproperty_forwarder: Callable,
         readonly: bool = False,
-        description: str = None,
+        description: str = "",
         tags: List[str] = [],
         schema: Union[Schema, Field, Dict[str, Field]] = None,
         semtype: Semantic = None,
@@ -98,7 +98,8 @@ class Property(Interaction):
         self.writeproperty_forwarder = writeproperty_forwarder
         self.readproperty_forwarder = readproperty_forwarder
         self.readonly = readonly
-        self.description = description
+        self.description = description or ""
+        self.summary = self.description.partition("\n")[0].strip()
         self.schema = schema
         self.semtype = semtype
 
@@ -164,8 +165,7 @@ class Action(Interaction):
         self,
         name: str,
         invokeaction_forwarder: Callable,
-        readonly: bool = False,
-        description: str = None,
+        description: str = "",
         tags: List[str] = [],
         safe: bool = False,
         idempotent: bool = False,
@@ -177,7 +177,8 @@ class Action(Interaction):
     ):
         super().__init__(name)
         self.invokeaction_forwarder = invokeaction_forwarder
-        self.description = description
+        self.description = description or ""
+        self.summary = self.description.partition("\n")[0].strip()
         self.safe = safe
         self.idempotent = idempotent
 

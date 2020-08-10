@@ -101,6 +101,7 @@ class TaskSchema(Schema):
 
 class ActionSchema(Schema):
     """ """
+
     _ID = fields.String(data_key="id")
     _status = fields.String(data_key="status")
     progress = fields.String()
@@ -195,6 +196,7 @@ def build_action_schema(output_schema: Schema, input_schema: Schema, name: str =
 
 class ExtensionSchema(Schema):
     """ """
+
     name = fields.String(data_key="title")
     _name_python_safe = fields.String(data_key="pythonName")
     _cls = fields.String(data_key="pythonObject")
@@ -214,22 +216,14 @@ class ExtensionSchema(Schema):
         d = {}
         for view_id, view_data in data.views.items():
             view_cls = view_data.get("view")
-            view_urls = view_data.get("urls")
+            view_url = view_data.get("url")
             # Try to build a URL
             try:
-                urls = [
-                    url_for(EXTENSION_LIST_ENDPOINT, _external=True) + url
-                    for url in view_urls
-                ]
+                url = url_for(EXTENSION_LIST_ENDPOINT, _external=True) + view_url
             except BuildError:
-                urls = []
-            # TODO: Tidy up this nasty jazz
-            if len(urls) == 0:
-                urls = None
-            elif len(urls) == 1:
-                urls = urls[0]
+                url = ""
             # Make links dictionary if it doesn't yet exist
-            d[view_id] = {"href": urls, **description_from_view(view_cls)}
+            d[view_id] = {"href": url, **description_from_view(view_cls)}
 
         data.links = d
 

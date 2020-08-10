@@ -135,8 +135,9 @@ class ActionView(View):
         action.content_type = cls.content_type
         action.response_content_type = cls.response_content_type
         for thing_op, http_meth in cls._opmap.items():
-            setattr(action, thing_op, getattr(cls, http_meth))
-            action._methodmap[http_meth] = thing_op
+            if hasattr(cls, http_meth):
+                setattr(action, thing_op, getattr(cls, http_meth))
+                action._methodmap[http_meth] = thing_op
 
         return action
 
@@ -175,7 +176,8 @@ class PropertyView(View):
         )
         prop.content_type = cls.content_type
         for thing_op, http_meth in cls._opmap.items():
-            setattr(prop, thing_op, getattr(cls, http_meth))
-            prop._methodmap[http_meth] = thing_op
+            if hasattr(cls, http_meth):
+                setattr(prop, thing_op, getattr(cls, http_meth))
+                prop._methodmap[http_meth] = thing_op
 
         return prop

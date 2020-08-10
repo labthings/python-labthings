@@ -53,10 +53,12 @@ class BaseExtension:
 
         self.static_view_class = static_from(static_folder)
         self.add_view(
+            self.static_view_class, f"{static_url_path}", endpoint="static",
+        )
+        self.add_view(
             self.static_view_class,
-            f"{static_url_path}",
             f"{static_url_path}/<path:path>",
-            endpoint="static",
+            endpoint="static_path",
         )
 
     @property
@@ -64,39 +66,34 @@ class BaseExtension:
         """ """
         return self._views
 
-    def add_view(self, view_class, *urls, endpoint=None, **kwargs):
+    def add_view(self, view_class, url, endpoint=None, **kwargs):
         """
 
         :param view_class: 
-        :param *urls: 
+        :param url: 
         :param endpoint:  (Default value = None)
         :param **kwargs: 
 
         """
         # Remove all leading slashes from view route
-        cleaned_urls = list(urls)
-        for i, cleaned_url in enumerate(cleaned_urls):
-            while cleaned_url and cleaned_urls[i][0] == "/":
-                cleaned_urls[i] = cleaned_urls[i][1:]
+        cleaned_url = url
+        while cleaned_url and cleaned_url[0] == "/":
+            cleaned_url = cleaned_url[1:]
 
         # Expand the rule to include extension name
-        full_urls = [
-            "/{}/{}".format(self._name_uri_safe, cleaned_url)
-            for cleaned_url in cleaned_urls
-        ]
+        full_url = "/{}/{}".format(self._name_uri_safe, cleaned_url)
 
         # Build endpoint if none given
         if not endpoint:
             endpoint = camel_to_snake(view_class.__name__)
 
         # Store route information in a dictionary
-        d = {"urls": full_urls, "view": view_class, "kwargs": kwargs}
+        d = {"url": full_url, "view": view_class, "kwargs": kwargs}
 
         # Add view to private views dictionary
         self._views[endpoint] = d
         # Store the rule expansion information
-        for url in cleaned_urls:
-            self._rules[url] = self._views[endpoint]
+        self._rules[cleaned_url] = self._views[endpoint]
 
     def on_register(self, function, args=None, kwargs=None):
         """

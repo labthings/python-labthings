@@ -98,7 +98,8 @@ class LabThing:
 
         self.events = {}  # Dictionary of Event affordances
 
-        self.views = []  # List of View classes
+        self.views = []  # List of View classes to register
+        self.interactions = []  # List of interaction objects to register
         self.properties = {}  # Dictionary of Property instances
         self.actions = {}  # Dictionary of Action instances
 
@@ -243,6 +244,9 @@ class LabThing:
         if len(self.views) > 0:
             for resource, url, endpoint, kwargs in self.views:
                 self._register_view(app, resource, url, endpoint=endpoint, **kwargs)
+        if len(self.interactions) > 0:
+            for interaction, url, kwargs in self.interactions:
+                self._register_interaction(app, interaction, url, **kwargs)
 
         # Create base routes
         self._create_base_routes()
@@ -339,7 +343,7 @@ class LabThing:
             # Add route to the extensions blueprint
             self.add_view(
                 extension_view["view"],
-                *("/extensions" + url for url in extension_view["urls"]),
+                "/extensions" + extension_view["url"],
                 endpoint=endpoint,
                 **extension_view["kwargs"],
             )
@@ -419,6 +423,18 @@ class LabThing:
                     self.app, view_to_register, url, endpoint=endpoint, **kwargs
                 )
             self.views.append((view_to_register, url, endpoint, kwargs))
+
+    def add_property(self, property_object, url, **kwargs):
+        if self.app is not None:
+            self._register_interaction(self.app, property_object, url, **kwargs)
+        self.interactions.append((property_object, url, kwargs))
+        self.properties[property_object.name] = property_object
+
+    def add_action(self, action_object, url, **kwargs):
+        if self.app is not None:
+            self._register_interaction(self.app, action_object, url, **kwargs)
+        self.interactions.append((action_object, url, kwargs))
+        self.actions[action_object.name] = action_object
 
     def view(self, url, **kwargs):
         """Wraps a :class:`labthings.View` class, adding it to the LabThing. 
@@ -526,14 +542,14 @@ class LabThing:
 
     # Convenience methods
     def build_property(
-        self, property_object: object, property_name: str, urls: list = None, **kwargs
+        self, property_object: object, property_name: str, url: str = None, **kwargs
     ):
         """
         Build an API Property from a Python object property, and add it to the API.
 
         :param property_object: object: Python object containing the property
         :param property_name: str: Name of the property on the Python object
-        :param urls: list:  (Default value = None)  Custom URLs for the Property. If None, the URL will be automatically generated.
+        :param url: str:  (Default value = None)  Custom URL for the Property. If None, the URL will be automatically generated.
         :param readonly:  (Default value = False) Is the property read-only?
         :param description:  (Default value = None) Human readable description of the property
         :param schema:  (Default value = fields.Field()) Marshmallow schema for the property
@@ -541,19 +557,19 @@ class LabThing:
         :param semtype:  (Default value = None) Optional semantic object containing schema and annotations
         :type semtype: :class:`labthings.semantics.Semantic`
         """
-        if urls is None:
-            urls = [url_for_property(property_object, property_name)]
-        self.add_view(property_of(property_object, property_name, **kwargs), *urls)
+        if url is None:
+            url = url_for_property(property_object, property_name)
+        self.add_property(property_of(property_object, property_name, **kwargs), url)
 
     def build_action(
-        self, action_object: object, action_name: str, urls: list = None, **kwargs
+        self, action_object: object, action_name: str, url: str = None, **kwargs
     ):
         """
         Build an API Action from a Python object method, and add it to the API.
 
         :param action_object: object: Python object containing the action method
         :param action_name: str: Name of the method on the Python object
-        :param urls: list:  (Default value = None)  Custom URLs for the Property. If None, the URL will be automatically generated.
+        :param url: str:  (Default value = None)  Custom URL for the Action. If None, the URL will be automatically generated.
         :param safe:  (Default value = False) Is the action safe
         :param idempotent:  (Default value = False) Is the action idempotent
         :param description:  (Default value = None) Human readable description of the property
@@ -565,9 +581,9 @@ class LabThing:
         :type semtype: :class:`labthings.semantics.Semantic`
 
         """
-        if urls is None:
-            urls = [url_for_action(action_object, action_name)]
-        self.add_view(action_from(action_object, action_name, **kwargs), *urls)
+        if url is None:
+            url = url_for_action(action_object, action_name)
+        self.add_action(action_from(action_object, action_name, **kwargs), url)
 
     def emit(self, *args, **kwargs):
         print("Swallowing emit as I haven't implemented it yet...")

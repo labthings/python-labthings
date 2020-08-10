@@ -19,7 +19,7 @@ def test_add_view(lt_extension, app, view_cls):
 
     assert "index" in lt_extension.views
     assert lt_extension.views.get("index") == {
-        "urls": ["/org.labthings.tests.extension/index"],
+        "url": "/org.labthings.tests.extension/index",
         "view": view_cls,
         "kwargs": {},
     }

@@ -1,4 +1,4 @@
-from . import View, ActionView, PropertyView
+from . import View, Action, Property
 from .. import fields
 from ..semantics.base import Semantic
 
@@ -30,73 +30,40 @@ def property_of(
     """
 
     # Create a class name
-    if not name:
-        name = type(property_object).__name__ + f"_{property_name}"
+    name = name or type(property_object).__name__ + f"_{property_name}"
 
     # Create inner functions
     def _read(self):
-        """ """
         return getattr(property_object, property_name)
 
     def _write(self, args):
-        """
-
-        :param args: 
-
-        """
         setattr(property_object, property_name, args)
         return getattr(property_object, property_name)
 
     def _update(self, args):
-        """
-
-        :param args: 
-
-        """
         getattr(property_object, property_name).update(args)
         return getattr(property_object, property_name)
 
-    # Generate a basic property class
-    generated_class = type(
-        name,
-        (PropertyView, object),
-        {
-            "property_object": property_object,
-            "property_name": property_name,
-            "get": _read,
-        },
-    )
-
     # Override read-write capabilities
-    if not readonly:
+    if readonly:
+        writeproperty_forwarder = None
+    else:
         # Enable update PUT requests for dictionaries
         if type(getattr(property_object, property_name)) is dict:
-            generated_class.put = _update
-            generated_class.methods.add("PUT")
-        # Normally, use PUT to write property
+            writeproperty_forwarder = _update
         else:
-            generated_class.put = _write
-            generated_class.methods.add("PUT")
+            writeproperty_forwarder = _write
 
-    # Add decorators for arguments etc
-    if schema:
-        generated_class.schema = schema
-
-    if description:
-        generated_class.description = description
-        generated_class.summary = description.partition("\n")[0].strip()
-
-    # Apply semantic type last, to ensure this is always used
-    if semtype:
-        if isinstance(semtype, str):
-            generated_class.semtype = semtype
-        elif isinstance(semtype, Semantic):
-            generated_class = semtype(generated_class)
-        else:
-            raise TypeError(
-                "Unsupported type for semtype. Must be a string or Semantic object"
-            )
-    return generated_class
+    # Generate property
+    return Property(
+        name,
+        writeproperty_forwarder,
+        _read,
+        readonly=readonly,
+        description=description,
+        schema=schema,
+        semtype=semtype,
+    )
 
 
 def action_from(
@@ -109,6 +76,8 @@ def action_from(
     args=None,
     schema=None,
     semtype=None,
+    wait_for: int = 1,
+    default_stop_timeout: int = None,
 ):
     """
     :param action_object: object: Python object containing the action method
@@ -126,8 +95,7 @@ def action_from(
     """
 
     # Create a class name
-    if not name:
-        name = type(action_object).__name__ + f"_{action_name}"
+    name = name or type(action_object).__name__ + f"_{action_name}"
 
     # Get pointer to action function
     action_f = getattr(action_object, action_name)
@@ -139,46 +107,29 @@ def action_from(
 
     # Create inner functions
     def _post(self):
-        """ """
         return action_f()
 
     def _post_with_args(self, args):
-        """
-
-        :param args: 
-
-        """
         return action_f(**args)
 
     # Add decorators for arguments etc
     if args is not None:
-        generated_class = type(name, (ActionView, object), {"post": _post_with_args})
-        generated_class.args = args
+        invokeaction_forwarder = _post_with_args
     else:
-        generated_class = type(name, (ActionView, object), {"post": _post})
+        invokeaction_forwarder = _post
 
-    if schema:
-        generated_class.schema = schema
-
-    if description:
-        generated_class.description = description
-        generated_class.summary = description.partition("\n")[0].strip()
-
-    # Apply semantic type last, to ensure this is always used
-    if semtype:
-        if isinstance(semtype, str):
-            generated_class.semtype = semtype
-        elif isinstance(semtype, Semantic):
-            generated_class = semtype(generated_class)
-        else:
-            raise TypeError(
-                "Unsupported type for semtype. Must be a string or Semantic object"
-            )
-
-    generated_class.safe = safe
-    generated_class.idempotent = idempotent
-
-    return generated_class
+    return Action(
+        name,
+        invokeaction_forwarder,
+        description=description,
+        safe=safe,
+        idempotent=idempotent,
+        args=args,
+        schema=schema,
+        semtype=semtype,
+        wait_for=wait_for,
+        default_stop_timeout=default_stop_timeout,
+    )
 
 
 def static_from(static_folder: str, name=None):
