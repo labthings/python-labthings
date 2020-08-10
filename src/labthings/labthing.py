@@ -493,7 +493,13 @@ class LabThing:
         rule = self._complete_url(url, "")
 
         # Add the url to the application or blueprint
-        app.add_url_rule(rule, view_func=resource_func, endpoint=endpoint, **kwargs)
+        app.add_url_rule(
+            rule,
+            view_func=resource_func,
+            endpoint=endpoint,
+            methods=interaction.methods,
+            **kwargs,
+        )
         # Add to self.sockets so that the socket middleware may
         # intercept the connection
         if "websocket" in interaction._methodmap:

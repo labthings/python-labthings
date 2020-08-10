@@ -34,6 +34,14 @@ class Interaction:
             else DEFAULT_REPRESENTATIONS
         )
 
+    @property
+    def methods(self):
+        allowed_methods = set()
+        for http_meth in http_method_funcs:
+            if http_meth in self._methodmap:
+                allowed_methods.add(http_meth)
+        return allowed_methods
+
     def _represent_response(self, response):
         """Take the marshalled return value of a function
         and build a representation response
@@ -57,6 +65,7 @@ class Interaction:
 
     def _find_request_method(self):
         request_meth = request.method.lower()
+        print("Running _find_request_method")
         if request_meth == "get" and request.environ.get("wsgi.websocket"):
             response_meth = self._methodmap.get("websocket", None)
             if response_meth is None:
@@ -75,6 +84,7 @@ class Interaction:
         :param **kwargs: 
 
         """
+        print("Interaction.dispatch_request")
         method_name = self._find_request_method()
         method = getattr(self, method_name, None)
 
@@ -190,7 +200,7 @@ class Action(Interaction):
 
         # Action handling
         self.wait_for = wait_for
-        self.default_stop_timeout: default_stop_timeout
+        self.default_stop_timeout = default_stop_timeout
 
         # Action queue
         self._queue_schema = build_action_schema(self.schema, self.args)(many=True)
@@ -227,6 +237,7 @@ class Action(Interaction):
         :param **kwargs: 
 
         """
+        print("Action.dispatch_request")
         method_name = self._find_request_method()
         method = getattr(self, method_name, None)
 

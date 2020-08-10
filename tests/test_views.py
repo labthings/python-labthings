@@ -1,4 +1,4 @@
-from labthings import views
+from labthings import views, fields
 from werkzeug.http import parse_set_header
 from werkzeug.wrappers import Response as ResponseBase
 from flask import make_response
@@ -104,88 +104,63 @@ def test_missing_head_method(app, client):
         assert res.status_code == 200
 
 
-def test_get_value_text():
-    class Index(views.View):
-        def get(self):
-            return "GET"
-
-    # Main test
-    assert Index().get_value() == "GET"
-
-
-def test_get_value_missing():
-    class Index(views.View):
-        def post(self):
-            return "POST"
-
-    # Main test
-    assert Index().get_value() is None
-
-
-def test_get_value_raise_if_not_callable():
-    class Index(views.View):
-        def post(self):
-            return "POST"
-
-    Index.get = "GET"
-
-    with pytest.raises(TypeError):
-        # Main test
-        Index().get_value()
-
-
-def test_get_value_response_text(app_ctx):
-    class Index(views.View):
-        def get(self):
-            return make_response("GET", 200)
-
-    with app_ctx.test_request_context():
-        assert isinstance(Index().get(), ResponseBase)
-        assert Index().get().headers.get("Content-Type") == "text/html; charset=utf-8"
-        # Main test
-        assert Index().get_value() == b"GET"
-
-
-def test_get_value_response_json(app_ctx):
-    class Index(views.View):
-        def get(self):
-            return make_response({"json": "body"}, 200)
-
-    with app_ctx.test_request_context():
-        assert isinstance(Index().get(), ResponseBase)
-        assert Index().get().headers.get("Content-Type") == "application/json"
-        # Main test
-        assert Index().get_value() == {"json": "body"}
-
-
-def test_action_view_get_responses():
-    class Index(views.ActionView):
-        def post(self):
-            return {}
-
-    responses = Index.get_apispec().get("post").get("responses")
-    assert 201 in responses
-    assert "application/json" in responses[201]["content"]
-    assert "schema" in responses[201]["content"]["application/json"]
-
-
-def test_action_view_stop(app):
+def test_action_view(app):
     class Index(views.ActionView):
         default_stop_timeout = 0
 
-        def post(self):
+        args = fields.String()
+
+        def post(self, args):
+            print(args)
             while True:
                 time.sleep(1)
 
-    app.add_url_rule("/", view_func=Index.as_view("index"))
+    interaction = Index.as_interaction()
+    resource_func = interaction.dispatch_request
+
+    app.add_url_rule(
+        "/",
+        view_func=resource_func,
+        endpoint=interaction.name,
+        methods=interaction.methods,
+    )
     c = app.test_client()
 
-    response = c.post("/")
+    response = c.post("/", data="foo")
     assert response.status_code == 201
     assert response.json.get("status") == "running"
     # Assert we only have a single running Action thread
-    assert len(Index._deque) == 1
-    action_thread = Index._deque[0]
+    assert len(interaction._deque) == 1
+    action_thread = interaction._deque[0]
     assert action_thread.default_stop_timeout == 0
-    action_thread.stop()
+    action_thread.stop(timeout=0)
     assert action_thread.status == "terminated"
+
+
+def test_property_view(app):
+    value = "foo"
+
+    class Index(views.PropertyView):
+        schema = fields.String()
+
+        def get(self):
+            return value
+
+        def put(self, new_Value):
+            value = new_Value
+            return value
+
+    interaction = Index.as_interaction()
+    resource_func = interaction.dispatch_request
+
+    app.add_url_rule(
+        "/",
+        view_func=resource_func,
+        endpoint=interaction.name,
+        methods=interaction.methods,
+    )
+    c = app.test_client()
+
+    response = c.get("/")
+    assert response.data == b"foo"
+    response = c.put("/", data="bar")

@@ -122,6 +122,18 @@ class ActionView(View):
 
     @classmethod
     def as_interaction(cls, endpoint=None):
+        def view_func_builder(view_class_http_method: callable):
+            """
+            Our View class method expects the first argument to be an instance
+            if the View class. We therefore use this function builder to construct
+            a method that automatically injects an instance of the View class.
+            """
+
+            def f(*args, **kwargs):
+                return view_class_http_method(cls(), *args, **kwargs)
+
+            return f
+
         action = Action(
             endpoint or cls.__name__,
             None,
@@ -131,12 +143,14 @@ class ActionView(View):
             semtype=cls.semtype,
             safe=cls.safe,
             idempotent=cls.idempotent,
+            default_stop_timeout=cls.default_stop_timeout,
+            wait_for=cls.wait_for,
         )
         action.content_type = cls.content_type
         action.response_content_type = cls.response_content_type
         for thing_op, http_meth in cls._opmap.items():
             if hasattr(cls, http_meth):
-                setattr(action, thing_op, getattr(cls, http_meth))
+                setattr(action, thing_op, view_func_builder(getattr(cls, http_meth)))
                 action._methodmap[http_meth] = thing_op
 
         return action
@@ -166,6 +180,18 @@ class PropertyView(View):
 
     @classmethod
     def as_interaction(cls, endpoint=None):
+        def view_func_builder(view_class_http_method: callable):
+            """
+            Our View class method expects the first argument to be an instance
+            if the View class. We therefore use this function builder to construct
+            a method that automatically injects an instance of the View class.
+            """
+
+            def f(*args, **kwargs):
+                return view_class_http_method(cls(), *args, **kwargs)
+
+            return f
+
         prop = Property(
             endpoint or cls.__name__,
             None,
@@ -177,7 +203,7 @@ class PropertyView(View):
         prop.content_type = cls.content_type
         for thing_op, http_meth in cls._opmap.items():
             if hasattr(cls, http_meth):
-                setattr(prop, thing_op, getattr(cls, http_meth))
+                setattr(prop, thing_op, view_func_builder(getattr(cls, http_meth)))
                 prop._methodmap[http_meth] = thing_op
 
         return prop
