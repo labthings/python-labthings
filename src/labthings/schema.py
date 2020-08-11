@@ -4,7 +4,7 @@ from werkzeug.routing import BuildError
 from marshmallow import Schema, pre_load, pre_dump, validate
 from collections.abc import Mapping
 
-from .names import ACTION_ENDPOINT, TASK_ENDPOINT, EXTENSION_LIST_ENDPOINT
+from .names import ACTION_ENDPOINT, EXTENSION_LIST_ENDPOINT
 from .utilities import view_class_from_endpoint, description_from_view
 from . import fields
 
@@ -60,43 +60,6 @@ class FieldSchema(Schema):
 
         """
         return self.serialize(value)
-
-
-class TaskSchema(Schema):
-    """Legacy schema for background actions. Will eventually be replaced by ActionSchema,"""
-
-    _ID = fields.String(data_key="id")
-    target_string = fields.String(data_key="function")
-    _status = fields.String(data_key="status")
-    progress = fields.String()
-    data = fields.Raw()
-    _return_value = fields.Raw(data_key="return")
-    _start_time = fields.DateTime(data_key="start_time")
-    _end_time = fields.DateTime(data_key="end_time")
-    log = fields.List(fields.Dict())
-
-    links = fields.Dict()
-
-    @pre_dump
-    def generate_links(self, data, **kwargs):
-        """
-
-        :param data: 
-        :param **kwargs: 
-
-        """
-        try:
-            url = url_for(TASK_ENDPOINT, task_id=data.id, _external=True)
-        except BuildError:
-            url = None
-        data.links = {
-            "self": {
-                "href": url,
-                "mimetype": "application/json",
-                **description_from_view(view_class_from_endpoint(TASK_ENDPOINT)),
-            }
-        }
-        return data
 
 
 class ActionSchema(Schema):
