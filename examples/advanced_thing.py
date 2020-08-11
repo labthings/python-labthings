@@ -136,7 +136,7 @@ atexit.register(cleanup)
 # Create LabThings Flask app
 app, labthing = create_app(
     __name__,
-    title=f"My Lab Device API",
+    title="My Lab Device API",
     description="Test LabThing-based API",
     version="0.1.0",
 )

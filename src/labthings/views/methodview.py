@@ -1,25 +1,13 @@
-from flask.views import MethodView, http_method_funcs
-from flask import request, abort
+from flask import request
+from flask.views import MethodView
 from werkzeug.wrappers import Response as ResponseBase
-from werkzeug.exceptions import BadRequest
 
-from .args import use_args
-from .marshalling import marshal_with
-
-from . import op
 from .interactions import Property, Action
 
-from ..utilities import unpack, get_docstring, get_summary, merge
+from ..utilities import unpack
 from ..representations import DEFAULT_REPRESENTATIONS
 from ..find import current_labthing
-from ..schema import Schema, ActionSchema, build_action_schema
-from ..deque import Deque, resize_deque
-from ..json.schemas import schema_to_json
-from ..actions.pool import Pool
-
-from .. import fields
-
-import logging
+from ..schema import Schema, build_action_schema
 
 
 class View(MethodView):

@@ -21,7 +21,6 @@ from .td import ThingDescription
 from .actions.pool import Pool
 
 from .views.methodview import ActionView, PropertyView
-from .views.builder import property_of, action_from
 
 from .default_views.extensions import ExtensionList
 from .default_views.actions import ActionQueue, ActionObjectView
@@ -545,53 +544,6 @@ class LabThing:
         if params is None:
             params = {}
         self.thing_description.add_link(view, rel, kwargs=kwargs, params=params)
-
-    # Convenience methods
-    def build_property(
-        self, property_object: object, property_name: str, url: str = None, **kwargs
-    ):
-        """
-        Build an API Property from a Python object property, and add it to the API.
-
-        :param property_object: object: Python object containing the property
-        :param property_name: str: Name of the property on the Python object
-        :param url: str:  (Default value = None)  Custom URL for the Property. If None, the URL will be automatically generated.
-        :param readonly:  (Default value = False) Is the property read-only?
-        :param description:  (Default value = None) Human readable description of the property
-        :param schema:  (Default value = fields.Field()) Marshmallow schema for the property
-        :type schema: :class:`labthings.fields.Field` or :class:`labthings.schema.Schema`
-        :param semtype:  (Default value = None) Optional semantic object containing schema and annotations
-        :type semtype: :class:`labthings.semantics.Semantic`
-        """
-        if url is None:
-            url = f"/properties/{property_object.__class__.__name__}/{property_name}"
-        self.add_property(
-            property_of(property_object, property_name, **kwargs), url=url
-        )
-
-    def build_action(
-        self, action_object: object, action_name: str, url: str = None, **kwargs
-    ):
-        """
-        Build an API Action from a Python object method, and add it to the API.
-
-        :param action_object: object: Python object containing the action method
-        :param action_name: str: Name of the method on the Python object
-        :param url: str:  (Default value = None)  Custom URL for the Action. If None, the URL will be automatically generated.
-        :param safe:  (Default value = False) Is the action safe
-        :param idempotent:  (Default value = False) Is the action idempotent
-        :param description:  (Default value = None) Human readable description of the property
-        :param args:  (Default value = fields.Field()) Marshmallow schema for the method arguments
-        :type args: :class:`labthings.schema.Schema`
-        :param schema:  (Default value = fields.Field()) Marshmallow schema for the method response
-        :type schema: :class:`labthings.fields.Field` or :class:`labthings.schema.Schema`
-        :param semtype:  (Default value = None) Optional semantic object containing schema and annotations
-        :type semtype: :class:`labthings.semantics.Semantic`
-
-        """
-        if url is None:
-            url = f"/actions/{action_object.__class__.__name__}/{action_name}"
-        self.add_action(action_from(action_object, action_name, **kwargs), url=url)
 
     def emit(self, *args, **kwargs):
         print("Swallowing emit as I haven't implemented it yet...")

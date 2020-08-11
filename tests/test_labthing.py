@@ -238,24 +238,3 @@ def test_version(thing):
     thing.version = "x.x.x"
     assert thing.version == "x.x.x"
     assert thing.spec.version == "x.x.x"
-
-
-def test_build_property(thing):
-    obj = type("obj", (object,), {"property_name": "propertyValue"})
-
-    thing.build_property(obj, "property_name")
-    # -1 index for last view added
-    # 1 index for URL tuple
-    assert "type_property_name" in thing.properties
-
-
-def test_build_action(thing):
-    def f():
-        return "response"
-
-    obj = type("obj", (object,), {"f": f})
-
-    thing.build_action(obj, "f")
-    # -1 index for last view added
-    # 1 index for URL tuple
-    assert "type_f" in thing.actions
