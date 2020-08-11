@@ -8,6 +8,7 @@ sentinel = object()
 
 class LockError(RuntimeError):
     """ """
+
     ERROR_CODES = {
         "ACQUIRE_ERROR": "Unable to acquire. Lock in use by another thread.",
         "IN_USE_ERROR": "Lock in use by another thread.",

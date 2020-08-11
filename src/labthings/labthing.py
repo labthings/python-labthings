@@ -29,7 +29,7 @@ from .default_views.docs import docs_blueprint, SwaggerUIView
 from .default_views.root import RootView
 from .default_views.sockets import socket_handler
 
-from .utilities import camel_to_snake, url_for_property, url_for_action
+from .utilities import camel_to_snake
 
 import weakref
 import logging
@@ -418,13 +418,17 @@ class LabThing:
                 )
             self.views.append((view_to_register, url, endpoint, kwargs))
 
-    def add_property(self, property_object, url, **kwargs):
+    def add_property(self, property_object, url=None, **kwargs):
+        if url is None:
+            url = f"/properties/{property_object.name}"
         if self.app is not None:
             self._register_interaction(self.app, property_object, url, **kwargs)
         self.interactions.append((property_object, url, kwargs))
         self.properties[property_object.name] = property_object
 
-    def add_action(self, action_object, url, **kwargs):
+    def add_action(self, action_object, url=None, **kwargs):
+        if url is None:
+            url = f"/actions/{action_object.name}"
         if self.app is not None:
             self._register_interaction(self.app, action_object, url, **kwargs)
         self.interactions.append((action_object, url, kwargs))
@@ -560,8 +564,10 @@ class LabThing:
         :type semtype: :class:`labthings.semantics.Semantic`
         """
         if url is None:
-            url = url_for_property(property_object, property_name)
-        self.add_property(property_of(property_object, property_name, **kwargs), url)
+            url = f"/properties/{property_object.__class__.__name__}/{property_name}"
+        self.add_property(
+            property_of(property_object, property_name, **kwargs), url=url
+        )
 
     def build_action(
         self, action_object: object, action_name: str, url: str = None, **kwargs
@@ -584,8 +590,8 @@ class LabThing:
 
         """
         if url is None:
-            url = url_for_action(action_object, action_name)
-        self.add_action(action_from(action_object, action_name, **kwargs), url)
+            url = f"/actions/{action_object.__class__.__name__}/{action_name}"
+        self.add_action(action_from(action_object, action_name, **kwargs), url=url)
 
     def emit(self, *args, **kwargs):
         print("Swallowing emit as I haven't implemented it yet...")

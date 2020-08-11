@@ -239,4 +239,3 @@ class ThingDescription:
             self.actions[interaction.name] = self.interaction_to_thing_action(
                 rules, interaction
             )
-

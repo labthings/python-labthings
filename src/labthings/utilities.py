@@ -10,9 +10,7 @@ import os
 import copy
 import time
 import typing
-import inspect
 from functools import reduce
-from typing import Callable
 
 PY3 = sys.version_info > (3,)
 
@@ -368,23 +366,3 @@ def path_relative_to(source_file, *paths):
 
     """
     return os.path.join(os.path.abspath(os.path.dirname(source_file)), *paths)
-
-
-def url_for_property(property_object: object, property_name: str):
-    """
-
-    :param property_object: object: 
-    :param property_name: str: 
-
-    """
-    return f"/properties/{property_object.__class__.__name__}/{property_name}"
-
-
-def url_for_action(action_object: object, action_name: str):
-    """
-
-    :param action_object: object: 
-    :param action_name: str: 
-
-    """
-    return f"/actions/{action_object.__class__.__name__}/{action_name}"

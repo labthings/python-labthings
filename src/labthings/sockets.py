@@ -3,6 +3,7 @@ from .representations import encode_json
 
 class SocketSubscriber:
     """ """
+
     def __init__(self, ws):
         self.ws = ws
 

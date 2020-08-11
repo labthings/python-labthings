@@ -29,6 +29,9 @@ from .actions import ActionKilledException
 from .schema import Schema
 from . import fields
 
+# View classes
+from .views import Property, Action
+
 # Submodules
 from . import extensions
 from . import views
@@ -39,6 +42,8 @@ __all__ = [
     "LabThing",
     "create_app",
     "Server",
+    "Property",
+    "Action",
     "current_labthing",
     "registered_extensions",
     "registered_components",
@@ -58,4 +63,3 @@ __all__ = [
     "semantics",
     "json",
 ]
-

@@ -85,6 +85,12 @@ class Interaction:
 
         return response_meth
 
+    def bind_method(self, http_method: str, method: str):
+        self._methodmap[http_method] = method
+
+    def bind_websocket(self, method: str):
+        self._methodmap["websocket"] = method
+
     def dispatch_request(self, *args, **kwargs):
         """
 
@@ -103,18 +109,21 @@ class Property(Interaction):
     def __init__(
         self,
         name: str,
-        writeproperty_forwarder: Callable,
-        readproperty_forwarder: Callable,
-        readonly: bool = False,
+        writeproperty: Callable = None,
+        readproperty: Callable = None,
+        readonly: bool = None,
         description: str = "",
         tags: List[str] = [],
         schema: Union[Schema, Field, Dict[str, Field]] = None,
         semtype: Union[Semantic, str] = None,
     ):
         super().__init__(name)
-        self.writeproperty_forwarder = writeproperty_forwarder
-        self.readproperty_forwarder = readproperty_forwarder
-        self.readonly = readonly
+        self.writeproperty_forwarder = writeproperty
+        self.readproperty_forwarder = readproperty
+        if readonly is None:
+            self.readonly = not writeproperty
+        else:
+            self.readonly = readonly
         self.description = description or ""
         self.summary = self.description.partition("\n")[0].strip()
         self.schema = schema
@@ -191,7 +200,7 @@ class Action(Interaction):
     def __init__(
         self,
         name: str,
-        invokeaction_forwarder: Callable,
+        invokeaction: Callable = None,
         description: str = "",
         tags: List[str] = [],
         safe: bool = False,
@@ -203,7 +212,7 @@ class Action(Interaction):
         default_stop_timeout: int = None,
     ):
         super().__init__(name)
-        self.invokeaction_forwarder = invokeaction_forwarder
+        self.invokeaction_forwarder = invokeaction
         self.description = description or ""
         self.summary = self.description.partition("\n")[0].strip()
         self.safe = safe

@@ -1,12 +1,16 @@
 #!/usr/bin/env python
-import random
-import math
 import time
 import logging
 import atexit
 
-from labthings import create_app, semantics, find_component, fields
-from labthings.views import ActionView, PropertyView, op
+from labthings import (
+    create_app,
+    semantics,
+    find_component,
+    fields,
+    Property,
+    Action,
+)
 from labthings.example_components import PretendSpectrometer
 from labthings.json import encode_json
 
@@ -23,19 +27,23 @@ and register is as a Thing property
 """
 
 
-# Wrap in a semantic annotation to autmatically set schema and args
-@semantics.moz.LevelProperty(100, 500, example=200)
-class DenoiseProperty(PropertyView):
+class DenoiseProperty(Property):
     """Value of integration_time"""
 
-    @op.readproperty
-    def get(self):
+    def __init__(
+        self, name,
+    ):
+        super().__init__(
+            name, semtype=semantics.moz.LevelProperty(100, 500, example=200),
+        )
+        self.bind_websocket("observeproperty")
+
+    def readproperty(self):
         # When a GET request is made, we'll find our attached component
         my_component = find_component("org.labthings.example.mycomponent")
         return my_component.integration_time
 
-    @op.writeproperty
-    def put(self, new_property_value):
+    def writeproperty(self, new_property_value):
         # Find our attached component
         my_component = find_component("org.labthings.example.mycomponent")
 
@@ -44,8 +52,7 @@ class DenoiseProperty(PropertyView):
 
         return my_component.integration_time
 
-    @op.observeproperty
-    def websocket(self, ws):
+    def observeproperty(self, ws):
         # Find our attached component
         my_component = find_component("org.labthings.example.mycomponent")
         initial_value = None
@@ -61,20 +68,23 @@ Create a view to quickly get some noisy data, and register is as a Thing propert
 """
 
 
-class QuickDataProperty(PropertyView):
+class QuickDataProperty(Property):
     """Show the current data value"""
 
-    # Marshal the response as a list of floats
-    schema = fields.List(fields.Float())
+    def __init__(
+        self, name,
+    ):
+        super().__init__(
+            name, schema=fields.List(fields.Float()),
+        )
+        self.bind_websocket("observeproperty")
 
-    @op.readproperty
-    def get(self):
+    def readproperty(self):
         # Find our attached component
         my_component = find_component("org.labthings.example.mycomponent")
         return my_component.data
 
-    @op.observeproperty
-    def websocket(self, ws):
+    def observeproperty(self, ws):
         # Find our attached component
         my_component = find_component("org.labthings.example.mycomponent")
         while not ws.closed:
@@ -86,20 +96,24 @@ Create a view to start an averaged measurement, and register is as a Thing actio
 """
 
 
-class MeasurementAction(ActionView):
-    # Expect JSON parameters in the request body.
-    # Pass to post function as dictionary argument.
-    args = {
-        "averages": fields.Integer(
-            missing=20, example=20, description="Number of data sets to average over",
+class MeasurementAction(Action):
+    def __init__(
+        self, name,
+    ):
+        super().__init__(
+            name,
+            args={
+                "averages": fields.Integer(
+                    missing=20,
+                    example=20,
+                    description="Number of data sets to average over",
+                )
+            },
+            schema=fields.List(fields.Number),
         )
-    }
-    # Marshal the response as a list of numbers
-    schema = fields.List(fields.Number)
 
     # Main function to handle POST requests
-    @op.invokeaction
-    def post(self, args):
+    def invokeaction(self, args):
         """Start an averaged measurement"""
 
         # Find our attached component
@@ -134,13 +148,13 @@ labthing.add_component(my_spectrometer, "org.labthings.example.mycomponent")
 
 
 # Add routes for the API views we created
-labthing.add_view(DenoiseProperty, "/integration_time")
-labthing.add_view(QuickDataProperty, "/quick-data")
-labthing.add_view(MeasurementAction, "/actions/measure")
+labthing.add_property(DenoiseProperty("integration_time"))
+labthing.add_property(QuickDataProperty("quick-data"))
+labthing.add_action(MeasurementAction("measure"))
 
 
 # Start the app
 if __name__ == "__main__":
-    from labthings.server.wsgi import Server
+    from labthings import Server
 
     Server(app).run()

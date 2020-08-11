@@ -50,6 +50,6 @@ labthing.build_action(
 
 # Start the app
 if __name__ == "__main__":
-    from labthings.server.wsgi import Server
+    from labthings import Server
 
     Server(app).run()

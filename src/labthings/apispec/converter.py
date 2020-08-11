@@ -3,6 +3,7 @@ from apispec.ext.marshmallow import OpenAPIConverter
 
 class ExtendedOpenAPIConverter(OpenAPIConverter):
     """ """
+
     field_mapping = OpenAPIConverter.field_mapping
 
     def init_attribute_functions(self, *args, **kwargs):

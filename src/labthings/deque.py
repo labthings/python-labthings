@@ -3,6 +3,7 @@ from collections import deque as _deque
 
 class Deque(_deque):
     """ """
+
     def __init__(self, iterable=None, maxlen=100):
         _deque.__init__(self, iterable or [], maxlen)
 
