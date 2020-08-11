@@ -3,12 +3,8 @@ from flask_threaded_sockets import Sockets
 from apispec import APISpec
 from apispec_webframeworks.flask import FlaskPlugin
 
-# from apispec.ext.marshmallow import MarshmallowPlugin
-
 from .names import (
     EXTENSION_NAME,
-    TASK_ENDPOINT,
-    TASK_LIST_ENDPOINT,
     ACTION_ENDPOINT,
     ACTION_LIST_ENDPOINT,
     EXTENSION_LIST_ENDPOINT,
@@ -19,7 +15,7 @@ from .httperrorhandler import SerializedExceptionHandler
 from .logging import LabThingLogger
 from .json.encoder import LabThingsJSONEncoder
 from .representations import DEFAULT_REPRESENTATIONS
-from .apispec import MarshmallowPlugin, rule_to_apispec_path
+from .apispec import MarshmallowPlugin, FlaskLabThingsPlugin
 from .td import ThingDescription
 
 from .actions.pool import Pool
@@ -34,8 +30,6 @@ from .default_views.root import RootView
 from .default_views.sockets import socket_handler
 
 from .utilities import camel_to_snake, url_for_property, url_for_action
-
-from typing import Callable
 
 import weakref
 import logging
@@ -136,7 +130,7 @@ class LabThing:
             title=self.title,
             version=self.version,
             openapi_version="3.0.2",
-            plugins=[FlaskPlugin(), MarshmallowPlugin()],
+            plugins=[FlaskPlugin(), FlaskLabThingsPlugin(), MarshmallowPlugin()],
         )
 
         # Thing description
@@ -477,7 +471,6 @@ class LabThing:
         app.add_url_rule(rule, view_func=resource_func, endpoint=endpoint, **kwargs)
 
         with app.test_request_context():
-            # TODO: Create a custom APIspec plugin for Interactions
             self.spec.path(view=resource_func)
 
         logging.debug(f"{endpoint}: {type(view)} @ {url}")
@@ -507,7 +500,9 @@ class LabThing:
 
         flask_rules = app.url_map._rules_by_endpoint.get(endpoint)  # skipcq: PYL-W0212
         self.thing_description.add(flask_rules, interaction)
-        # TODO: Add to API spec
+
+        with app.test_request_context():
+            self.spec.path(view=resource_func, interaction=interaction)
 
     # Event stuff
 

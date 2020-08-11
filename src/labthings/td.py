@@ -3,7 +3,7 @@ from flask import url_for, request, has_request_context
 from .views import Interaction, Property, Action
 from .json.schemas import schema_to_json, rule_to_params, rule_to_path
 from .find import current_labthing
-from .utilities import ResourceURL, get_docstring, snake_to_camel
+from .utilities import ResourceURL
 
 
 def interaction_to_thing_forms(rules: list, view: Interaction, external: bool = True):
