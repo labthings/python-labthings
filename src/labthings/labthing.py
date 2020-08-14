@@ -66,6 +66,7 @@ class LabThing:
 
     def __init__(
         self,
+        id_: str,
         app=None,
         prefix: str = "",
         title: str = "",
@@ -76,8 +77,7 @@ class LabThing:
         external_links: bool = True,
         json_encoder=LabThingsJSONEncoder,
     ):
-        if types is None:
-            types = []
+        self.id = f"urn:wot:lab:{id_}"
         self.app = app  # Becomes a Flask app
         self.sockets = None  # Becomes a Socket(app) websocket handler
 
@@ -102,11 +102,6 @@ class LabThing:
 
         self.url_prefix = prefix  # Global URL prefix for all LabThings views
 
-        for t in types:
-            if ";" in t:
-                raise ValueError(
-                    f'Error in type value "{t}". Thing types cannot contain ; character.'
-                )
         self.types = types
 
         self._description = description

@@ -117,7 +117,7 @@ class ThingDescription:
                 "https://iot.mozilla.org/schemas/",
             ],
             "@type": current_labthing().types,
-            "id": url_for("root", _external=True),
+            "id": current_labthing().id,
             "title": current_labthing().title,
             "description": current_labthing().description,
             "properties": self.properties,
