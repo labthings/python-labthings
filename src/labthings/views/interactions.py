@@ -131,7 +131,7 @@ class Property(Interaction):
             initial_value=initial_value,
         )
         # TODO: Add Thing-level property notifier function to Value object
-        self.readonly = self.value.readonly
+        self.readonly = bool(self.value.readonly)
         # Remove the writeproperty method if it's useless
         if self.readonly:
             self.writeproperty = None
