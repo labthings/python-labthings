@@ -52,6 +52,7 @@ class Value(EventEmitter):
     def readonly(self):
         return self.read_forwarder and not self.write_forwarder
 
+    @property
     def writeonly(self):
         return self.write_forwarder and not self.read_forwarder
 
