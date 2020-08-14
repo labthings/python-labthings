@@ -143,8 +143,8 @@ def test_td_property_post_to_write(
     helpers, app, thing_description, app_ctx, schemas_path
 ):
     interaction = Property("index", None, None)
-    interaction.op("writeproperty", "post")
-    interaction.op(None, "put")
+    interaction.bind_method("post", "writeproperty")
+    interaction.unbind_method("put")
 
     app.add_url_rule("/", view_func=interaction, endpoint=interaction.name)
     rules = app.url_map._rules_by_endpoint[interaction.name]
