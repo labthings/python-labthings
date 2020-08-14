@@ -1,4 +1,4 @@
-from labthings.views import Interaction, Property, Action
+from labthings.interactions import Interaction, Property, Action
 from labthings.representations import DEFAULT_REPRESENTATIONS
 
 

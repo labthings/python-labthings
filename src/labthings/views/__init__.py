@@ -1,5 +1,4 @@
 from .methodview import MethodView, View, ActionView, PropertyView
-from .interactions import Interaction, Property, Action
 from . import op
 
 __all__ = [
@@ -7,8 +6,5 @@ __all__ = [
     "View",
     "ActionView",
     "PropertyView",
-    "Interaction",
-    "Property",
-    "Action",
     "op",
 ]

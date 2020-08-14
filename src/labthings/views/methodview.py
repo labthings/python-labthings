@@ -4,7 +4,7 @@ from werkzeug.wrappers import Response as ResponseBase
 
 import logging
 
-from .interactions import Property, Action
+from ..interactions import Property, Action
 
 from ..utilities import unpack
 from ..representations import DEFAULT_REPRESENTATIONS

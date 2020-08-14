@@ -30,13 +30,14 @@ from .schema import Schema
 from . import fields
 
 # View classes
-from .views import Property, Action
+from .interactions import Property, Action
 
 # Submodules
 from . import extensions
 from . import views
 from . import semantics
 from . import json
+from . import marshalling
 
 __all__ = [
     "LabThing",
@@ -62,4 +63,5 @@ __all__ = [
     "Schema",
     "semantics",
     "json",
+    "marshalling",
 ]

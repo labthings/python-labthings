@@ -1,6 +1,6 @@
 from flask import url_for, request, has_request_context
 
-from .views import Interaction, Property, Action
+from .interactions import Interaction, Property, Action
 from .json.schemas import schema_to_json, rule_to_params, rule_to_path
 from .find import current_labthing
 from .utilities import ResourceURL

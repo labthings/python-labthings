@@ -10,7 +10,7 @@ from apispec.exceptions import APISpecError
 from .converter import ExtendedOpenAPIConverter
 
 from ..utilities import merge
-from ..views import Interaction, Property, Action
+from ..interactions import Interaction, Property, Action
 from ..json.schemas import schema_to_json
 from ..schema import Schema, ActionSchema, build_action_schema
 from .. import fields

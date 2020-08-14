@@ -4,10 +4,9 @@ from flask.views import http_method_funcs
 from werkzeug.wrappers import Response as ResponseBase
 from werkzeug.exceptions import BadRequest
 
-from .args import use_args
-from .marshalling import marshal_with
 from .value import Value
 
+from ..marshalling import marshal_with, use_args
 from ..schema import Schema, ActionSchema, build_action_schema
 from ..fields import Field
 from ..semantics.base import Semantic
