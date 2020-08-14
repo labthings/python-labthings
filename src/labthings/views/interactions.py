@@ -6,6 +6,7 @@ from werkzeug.exceptions import BadRequest
 
 from .args import use_args
 from .marshalling import marshal_with
+from .value import Value
 
 from ..schema import Schema, ActionSchema, build_action_schema
 from ..fields import Field
@@ -19,9 +20,9 @@ from ..actions.pool import Pool
 
 
 class Interaction:
-    def __init__(self, name: str):
+    def __init__(self, name: str, title: str = None):
         self.name = name
-        self.title = name
+        self.title = title or name
         self.endpoint = None
 
         self.content_type = "application/json"  # Input contentType
@@ -34,12 +35,6 @@ class Interaction:
             if current_labthing()
             else DEFAULT_REPRESENTATIONS
         )
-
-    def op(self, thing_op: str, http_method: str):
-        if thing_op is None and http_method in self._methodmap:
-            del self._methodmap[http_method]
-        else:
-            self._methodmap[http_method] = thing_op
 
     @property
     def methods(self):
@@ -88,8 +83,14 @@ class Interaction:
     def bind_method(self, http_method: str, method: str):
         self._methodmap[http_method] = method
 
+    def unbind_method(self, http_method: str):
+        del self._methodmap[http_method]
+
     def bind_websocket(self, method: str):
         self._methodmap["websocket"] = method
+
+    def unbind_websocket(self):
+        del self._methodmap["websocket"]
 
     def dispatch_request(self, *args, **kwargs):
         """
@@ -109,21 +110,33 @@ class Property(Interaction):
     def __init__(
         self,
         name: str,
+        title: str = None,
         writeproperty: Callable = None,
         readproperty: Callable = None,
-        readonly: bool = None,
+        initial_value=None,
         description: str = "",
         tags: List[str] = [],
         schema: Union[Schema, Field, Dict[str, Field]] = None,
         semtype: Union[Semantic, str] = None,
+        **kwargs
     ):
-        super().__init__(name)
-        self.writeproperty_forwarder = writeproperty
-        self.readproperty_forwarder = readproperty
-        if readonly is None:
-            self.readonly = not writeproperty
-        else:
-            self.readonly = readonly
+        super().__init__(name, title=title)
+        # Store kwargs in case they're useful later
+        self.kwargs = kwargs
+
+        # Generate a value object
+        self.value = Value(
+            read_forwarder=readproperty,
+            write_forwarder=writeproperty,
+            initial_value=initial_value,
+        )
+        # TODO: Add Thing-level property notifier function to Value object
+        self.readonly = self.value.readonly
+        # Remove the writeproperty method if it's useless
+        if self.readonly:
+            self.writeproperty = None
+
+        # Generate/set metadata
         self.description = description or ""
         self.summary = self.description.partition("\n")[0].strip()
         self.schema = schema
@@ -135,8 +148,8 @@ class Property(Interaction):
         else:
             raise TypeError("Argument semtype must be a Semantic object or string")
 
+        # Internal stuff
         self._tags = tags
-        self._value = None
 
         self._methodmap = {
             "get": "readproperty",
@@ -144,34 +157,17 @@ class Property(Interaction):
             "websocket": None,
         }
 
-        if self.readonly:
-            self.writeproperty = None
-
     @property
     def tags(self):
         tags = set(self._tags)
         tags.add("properties")
         return tags
 
-    @property
-    def value(self):
-        if self.readproperty_forwarder:
-            self._value = self.readproperty_forwarder()
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        self._value = value
-        if self.writeproperty_forwarder:
-            self.writeproperty_forwarder(value)
-
     def readproperty(self):
-        return self.value
+        return self.value.get()
 
     def writeproperty(self, value):
-        # TODO: Event emitter
-        self.value = value
-        return self.value
+        return self.value.set(value)
 
     def dispatch_request(self, *args, **kwargs):
         """
@@ -200,6 +196,7 @@ class Action(Interaction):
     def __init__(
         self,
         name: str,
+        title: str = None,
         invokeaction: Callable = None,
         description: str = "",
         tags: List[str] = [],
@@ -211,7 +208,7 @@ class Action(Interaction):
         wait_for: int = 1,
         default_stop_timeout: int = None,
     ):
-        super().__init__(name)
+        super().__init__(name, title=title)
         self.invokeaction_forwarder = invokeaction
         self.description = description or ""
         self.summary = self.description.partition("\n")[0].strip()
