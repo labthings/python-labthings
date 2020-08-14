@@ -27,4 +27,5 @@ class LabThingLogger(StreamHandler):
         :param record: 
 
         """
+        # TODO: Use a proper log schema to marshal into a dict. See ActionSchema.log
         return {"message": str(record.msg), "level": record.levelname.lower()}
