@@ -15,4 +15,4 @@ def resize_deque(iterable: _deque, newsize: int):
     :param newsize: int: 
 
     """
-    return deque(iterable, newsize)
+    return Deque(iterable, newsize)
