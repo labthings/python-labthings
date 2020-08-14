@@ -30,6 +30,7 @@ from .default_views.sockets import socket_handler
 
 from .utilities import camel_to_snake
 
+import uuid
 import weakref
 import logging
 
@@ -66,8 +67,8 @@ class LabThing:
 
     def __init__(
         self,
-        id_: str,
         app=None,
+        id_: str = None,
         prefix: str = "",
         title: str = "",
         description: str = "",
@@ -77,6 +78,8 @@ class LabThing:
         external_links: bool = True,
         json_encoder=LabThingsJSONEncoder,
     ):
+        if id_ is None:
+            id_ = f"{title}:{uuid.uuid4()}".replace(" ", "")
         self.id = f"urn:wot:lab:{id_}"
         self.app = app  # Becomes a Flask app
         self.sockets = None  # Becomes a Socket(app) websocket handler
@@ -102,7 +105,7 @@ class LabThing:
 
         self.url_prefix = prefix  # Global URL prefix for all LabThings views
 
-        self.types = types
+        self.types = types or []
 
         self._description = description
         self._title = title
