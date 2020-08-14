@@ -2,6 +2,8 @@ from flask import request
 from flask.views import MethodView
 from werkzeug.wrappers import Response as ResponseBase
 
+import logging
+
 from .interactions import Property, Action
 
 from ..utilities import unpack
@@ -99,6 +101,12 @@ class ActionView(View):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def __init_subclass__(cls, *args, **kwargs):
+        logging.warning(
+            f"{cls} is deprecated and may be removed in a future version. Please use an Action object instead."
+        )
+        super().__init_subclass__(*args, **kwargs)
+
     @classmethod
     def get(cls):
         """
@@ -161,6 +169,12 @@ class PropertyView(View):
         "writeproperty": "put",
     }  # Mapping of Thing Description ops to class methods
     _cls_tags = {"properties"}
+
+    def __init_subclass__(cls, *args, **kwargs):
+        logging.warning(
+            f"{cls} is deprecated and may be removed in a future version. Please use a Property object instead."
+        )
+        super().__init_subclass__(*args, **kwargs)
 
     @classmethod
     def _is_readonly(cls):
