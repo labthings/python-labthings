@@ -1,4 +1,4 @@
-from labthings.apispec.converter import ExtendedOpenAPIConverter
+from labthings.apispec.plugins import ExtendedOpenAPIConverter
 
 from labthings import fields
 
