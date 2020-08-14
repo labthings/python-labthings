@@ -9,15 +9,9 @@ from labthings.extensions import BaseExtension
 
 
 def test_init_types():
-    types = ["org.labthings.test"]
+    types = ["OnOffSwitch"]
     thing = LabThing(types=types)
     assert thing.types == types
-
-
-def test_init_types_invalid():
-    types = ["org;labthings;test"]
-    with pytest.raises(ValueError):
-        LabThing(types=types)
 
 
 def test_init_app(app):
