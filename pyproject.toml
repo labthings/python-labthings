@@ -22,7 +22,7 @@ zeroconf = ">=0.24.5,<0.29.0"
 flask-threaded-sockets = "^0.3.0"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.4"
+pytest = "^6.0"
 black = {version = "^19.10b0",allow-prereleases = true}
 pytest-cov = "^2.10.0"
 numpy = "^1.19.1"
