@@ -27,7 +27,7 @@ black = {version = "^19.10b0",allow-prereleases = true}
 pytest-cov = "^2.10.1"
 numpy = "^1.19.1"
 jsonschema = "^3.2.0"
-pylint = "^2.5.3"
+pylint = "^2.6.0"
 sphinx = "^3.2.1"
 sphinx-autoapi = "^1.4.0"
 sphinx-rtd-theme = "^0.5.0"
