@@ -1,3 +1,3 @@
-from .encoder import LabThingsJSONEncoder, encode_json
+from .encoder import LabThingsJSONEncoder, JSONEncoder, encode_json
 
-__all__ = ["LabThingsJSONEncoder", "encode_json"]
+__all__ = ["LabThingsJSONEncoder", "JSONEncoder", "encode_json"]
