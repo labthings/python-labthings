@@ -96,36 +96,6 @@ def test_merge_granular():
     assert utilities.merge(md1, md2) == md2
 
 
-def test_rapply():
-    d1 = {
-        "a": "String",
-        "b": 5,
-        "c": [10, 20, 30, 40, 50],
-        "d": {"a": "String", "b": 5, "c": [10, 20, 30, 40, 50]},
-    }
-
-    def as_str(v):
-        return str(v)
-
-    d2 = {
-        "a": "String",
-        "b": "5",
-        "c": ["10", "20", "30", "40", "50"],
-        "d": {"a": "String", "b": "5", "c": ["10", "20", "30", "40", "50"]},
-    }
-
-    assert utilities.rapply(d1, as_str) == d2
-
-    d2_no_iter = {
-        "a": "String",
-        "b": "5",
-        "c": "[10, 20, 30, 40, 50]",
-        "d": {"a": "String", "b": "5", "c": "[10, 20, 30, 40, 50]"},
-    }
-
-    assert utilities.rapply(d1, as_str, apply_to_iterables=False) == d2_no_iter
-
-
 def test_get_by_path():
     d1 = {"a": {"b": "String"}}
 

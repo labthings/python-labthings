@@ -222,43 +222,6 @@ def merge(first: dict, second: dict):
     return destination_dict
 
 
-def rapply(data, func, *args, apply_to_iterables=True, **kwargs):
-    """Recursively apply a function to a dictionary, list, array, or tuple
-
-    :param data: Input iterable data
-    :param func: Function to apply to all non-iterable values
-    :param apply_to_iterables: Apply the function to elements in lists/tuples (Default value = True)
-    :type apply_to_iterables: bool
-    :param *args: 
-    :param **kwargs: 
-    :returns: Updated dictionary
-    :rtype: dict
-
-    """
-
-    # If the object is a dictionary
-    if isinstance(data, collections.abc.Mapping):
-        return {
-            key: rapply(
-                val, func, *args, apply_to_iterables=apply_to_iterables, **kwargs
-            )
-            for key, val in data.items()
-        }
-    # If the object is a list, tuple, or range
-    elif apply_to_iterables and (
-        isinstance(data, typing.List)
-        or isinstance(data, typing.Tuple)
-        or isinstance(data, range)
-    ):
-        return [
-            rapply(x, func, *args, apply_to_iterables=apply_to_iterables, **kwargs)
-            for x in data
-        ]
-    # if the object is neither a map nor iterable
-    else:
-        return func(data, *args, **kwargs)
-
-
 def get_by_path(root, items):
     """Access a nested object in root by item sequence.
 
