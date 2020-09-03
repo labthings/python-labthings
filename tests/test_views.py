@@ -1,12 +1,12 @@
-from labthings import views
-from werkzeug.http import parse_set_header
-from werkzeug.wrappers import Response as ResponseBase
-from flask import make_response
-
-import time
 import json
+import time
 
 import pytest
+from flask import make_response
+from werkzeug.http import parse_set_header
+from werkzeug.wrappers import Response as ResponseBase
+
+from labthings import views
 
 
 def common_test(app):

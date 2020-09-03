@@ -1,17 +1,17 @@
-from werkzeug.http import HTTP_STATUS_CODES
-from flask import current_app, has_request_context, request
-from flask.views import http_method_funcs
-
 import collections.abc
-from collections import UserString
-import re
-import operator
-import sys
-import os
 import copy
+import operator
+import os
+import re
+import sys
 import time
 import typing
+from collections import UserString
 from functools import reduce
+
+from flask import current_app, has_request_context, request
+from flask.views import http_method_funcs
+from werkzeug.http import HTTP_STATUS_CODES
 
 PY3 = sys.version_info > (3,)
 

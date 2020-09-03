@@ -1,7 +1,7 @@
-from flask import render_template, Blueprint, make_response
+from flask import Blueprint, make_response, render_template
 
-from ...views import View
 from ...find import current_labthing
+from ...views import View
 
 
 class APISpecView(View):

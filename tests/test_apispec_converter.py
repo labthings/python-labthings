@@ -1,6 +1,5 @@
-from labthings.apispec.converter import ExtendedOpenAPIConverter
-
 from labthings import fields
+from labthings.apispec.converter import ExtendedOpenAPIConverter
 
 
 class TestField(fields.Field):

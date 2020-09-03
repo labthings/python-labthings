@@ -1,7 +1,7 @@
+import pytest
+
 from labthings import utilities
 from labthings.views import View
-
-import pytest
 
 
 @pytest.fixture

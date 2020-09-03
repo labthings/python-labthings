@@ -1,11 +1,11 @@
-import socket
-import signal
 import logging
+import signal
+import socket
 import threading
 
+from flask_threaded_sockets import ThreadedWebsocketServer
 from werkzeug.debug import DebuggedApplication
 from zeroconf import IPVersion, ServiceInfo, Zeroconf, get_all_addresses
-from flask_threaded_sockets import ThreadedWebsocketServer
 
 from .find import current_labthing
 

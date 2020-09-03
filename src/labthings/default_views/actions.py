@@ -1,10 +1,10 @@
 from flask import abort
 
-from ..views import View
+from .. import fields
+from ..find import current_labthing
 from ..marshalling import use_args
 from ..schema import ActionSchema
-from ..find import current_labthing
-from .. import fields
+from ..views import View
 
 
 class ActionQueueView(View):

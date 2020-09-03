@@ -2,20 +2,17 @@ from labthings.monkey import patch_all
 
 patch_all()
 
-import random
-import math
-import time
 import logging
+import math
+import random
+import time
 
+from labthings.core.utilities import path_relative_to
+from labthings.server import fields
+from labthings.server.extensions import BaseExtension
+from labthings.server.find import find_component
 from labthings.server.quick import create_app
 from labthings.server.view import ActionView, PropertyView
-from labthings.server.find import find_component
-from labthings.server import fields
-from labthings.core.utilities import path_relative_to
-
-from labthings.server.extensions import BaseExtension
-
-import logging
 
 logging.basicConfig(level=logging.DEBUG)
 

@@ -1,7 +1,6 @@
-from labthings.apispec import apispec
-from labthings.views import View, PropertyView
-
 from labthings import fields
+from labthings.apispec import apispec
+from labthings.views import PropertyView, View
 
 
 def test_rule_to_apispec_path(app, spec):

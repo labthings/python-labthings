@@ -1,6 +1,7 @@
-from labthings.apispec import utilities
-from marshmallow import fields
 import pytest
+from marshmallow import fields
+
+from labthings.apispec import utilities
 
 
 def test_convert_schema_none(spec):

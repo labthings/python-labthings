@@ -1,7 +1,7 @@
 import logging
+import threading
 from functools import wraps
 
-import threading
 from .thread import ActionThread
 
 

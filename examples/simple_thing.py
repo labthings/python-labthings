@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 import time
 
-from labthings import create_app, semantics, find_component, fields
-from labthings.views import ActionView, PropertyView, op
+from labthings import create_app, fields, find_component, semantics
 from labthings.example_components import PretendSpectrometer
 from labthings.json import encode_json
-
+from labthings.views import ActionView, PropertyView, op
 
 """
 Class for our lab component functionality. This could include serial communication,

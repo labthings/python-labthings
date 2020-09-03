@@ -1,10 +1,10 @@
-from flask import request, has_request_context
+from flask import has_request_context, request
 
-from .views import View
 from .event import Event
-from .json.schemas import schema_to_json, rule_to_params, rule_to_path
 from .find import current_labthing
+from .json.schemas import rule_to_params, rule_to_path, schema_to_json
 from .utilities import ResourceURL, get_docstring, snake_to_camel
+from .views import View
 
 
 def view_to_thing_forms(rules: list, view: View, external: bool = True):

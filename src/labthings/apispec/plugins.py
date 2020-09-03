@@ -1,16 +1,15 @@
-from apispec.ext.marshmallow import MarshmallowPlugin as _MarshmallowPlugin
-from apispec.ext.marshmallow import OpenAPIConverter
 import re
 
+from apispec import BasePlugin
+from apispec.ext.marshmallow import MarshmallowPlugin as _MarshmallowPlugin
+from apispec.ext.marshmallow import OpenAPIConverter
 from flask.views import http_method_funcs
 
-from apispec import BasePlugin
-
-from ..utilities import merge, get_docstring, get_summary
-from ..views import PropertyView, ActionView
+from .. import fields
 from ..json.schemas import schema_to_json
 from ..schema import build_action_schema
-from .. import fields
+from ..utilities import get_docstring, get_summary, merge
+from ..views import ActionView, PropertyView
 
 
 class ExtendedOpenAPIConverter(OpenAPIConverter):

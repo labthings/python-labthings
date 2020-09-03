@@ -1,40 +1,12 @@
 # Marshmallow fields
-from marshmallow import ValidationError
-
 from base64 import b64decode
 
+from marshmallow import ValidationError
 from marshmallow.fields import (
-    Field,
-    Raw,
-    Nested,
-    Mapping,
-    Dict,
-    List,
-    Tuple,
-    String,
-    UUID,
-    Number,
-    Integer,
-    Decimal,
-    Boolean,
-    Float,
-    DateTime,
-    NaiveDateTime,
-    AwareDateTime,
-    Time,
-    Date,
-    TimeDelta,
-    Url,
-    URL,
-    Email,
-    Method,
-    Function,
-    Str,
-    Bool,
-    Int,
-    Constant,
-    Pluck,
-)
+    URL, UUID, AwareDateTime, Bool, Boolean, Constant, Date, DateTime, Decimal,
+    Dict, Email, Field, Float, Function, Int, Integer, List, Mapping, Method,
+    NaiveDateTime, Nested, Number, Pluck, Raw, Str, String, Time, TimeDelta,
+    Tuple, Url)
 
 __all__ = [
     "Bytes",

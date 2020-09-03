@@ -1,14 +1,14 @@
+import glob
 import logging
+import os
+import sys
 import traceback
+from importlib import util
+
 from flask import url_for
 
-from importlib import util
-import sys
-import os
-import glob
-
+from .utilities import camel_to_snake, get_docstring, snake_to_spine
 from .views.static import static_from
-from .utilities import get_docstring, camel_to_snake, snake_to_spine
 
 
 class BaseExtension:

@@ -1,11 +1,10 @@
 import pytest
 
 from labthings import LabThing
-
-from labthings.views import View
-from labthings.representations import LabThingsJSONEncoder
-from labthings.names import EXTENSION_NAME
 from labthings.extensions import BaseExtension
+from labthings.names import EXTENSION_NAME
+from labthings.representations import LabThingsJSONEncoder
+from labthings.views import View
 
 
 def test_init_types():

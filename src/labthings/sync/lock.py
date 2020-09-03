@@ -1,7 +1,6 @@
-from threading import _RLock, current_thread
-
-from contextlib import contextmanager
 import logging
+from contextlib import contextmanager
+from threading import _RLock, current_thread
 
 sentinel = object()
 

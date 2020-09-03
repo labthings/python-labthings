@@ -1,8 +1,9 @@
-from labthings.actions import thread, pool
 import threading
-
 import time
+
 import pytest
+
+from labthings.actions import pool, thread
 
 
 def test_task_with_args():

@@ -1,8 +1,7 @@
-from ..sockets import SocketSubscriber
-from ..find import current_labthing
-
 import logging
 
+from ..find import current_labthing
+from ..sockets import SocketSubscriber
 
 STATIC_SOCKET_RESPONSES = {"__unittest": "__unittest_response"}
 

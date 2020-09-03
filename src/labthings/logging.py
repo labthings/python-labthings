@@ -1,6 +1,6 @@
-from .find import current_labthing
-
 from logging import StreamHandler
+
+from .find import current_labthing
 
 
 class LabThingLogger(StreamHandler):

@@ -1,8 +1,9 @@
-import os
 import glob
-from flask import send_file, abort
-from flask.views import MethodView
+import os
 import uuid
+
+from flask import abort, send_file
+from flask.views import MethodView
 
 
 def static_from(static_folder: str, name=None):

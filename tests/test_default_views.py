@@ -1,7 +1,7 @@
-from labthings.find import current_labthing
-from labthings.actions import current_action
-
 import time
+
+from labthings.actions import current_action
+from labthings.find import current_labthing
 
 
 def test_docs(thing, thing_client, schemas_path):

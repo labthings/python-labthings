@@ -1,8 +1,10 @@
-from labthings import representations
-from flask import Response
-import pytest
-import pickle
 import json
+import pickle
+
+import pytest
+from flask import Response
+
+from labthings import representations
 
 
 @pytest.fixture

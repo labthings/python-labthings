@@ -1,9 +1,10 @@
-from flask import make_response, current_app
 from collections import OrderedDict
 
-from .json.encoder import LabThingsJSONEncoder, encode_json
-from .json.encoder import JSONEncoder as FlaskJSONEncoder
+from flask import current_app, make_response
+
 from .find import current_labthing
+from .json.encoder import JSONEncoder as FlaskJSONEncoder
+from .json.encoder import LabThingsJSONEncoder, encode_json
 from .utilities import PY3
 
 

@@ -1,40 +1,37 @@
-from flask import url_for
-from flask_threaded_sockets import Sockets
+import logging
+import uuid
+import weakref
+
 from apispec import APISpec
 from apispec_webframeworks.flask import FlaskPlugin
+from flask import url_for
+from flask_threaded_sockets import Sockets
+
+from .actions.pool import Pool
+from .apispec import FlaskLabThingsPlugin, MarshmallowPlugin
+from .default_views.actions import ActionObjectView, ActionQueueView
+from .default_views.docs import SwaggerUIView, docs_blueprint
+from .default_views.extensions import ExtensionList
+from .default_views.root import RootView
+from .default_views.sockets import socket_handler
+from .event import Event
+from .extensions import BaseExtension
+from .httperrorhandler import SerializedExceptionHandler
+from .json.encoder import LabThingsJSONEncoder
+from .logging import LabThingLogger
+from .names import (ACTION_ENDPOINT, ACTION_LIST_ENDPOINT,
+                    EXTENSION_LIST_ENDPOINT, EXTENSION_NAME)
+from .representations import DEFAULT_REPRESENTATIONS
+from .td import ThingDescription
+from .utilities import camel_to_snake, clean_url_string
+from .views import ActionView, PropertyView
 
 # from apispec.ext.marshmallow import MarshmallowPlugin
 
-from .names import (
-    EXTENSION_NAME,
-    ACTION_ENDPOINT,
-    ACTION_LIST_ENDPOINT,
-    EXTENSION_LIST_ENDPOINT,
-)
-from .extensions import BaseExtension
-from .utilities import clean_url_string
-from .httperrorhandler import SerializedExceptionHandler
-from .logging import LabThingLogger
-from .json.encoder import LabThingsJSONEncoder
-from .representations import DEFAULT_REPRESENTATIONS
-from .apispec import MarshmallowPlugin, FlaskLabThingsPlugin
-from .td import ThingDescription
-from .event import Event
-from .views import PropertyView, ActionView
 
-from .actions.pool import Pool
 
-from .default_views.extensions import ExtensionList
-from .default_views.actions import ActionQueueView, ActionObjectView
-from .default_views.docs import docs_blueprint, SwaggerUIView
-from .default_views.root import RootView
-from .default_views.sockets import socket_handler
 
-from .utilities import camel_to_snake
 
-import uuid
-import weakref
-import logging
 
 
 class LabThing:
