@@ -5,6 +5,7 @@ from logging import StreamHandler
 
 class LabThingLogger(StreamHandler):
     """ """
+
     def __init__(self, *args, **kwargs):
         StreamHandler.__init__(self, *args, **kwargs)
 

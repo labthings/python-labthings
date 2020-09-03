@@ -1,13 +1,12 @@
 from flask import url_for
 from flask_threaded_sockets import Sockets
 from apispec import APISpec
+from apispec_webframeworks.flask import FlaskPlugin
 
 # from apispec.ext.marshmallow import MarshmallowPlugin
 
 from .names import (
     EXTENSION_NAME,
-    TASK_ENDPOINT,
-    TASK_LIST_ENDPOINT,
     ACTION_ENDPOINT,
     ACTION_LIST_ENDPOINT,
     EXTENSION_LIST_ENDPOINT,
@@ -18,24 +17,19 @@ from .httperrorhandler import SerializedExceptionHandler
 from .logging import LabThingLogger
 from .json.encoder import LabThingsJSONEncoder
 from .representations import DEFAULT_REPRESENTATIONS
-from .apispec import MarshmallowPlugin, rule_to_apispec_path
+from .apispec import MarshmallowPlugin, FlaskLabThingsPlugin
 from .td import ThingDescription
 from .event import Event
 
 from .actions.pool import Pool
 
-from .views.builder import property_of, action_from
-
 from .default_views.extensions import ExtensionList
-from .default_views.tasks import TaskList, TaskView
 from .default_views.actions import ActionQueue, ActionView
 from .default_views.docs import docs_blueprint, SwaggerUIView
 from .default_views.root import RootView
 from .default_views.sockets import socket_handler
 
-from .utilities import camel_to_snake, url_for_property, url_for_action
-
-from typing import Callable
+from .utilities import camel_to_snake
 
 import weakref
 import logging
@@ -135,7 +129,7 @@ class LabThing:
             title=self.title,
             version=self.version,
             openapi_version="3.0.2",
-            plugins=[MarshmallowPlugin()],
+            plugins=[FlaskPlugin(), FlaskLabThingsPlugin(), MarshmallowPlugin()],
         )
 
         # Thing description
@@ -274,9 +268,6 @@ class LabThing:
         # Add extension overview
         self.add_view(ExtensionList, "/extensions", endpoint=EXTENSION_LIST_ENDPOINT)
         self.add_root_link(ExtensionList, "extensions")
-        # Add task routes
-        self.add_view(TaskList, "/tasks", endpoint=TASK_LIST_ENDPOINT)
-        self.add_view(TaskView, "/tasks/<task_id>", endpoint=TASK_ENDPOINT)
         # Add action routes
         self.add_view(ActionQueue, "/actions", endpoint=ACTION_LIST_ENDPOINT)
         self.add_root_link(ActionQueue, "actions")
@@ -461,8 +452,8 @@ class LabThing:
         # There might be a better way to do this than _rules_by_endpoint,
         # but I can't find one so this will do for now. Skipping PYL-W0212
         flask_rules = app.url_map._rules_by_endpoint.get(endpoint)  # skipcq: PYL-W0212
-        for flask_rule in flask_rules:
-            self.spec.path(**rule_to_apispec_path(flask_rule, view, self.spec))
+        with app.test_request_context():
+            self.spec.path(view=resource_func, interaction=view)
 
         # Handle resource groups listed in API spec
         if hasattr(view, "get_tags"):
@@ -542,48 +533,3 @@ class LabThing:
         if params is None:
             params = {}
         self.thing_description.add_link(view, rel, kwargs=kwargs, params=params)
-
-    # Convenience methods
-    def build_property(
-        self, property_object: object, property_name: str, urls: list = None, **kwargs
-    ):
-        """
-        Build an API Property from a Python object property, and add it to the API.
-
-        :param property_object: object: Python object containing the property
-        :param property_name: str: Name of the property on the Python object
-        :param urls: list:  (Default value = None)  Custom URLs for the Property. If None, the URL will be automatically generated.
-        :param readonly:  (Default value = False) Is the property read-only?
-        :param description:  (Default value = None) Human readable description of the property
-        :param schema:  (Default value = fields.Field()) Marshmallow schema for the property
-        :type schema: :class:`labthings.fields.Field` or :class:`labthings.schema.Schema`
-        :param semtype:  (Default value = None) Optional semantic object containing schema and annotations
-        :type semtype: :class:`labthings.semantics.Semantic`
-        """
-        if urls is None:
-            urls = [url_for_property(property_object, property_name)]
-        self.add_view(property_of(property_object, property_name, **kwargs), *urls)
-
-    def build_action(
-        self, action_object: object, action_name: str, urls: list = None, **kwargs
-    ):
-        """
-        Build an API Action from a Python object method, and add it to the API.
-
-        :param action_object: object: Python object containing the action method
-        :param action_name: str: Name of the method on the Python object
-        :param urls: list:  (Default value = None)  Custom URLs for the Property. If None, the URL will be automatically generated.
-        :param safe:  (Default value = False) Is the action safe
-        :param idempotent:  (Default value = False) Is the action idempotent
-        :param description:  (Default value = None) Human readable description of the property
-        :param args:  (Default value = fields.Field()) Marshmallow schema for the method arguments
-        :type args: :class:`labthings.schema.Schema`
-        :param schema:  (Default value = fields.Field()) Marshmallow schema for the method response
-        :type schema: :class:`labthings.fields.Field` or :class:`labthings.schema.Schema`
-        :param semtype:  (Default value = None) Optional semantic object containing schema and annotations
-        :type semtype: :class:`labthings.semantics.Semantic`
-
-        """
-        if urls is None:
-            urls = [url_for_action(action_object, action_name)]
-        self.add_view(action_from(action_object, action_name, **kwargs), *urls)

@@ -3,6 +3,7 @@ import datetime
 
 class Event:
     """ """
+
     def __init__(self, name, schema=None):
         self.name = name
         self.schema = schema
@@ -26,6 +27,7 @@ class Event:
 
 class PropertyStatusEvent:
     """ """
+
     def __init__(self, property_name, schema=None):
         self.name = property_name
 
@@ -45,6 +47,7 @@ class PropertyStatusEvent:
 
 class ActionStatusEvent:
     """ """
+
     def __init__(self, action_name, schema=None):
         self.name = action_name
 

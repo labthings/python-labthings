@@ -101,6 +101,7 @@ class TaskSchema(Schema):
 
 class ActionSchema(Schema):
     """ """
+
     _ID = fields.String(data_key="id")
     _status = fields.String(data_key="status")
     progress = fields.String()
@@ -195,6 +196,7 @@ def build_action_schema(output_schema: Schema, input_schema: Schema, name: str =
 
 class ExtensionSchema(Schema):
     """ """
+
     name = fields.String(data_key="title")
     _name_python_safe = fields.String(data_key="pythonName")
     _cls = fields.String(data_key="pythonObject")

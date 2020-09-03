@@ -4,6 +4,7 @@ from werkzeug.exceptions import HTTPException
 
 import logging
 
+
 class SerializedExceptionHandler:
 
     """A class to be registered as a Flask error handler,

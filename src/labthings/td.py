@@ -1,4 +1,4 @@
-from flask import url_for, request, has_request_context
+from flask import request, has_request_context
 
 from .views import View
 from .event import Event
@@ -118,7 +118,7 @@ class ThingDescription:
                 "https://iot.mozilla.org/schemas/",
             ],
             "@type": current_labthing().types,
-            "id": url_for("root", _external=True),
+            "id": current_labthing().id,
             "title": current_labthing().title,
             "description": current_labthing().description,
             "properties": self.properties,
@@ -133,15 +133,6 @@ class ThingDescription:
             td["base"] = request.host_url
 
         return td
-
-    def event_to_thing_event(self, event: Event):
-        """
-
-        :param event: Event: 
-
-        """
-        # TODO: Include event schema
-        return {"forms": []}
 
     def view_to_thing_property(self, rules: list, view: View):
         """

@@ -7,7 +7,7 @@ import sys
 import os
 import glob
 
-from .views.builder import static_from
+from .views.static import static_from
 from .utilities import get_docstring, camel_to_snake, snake_to_spine
 
 

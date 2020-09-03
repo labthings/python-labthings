@@ -2,6 +2,7 @@ from flask.views import MethodView, http_method_funcs
 from flask import request, abort
 from werkzeug.wrappers import Response as ResponseBase
 from werkzeug.exceptions import BadRequest
+from collections import OrderedDict
 
 from .args import use_args
 from .marshalling import marshal_with
@@ -13,12 +14,10 @@ from ..representations import DEFAULT_REPRESENTATIONS
 from ..find import current_labthing
 from ..event import PropertyStatusEvent
 from ..schema import Schema, ActionSchema, build_action_schema
-from ..deque import Deque, resize_deque
+from ..deque import Deque
 from ..json.schemas import schema_to_json
 from ..actions.pool import Pool
 from .. import fields
-
-import logging
 
 __all__ = ["MethodView", "View", "ActionView", "PropertyView", "op"]
 
@@ -50,44 +49,6 @@ class View(MethodView):
             if current_labthing()
             else DEFAULT_REPRESENTATIONS
         )
-
-    @classmethod
-    def get_apispec(cls):
-        """Build a basic OpenAPI spec, containing only basic view metadata
-
-
-        :returns: Minimal OpenAPI spec for the view class
-
-        :rtype: [dict]
-
-        """
-        d = {}
-
-        for method in http_method_funcs:
-            if hasattr(cls, method):
-                d[method] = {
-                    "description": getattr(cls, "description", None)
-                    or get_docstring(cls),
-                    "summary": getattr(cls, "summary", None) or get_summary(cls),
-                    "tags": list(cls.get_tags()),
-                    "responses": {
-                        "default": {
-                            "description": "Unexpected error",
-                            "content": {
-                                "application/json": {
-                                    "schema": schema_to_json(
-                                        {
-                                            "code": fields.Integer(),
-                                            "message": fields.String(),
-                                            "name": fields.String(),
-                                        }
-                                    )
-                                }
-                            },
-                        }
-                    },
-                }
-        return d
 
     @classmethod
     def get_tags(cls):
@@ -197,84 +158,6 @@ class ActionView(View):
         queue_schema = build_action_schema(cls.schema, cls.args)(many=True)
         return queue_schema.dump(cls._deque)
 
-    @classmethod
-    def get_apispec(cls):
-        """Build an OpenAPI spec for the Action view
-
-
-        :returns: OpenAPI spec for the view class
-
-        :rtype: [dict]
-
-        """
-        class_args = schema_to_json(cls.args)
-        action_json_schema = schema_to_json(build_action_schema(cls.schema, cls.args)())
-        queue_json_schema = schema_to_json(
-            build_action_schema(cls.schema, cls.args)(many=True)
-        )
-        class_json_schema = schema_to_json(cls.schema)
-
-        # Get basic view spec
-        d = super(ActionView, cls).get_apispec()
-        # Add in Action spec
-        d = merge(
-            d,
-            {
-                "post": {
-                    "requestBody": {
-                        "content": {
-                            cls.content_type: (
-                                {"schema": class_args} if class_args else {}
-                            )
-                        }
-                    },
-                    "responses": {
-                        # Responses like images must be added as 200 responses with cls.responses = {200: {...}}
-                        200: {
-                            "description": "Action completed immediately",
-                            # Allow customising 200 (immediate response) content type
-                            "content": {
-                                cls.response_content_type: (
-                                    {"schema": action_json_schema}
-                                    if action_json_schema
-                                    else {}
-                                )
-                            },
-                        },
-                        201: {
-                            "description": "Action started",
-                            # Our POST 201 MUST be application/json
-                            "content": {
-                                "application/json": (
-                                    {"schema": action_json_schema}
-                                    if action_json_schema
-                                    else {}
-                                )
-                            },
-                        },
-                    },
-                },
-                "get": {
-                    "responses": {
-                        # Our GET 200 MUST be application/json
-                        200: {
-                            "description": "Action queue",
-                            "content": {
-                                "application/json": (
-                                    {"schema": queue_json_schema}
-                                    if queue_json_schema
-                                    else {}
-                                )
-                            },
-                        }
-                    },
-                },
-            },
-        )
-        # Enable custom responses from POST
-        d["post"]["responses"].update(cls.responses)
-        return d
-
     def dispatch_request(self, *args, **kwargs):
         """
 
@@ -345,77 +228,6 @@ class PropertyView(View):
         "writeproperty": "put",
     }  # Mapping of Thing Description ops to class methods
     _cls_tags = {"properties"}
-
-    @classmethod
-    def get_apispec(cls):
-        """Build an OpenAPI spec for the Property view
-
-
-        :returns: OpenAPI spec for the view class
-
-        :rtype: [dict]
-
-        """
-        class_json_schema = schema_to_json(cls.schema) if cls.schema else None
-
-        # Get basic view spec
-        d = super(PropertyView, cls).get_apispec()
-
-        # Add in writeproperty methods
-        for method in ("put", "post"):
-            if hasattr(cls, method):
-                d[method] = merge(
-                    d.get(method, {}),
-                    {
-                        "requestBody": {
-                            "content": {
-                                cls.content_type: (
-                                    {"schema": class_json_schema}
-                                    if class_json_schema
-                                    else {}
-                                )
-                            }
-                        },
-                        "responses": {
-                            200: {
-                                "content": {
-                                    cls.content_type: (
-                                        {"schema": class_json_schema}
-                                        if class_json_schema
-                                        else {}
-                                    )
-                                },
-                                "description": "Write property",
-                            }
-                        },
-                    },
-                )
-
-        # Add in readproperty methods
-        if hasattr(cls, "get"):
-            d["get"] = merge(
-                d.get("get", {}),
-                {
-                    "responses": {
-                        200: {
-                            "content": {
-                                cls.content_type: (
-                                    {"schema": class_json_schema}
-                                    if class_json_schema
-                                    else {}
-                                )
-                            },
-                            "description": "Read property",
-                        }
-                    },
-                },
-            )
-
-        # Enable custom responses from all methods
-        for method in d.keys():
-            d[method]["responses"].update(cls.responses)
-
-        return d
 
     def dispatch_request(self, *args, **kwargs):
         """

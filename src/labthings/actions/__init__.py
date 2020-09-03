@@ -2,7 +2,7 @@ __all__ = [
     "current_action",
     "update_action_progress",
     "update_action_data",
-    "ActionKilledException"
+    "ActionKilledException",
 ]
 
 from .pool import (

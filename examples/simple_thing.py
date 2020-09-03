@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-import random
-import math
 import time
-import logging
-import atexit
 
 from labthings import create_app, semantics, find_component, fields
 from labthings.views import ActionView, PropertyView, op
@@ -112,17 +108,10 @@ class MeasurementAction(ActionView):
         return my_component.average_data(n_averages)
 
 
-# Handle exit cleanup
-def cleanup():
-    logging.info("Exiting. Running any cleanup code here...")
-
-
-atexit.register(cleanup)
-
 # Create LabThings Flask app
 app, labthing = create_app(
     __name__,
-    title=f"My Lab Device API",
+    title="My Lab Device API",
     description="Test LabThing-based API",
     version="0.1.0",
 )
@@ -141,6 +130,6 @@ labthing.add_view(MeasurementAction, "/actions/measure")
 
 # Start the app
 if __name__ == "__main__":
-    from labthings.server.wsgi import Server
+    from labthings import Server
 
     Server(app).run()
