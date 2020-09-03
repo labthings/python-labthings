@@ -151,10 +151,6 @@ class ThingDescription:
                 hasattr(view, "post") or hasattr(view, "put") or hasattr(view, "delete")
             ),
             "writeOnly": not hasattr(view, "get"),
-            "links": [
-                {"href": ResourceURL(url, external=self.external_links)}
-                for url in prop_urls
-            ],
             "forms": view_to_thing_forms(rules, view, external=self.external_links),
             "uriVariables": {},
         }
@@ -203,10 +199,6 @@ class ThingDescription:
         action_description = {
             "title": getattr(view, "title", None) or view.__name__,
             "description": getattr(view, "description", None) or get_docstring(view),
-            "links": [
-                {"href": ResourceURL(url, external=self.external_links)}
-                for url in action_urls
-            ],
             "safe": getattr(view, "safe", False),
             "idempotent": getattr(view, "idempotent", False),
             "forms": view_to_thing_forms(rules, view, external=self.external_links),
