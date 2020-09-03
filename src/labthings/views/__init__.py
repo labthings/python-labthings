@@ -4,8 +4,7 @@ from werkzeug.wrappers import Response as ResponseBase
 from werkzeug.exceptions import BadRequest
 from collections import OrderedDict
 
-from .args import use_args
-from .marshalling import marshal_with
+from ..marshalling import use_args, marshal_with
 
 from . import op
 

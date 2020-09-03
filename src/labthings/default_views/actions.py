@@ -1,7 +1,7 @@
 from flask import abort
 
 from ..views import View
-from ..views.args import use_args
+from ..marshalling import use_args
 from ..schema import ActionSchema
 from ..find import current_labthing
 from .. import fields

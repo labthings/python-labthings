@@ -32,6 +32,7 @@ from . import fields
 # Submodules
 from . import extensions
 from . import views
+from . import marshalling
 from . import semantics
 from . import json
 
