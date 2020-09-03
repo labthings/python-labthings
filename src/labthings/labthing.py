@@ -20,17 +20,19 @@ from .representations import DEFAULT_REPRESENTATIONS
 from .apispec import MarshmallowPlugin, FlaskLabThingsPlugin
 from .td import ThingDescription
 from .event import Event
+from .views import PropertyView, ActionView
 
 from .actions.pool import Pool
 
 from .default_views.extensions import ExtensionList
-from .default_views.actions import ActionQueue, ActionView
+from .default_views.actions import ActionQueueView, ActionObjectView
 from .default_views.docs import docs_blueprint, SwaggerUIView
 from .default_views.root import RootView
 from .default_views.sockets import socket_handler
 
 from .utilities import camel_to_snake
 
+import uuid
 import weakref
 import logging
 
@@ -68,6 +70,7 @@ class LabThing:
     def __init__(
         self,
         app=None,
+        id_: str = None,
         prefix: str = "",
         title: str = "",
         description: str = "",
@@ -77,6 +80,11 @@ class LabThing:
         external_links: bool = True,
         json_encoder=LabThingsJSONEncoder,
     ):
+        if id_ is None:
+            self.id = f"{title}:{uuid.uuid4()}".replace(" ", "")
+        else:
+            self.id = id_
+
         if types is None:
             types = []
         self.app = app  # Becomes a Flask app
@@ -102,12 +110,7 @@ class LabThing:
 
         self.url_prefix = prefix  # Global URL prefix for all LabThings views
 
-        for t in types:
-            if ";" in t:
-                raise ValueError(
-                    f'Error in type value "{t}". Thing types cannot contain ; character.'
-                )
-        self.types = types
+        self.types = types or []
 
         self._description = description
         self._title = title
@@ -269,9 +272,9 @@ class LabThing:
         self.add_view(ExtensionList, "/extensions", endpoint=EXTENSION_LIST_ENDPOINT)
         self.add_root_link(ExtensionList, "extensions")
         # Add action routes
-        self.add_view(ActionQueue, "/actions", endpoint=ACTION_LIST_ENDPOINT)
-        self.add_root_link(ActionQueue, "actions")
-        self.add_view(ActionView, "/actions/<task_id>", endpoint=ACTION_ENDPOINT)
+        self.add_view(ActionQueueView, "/actions", endpoint=ACTION_LIST_ENDPOINT)
+        self.add_root_link(ActionQueueView, "actions")
+        self.add_view(ActionObjectView, "/actions/<task_id>", endpoint=ACTION_ENDPOINT)
 
     def _create_base_sockets(self):
         """
@@ -456,13 +459,12 @@ class LabThing:
             self.spec.path(view=resource_func, interaction=view)
 
         # Handle resource groups listed in API spec
-        if hasattr(view, "get_tags"):
-            if "actions" in view.get_tags():
-                self.thing_description.action(flask_rules, view)
-                self._action_views[view.endpoint] = view
-            if "properties" in view.get_tags():
-                self.thing_description.property(flask_rules, view)
-                self._property_views[view.endpoint] = view
+        if issubclass(view, ActionView):
+            self.thing_description.action(flask_rules, view)
+            self._action_views[view.endpoint] = view
+        if issubclass(view, PropertyView):
+            self.thing_description.property(flask_rules, view)
+            self._property_views[view.endpoint] = view
 
     # Event stuff
     def add_event(self, name, schema=None):

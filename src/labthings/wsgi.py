@@ -63,9 +63,7 @@ class Server:
                     port=self.port,
                     properties={
                         "path": self.labthing.url_prefix,
-                        "title": self.labthing.title,
-                        "description": self.labthing.description,
-                        "types": ";".join(self.labthing.types),
+                        "id": self.labthing.id,
                     },
                     addresses=mdns_addresses,
                 )

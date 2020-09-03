@@ -1,5 +1,6 @@
 from werkzeug.http import HTTP_STATUS_CODES
 from flask import current_app, has_request_context, request
+from flask.views import http_method_funcs
 
 import collections.abc
 from collections import UserString
@@ -10,22 +11,9 @@ import os
 import copy
 import time
 import typing
-import inspect
 from functools import reduce
-from typing import Callable
 
 PY3 = sys.version_info > (3,)
-
-http_method_funcs = [
-    "get",
-    "post",
-    "put",
-    "delete",
-    "patch",
-    "head",
-    "options",
-    "trace",
-]
 
 
 class TimeoutTracker:

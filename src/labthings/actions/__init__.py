@@ -12,3 +12,12 @@ from .pool import (
     update_action_data,
 )
 from .thread import ActionThread, ActionKilledException
+
+__all__ = [
+    "Pool",
+    "current_action",
+    "update_action_progress",
+    "update_action_data",
+    "ActionThread",
+    "ActionKilledException",
+]

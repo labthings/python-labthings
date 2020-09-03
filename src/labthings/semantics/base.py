@@ -1,6 +1,3 @@
-from .. import fields
-
-
 class Semantic:
     """ """
 

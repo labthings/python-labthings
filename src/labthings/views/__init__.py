@@ -1,4 +1,4 @@
-from flask.views import MethodView, http_method_funcs
+from flask.views import MethodView
 from flask import request, abort
 from werkzeug.wrappers import Response as ResponseBase
 from werkzeug.exceptions import BadRequest
@@ -9,15 +9,13 @@ from .marshalling import marshal_with
 
 from . import op
 
-from ..utilities import unpack, get_docstring, get_summary, merge
+from ..utilities import unpack
 from ..representations import DEFAULT_REPRESENTATIONS
 from ..find import current_labthing
 from ..event import PropertyStatusEvent
 from ..schema import Schema, ActionSchema, build_action_schema
 from ..deque import Deque
-from ..json.schemas import schema_to_json
 from ..actions.pool import Pool
-from .. import fields
 
 __all__ = ["MethodView", "View", "ActionView", "PropertyView", "op"]
 

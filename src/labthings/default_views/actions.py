@@ -1,14 +1,13 @@
 from flask import abort
 
 from ..views import View
-from ..views.marshalling import marshal_with
 from ..views.args import use_args
 from ..schema import ActionSchema
 from ..find import current_labthing
 from .. import fields
 
 
-class ActionQueue(View):
+class ActionQueueView(View):
     """List of all actions from the session"""
 
     def get(self):
@@ -16,7 +15,7 @@ class ActionQueue(View):
         return ActionSchema(many=True).dump(current_labthing().actions.threads)
 
 
-class ActionView(View):
+class ActionObjectView(View):
     """Manage a particular action.
     
     GET will safely return the current action progress.

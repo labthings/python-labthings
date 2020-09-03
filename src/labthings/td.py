@@ -253,7 +253,8 @@ class ThingDescription:
         """
         if not hasattr(view, "post"):
             raise AttributeError(
-                f"The API View '{view}' was added as an Action, but it does not have a POST method."
+                f"The API View '{view}' was added as an Action, \
+                but it does not have a POST method."
             )
         endpoint = getattr(view, "endpoint", None) or getattr(rules[0], "endpoint")
         key = snake_to_camel(endpoint)
@@ -265,4 +266,4 @@ class ThingDescription:
         :param event: Event: 
 
         """
-        self.events[event.name] = self.event_to_thing_event(event)
+        print("Swalling as Events aren't yet implemented in the Thing Description")
