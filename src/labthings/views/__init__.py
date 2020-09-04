@@ -14,8 +14,9 @@ from ..representations import DEFAULT_REPRESENTATIONS
 from ..schema import ActionSchema, Schema, build_action_schema
 from ..utilities import unpack
 from . import op
+from . import builder
 
-__all__ = ["MethodView", "View", "ActionView", "PropertyView", "op"]
+__all__ = ["MethodView", "View", "ActionView", "PropertyView", "op", "builder"]
 
 
 class View(MethodView):

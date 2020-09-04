@@ -8,7 +8,7 @@ from importlib import util
 from flask import url_for
 
 from .utilities import camel_to_snake, get_docstring, snake_to_spine
-from .views.static import static_from
+from .views.builder import static_from
 
 
 class BaseExtension:
