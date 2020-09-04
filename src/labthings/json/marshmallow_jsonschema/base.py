@@ -7,8 +7,7 @@ from marshmallow import Schema, fields, missing, validate
 from marshmallow.class_registry import get_class
 
 from .exceptions import UnsupportedValueError
-from .validation import (handle_length, handle_one_of, handle_range,
-                         handle_regexp)
+from .validation import handle_length, handle_one_of, handle_range, handle_regexp
 
 __all__ = ("JSONSchema",)
 

@@ -2,8 +2,7 @@ import pytest
 from jsonschema import Draft7Validator
 
 from labthings import fields
-from labthings.json.marshmallow_jsonschema import (JSONSchema,
-                                                   UnsupportedValueError)
+from labthings.json.marshmallow_jsonschema import JSONSchema, UnsupportedValueError
 from labthings.schema import Schema, validate
 
 

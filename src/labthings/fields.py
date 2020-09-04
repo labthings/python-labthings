@@ -3,10 +3,37 @@ from base64 import b64decode
 
 from marshmallow import ValidationError
 from marshmallow.fields import (
-    URL, UUID, AwareDateTime, Bool, Boolean, Constant, Date, DateTime, Decimal,
-    Dict, Email, Field, Float, Function, Int, Integer, List, Mapping, Method,
-    NaiveDateTime, Nested, Number, Pluck, Raw, Str, String, Time, TimeDelta,
-    Tuple, Url)
+    URL,
+    UUID,
+    AwareDateTime,
+    Bool,
+    Boolean,
+    Constant,
+    Date,
+    DateTime,
+    Decimal,
+    Dict,
+    Email,
+    Field,
+    Float,
+    Function,
+    Int,
+    Integer,
+    List,
+    Mapping,
+    Method,
+    NaiveDateTime,
+    Nested,
+    Number,
+    Pluck,
+    Raw,
+    Str,
+    String,
+    Time,
+    TimeDelta,
+    Tuple,
+    Url,
+)
 
 __all__ = [
     "Bytes",

@@ -19,8 +19,12 @@ from .extensions import BaseExtension
 from .httperrorhandler import SerializedExceptionHandler
 from .json.encoder import LabThingsJSONEncoder
 from .logging import LabThingLogger
-from .names import (ACTION_ENDPOINT, ACTION_LIST_ENDPOINT,
-                    EXTENSION_LIST_ENDPOINT, EXTENSION_NAME)
+from .names import (
+    ACTION_ENDPOINT,
+    ACTION_LIST_ENDPOINT,
+    EXTENSION_LIST_ENDPOINT,
+    EXTENSION_NAME,
+)
 from .representations import DEFAULT_REPRESENTATIONS
 from .td import ThingDescription
 from .utilities import camel_to_snake, clean_url_string

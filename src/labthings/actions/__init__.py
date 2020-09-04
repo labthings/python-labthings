@@ -5,8 +5,7 @@ __all__ = [
     "ActionKilledException",
 ]
 
-from .pool import (Pool, current_action, update_action_data,
-                   update_action_progress)
+from .pool import Pool, current_action, update_action_data, update_action_progress
 from .thread import ActionKilledException, ActionThread
 
 __all__ = [

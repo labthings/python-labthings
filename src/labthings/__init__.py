@@ -1,12 +1,21 @@
 # Main LabThing class
 # Submodules
-from . import extensions, fields, json, marshalling, semantics, views
+from . import extensions, fields, json, marshalling, views
 # Action threads
-from .actions import (ActionKilledException, current_action,
-                      update_action_data, update_action_progress)
+from .actions import (
+    ActionKilledException,
+    current_action,
+    update_action_data,
+    update_action_progress,
+)
 # Functions to speed up finding global objects
-from .find import (current_labthing, find_component, find_extension,
-                   registered_components, registered_extensions)
+from .find import (
+    current_labthing,
+    find_component,
+    find_extension,
+    registered_components,
+    registered_extensions,
+)
 from .labthing import LabThing
 # Quick-create app+LabThing function
 from .quick import create_app
