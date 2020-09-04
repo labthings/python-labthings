@@ -7,7 +7,7 @@
 [![codecov](https://codecov.io/gh/labthings/python-labthings/branch/master/graph/badge.svg)](https://codecov.io/gh/labthings/python-labthings)
 [![Riot.im](https://img.shields.io/badge/chat-on%20riot.im-368BD6)](https://riot.im/app/#/room/#labthings:matrix.org)
 
-A Python implementation of the LabThings API structure, based on the Flask microframework.
+A thread-based Python implementation of the LabThings API structure, based on the Flask microframework.
 
 ## Installation
 
@@ -18,54 +18,140 @@ A Python implementation of the LabThings API structure, based on the Flask micro
 This example assumes a `PretendSpectrometer` class, which already has `data` and `integration_time` attributes, as well as an `average_data(n)` method. LabThings allows you to easily convert this existing instrument control code into a fully documented, standardised web API complete with auto-discovery and automatic background task threading.
 
 ```python
-from labthings import fields, create_app
+#!/usr/bin/env python
+import time
+
+from labthings import ActionView, PropertyView, create_app, fields, find_component, op
 from labthings.example_components import PretendSpectrometer
+from labthings.json import encode_json
+
+"""
+Class for our lab component functionality. This could include serial communication,
+equipment API calls, network requests, or a "virtual" device as seen here.
+"""
+
+
+"""
+Create a view to view and change our integration_time value,
+and register is as a Thing property
+"""
+
+
+# Wrap in a semantic annotation to autmatically set schema and args
+class DenoiseProperty(PropertyView):
+    """Value of integration_time"""
+
+    schema = fields.Int(required=True, minimum=100, maximum=500)
+    semtype = "LevelProperty"
+
+    @op.readproperty
+    def get(self):
+        # When a GET request is made, we'll find our attached component
+        my_component = find_component("org.labthings.example.mycomponent")
+        return my_component.integration_time
+
+    @op.writeproperty
+    def put(self, new_property_value):
+        # Find our attached component
+        my_component = find_component("org.labthings.example.mycomponent")
+
+        # Apply the new value
+        my_component.integration_time = new_property_value
+
+        return my_component.integration_time
+
+    @op.observeproperty
+    def websocket(self, ws):
+        # Find our attached component
+        my_component = find_component("org.labthings.example.mycomponent")
+        initial_value = None
+        while not ws.closed:
+            time.sleep(1)
+            if my_component.integration_time != initial_value:
+                ws.send(encode_json(my_component.integration_time))
+                initial_value = my_component.integration_time
+
+
+"""
+Create a view to quickly get some noisy data, and register is as a Thing property
+"""
+
+
+class QuickDataProperty(PropertyView):
+    """Show the current data value"""
+
+    # Marshal the response as a list of floats
+    schema = fields.List(fields.Float())
+
+    @op.readproperty
+    def get(self):
+        # Find our attached component
+        my_component = find_component("org.labthings.example.mycomponent")
+        return my_component.data
+
+    @op.observeproperty
+    def websocket(self, ws):
+        # Find our attached component
+        my_component = find_component("org.labthings.example.mycomponent")
+        while not ws.closed:
+            ws.send(encode_json(my_component.data))
+
+
+"""
+Create a view to start an averaged measurement, and register is as a Thing action
+"""
+
+
+class MeasurementAction(ActionView):
+    # Expect JSON parameters in the request body.
+    # Pass to post function as dictionary argument.
+    args = {
+        "averages": fields.Integer(
+            missing=20, example=20, description="Number of data sets to average over",
+        )
+    }
+    # Marshal the response as a list of numbers
+    schema = fields.List(fields.Number)
+
+    # Main function to handle POST requests
+    @op.invokeaction
+    def post(self, args):
+        """Start an averaged measurement"""
+
+        # Find our attached component
+        my_component = find_component("org.labthings.example.mycomponent")
+
+        # Get arguments and start a background task
+        n_averages = args.get("averages")
+
+        # Return the task information
+        return my_component.average_data(n_averages)
 
 
 # Create LabThings Flask app
 app, labthing = create_app(
     __name__,
-    title="My PretendSpectrometer API",
-    description="LabThing API for PretendSpectrometer",
-    version="0.1.0"
+    title="My Lab Device API",
+    description="Test LabThing-based API",
+    version="0.1.0",
 )
 
-
-# Make some properties and actions out of our component
+# Attach an instance of our component
+# Usually a Python object controlling some piece of hardware
 my_spectrometer = PretendSpectrometer()
+labthing.add_component(my_spectrometer, "org.labthings.example.mycomponent")
 
-# Single-shot data property
-labthing.build_property(
-    my_spectrometer,  # Python object
-    "data",  # Objects attribute name
-    description="A single-shot measurement",
-    readonly=True,
-    schema=fields.List(fields.Number())
-)
 
-# Integration time property
-labthing.build_property(
-    my_spectrometer,  # Python object
-    "integration_time",  # Objects attribute name
-    description="Single-shot integration time",
-    schema=fields.Int(min=100, max=500, example=200, unit="microsecond")
-)
-
-# Averaged measurement action
-labthing.build_action(
-    my_spectrometer,  # Python object
-    "average_data",  # Objects method name
-    description="Take an averaged measurement",
-    schema=fields.List(fields.Number()),
-    args={  # How do we convert from the request input to function arguments?
-        "n": fields.Int(description="Number of averages to take", example=5, default=5)
-    },
-)
+# Add routes for the API views we created
+labthing.add_view(DenoiseProperty, "/integration_time")
+labthing.add_view(QuickDataProperty, "/quick-data")
+labthing.add_view(MeasurementAction, "/actions/measure")
 
 
 # Start the app
 if __name__ == "__main__":
     from labthings import Server
+
     Server(app).run()
 ```
 
