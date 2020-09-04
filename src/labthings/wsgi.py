@@ -3,7 +3,7 @@ import signal
 import socket
 import threading
 
-from flask_threaded_sockets import ThreadedWebsocketServer
+from werkzeug.serving import run_simple
 from werkzeug.debug import DebuggedApplication
 from zeroconf import IPVersion, ServiceInfo, Zeroconf, get_all_addresses
 
@@ -13,7 +13,7 @@ sentinel = object()
 
 
 class Server:
-    """Combined WSGI+WebSocket+mDNS server.
+    """Combined WSGI+mDNS server.
 
     :param host: Host IP address. Defaults to 0.0.0.0.
     :type host: string
@@ -44,9 +44,6 @@ class Server:
         self.service_info = None
         self.service_infos = []
 
-        # Events
-        self.started = threading.Event()
-
     def _register_zeroconf(self):
         if self.labthing:
             # Get list of host addresses
@@ -72,9 +69,22 @@ class Server:
             for service in self.service_infos:
                 self.zeroconf_server.register_service(service)
 
-    def stop(self):
-        """Stop the server and unregister mDNS records"""
-        # Unregister zeroconf service
+    def start(self):
+        """Start the server and register mDNS records"""
+        # Handle zeroconf
+        if self.zeroconf:
+            self._register_zeroconf()
+
+        # Slightly more useful logger output
+        friendlyhost = "localhost" if self.host == "0.0.0.0" else self.host
+        print("Starting LabThings WSGI Server")
+        print(f"Debug mode: {self.debug}")
+        print(f"Running on http://{friendlyhost}:{self.port} (Press CTRL+C to quit)")
+
+        # Create WSGIServer
+        run_simple(self.host, self.port, self.app, use_debugger=self.debug, threaded=True, processes=1)
+
+        # When server stops
         if self.zeroconf_server:
             logging.info("Unregistering zeroconf services")
             for service in self.service_infos:
@@ -88,42 +98,6 @@ class Server:
         if self.started.is_set():
             self.started.clear()
         logging.info("Done")
-
-    def start(self):
-        """Start the server and register mDNS records"""
-        # Unmodified version of app
-        app_to_run = self.app
-        # Handle zeroconf
-        if self.zeroconf:
-            self._register_zeroconf()
-
-        # Handle debug mode
-        if self.debug:
-            app_to_run = DebuggedApplication(self.app)
-            logging.getLogger("werkzeug").setLevel(logging.DEBUG)
-            logging.getLogger("zeroconf").setLevel(logging.DEBUG)
-
-        # Slightly more useful logger output
-        friendlyhost = "localhost" if self.host == "0.0.0.0" else self.host
-        print("Starting LabThings WSGI Server")
-        print(f"Debug mode: {self.debug}")
-        print(f"Running on http://{friendlyhost}:{self.port} (Press CTRL+C to quit)")
-
-        # Create WSGIServer
-        self.wsgi_server = ThreadedWebsocketServer(self.host, self.port, app_to_run)
-
-        # Serve
-        signal.signal(signal.SIGTERM, self.stop)
-
-        # Set started event
-        self.started.set()
-        try:
-            self.wsgi_server.serve_forever()
-        except (KeyboardInterrupt, SystemExit):  # pragma: no cover
-            logging.warning(
-                "Terminating by KeyboardInterrupt or SystemExit"
-            )  # pragma: no cover
-            self.stop()  # pragma: no cover
 
     def run(self, host=None, port=None, debug=None, zeroconf=None, **kwargs):
         """Starts the server allowing for runtime parameters. Designed to immitate

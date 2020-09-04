@@ -55,17 +55,6 @@ An example Lab Thing built from our ``PretendSpectrometer`` class, complete with
 
             return my_component.integration_time
 
-        @op.observeproperty
-        def websocket(self, ws):
-            # Find our attached component
-            my_component = find_component("org.labthings.example.mycomponent")
-            initial_value = None
-            while not ws.closed:
-                time.sleep(1)
-                if my_component.integration_time != initial_value:
-                    ws.send(encode_json(my_component.integration_time))
-                    initial_value = my_component.integration_time
-
 
     """
     Create a view to quickly get some noisy data, and register is as a Thing property
@@ -83,13 +72,6 @@ An example Lab Thing built from our ``PretendSpectrometer`` class, complete with
             # Find our attached component
             my_component = find_component("org.labthings.example.mycomponent")
             return my_component.data
-
-        @op.observeproperty
-        def websocket(self, ws):
-            # Find our attached component
-            my_component = find_component("org.labthings.example.mycomponent")
-            while not ws.closed:
-                ws.send(encode_json(my_component.data))
 
 
     """

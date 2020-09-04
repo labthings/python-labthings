@@ -69,14 +69,6 @@ class View(MethodView):
         if meth is None and request.method == "HEAD":
             meth = getattr(self, "get", None)
 
-        # Handle the case of a GET request asking for WS upgrade where
-        # no websocket method is defined on the view
-        if request.method == "GET" and request.environ.get("wsgi.websocket"):
-            ws_meth = getattr(self, "websocket", None)
-            if ws_meth is None:
-                abort(400, "Unable to upgrade websocket connection")
-            return ws_meth
-
         return meth
 
     def dispatch_request(self, *args, **kwargs):

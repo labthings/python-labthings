@@ -44,10 +44,7 @@ def view_to_thing_forms(rules: list, view: View, external: bool = True):
                 # Optional override response content type
                 if response_content_type != content_type:
                     form["response"] = {"contentType": response_content_type}
-                # Fix URL for the View's websocket method
-                if meth.upper() == "WEBSOCKET":
-                    form["href"] = ResourceURL(url, external=external, protocol="ws")
-                # Add HTTP methods for non-websocket forms
+                # Add HTTP methods
                 else:
                     form["htv:methodName"] = meth.upper()
                     form["href"] = ResourceURL(url, external=external)
