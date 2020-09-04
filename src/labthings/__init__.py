@@ -1,6 +1,7 @@
 # Main LabThing class
 # Submodules
 from . import extensions, fields, json, marshalling, views
+
 # Action threads
 from .actions import (
     ActionKilledException,
@@ -8,6 +9,7 @@ from .actions import (
     update_action_data,
     update_action_progress,
 )
+
 # Functions to speed up finding global objects
 from .find import (
     current_labthing,
@@ -17,12 +19,19 @@ from .find import (
     registered_extensions,
 )
 from .labthing import LabThing
+
 # Quick-create app+LabThing function
 from .quick import create_app
+
 # Schema and field
 from .schema import Schema
+
 # Synchronisation classes
 from .sync import ClientEvent, CompositeLock, StrictLock
+
+# Views
+from .views import ActionView, PropertyView
+
 # Suggested WSGI+WebSocket server class
 from .wsgi import Server
 
@@ -48,4 +57,6 @@ __all__ = [
     "Schema",
     "semantics",
     "json",
+    "PropertyView",
+    "ActionView",
 ]

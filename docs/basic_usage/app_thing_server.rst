@@ -33,12 +33,16 @@ The LabThing object is our main entrypoint, and handles creating API views, mana
 .. autoclass:: labthings.LabThing
    :noindex:
 
-Two key methods are :meth:`labthings.LabThing.build_property` and :meth:`labthings.LabThing.build_action`. These methods allow the automation creation of Property and Action API views from Python object attributes and methods. By passing schemas to these methods, argument and response marshalling is automatically performed. Offloading actions to background threads is also handled automatically.
 
-.. automethod:: labthings.LabThing.build_property
+Views
+-----
+
+Thing interaction affordances are created using Views. Two main View types correspond to properties and actions.
+
+.. autoclass:: labthings.PropertyView
    :noindex:
 
-.. automethod:: labthings.LabThing.build_action
+.. autoclass:: labthings.ActionView
    :noindex:
 
 
