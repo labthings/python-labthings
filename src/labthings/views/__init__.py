@@ -13,8 +13,7 @@ from ..marshalling import marshal_with, use_args
 from ..representations import DEFAULT_REPRESENTATIONS
 from ..schema import ActionSchema, Schema, build_action_schema
 from ..utilities import unpack
-from . import op
-from . import builder
+from . import builder, op
 
 __all__ = ["MethodView", "View", "ActionView", "PropertyView", "op", "builder"]
 

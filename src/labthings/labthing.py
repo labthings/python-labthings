@@ -33,11 +33,6 @@ from .views import ActionView, PropertyView
 # from apispec.ext.marshmallow import MarshmallowPlugin
 
 
-
-
-
-
-
 class LabThing:
     """
     The main entry point for the application.
