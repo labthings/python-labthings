@@ -1,8 +1,8 @@
-from flask import escape
-from werkzeug.exceptions import default_exceptions
-from werkzeug.exceptions import HTTPException
-
 import logging
+
+from flask import escape
+from werkzeug.exceptions import HTTPException, default_exceptions
+
 
 class SerializedExceptionHandler:
 

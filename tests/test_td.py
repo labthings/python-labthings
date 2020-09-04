@@ -1,8 +1,7 @@
 import pytest
 
 from labthings import fields
-
-from labthings.views import View, PropertyView, ActionView, op
+from labthings.views import ActionView, PropertyView, View, op
 
 
 @pytest.fixture
@@ -80,27 +79,6 @@ def test_td_action_with_schema(helpers, app, thing_description, app_ctx, schemas
 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("actions")
-
-        assert thing_description.to_dict().get("actions").get("index") == {
-            "title": "Index",
-            "description": "",
-            "links": [{"href": "/"}],
-            "safe": False,
-            "idempotent": False,
-            "forms": [
-                {
-                    "op": "invokeaction",
-                    "htv:methodName": "POST",
-                    "href": "/",
-                    "contentType": "application/json",
-                }
-            ],
-            "input": {
-                "type": "object",
-                "properties": {"integer": {"type": "number", "format": "integer"}},
-            },
-            "@type": "ToggleAction",
-        }
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
 
 

@@ -1,19 +1,19 @@
-import pytest
-import os
 import json
+import os
+
 import jsonschema
-from flask import Flask
+import pytest
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
+from flask import Flask
+from flask.testing import FlaskClient
+from flask.views import MethodView
+from werkzeug.test import EnvironBuilder
+
 from labthings import LabThing
 from labthings.actions import Pool
 from labthings.json import encode_json
-
-from flask.views import MethodView
-from labthings.views import View
-
-from werkzeug.test import EnvironBuilder
-from flask.testing import FlaskClient
+from labthings.views import ActionView, PropertyView, View
 
 
 class Helpers:
@@ -188,6 +188,27 @@ def view_cls():
             return "DELETE"
 
     return ViewClass
+
+
+@pytest.fixture
+def action_view_cls():
+    class ActionViewClass(ActionView):
+        def post(self):
+            return "POST"
+
+    return ActionViewClass
+
+
+@pytest.fixture
+def property_view_cls():
+    class PropertyViewClass(PropertyView):
+        def get(self):
+            return "GET"
+
+        def put(self):
+            return "PUT"
+
+    return PropertyViewClass
 
 
 @pytest.fixture

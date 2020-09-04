@@ -1,10 +1,11 @@
 import ctypes
-from flask import copy_current_request_context, has_request_context
 import datetime
 import logging
+import threading
 import traceback
 import uuid
-import threading
+
+from flask import copy_current_request_context, has_request_context
 
 from ..utilities import TimeoutTracker
 

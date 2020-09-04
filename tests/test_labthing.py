@@ -1,23 +1,16 @@
 import pytest
 
 from labthings import LabThing
-
-from labthings.views import View
-from labthings.representations import LabThingsJSONEncoder
-from labthings.names import EXTENSION_NAME
 from labthings.extensions import BaseExtension
+from labthings.names import EXTENSION_NAME
+from labthings.representations import LabThingsJSONEncoder
+from labthings.views import View
 
 
 def test_init_types():
     types = ["org.labthings.test"]
     thing = LabThing(types=types)
     assert thing.types == types
-
-
-def test_init_types_invalid():
-    types = ["org;labthings;test"]
-    with pytest.raises(ValueError):
-        LabThing(types=types)
 
 
 def test_init_app(app):
@@ -60,16 +53,16 @@ def test_view_decorator(thing, client):
         assert c.get("/index").data == b'"GET"\n'
 
 
-def test_add_view_action(thing, view_cls, client):
-    view_cls.tags = ["actions"]
-    thing.add_view(view_cls, "/index", endpoint="index")
-    assert view_cls in thing._action_views.values()
+def test_add_view_action(thing, action_view_cls, client):
+    action_view_cls.tags = ["actions"]
+    thing.add_view(action_view_cls, "/index", endpoint="index")
+    assert action_view_cls in thing._action_views.values()
 
 
-def test_add_view_property(thing, view_cls, client):
-    view_cls.tags = ["properties"]
-    thing.add_view(view_cls, "/index", endpoint="index")
-    assert view_cls in thing._property_views.values()
+def test_add_view_property(thing, property_view_cls, client):
+    property_view_cls.tags = ["properties"]
+    thing.add_view(property_view_cls, "/index", endpoint="index")
+    assert property_view_cls in thing._property_views.values()
 
 
 def test_init_app_early_views(app, view_cls, client):
@@ -240,24 +233,3 @@ def test_version(thing):
     thing.version = "x.x.x"
     assert thing.version == "x.x.x"
     assert thing.spec.version == "x.x.x"
-
-
-def test_build_property(thing):
-    obj = type("obj", (object,), {"property_name": "propertyValue"})
-
-    thing.build_property(obj, "property_name")
-    # -1 index for last view added
-    # 1 index for URL tuple
-    assert "/properties/type/property_name" in thing.views[-1][1]
-
-
-def test_build_action(thing):
-    def f():
-        return "response"
-
-    obj = type("obj", (object,), {"f": f})
-
-    thing.build_action(obj, "f")
-    # -1 index for last view added
-    # 1 index for URL tuple
-    assert "/actions/type/f" in thing.views[-1][1]

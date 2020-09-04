@@ -1,31 +1,19 @@
-from werkzeug.http import HTTP_STATUS_CODES
-from flask import current_app, has_request_context, request
-
 import collections.abc
-from collections import UserString
-import re
-import operator
-import sys
-import os
 import copy
+import operator
+import os
+import re
+import sys
 import time
 import typing
-import inspect
+from collections import UserString
 from functools import reduce
-from typing import Callable
+
+from flask import current_app, has_request_context, request
+from flask.views import http_method_funcs
+from werkzeug.http import HTTP_STATUS_CODES
 
 PY3 = sys.version_info > (3,)
-
-http_method_funcs = [
-    "get",
-    "post",
-    "put",
-    "delete",
-    "patch",
-    "head",
-    "options",
-    "trace",
-]
 
 
 class TimeoutTracker:
@@ -93,7 +81,7 @@ def description_from_view(view_class):
     summary = get_summary(view_class)
 
     methods = []
-    for method_key in http_method_funcs:
+    for method_key in ("get", "post", "put"):
         if hasattr(view_class, method_key):
             methods.append(method_key.upper())
 
@@ -368,23 +356,3 @@ def path_relative_to(source_file, *paths):
 
     """
     return os.path.join(os.path.abspath(os.path.dirname(source_file)), *paths)
-
-
-def url_for_property(property_object: object, property_name: str):
-    """
-
-    :param property_object: object: 
-    :param property_name: str: 
-
-    """
-    return f"/properties/{property_object.__class__.__name__}/{property_name}"
-
-
-def url_for_action(action_object: object, action_name: str):
-    """
-
-    :param action_object: object: 
-    :param action_name: str: 
-
-    """
-    return f"/actions/{action_object.__class__.__name__}/{action_name}"

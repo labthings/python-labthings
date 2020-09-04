@@ -1,6 +1,6 @@
-from labthings import actions
-
 import threading
+
+from labthings import actions
 
 
 def test_spawn_without_context(task_pool):

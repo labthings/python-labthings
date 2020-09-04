@@ -1,6 +1,8 @@
-from labthings.sync import lock
 import threading
+
 import pytest
+
+from labthings.sync import lock
 
 # Fixtures
 

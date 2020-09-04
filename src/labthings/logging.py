@@ -1,10 +1,11 @@
-from .find import current_labthing
-
 from logging import StreamHandler
+
+from .find import current_labthing
 
 
 class LabThingLogger(StreamHandler):
     """ """
+
     def __init__(self, *args, **kwargs):
         StreamHandler.__init__(self, *args, **kwargs)
 

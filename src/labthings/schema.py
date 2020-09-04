@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-from flask import url_for
-from werkzeug.routing import BuildError
-from marshmallow import Schema, pre_load, pre_dump, validate
 from collections.abc import Mapping
 
-from .names import ACTION_ENDPOINT, TASK_ENDPOINT, EXTENSION_LIST_ENDPOINT
-from .utilities import view_class_from_endpoint, description_from_view
+from flask import url_for
+from marshmallow import Schema, pre_dump, pre_load, validate
+from werkzeug.routing import BuildError
+
 from . import fields
+from .names import ACTION_ENDPOINT, EXTENSION_LIST_ENDPOINT, TASK_ENDPOINT
+from .utilities import description_from_view, view_class_from_endpoint
 
 __all__ = [
     "Schema",
@@ -101,6 +102,7 @@ class TaskSchema(Schema):
 
 class ActionSchema(Schema):
     """ """
+
     _ID = fields.String(data_key="id")
     _status = fields.String(data_key="status")
     progress = fields.String()
@@ -195,6 +197,7 @@ def build_action_schema(output_schema: Schema, input_schema: Schema, name: str =
 
 class ExtensionSchema(Schema):
     """ """
+
     name = fields.String(data_key="title")
     _name_python_safe = fields.String(data_key="pythonName")
     _cls = fields.String(data_key="pythonObject")

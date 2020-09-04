@@ -1,10 +1,10 @@
-from flask import url_for, request, has_request_context
+from flask import has_request_context, request
 
-from .views import View
 from .event import Event
-from .json.schemas import schema_to_json, rule_to_params, rule_to_path
 from .find import current_labthing
+from .json.schemas import rule_to_params, rule_to_path, schema_to_json
 from .utilities import ResourceURL, get_docstring, snake_to_camel
+from .views import View
 
 
 def view_to_thing_forms(rules: list, view: View, external: bool = True):
@@ -118,7 +118,7 @@ class ThingDescription:
                 "https://iot.mozilla.org/schemas/",
             ],
             "@type": current_labthing().types,
-            "id": url_for("root", _external=True),
+            "id": current_labthing().id,
             "title": current_labthing().title,
             "description": current_labthing().description,
             "properties": self.properties,
@@ -133,15 +133,6 @@ class ThingDescription:
             td["base"] = request.host_url
 
         return td
-
-    def event_to_thing_event(self, event: Event):
-        """
-
-        :param event: Event: 
-
-        """
-        # TODO: Include event schema
-        return {"forms": []}
 
     def view_to_thing_property(self, rules: list, view: View):
         """
@@ -160,10 +151,6 @@ class ThingDescription:
                 hasattr(view, "post") or hasattr(view, "put") or hasattr(view, "delete")
             ),
             "writeOnly": not hasattr(view, "get"),
-            "links": [
-                {"href": ResourceURL(url, external=self.external_links)}
-                for url in prop_urls
-            ],
             "forms": view_to_thing_forms(rules, view, external=self.external_links),
             "uriVariables": {},
         }
@@ -212,10 +199,6 @@ class ThingDescription:
         action_description = {
             "title": getattr(view, "title", None) or view.__name__,
             "description": getattr(view, "description", None) or get_docstring(view),
-            "links": [
-                {"href": ResourceURL(url, external=self.external_links)}
-                for url in action_urls
-            ],
             "safe": getattr(view, "safe", False),
             "idempotent": getattr(view, "idempotent", False),
             "forms": view_to_thing_forms(rules, view, external=self.external_links),
@@ -262,7 +245,8 @@ class ThingDescription:
         """
         if not hasattr(view, "post"):
             raise AttributeError(
-                f"The API View '{view}' was added as an Action, but it does not have a POST method."
+                f"The API View '{view}' was added as an Action, \
+                but it does not have a POST method."
             )
         endpoint = getattr(view, "endpoint", None) or getattr(rules[0], "endpoint")
         key = snake_to_camel(endpoint)
@@ -274,4 +258,4 @@ class ThingDescription:
         :param event: Event: 
 
         """
-        self.events[event.name] = self.event_to_thing_event(event)
+        print("Swalling as Events aren't yet implemented in the Thing Description")

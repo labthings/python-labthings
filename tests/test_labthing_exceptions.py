@@ -1,7 +1,9 @@
-from flask import Flask
-from labthings.labthing import SerializedExceptionHandler
 import json
+
 import pytest
+from flask import Flask
+
+from labthings.labthing import SerializedExceptionHandler
 
 
 @pytest.fixture

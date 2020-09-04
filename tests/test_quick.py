@@ -1,6 +1,6 @@
-from labthings import quick
-
 from flask import Flask
+
+from labthings import quick
 from labthings.labthing import LabThing
 
 

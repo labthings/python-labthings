@@ -1,12 +1,12 @@
-from labthings import views
-from werkzeug.http import parse_set_header
-from werkzeug.wrappers import Response as ResponseBase
-from flask import make_response
-
-import time
 import json
+import time
 
 import pytest
+from flask import make_response
+from werkzeug.http import parse_set_header
+from werkzeug.wrappers import Response as ResponseBase
+
+from labthings import views
 
 
 def common_test(app):
@@ -156,17 +156,6 @@ def test_get_value_response_json(app_ctx):
         assert Index().get().headers.get("Content-Type") == "application/json"
         # Main test
         assert Index().get_value() == {"json": "body"}
-
-
-def test_action_view_get_responses():
-    class Index(views.ActionView):
-        def post(self):
-            return {}
-
-    responses = Index.get_apispec().get("post").get("responses")
-    assert 201 in responses
-    assert "application/json" in responses[201]["content"]
-    assert "schema" in responses[201]["content"]["application/json"]
 
 
 def test_action_view_stop(app):

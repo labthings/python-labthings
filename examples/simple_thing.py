@@ -1,15 +1,9 @@
 #!/usr/bin/env python
-import random
-import math
 import time
-import logging
-import atexit
 
-from labthings import create_app, semantics, find_component, fields
-from labthings.views import ActionView, PropertyView, op
+from labthings import ActionView, PropertyView, create_app, fields, find_component, op
 from labthings.example_components import PretendSpectrometer
 from labthings.json import encode_json
-
 
 """
 Class for our lab component functionality. This could include serial communication,
@@ -24,9 +18,11 @@ and register is as a Thing property
 
 
 # Wrap in a semantic annotation to autmatically set schema and args
-@semantics.moz.LevelProperty(100, 500, example=200)
 class DenoiseProperty(PropertyView):
     """Value of integration_time"""
+
+    schema = fields.Int(required=True, minimum=100, maximum=500)
+    semtype = "LevelProperty"
 
     @op.readproperty
     def get(self):
@@ -112,17 +108,10 @@ class MeasurementAction(ActionView):
         return my_component.average_data(n_averages)
 
 
-# Handle exit cleanup
-def cleanup():
-    logging.info("Exiting. Running any cleanup code here...")
-
-
-atexit.register(cleanup)
-
 # Create LabThings Flask app
 app, labthing = create_app(
     __name__,
-    title=f"My Lab Device API",
+    title="My Lab Device API",
     description="Test LabThing-based API",
     version="0.1.0",
 )
@@ -141,6 +130,6 @@ labthing.add_view(MeasurementAction, "/actions/measure")
 
 # Start the app
 if __name__ == "__main__":
-    from labthings.server.wsgi import Server
+    from labthings import Server
 
     Server(app).run()

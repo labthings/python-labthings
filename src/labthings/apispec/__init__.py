@@ -1,2 +1,3 @@
-from .apispec import rule_to_apispec_path
-from .plugins import MarshmallowPlugin
+from .plugins import FlaskLabThingsPlugin, MarshmallowPlugin
+
+__all__ = ["MarshmallowPlugin", "FlaskLabThingsPlugin"]

@@ -1,9 +1,8 @@
 from labthings import find
-
 from labthings.extensions import BaseExtension
 
 
-def test_current_labthing(thing, thing_ctx):
+def test_current_labthing_explicit_app(thing, thing_ctx):
     with thing_ctx.test_request_context():
         assert find.current_labthing(thing.app) is thing
 

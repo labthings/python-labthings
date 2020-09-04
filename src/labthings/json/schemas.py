@@ -1,9 +1,10 @@
-import werkzeug.routing
 import re
-from marshmallow import Schema, fields
 from collections.abc import Mapping
-from .marshmallow_jsonschema import JSONSchema
 
+import werkzeug.routing
+from marshmallow import Schema, fields
+
+from .marshmallow_jsonschema import JSONSchema
 
 PATH_RE = re.compile(r"<(?:[^:<>]+:)?([^<>]+)>")
 # Conversion map of werkzeug rule converters to Javascript schema types

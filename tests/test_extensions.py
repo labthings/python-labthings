@@ -1,7 +1,8 @@
-from labthings import extensions
 import os
 
 import pytest
+
+from labthings import extensions
 
 
 @pytest.fixture

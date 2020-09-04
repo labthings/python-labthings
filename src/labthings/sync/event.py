@@ -1,7 +1,6 @@
-import time
 import logging
-
 import threading
+import time
 from _thread import get_ident
 
 

@@ -1,10 +1,8 @@
-from labthings import schema
-from labthings import fields
+import pytest
 
+from labthings import fields, schema
 from labthings.actions.thread import ActionThread
 from labthings.extensions import BaseExtension
-
-import pytest
 
 
 def test_field_schema(app_ctx):

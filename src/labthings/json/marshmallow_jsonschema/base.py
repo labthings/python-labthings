@@ -3,7 +3,7 @@ import decimal
 import uuid
 from inspect import isclass
 
-from marshmallow import fields, missing, Schema, validate
+from marshmallow import Schema, fields, missing, validate
 from marshmallow.class_registry import get_class
 
 from .exceptions import UnsupportedValueError

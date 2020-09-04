@@ -1,13 +1,13 @@
-from threading import _RLock, current_thread
-
-from contextlib import contextmanager
 import logging
+from contextlib import contextmanager
+from threading import _RLock, current_thread
 
 sentinel = object()
 
 
 class LockError(RuntimeError):
     """ """
+
     ERROR_CODES = {
         "ACQUIRE_ERROR": "Unable to acquire. Lock in use by another thread.",
         "IN_USE_ERROR": "Lock in use by another thread.",

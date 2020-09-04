@@ -1,10 +1,9 @@
-from labthings.json.marshmallow_jsonschema import JSONSchema, UnsupportedValueError
-from labthings.schema import Schema, validate
-from labthings import fields
-
+import pytest
 from jsonschema import Draft7Validator
 
-import pytest
+from labthings import fields
+from labthings.json.marshmallow_jsonschema import JSONSchema, UnsupportedValueError
+from labthings.schema import Schema, validate
 
 
 class Address(Schema):

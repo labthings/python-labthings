@@ -1,7 +1,4 @@
-from labthings.default_views.sockets import (
-    socket_handler,
-    process_socket_message,
-)
+from labthings.default_views.sockets import process_socket_message, socket_handler
 
 
 def test_socket_handler(thing_ctx, fake_websocket):

@@ -1,4 +1,4 @@
-from labthings.server.extensions import BaseExtension
+from labthings.extensions import BaseExtension
 
 test_extension = BaseExtension("org.labthings.tests.extension")
 test_extension_excluded = BaseExtension("org.labthings.tests.extension_excluded")

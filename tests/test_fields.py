@@ -1,11 +1,10 @@
-from labthings import schema
-from labthings import fields
-
-from marshmallow import ValidationError
-from base64 import b64encode
 import pickle
+from base64 import b64encode
 
 import pytest
+from marshmallow import ValidationError
+
+from labthings import fields, schema
 
 
 def test_bytes_encode():
