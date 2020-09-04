@@ -30,7 +30,8 @@ class Server:
     ):
         self.app = app
         # Find LabThing attached to app
-        self.labthing = current_labthing(app)
+        with app.app_context():
+            self.labthing = current_labthing(app)
 
         # Server properties
         self.host = host
@@ -39,13 +40,13 @@ class Server:
         self.zeroconf = zeroconf
 
         # Servers
-        self.wsgi_server = None
         self.zeroconf_server = None
         self.service_info = None
         self.service_infos = []
 
     def _register_zeroconf(self):
         if self.labthing:
+            print(f"Registering zeroconf {self.labthing.safe_title}._labthing._tcp.local.")
             # Get list of host addresses
             mdns_addresses = {
                 socket.inet_aton(i)
@@ -82,22 +83,16 @@ class Server:
         print(f"Running on http://{friendlyhost}:{self.port} (Press CTRL+C to quit)")
 
         # Create WSGIServer
-        run_simple(self.host, self.port, self.app, use_debugger=self.debug, threaded=True, processes=1)
-
-        # When server stops
-        if self.zeroconf_server:
-            logging.info("Unregistering zeroconf services")
-            for service in self.service_infos:
-                self.zeroconf_server.unregister_service(service)
-            self.zeroconf_server.close()
-        # Stop WSGI server with timeout
-        if self.wsgi_server:
-            logging.info("Shutting down WSGI server")
-            self.wsgi_server.stop(timeout=5)
-        # Clear started event
-        if self.started.is_set():
-            self.started.clear()
-        logging.info("Done")
+        try:
+            run_simple(self.host, self.port, self.app, use_debugger=self.debug, threaded=True, processes=1)
+        finally:
+            # When server stops
+            if self.zeroconf_server:
+                print("Unregistering zeroconf services...")
+                for service in self.service_infos:
+                    self.zeroconf_server.unregister_service(service)
+                self.zeroconf_server.close()
+            print("Server stopped")
 
     def run(self, host=None, port=None, debug=None, zeroconf=None, **kwargs):
         """Starts the server allowing for runtime parameters. Designed to immitate
