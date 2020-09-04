@@ -12,12 +12,12 @@ description = "A pluggable API specification generator. Currently supports the O
 name = "apispec"
 optional = false
 python-versions = ">=3.5"
-version = "3.3.1"
+version = "3.3.2"
 
 [package.extras]
-dev = ["PyYAML (>=3.10)", "prance (>=0.11)", "marshmallow (>=2.19.2)", "pytest", "mock", "flake8 (3.8.2)", "flake8-bugbear (20.1.4)", "pre-commit (>=2.4,<3.0)", "tox"]
-docs = ["marshmallow (>=2.19.2)", "pyyaml (5.3.1)", "sphinx (3.0.4)", "sphinx-issues (1.2.0)", "sphinx-rtd-theme (0.4.3)"]
-lint = ["flake8 (3.8.2)", "flake8-bugbear (20.1.4)", "pre-commit (>=2.4,<3.0)"]
+dev = ["PyYAML (>=3.10)", "prance (>=0.11)", "marshmallow (>=2.19.2)", "pytest", "mock", "flake8 (3.8.3)", "flake8-bugbear (20.1.4)", "pre-commit (>=2.4,<3.0)", "tox"]
+docs = ["marshmallow (>=2.19.2)", "pyyaml (5.3.1)", "sphinx (3.2.1)", "sphinx-issues (1.2.0)", "sphinx-rtd-theme (0.5.0)"]
+lint = ["flake8 (3.8.3)", "flake8-bugbear (20.1.4)", "pre-commit (>=2.4,<3.0)"]
 tests = ["PyYAML (>=3.10)", "prance (>=0.11)", "marshmallow (>=2.19.2)", "pytest", "mock"]
 validation = ["prance (>=0.11)"]
 yaml = ["PyYAML (>=3.10)"]
@@ -822,8 +822,8 @@ alabaster = [
     {file = "alabaster-0.7.12.tar.gz", hash = "sha256:a661d72d58e6ea8a57f7a86e37d86716863ee5e92788398526d58b26a4e4dc02"},
 ]
 apispec = [
-    {file = "apispec-3.3.1-py2.py3-none-any.whl", hash = "sha256:b65063e11968a8c26dbbe9b4100ee24026a41cc358dd204df279bdedd7d8dea2"},
-    {file = "apispec-3.3.1.tar.gz", hash = "sha256:f5244ccca33f7a81309f6b3c9d458e33e869050c2d861b9f8cee24b3ad739d2b"},
+    {file = "apispec-3.3.2-py2.py3-none-any.whl", hash = "sha256:a1df9ec6b2cd0edf45039ef025abd7f0660808fa2edf737d3ba1cf5ef1a4625b"},
+    {file = "apispec-3.3.2.tar.gz", hash = "sha256:d23ebd5b71e541e031b02a19db10b5e6d5ef8452c552833e3e1afc836b40b1ad"},
 ]
 appdirs = [
     {file = "appdirs-1.4.4-py2.py3-none-any.whl", hash = "sha256:a841dacd6b99318a741b166adb07e19ee71a274450e68237b4650ca1055ab128"},
