@@ -55,7 +55,6 @@ __all__ = [
     "views",
     "fields",
     "Schema",
-    "semantics",
     "json",
     "PropertyView",
     "ActionView",

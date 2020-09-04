@@ -61,8 +61,7 @@ class View(MethodView):
         response = get_method()  # pylint: disable=not-callable
         if isinstance(response, ResponseBase):  # Pluck useful data out of HTTP response
             return response.json if response.json else response.data
-        else:  # Unless somehow an HTTP response isn't returned...
-            return response
+        return response
 
     def _find_request_method(self):
         meth = getattr(self, request.method.lower(), None)

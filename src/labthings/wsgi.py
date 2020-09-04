@@ -1,11 +1,7 @@
-import logging
-import signal
 import socket
-import threading
 import hashlib
 
 from werkzeug.serving import run_simple
-from werkzeug.debug import DebuggedApplication
 from zeroconf import IPVersion, ServiceInfo, Zeroconf, get_all_addresses
 
 from .find import current_labthing

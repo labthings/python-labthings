@@ -8,7 +8,6 @@ from apispec.ext.marshmallow import MarshmallowPlugin
 from flask import Flask
 from flask.testing import FlaskClient
 from flask.views import MethodView
-from werkzeug.test import EnvironBuilder
 
 from labthings import LabThing
 from labthings.actions import Pool
