@@ -81,7 +81,7 @@ def description_from_view(view_class):
     summary = get_summary(view_class)
 
     methods = []
-    for method_key in http_method_funcs:
+    for method_key in ("get", "post", "put"):
         if hasattr(view_class, method_key):
             methods.append(method_key.upper())
 

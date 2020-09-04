@@ -158,17 +158,6 @@ def test_get_value_response_json(app_ctx):
         assert Index().get_value() == {"json": "body"}
 
 
-def test_action_view_get_responses():
-    class Index(views.ActionView):
-        def post(self):
-            return {}
-
-    responses = Index.get_apispec().get("post").get("responses")
-    assert 201 in responses
-    assert "application/json" in responses[201]["content"]
-    assert "schema" in responses[201]["content"]["application/json"]
-
-
 def test_action_view_stop(app):
     class Index(views.ActionView):
         default_stop_timeout = 0

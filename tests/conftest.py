@@ -13,7 +13,7 @@ from werkzeug.test import EnvironBuilder
 from labthings import LabThing
 from labthings.actions import Pool
 from labthings.json import encode_json
-from labthings.views import View
+from labthings.views import View, ActionView, PropertyView
 
 
 class Helpers:
@@ -188,6 +188,27 @@ def view_cls():
             return "DELETE"
 
     return ViewClass
+
+
+@pytest.fixture
+def action_view_cls():
+    class ActionViewClass(ActionView):
+        def post(self):
+            return "POST"
+
+    return ActionViewClass
+
+
+@pytest.fixture
+def property_view_cls():
+    class PropertyViewClass(PropertyView):
+        def get(self):
+            return "GET"
+
+        def put(self):
+            return "PUT"
+
+    return PropertyViewClass
 
 
 @pytest.fixture

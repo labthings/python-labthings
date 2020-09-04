@@ -189,10 +189,10 @@ def test_description_from_view(app):
             """POST summary"""
             return "POST"
 
-    assert utilities.description_from_view(Index) == {
-        "methods": ["GET", "POST"],
-        "description": "Class summary",
-    }
+    description = utilities.description_from_view(Index)
+    assert "POST" in description["methods"]
+    assert "GET" in description["methods"]
+    assert description["description"] == "Class summary"
 
 
 def test_description_from_view_summary_from_method(app):
@@ -205,10 +205,10 @@ def test_description_from_view_summary_from_method(app):
             """POST summary"""
             return "POST"
 
-    assert utilities.description_from_view(Index) == {
-        "methods": ["GET", "POST"],
-        "description": "GET summary",
-    }
+    description = utilities.description_from_view(Index)
+    assert "POST" in description["methods"]
+    assert "GET" in description["methods"]
+    assert description["description"] == "GET summary"
 
 
 def test_view_class_from_endpoint(app):
