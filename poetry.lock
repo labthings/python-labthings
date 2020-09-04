@@ -222,7 +222,7 @@ description = "Barebones websocket extension for Flask, using Pythonthreading fo
 name = "flask-threaded-sockets"
 optional = false
 python-versions = ">=3.6,<4.0"
-version = "0.3.0"
+version = "0.3.1"
 
 [package.dependencies]
 flask = ">=1.1.2,<2.0.0"
@@ -282,7 +282,7 @@ description = "A Python utility / library to sort Python imports."
 name = "isort"
 optional = false
 python-versions = ">=3.6,<4.0"
-version = "5.5.0"
+version = "5.5.1"
 
 [package.extras]
 colors = ["colorama (>=0.4.3,<0.5.0)"]
@@ -939,8 +939,8 @@ flask-cors = [
     {file = "Flask_Cors-3.0.9-py2.py3-none-any.whl", hash = "sha256:cee4480aaee421ed029eaa788f4049e3e26d15b5affb6a880dade6bafad38324"},
 ]
 flask-threaded-sockets = [
-    {file = "flask_threaded_sockets-0.3.0-py3-none-any.whl", hash = "sha256:d9d070229ad11e3fdf01148b7d1ea69623c9bcf4b5b3be810d424fd479e2b42c"},
-    {file = "flask_threaded_sockets-0.3.0.tar.gz", hash = "sha256:3dee7017abe3e70216740997bd8c1d8ca816b3a0908c0a90fdaac00da2fbdedf"},
+    {file = "flask_threaded_sockets-0.3.1-py3-none-any.whl", hash = "sha256:ab0ffed42c9c7066f632a821904633a7d5bd212a3113a77193cbdab09b0d9eec"},
+    {file = "flask_threaded_sockets-0.3.1.tar.gz", hash = "sha256:134251c165a4786c2cb4eb82bcecec26f15cc42330c87a9962f552e367c46f14"},
 ]
 idna = [
     {file = "idna-2.10-py2.py3-none-any.whl", hash = "sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0"},
@@ -963,8 +963,8 @@ iniconfig = [
     {file = "iniconfig-1.0.1.tar.gz", hash = "sha256:e5f92f89355a67de0595932a6c6c02ab4afddc6fcdc0bfc5becd0d60884d3f69"},
 ]
 isort = [
-    {file = "isort-5.5.0-py3-none-any.whl", hash = "sha256:8103bc070d9258fe97e82470cb30f0e4b730e94c44ac81ebae32b05d5a6c87ea"},
-    {file = "isort-5.5.0.tar.gz", hash = "sha256:0906e0e7092e060c05de709ad172e1ec1b26aa27fdd4e8093f257890cd881d18"},
+    {file = "isort-5.5.1-py3-none-any.whl", hash = "sha256:a200d47b7ee8b7f7d0a9646650160c4a51b6a91a9413fd31b1da2c4de789f5d3"},
+    {file = "isort-5.5.1.tar.gz", hash = "sha256:92533892058de0306e51c88f22ece002a209dc8e80288aa3cec6d443060d584f"},
 ]
 itsdangerous = [
     {file = "itsdangerous-1.1.0-py2.py3-none-any.whl", hash = "sha256:b12271b2047cb23eeb98c8b5622e2e5c5e9abd9784a153e9d8ef9cb4dd09d749"},
