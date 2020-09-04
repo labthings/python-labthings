@@ -2,6 +2,7 @@ import logging
 import signal
 import socket
 import threading
+import hashlib
 
 from werkzeug.serving import run_simple
 from werkzeug.debug import DebuggedApplication
@@ -46,7 +47,10 @@ class Server:
 
     def _register_zeroconf(self):
         if self.labthing:
-            print(f"Registering zeroconf {self.labthing.safe_title}._labthing._tcp.local.")
+            host = f"{self.labthing.safe_title}._labthing._tcp.local."
+            if len(host) > 63:
+                host = f"{hashlib.sha1(host.encode()).hexdigest()}._labthing._tcp.local."
+            print(f"Registering zeroconf {host}")
             # Get list of host addresses
             mdns_addresses = {
                 socket.inet_aton(i)
@@ -57,7 +61,7 @@ class Server:
             self.service_infos.append(
                 ServiceInfo(
                     "_labthing._tcp.local.",
-                    f"{self.labthing.safe_title}._labthing._tcp.local.",
+                    host,
                     port=self.port,
                     properties={
                         "path": self.labthing.url_prefix,
