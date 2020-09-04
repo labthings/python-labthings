@@ -24,7 +24,7 @@ apispec_webframeworks = "^0.5.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.0"
-black = {version = "^19.10b0",allow-prereleases = true}
+black = {version = "^20.8b1",allow-prereleases = true}
 pytest-cov = "^2.10.1"
 numpy = "^1.19.1"
 jsonschema = "^3.2.0"
