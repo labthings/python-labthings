@@ -13,7 +13,7 @@ from werkzeug.test import EnvironBuilder
 from labthings import LabThing
 from labthings.actions import Pool
 from labthings.json import encode_json
-from labthings.views import View, ActionView, PropertyView
+from labthings.views import ActionView, PropertyView, View
 
 
 class Helpers:
