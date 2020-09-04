@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import time
 
-from labthings import create_app, fields, find_component, semantics
+from labthings import create_app, fields, find_component
 from labthings.example_components import PretendSpectrometer
 from labthings.json import encode_json
 from labthings.views import ActionView, PropertyView, op
@@ -19,9 +19,11 @@ and register is as a Thing property
 
 
 # Wrap in a semantic annotation to autmatically set schema and args
-@semantics.moz.LevelProperty(100, 500, example=200)
 class DenoiseProperty(PropertyView):
     """Value of integration_time"""
+
+    schema = fields.Int(required=True, minimum=100, maximum=500)
+    semtype = "LevelProperty"
 
     @op.readproperty
     def get(self):
