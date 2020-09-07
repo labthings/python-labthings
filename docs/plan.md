@@ -16,10 +16,6 @@
 * Action queue
 * Extension list
 
-### WebSocket API structure
-
-* Not yet implemented
-
 ### Serialising data
 
 * fields

@@ -5,7 +5,6 @@ import weakref
 from apispec import APISpec
 from apispec_webframeworks.flask import FlaskPlugin
 from flask import url_for
-from flask_threaded_sockets import Sockets
 
 from .actions.pool import Pool
 from .apispec import FlaskLabThingsPlugin, MarshmallowPlugin
@@ -13,7 +12,6 @@ from .default_views.actions import ActionObjectView, ActionQueueView
 from .default_views.docs import SwaggerUIView, docs_blueprint
 from .default_views.extensions import ExtensionList
 from .default_views.root import RootView
-from .default_views.sockets import socket_handler
 from .event import Event
 from .extensions import BaseExtension
 from .httperrorhandler import SerializedExceptionHandler
@@ -84,7 +82,6 @@ class LabThing:
         if types is None:
             types = []
         self.app = app  # Becomes a Flask app
-        self.sockets = None  # Becomes a Socket(app) websocket handler
 
         self.components = (
             {}
@@ -229,9 +226,6 @@ class LabThing:
         # Custom JSON encoder
         app.json_encoder = self.json_encoder
 
-        # Create socket handler
-        self.sockets = Sockets(app)
-
         # Add resources, if registered before tying to a Flask app
         if len(self.views) > 0:
             for resource, urls, endpoint, kwargs in self.views:
@@ -239,9 +233,6 @@ class LabThing:
 
         # Create base routes
         self._create_base_routes()
-
-        # Create base sockets
-        self._create_base_sockets()
 
         # Create base events
         self.add_event("logging")
@@ -272,14 +263,6 @@ class LabThing:
         self.add_root_link(ActionQueueView, "actions")
         self.add_view(ActionObjectView, "/actions/<task_id>", endpoint=ACTION_ENDPOINT)
 
-    def _create_base_sockets(self):
-        """
-        Automatically add base WebSocket views to the LabThing.
-        """
-        self.sockets.add_view(
-            self._complete_url("/ws", ""), socket_handler, endpoint="ws"
-        )
-        self.thing_description.add_link("ws", "websocket")
 
     # Device stuff
 
@@ -441,12 +424,6 @@ class LabThing:
             rule = self._complete_url(url, "")
             # Add the url to the application or blueprint
             app.add_url_rule(rule, view_func=resource_func, endpoint=endpoint, **kwargs)
-            # Add to self.sockets so that the socket middleware may
-            # intercept the connection
-            if hasattr(view, "websocket"):
-                self.sockets.add_url_rule(
-                    rule, view_func=resource_func, endpoint=endpoint
-                )
 
         # There might be a better way to do this than _rules_by_endpoint,
         # but I can't find one so this will do for now. Skipping PYL-W0212

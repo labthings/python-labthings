@@ -3,7 +3,7 @@ App, LabThing, and Server
 
 Python LabThings works as a Flask extension, and so we introduce two key objects: the :class:`flask.Flask` app, and the :class:`labthings.LabThing` object. The :class:`labthings.LabThing` object is our main entrypoint for the Flask application, and all LabThings functionality is added via this object.
 
-In order to enable threaded actions, and concurrent WebSocket connections, the app should be served using the :class:`labthings.Server` class. Other production servers such as Gevent can be used, however this will require monkey-patching and has not been comprehensively tested.
+In order to enable threaded actions the app should be served using the :class:`labthings.Server` class. Other production servers such as Gevent can be used, however this will require monkey-patching and has not been comprehensively tested.
 
 
 Create app
@@ -49,7 +49,7 @@ Thing interaction affordances are created using Views. Two main View types corre
 Server
 ------
 
-The integrated server actually handles 3 distinct server functions: WSGI HTTP requests, routing WebSocket requests to the threaded handler, and registering mDNS records for automatic Thing discovery. It is therefore strongly suggested you use the builtin server.
+The integrated server actually handles 3 distinct server functions: WSGI HTTP requests, and registering mDNS records for automatic Thing discovery. It is therefore strongly suggested you use the builtin server.
 
 **Important notes:** 
 
