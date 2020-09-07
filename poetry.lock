@@ -797,7 +797,7 @@ description = "Pure Python Multicast DNS Service Discovery Library (Bonjour/Avah
 name = "zeroconf"
 optional = false
 python-versions = "*"
-version = "0.28.3"
+version = "0.28.4"
 
 [package.dependencies]
 ifaddr = ">=0.1.7"
@@ -817,6 +817,7 @@ testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
 content-hash = "8ec717b2c415c44985dceece39bb1fc71aef44b255f5f6c39691be31973d6ab8"
+lock-version = "1.0"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -1136,6 +1137,7 @@ regex = [
     {file = "regex-2020.7.14-cp38-cp38-manylinux1_i686.whl", hash = "sha256:5ea81ea3dbd6767873c611687141ec7b06ed8bab43f68fad5b7be184a920dc99"},
     {file = "regex-2020.7.14-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:bbb332d45b32df41200380fff14712cb6093b61bd142272a10b16778c418e98e"},
     {file = "regex-2020.7.14-cp38-cp38-manylinux2010_i686.whl", hash = "sha256:c11d6033115dc4887c456565303f540c44197f4fc1a2bfb192224a301534888e"},
+    {file = "regex-2020.7.14-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:75aaa27aa521a182824d89e5ab0a1d16ca207318a6b65042b046053cfc8ed07a"},
     {file = "regex-2020.7.14-cp38-cp38-win32.whl", hash = "sha256:d6cff2276e502b86a25fd10c2a96973fdb45c7a977dca2138d661417f3728341"},
     {file = "regex-2020.7.14-cp38-cp38-win_amd64.whl", hash = "sha256:7a2dd66d2d4df34fa82c9dc85657c5e019b87932019947faece7983f2089a840"},
     {file = "regex-2020.7.14.tar.gz", hash = "sha256:3a3af27a8d23143c49a3420efe5b3f8cf1a48c6fc8bc6856b03f638abc1833bb"},
@@ -1240,8 +1242,8 @@ wrapt = [
     {file = "wrapt-1.12.1.tar.gz", hash = "sha256:b62ffa81fb85f4332a4f609cab4ac40709470da05643a082ec1eb88e6d9b97d7"},
 ]
 zeroconf = [
-    {file = "zeroconf-0.28.3-py3-none-any.whl", hash = "sha256:9ae1d9fbb53e1e5b0965a1e60873f99568f0424a03eb28ce793e75c999a8fc50"},
-    {file = "zeroconf-0.28.3.tar.gz", hash = "sha256:1a160082ef198884331b04b636132a243a06d3155f6664e96704b6984cbf485c"},
+    {file = "zeroconf-0.28.4-py3-none-any.whl", hash = "sha256:28b5590e32b6504a219d100a2007e7ba4d40804fd6802b238164ea3a664b29cb"},
+    {file = "zeroconf-0.28.4.tar.gz", hash = "sha256:ec489012835544481c9c669e6cd91ff7ebe5407cf5797a4cbc739be5d6bbce0c"},
 ]
 zipp = [
     {file = "zipp-3.1.0-py3-none-any.whl", hash = "sha256:aa36550ff0c0b7ef7fa639055d797116ee891440eac1a56f378e2d3179e0320b"},
