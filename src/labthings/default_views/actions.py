@@ -11,13 +11,22 @@ class ActionQueueView(View):
     """List of all actions from the session"""
 
     def get(self):
-        """ """
+        """Action queue
+        ---
+        description: Queue of most recent actions in the session
+        summary: Queue of most recent actions in the session
+        responses:
+            200:
+                content:
+                    application/json:
+                        schema: ActionSchema
+        """
         return ActionSchema(many=True).dump(current_labthing().actions.threads)
 
 
 class ActionObjectView(View):
     """Manage a particular action.
-    
+
     GET will safely return the current action progress.
     DELETE will cancel the action, if pending or running.
 
@@ -25,12 +34,15 @@ class ActionObjectView(View):
     """
 
     def get(self, task_id):
-        """Show status of a session task
-        
-        Includes progress and intermediate data.
-
-        :param task_id: 
-
+        """Show the status of an Action
+        ---
+        description: Status of an Action
+        summary: Status of an Action
+        responses:
+            200:
+                content:
+                    application/json:
+                        schema: ActionSchema
         """
         task_dict = current_labthing().actions.to_dict()
 
@@ -43,13 +55,15 @@ class ActionObjectView(View):
 
     @use_args({"timeout": fields.Int()})
     def delete(self, args, task_id):
-        """Terminate a running task.
-        
-        If the task is finished, deletes its entry.
-
-        :param args: 
-        :param task_id: 
-
+        """Cancel a running Action
+        ---
+        description: Cancel an Action
+        summary: Cancel an Action
+        responses:
+            200:
+                content:
+                    application/json:
+                        schema: ActionSchema
         """
         timeout = args.get("timeout", None)
         task_dict = current_labthing().actions.to_dict()

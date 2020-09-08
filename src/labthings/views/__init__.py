@@ -1,4 +1,6 @@
 from collections import OrderedDict
+import datetime
+import threading
 
 from flask import abort, request
 from flask.views import MethodView
@@ -11,7 +13,7 @@ from ..event import PropertyStatusEvent
 from ..find import current_labthing
 from ..marshalling import marshal_with, use_args
 from ..representations import DEFAULT_REPRESENTATIONS
-from ..schema import ActionSchema, Schema, build_action_schema
+from ..schema import ActionSchema, EventSchema, Schema, build_action_schema
 from ..utilities import unpack
 from . import builder, op
 
@@ -21,7 +23,7 @@ __all__ = ["MethodView", "View", "ActionView", "PropertyView", "op", "builder"]
 class View(MethodView):
     """A LabThing Resource class should make use of functions
     get(), put(), post(), and delete(), corresponding to HTTP methods.
-    
+
     These functions will allow for automated documentation generation.
 
     """
@@ -73,8 +75,8 @@ class View(MethodView):
     def dispatch_request(self, *args, **kwargs):
         """
 
-        :param *args: 
-        :param **kwargs: 
+        :param *args:
+        :param **kwargs:
 
         """
         meth = self._find_request_method()
@@ -86,7 +88,7 @@ class View(MethodView):
         """Take the marshalled return value of a function
         and build a representation response
 
-        :param response: 
+        :param response:
 
         """
         if isinstance(response, ResponseBase):  # There may be a better way to test
@@ -122,7 +124,9 @@ class ActionView(View):
     idempotent: bool = False  # Can the action be performed idempotently
 
     # Action handling
-    wait_for: int = 1  # Time in seconds to wait before returning the action as pending/running
+    wait_for: int = (
+        1  # Time in seconds to wait before returning the action as pending/running
+    )
     default_stop_timeout: int = None  # Time in seconds to wait for the action thread to end after a stop request before terminating it forcefully
 
     # Internal
@@ -148,8 +152,8 @@ class ActionView(View):
     def dispatch_request(self, *args, **kwargs):
         """
 
-        :param *args: 
-        :param **kwargs: 
+        :param *args:
+        :param **kwargs:
 
         """
         meth = self._find_request_method()
@@ -193,7 +197,7 @@ class ActionView(View):
 
         # If the action returns quickly, and returns a valid Response, return it as-is
         if task.output and isinstance(task.output, ResponseBase):
-            return self.represent_response(task.output, 200)
+            return self.represent_response((task.output, 200))
 
         return self.represent_response((ActionSchema().dump(task), 201))
 
@@ -219,8 +223,8 @@ class PropertyView(View):
     def dispatch_request(self, *args, **kwargs):
         """
 
-        :param *args: 
-        :param **kwargs: 
+        :param *args:
+        :param **kwargs:
 
         """
         meth = self._find_request_method()
@@ -246,7 +250,46 @@ class PropertyView(View):
 
             if current_labthing():
                 current_labthing().message(
-                    PropertyStatusEvent(property_name), property_value,
+                    PropertyStatusEvent(property_name),
+                    property_value,
                 )
 
         return resp
+
+
+class EventView(View):
+    """ """
+
+    # Data formatting
+    schema: Schema = None  # Schema for Event data
+    semtype: str = None  # Semantic type string
+
+    # Spec overrides
+    content_type = "application/json"  # Input contentType
+
+    # Internal
+    _opmap = {
+        "subscribeevent": "get",
+    }  # Mapping of Thing Description ops to class methods
+    _cls_tags = {"events"}
+    _deque = Deque()  # Action queue
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @classmethod
+    def get(cls):
+        """
+        Default method for GET requests. Returns the action queue (including already finished actions) for this action
+        """
+        return EventSchema(many=True).dump(cls._deque)
+
+    @classmethod
+    def emit(cls, data):
+        d = {"timestamp": datetime.datetime.now()}
+        if data:
+            if cls.schema:
+                d["data"] = cls.schema.dump(data)
+            else:
+                d["data"] = data
+        cls._deque.append(d)

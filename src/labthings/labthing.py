@@ -9,6 +9,7 @@ from flask import url_for
 from .actions.pool import Pool
 from .apispec import FlaskLabThingsPlugin, MarshmallowPlugin
 from .default_views.actions import ActionObjectView, ActionQueueView
+from .default_views.events import LoggingEventView
 from .default_views.docs import SwaggerUIView, docs_blueprint
 from .default_views.extensions import ExtensionList
 from .default_views.root import RootView
@@ -22,11 +23,12 @@ from .names import (
     ACTION_LIST_ENDPOINT,
     EXTENSION_LIST_ENDPOINT,
     EXTENSION_NAME,
+    LOG_EVENT_ENDPOINT,
 )
 from .representations import DEFAULT_REPRESENTATIONS
 from .td import ThingDescription
 from .utilities import camel_to_snake, clean_url_string
-from .views import ActionView, PropertyView
+from .views import ActionView, PropertyView, EventView
 
 # from apispec.ext.marshmallow import MarshmallowPlugin
 
@@ -91,11 +93,10 @@ class LabThing:
 
         self.actions = Pool()  # Pool of threads for Actions
 
-        self.events = {}  # Dictionary of Event affordances
-
         self.views = []  # List of View classes
         self._property_views = {}  # Dictionary of PropertyView views
         self._action_views = {}  # Dictionary of ActionView views
+        self._event_views = {}  # Dictionary of EventView views
 
         self.subscribers = set()  # Set of connected event subscribers
 
@@ -114,7 +115,7 @@ class LabThing:
 
         # Logging handler
         # TODO: Add cleanup code
-        self.log_handler = LabThingLogger()
+        self.log_handler = LabThingLogger(self)
         logging.getLogger().addHandler(self.log_handler)
 
         # Representation formatter map
@@ -138,7 +139,9 @@ class LabThing:
             self.init_app(app)
 
     @property
-    def description(self,):
+    def description(
+        self,
+    ):
         """
         Human-readable description of the Thing
         """
@@ -148,7 +151,7 @@ class LabThing:
     def description(self, description: str):
         """
         Human-readable description of the Thing
-        :param description: str: 
+        :param description: str:
         """
         self._description = description
         self.spec.description = description
@@ -164,7 +167,7 @@ class LabThing:
     def title(self, title: str):
         """
         Human-readable title of the Thing
-        :param description: str: 
+        :param description: str:
         """
         self._title = title
         self.spec.title = title
@@ -182,7 +185,9 @@ class LabThing:
         return title
 
     @property
-    def version(self,):
+    def version(
+        self,
+    ):
         """
         Version number of the Thing
         """
@@ -192,7 +197,7 @@ class LabThing:
     def version(self, version: str):
         """
         Version number of the Thing
-        :param version: str: 
+        :param version: str:
         """
         self._version = version
         self.spec.version = version
@@ -234,9 +239,6 @@ class LabThing:
         # Create base routes
         self._create_base_routes()
 
-        # Create base events
-        self.add_event("logging")
-
     def _create_base_routes(self):
         """
         Automatically add base HTTP views to the LabThing.
@@ -262,7 +264,8 @@ class LabThing:
         self.add_view(ActionQueueView, "/actions", endpoint=ACTION_LIST_ENDPOINT)
         self.add_root_link(ActionQueueView, "actions")
         self.add_view(ActionObjectView, "/actions/<task_id>", endpoint=ACTION_ENDPOINT)
-
+        # Add event routes
+        self.add_view(LoggingEventView, "/events/logging", endpoint=LOG_EVENT_ENDPOINT)
 
     # Device stuff
 
@@ -293,7 +296,7 @@ class LabThing:
 
     def register_extension(self, extension_object):
         """
-        Add an extension to the LabThing. This will add API views and lifecycle 
+        Add an extension to the LabThing. This will add API views and lifecycle
         functions from the extension to the LabThing
 
         :param extension_object: Extension instance
@@ -385,7 +388,7 @@ class LabThing:
         self.views.append((view, urls, endpoint, kwargs))
 
     def view(self, *urls, **kwargs):
-        """Wraps a :class:`labthings.View` class, adding it to the LabThing. 
+        """Wraps a :class:`labthings.View` class, adding it to the LabThing.
         Parameters are the same as :meth:`~labthings.LabThing.add_view`.
 
         Example::
@@ -438,40 +441,20 @@ class LabThing:
         if issubclass(view, PropertyView):
             self.thing_description.property(flask_rules, view)
             self._property_views[view.endpoint] = view
-
-    # Event stuff
-    def add_event(self, name, schema=None):
-        """
-
-        :param name: 
-        :param schema:  (Default value = None)
-
-        """
-        # TODO: Handle schema
-        # TODO: Add view for event, returning list of Event.events
-        self.events[name] = Event(name, schema=schema)
-        self.thing_description.event(self.events[name])
+        if issubclass(view, EventView):
+            self.thing_description.event(flask_rules, view)
+            self._event_views[view.endpoint] = view
 
     def emit(self, event_type: str, data: dict):
         """Find a matching event type if one exists, and emit some data to it
 
-        :param event_type: str: 
-        :param data: dict: 
+        :param event_type: str:
+        :param data: dict:
 
         """
-        event_object = self.events[event_type]
-        self.message(event_object, data)
-
-    def message(self, event: Event, data: dict):
-        """Emit an event object to all subscribers
-
-        :param event: Event: 
-        :param data: dict: 
-
-        """
-        event_response = event.emit(data)
-        for sub in self.subscribers:
-            sub.emit(event_response)
+        event_view = self._event_views.get(event_type)
+        if event_view:
+            event_view.emit(data)
 
     # Utilities
 
@@ -479,8 +462,8 @@ class LabThing:
         """Generates a URL to the given resource.
         Works like :func:`flask.url_for`.
 
-        :param view: 
-        :param values: 
+        :param view:
+        :param values:
 
         """
         if isinstance(view, str):
@@ -497,8 +480,8 @@ class LabThing:
     def add_root_link(self, view, rel, kwargs=None, params=None):
         """
 
-        :param view: 
-        :param rel: 
+        :param view:
+        :param rel:
         :param kwargs:  (Default value = None)
         :param params:  (Default value = None)
 

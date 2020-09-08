@@ -30,7 +30,7 @@ from .schema import Schema
 from .sync import ClientEvent, CompositeLock, StrictLock
 
 # Views
-from .views import ActionView, PropertyView, op
+from .views import ActionView, PropertyView, EventView, op
 
 # Suggested WSGI server class
 from .wsgi import Server
@@ -58,5 +58,5 @@ __all__ = [
     "json",
     "PropertyView",
     "ActionView",
-    "op"
+    "op",
 ]

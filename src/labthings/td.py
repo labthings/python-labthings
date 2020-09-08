@@ -14,8 +14,8 @@ def view_to_thing_forms(rules: list, view: View, external: bool = True):
     :type rules: list
     :param view: View class
     :type view: View
-    :param rules: list: 
-    :param view: View: 
+    :param rules: list:
+    :param view: View:
     :param external: bool: Use external links where possible
     :returns: Form description
     :rtype: [dict]
@@ -93,8 +93,8 @@ class ThingDescription:
     def add_link(self, view, rel, kwargs=None, params=None):
         """
 
-        :param view: 
-        :param rel: 
+        :param view:
+        :param rel:
         :param kwargs:  (Default value = None)
         :param params:  (Default value = None)
 
@@ -120,7 +120,7 @@ class ThingDescription:
             "description": current_labthing().description,
             "properties": self.properties,
             "actions": self.actions,
-            # "events": self.events,  # TODO: Enable once properly populated
+            "events": self.events,
             "links": self.links,
             "securityDefinitions": {"nosec_sc": {"scheme": "nosec"}},
             "security": "nosec_sc",
@@ -134,11 +134,10 @@ class ThingDescription:
     def view_to_thing_property(self, rules: list, view: View):
         """
 
-        :param rules: list: 
-        :param view: View: 
+        :param rules: list:
+        :param view: View:
 
         """
-        prop_urls = [rule_to_path(rule) for rule in rules]
 
         # Basic description
         prop_description = {
@@ -183,14 +182,60 @@ class ThingDescription:
 
         return prop_description
 
+    def view_to_thing_event(self, rules: list, view: View):
+        """
+
+        :param rules: list:
+        :param view: View:
+
+        """
+
+        # Basic description
+        event_description = {
+            "title": getattr(view, "title", None) or view.__name__,
+            "description": getattr(view, "description", None) or get_docstring(view),
+            "forms": view_to_thing_forms(rules, view, external=self.external_links),
+            "uriVariables": {},
+        }
+
+        semtype = getattr(view, "semtype", None)
+        if semtype:
+            event_description["@type"] = semtype
+
+        # Look for a _propertySchema in the Property classes API SPec
+        event_schema = getattr(view, "schema", None)
+
+        if event_schema:
+            # Convert schema to JSON
+            event_schema_json = schema_to_json(event_schema)
+
+            # Add schema to prop description
+            event_description["data"] = event_schema_json
+
+        # Add URI variables
+        for event_rule in rules:
+            params_dict = {}
+            for param in rule_to_params(event_rule):
+                params_dict.update(
+                    {
+                        param.get("name"): {
+                            "type": param.get("type") or param.get("schema").get("type")
+                        }
+                    }
+                )
+            event_description["uriVariables"].update(params_dict)
+        if not event_description["uriVariables"]:
+            del event_description["uriVariables"]
+
+        return event_description
+
     def view_to_thing_action(self, rules: list, view: View):
         """
 
-        :param rules: list: 
-        :param view: View: 
+        :param rules: list:
+        :param view: View:
 
         """
-        action_urls = [rule_to_path(rule) for rule in rules]
 
         # Basic description
         action_description = {
@@ -222,8 +267,8 @@ class ThingDescription:
     def property(self, rules: list, view: View):
         """
 
-        :param rules: list: 
-        :param view: View: 
+        :param rules: list:
+        :param view: View:
 
         """
         endpoint = getattr(view, "endpoint", None) or getattr(rules[0], "endpoint")
@@ -232,12 +277,12 @@ class ThingDescription:
 
     def action(self, rules: list, view: View):
         """Add a view representing an Action.
-        
+
         NB at present this will fail for any view that doesn't support POST
         requests.
 
-        :param rules: list: 
-        :param view: View: 
+        :param rules: list:
+        :param view: View:
 
         """
         if not hasattr(view, "post"):
@@ -249,10 +294,13 @@ class ThingDescription:
         key = snake_to_camel(endpoint)
         self.actions[key] = self.view_to_thing_action(rules, view)
 
-    def event(self, event: Event):
-        """
+    def event(self, rules: list, view: View):
+        """Add a view representing an event queue.
 
-        :param event: Event: 
+        :param rules: list:
+        :param view: View:
 
         """
-        print("Swalling as Events aren't yet implemented in the Thing Description")
+        endpoint = getattr(view, "endpoint", None) or getattr(rules[0], "endpoint")
+        key = snake_to_camel(endpoint)
+        self.events[key] = self.view_to_thing_event(rules, view)

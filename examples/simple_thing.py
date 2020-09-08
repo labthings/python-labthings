@@ -3,6 +3,8 @@
 from labthings import ActionView, PropertyView, create_app, fields, find_component, op
 from labthings.example_components import PretendSpectrometer
 
+import logging
+
 """
 Class for our lab component functionality. This could include serial communication,
 equipment API calls, network requests, or a "virtual" device as seen here.
@@ -56,6 +58,7 @@ class QuickDataProperty(PropertyView):
         my_component = find_component("org.labthings.example.mycomponent")
         return my_component.data
 
+
 """
 Create a view to start an averaged measurement, and register is as a Thing action
 """
@@ -66,7 +69,9 @@ class MeasurementAction(ActionView):
     # Pass to post function as dictionary argument.
     args = {
         "averages": fields.Integer(
-            missing=20, example=20, description="Number of data sets to average over",
+            missing=20,
+            example=20,
+            description="Number of data sets to average over",
         )
     }
     # Marshal the response as a list of numbers
@@ -76,12 +81,15 @@ class MeasurementAction(ActionView):
     @op.invokeaction
     def post(self, args):
         """Start an averaged measurement"""
+        logging.warning("Starting a measurement")
 
         # Find our attached component
         my_component = find_component("org.labthings.example.mycomponent")
 
         # Get arguments and start a background task
         n_averages = args.get("averages")
+
+        logging.warning("Finished a measurement")
 
         # Return the task information
         return my_component.average_data(n_averages)

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collections.abc import Mapping
+from datetime import datetime
 
 from flask import url_for
 from marshmallow import Schema, pre_dump, pre_load, validate
@@ -18,8 +19,8 @@ __all__ = [
 
 
 class FieldSchema(Schema):
-    """"Virtual schema" for handling individual fields treated as schemas.
-    
+    """ "Virtual schema" for handling individual fields treated as schemas.
+
     For example, when serializing/deserializing individual values that are not
     attributes of an object, like passing a single number as the request/response body
 
@@ -38,7 +39,7 @@ class FieldSchema(Schema):
     def deserialize(self, value):
         """
 
-        :param value: 
+        :param value:
 
         """
         return self.field.deserialize(value)
@@ -57,7 +58,7 @@ class FieldSchema(Schema):
     def dump(self, value):
         """
 
-        :param value: 
+        :param value:
 
         """
         return self.serialize(value)
@@ -82,8 +83,8 @@ class TaskSchema(Schema):
     def generate_links(self, data, **kwargs):
         """
 
-        :param data: 
-        :param **kwargs: 
+        :param data:
+        :param **kwargs:
 
         """
         try:
@@ -125,8 +126,8 @@ class ActionSchema(Schema):
     def generate_links(self, data, **kwargs):
         """
 
-        :param data: 
-        :param **kwargs: 
+        :param data:
+        :param **kwargs:
 
         """
         # Add Mozilla format href
@@ -152,13 +153,9 @@ def build_action_schema(output_schema: Schema, input_schema: Schema, name: str =
     """Builds a complete schema for a given ActionView. That is, it reads any input and output
     schemas attached to the POST method, and nests them within the input/output fields of
     the generic ActionSchema.
-    NOTE: This is only for documentation purposes. When Action responses are built by the
-    HTTP server, the generic ActionSchema will be used for marshaling. This is because the
-    post() functions return value will already be marshaled because of its @marshal_with
-    decorator, and thus will already be a formatted dictionary object.
 
-    :param output_schema: Schema: 
-    :param input_schema: Schema: 
+    :param output_schema: Schema:
+    :param input_schema: Schema:
     :param name: str:  (Default value = None)
 
     """
@@ -195,6 +192,11 @@ def build_action_schema(output_schema: Schema, input_schema: Schema, name: str =
     return type(name, (ActionSchema,), class_attrs)
 
 
+class EventSchema(Schema):
+    timestamp = fields.DateTime()
+    data = fields.Raw()
+
+
 class ExtensionSchema(Schema):
     """ """
 
@@ -210,8 +212,8 @@ class ExtensionSchema(Schema):
     def generate_links(self, data, **kwargs):
         """
 
-        :param data: 
-        :param **kwargs: 
+        :param data:
+        :param **kwargs:
 
         """
         d = {}
@@ -236,4 +238,21 @@ class ExtensionSchema(Schema):
 
         data.links = d
 
+        return data
+
+
+class LogRecordSchema(Schema):
+    name = fields.String()
+    message = fields.String()
+    levelname = fields.String()
+    levelno = fields.Integer()
+    lineno = fields.Integer()
+    filename = fields.String()
+    created = fields.DateTime()
+
+    @pre_dump
+    def preprocess(self, data, **kwargs):
+        data.message = data.getMessage()
+        if not isinstance(data.created, datetime):
+            data.created = datetime.fromtimestamp(data.created)
         return data

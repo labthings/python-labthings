@@ -1,30 +1,19 @@
 from logging import StreamHandler
 
+from .schema import LogRecordSchema
 from .find import current_labthing
 
 
 class LabThingLogger(StreamHandler):
     """ """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, labthing, *args, ignore_werkzeug=True, **kwargs):
         StreamHandler.__init__(self, *args, **kwargs)
+        self.labthing = labthing
+        self.ignore_werkzeug = ignore_werkzeug
 
     def emit(self, record):
-        """
-
-        :param record: 
-
-        """
-        log_event = self.rest_format_record(record)
-
-        # Broadcast to subscribers
-        if current_labthing():
-            current_labthing().emit("logging", log_event)
-
-    def rest_format_record(self, record):
-        """
-
-        :param record: 
-
-        """
-        return {"message": str(record.msg), "level": record.levelname.lower()}
+        if self.ignore_werkzeug and record.name == "werkzeug":
+            return
+        else:
+            self.labthing.emit("logging", record)

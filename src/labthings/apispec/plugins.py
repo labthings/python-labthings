@@ -7,9 +7,9 @@ from flask.views import http_method_funcs
 
 from .. import fields
 from ..json.schemas import schema_to_json
-from ..schema import build_action_schema
+from ..schema import build_action_schema, EventSchema
 from ..utilities import get_docstring, get_summary, merge
-from ..views import ActionView, PropertyView
+from ..views import ActionView, PropertyView, EventView
 
 
 class ExtendedOpenAPIConverter(OpenAPIConverter):
@@ -19,16 +19,16 @@ class ExtendedOpenAPIConverter(OpenAPIConverter):
 
     def init_attribute_functions(self, *args, **kwargs):
         """
-        :param *args: 
-        :param **kwargs: 
+        :param *args:
+        :param **kwargs:
         """
         OpenAPIConverter.init_attribute_functions(self, *args, **kwargs)
         self.attribute_functions.append(self.jsonschema_type_mapping)
 
     def jsonschema_type_mapping(self, field, **kwargs):
         """
-        :param field: 
-        :param **kwargs: 
+        :param field:
+        :param **kwargs:
         """
         ret = {}
         if hasattr(field, "_jsonschema_type_mapping"):
@@ -215,6 +215,37 @@ class FlaskLabThingsPlugin(BasePlugin):
         d["post"]["responses"].update(action.responses)
         return d
 
+    @classmethod
+    def spec_for_event(cls, event):
+        class_json_schema = schema_to_json(event.schema) if event.schema else None
+        queue_json_schema = schema_to_json(EventSchema(many=True))
+        if class_json_schema:
+            queue_json_schema["properties"]["data"] = class_json_schema
+
+        d = cls.spec_for_interaction(event)
+
+        # Add in Action spec
+        d = merge(
+            d,
+            {
+                "get": {
+                    "responses": {
+                        200: {
+                            "description": "Event queue",
+                            "content": {
+                                "application/json": (
+                                    {"schema": queue_json_schema}
+                                    if queue_json_schema
+                                    else {}
+                                )
+                            },
+                        }
+                    },
+                },
+            },
+        )
+        return d
+
     def operation_helper(self, path, operations, **kwargs):
         """Path helper that allows passing a Flask view function."""
         # rule = self._rule_for_view(interaction.dispatch_request, app=app)
@@ -224,4 +255,6 @@ class FlaskLabThingsPlugin(BasePlugin):
             ops = self.spec_for_property(interaction)
         elif issubclass(interaction, ActionView):
             ops = self.spec_for_action(interaction)
+        elif issubclass(interaction, EventView):
+            ops = self.spec_for_event(interaction)
         operations.update(ops)

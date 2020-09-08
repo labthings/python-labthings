@@ -8,6 +8,8 @@ import uuid
 from flask import copy_current_request_context, has_request_context
 
 from ..utilities import TimeoutTracker
+from ..schema import LogRecordSchema
+from ..deque import Deque
 
 _LOG = logging.getLogger(__name__)
 
@@ -29,6 +31,7 @@ class ActionThread(threading.Thread):
         kwargs=None,
         daemon=True,
         default_stop_timeout: int = 5,
+        log_len: int = 100,
     ):
         threading.Thread.__init__(
             self,
@@ -76,10 +79,14 @@ class ActionThread(threading.Thread):
         self._end_time = None  # Task end time
 
         # Public state properties
-        self.input: dict = {}  # Input arguments. TODO: Automate this. Currently manual via Action.dispatch_request
+        self.input: dict = (
+            {}
+        )  # Input arguments. TODO: Automate this. Currently manual via Action.dispatch_request
         self.progress: int = None  # Percent progress of the task
         self.data = {}  # Dictionary of custom data added during the task
-        self.log = []  # The log will hold dictionary objects with log information
+        self.log = Deque(
+            None, log_len
+        )  # The log will hold dictionary objects with log information
 
         # Stuff for handling termination
         self._running_lock = (
@@ -106,7 +113,7 @@ class ActionThread(threading.Thread):
         Current running status of the thread.
 
         ==============  =============================================
-        Status          Meaning     
+        Status          Meaning
         ==============  =============================================
         ``pending``     Not yet started
         ``running``     Currently in-progress
@@ -143,7 +150,7 @@ class ActionThread(threading.Thread):
     def update_data(self, data: dict):
         """
 
-        :param data: dict: 
+        :param data: dict:
 
         """
         # Store data to be used before task finishes (eg for real-time plotting)
@@ -165,15 +172,15 @@ class ActionThread(threading.Thread):
         """Wraps the target function to handle recording `status` and `return` to `state`.
         Happens inside the task thread.
 
-        :param f: 
+        :param f:
 
         """
 
         def wrapped(*args, **kwargs):
             """
 
-            :param *args: 
-            :param **kwargs: 
+            :param *args:
+            :param **kwargs:
 
             """
             nonlocal self
@@ -222,7 +229,7 @@ class ActionThread(threading.Thread):
     def _async_raise(self, exc_type):
         """
 
-        :param exc_type: 
+        :param exc_type:
 
         """
         # Should only be called on a started thread, so raise otherwise.
@@ -319,18 +326,20 @@ class ActionThread(threading.Thread):
 
 
 class ThreadLogHandler(logging.Handler):
-    def __init__(self, thread=None, dest=None, level=logging.INFO):
+    def __init__(
+        self, thread=None, dest=None, level=logging.INFO, default_log_len: int = 100
+    ):
         """Set up a log handler that appends messages to a list.
-    
+
         This log handler will first filter by ``thread``, if one is
         supplied.  This should be a ``threading.Thread`` object.
         Only log entries from the specified thread will be
         saved.
-    
+
         ``dest`` should specify a list, to which we will append
         each log entry as it comes in.  If none is specified, a
         new list will be created.
-    
+
         NB this log handler does not currently rotate or truncate
         the list - so if you use it on a thread that produces a
         lot of log messages, you may run into memory problems.
@@ -340,18 +349,17 @@ class ThreadLogHandler(logging.Handler):
         logging.Handler.__init__(self)
         self.setLevel(level)
         self.thread = thread
-        self.dest = dest if dest is not None else []
+        self.dest = dest if dest is not None else Deque(None, default_log_len)
         self.addFilter(self.check_thread)
 
     def check_thread(self, record):
         """Determine if a thread matches the desired record
 
-        :param record: 
+        :param record:
 
         """
         if self.thread is None:
             return 1
-
         if threading.get_ident() == self.thread.ident:
             return 1
         return 0
@@ -359,15 +367,10 @@ class ThreadLogHandler(logging.Handler):
     def emit(self, record):
         """Do something with a logged message
 
-        :param record: 
+        :param record:
 
         """
-        record_dict = {"message": record.getMessage()}
-        for k in ["created", "levelname", "levelno", "lineno", "filename"]:
-            record_dict[k] = getattr(record, k)
-        self.dest.append(record_dict)
-        # FIXME: make sure this doesn't become a memory disaster!
-        # We probably need to check the size of the list...
+        self.dest.append(LogRecordSchema().dump(record))
         # TODO: think about whether any of the keys are security flaws
         # (this is why I don't dump the whole logrecord)
 
