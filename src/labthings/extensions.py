@@ -19,8 +19,6 @@ class BaseExtension:
 
     """
 
-    # TODO: Allow adding components to extensions
-
     def __init__(
         self,
         name: str,

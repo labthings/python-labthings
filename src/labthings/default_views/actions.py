@@ -72,8 +72,5 @@ class ActionObjectView(View):
             return abort(404)  # 404 Not Found
 
         task = task_dict.get(task_id)
-
-        # TODO: Make non-blocking?
         task.stop(timeout=timeout)
-
         return ActionSchema().dump(task)

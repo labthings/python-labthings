@@ -113,7 +113,6 @@ class LabThing:
         self.format_flask_exceptions = format_flask_exceptions
 
         # Logging handler
-        # TODO: Add cleanup code
         self.log_handler = LabThingLogger(self)
         logging.getLogger().addHandler(self.log_handler)
 
