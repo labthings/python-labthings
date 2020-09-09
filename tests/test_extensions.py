@@ -99,9 +99,6 @@ def test_add_method_name_clash(lt_extension):
         )
 
 
-# TODO: Rewrite static file tests to attach the extension to a Thing instance
-
-
 def test_find_instances_in_module(lt_extension):
     mod = type(
         "mod",
