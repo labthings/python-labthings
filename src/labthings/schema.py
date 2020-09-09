@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from collections.abc import Mapping
 from datetime import datetime
+import logging
 
 from flask import url_for
 from marshmallow import Schema, pre_dump, pre_load, validate
@@ -74,9 +75,10 @@ class LogRecordSchema(Schema):
 
     @pre_dump
     def preprocess(self, data, **kwargs):
-        data.message = data.getMessage()
-        if not isinstance(data.created, datetime):
-            data.created = datetime.fromtimestamp(data.created)
+        if isinstance(data, logging.LogRecord):
+            data.message = data.getMessage()
+            if not isinstance(data.created, datetime):
+                data.created = datetime.fromtimestamp(data.created)
         return data
 
 
@@ -93,6 +95,9 @@ class ActionSchema(Schema):
     _request_time = fields.DateTime(data_key="timeRequested")
     _end_time = fields.DateTime(data_key="timeCompleted")
     log = fields.List(fields.Nested(LogRecordSchema()))
+    
+    input = fields.Raw()
+    output = fields.Raw()
 
     href = fields.String()
     links = fields.Dict()
@@ -202,9 +207,10 @@ class ExtensionSchema(Schema):
                 ]
             except BuildError:
                 urls = []
-            # TODO: Tidy up this nasty jazz
+            # If URL list is empty
             if len(urls) == 0:
                 urls = None
+            # If only 1 URL is given
             elif len(urls) == 1:
                 urls = urls[0]
             # Make links dictionary if it doesn't yet exist
