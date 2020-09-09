@@ -5,6 +5,7 @@ from .find import current_labthing
 from .json.schemas import rule_to_params, rule_to_path, schema_to_json
 from .utilities import ResourceURL, get_docstring, snake_to_camel
 from .views import View
+from .schema import build_action_schema
 
 
 def view_to_thing_forms(rules: list, view: View, external: bool = True):
@@ -256,11 +257,8 @@ class ThingDescription:
         if semtype:
             action_description["@type"] = semtype
 
-        # Look for a _schema in the Action classes API Spec
-        action_output_schema = getattr(view, "schema", None)
-        if action_output_schema:
-            # Add schema to prop description
-            action_description["output"] = schema_to_json(action_output_schema)
+        # Add schema to prop description
+        action_description["output"] = schema_to_json(build_action_schema(view.schema, view.args)())
 
         return action_description
 
