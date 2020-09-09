@@ -9,7 +9,7 @@ from .. import fields
 from ..json.schemas import schema_to_json
 from ..schema import build_action_schema, EventSchema
 from ..utilities import get_docstring, get_summary, merge
-from ..views import ActionView, PropertyView, EventView
+from ..views import ActionView, PropertyView, EventView, View
 
 
 class ExtendedOpenAPIConverter(OpenAPIConverter):
@@ -257,4 +257,6 @@ class FlaskLabThingsPlugin(BasePlugin):
             ops = self.spec_for_action(interaction)
         elif issubclass(interaction, EventView):
             ops = self.spec_for_event(interaction)
+        elif issubclass(interaction, View):
+            ops = self.spec_for_interaction(interaction)
         operations.update(ops)
