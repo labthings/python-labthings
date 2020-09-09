@@ -5,10 +5,9 @@ import threading
 import traceback
 import uuid
 
-from flask import copy_current_request_context, has_request_context
+from flask import request, copy_current_request_context, has_request_context
 
 from ..utilities import TimeoutTracker
-from ..schema import LogRecordSchema
 from ..deque import Deque
 
 _LOG = logging.getLogger(__name__)
@@ -68,8 +67,13 @@ class ActionThread(threading.Thread):
         if has_request_context():
             logging.debug(f"Copying request context to {self._target}")
             self._target = copy_current_request_context(self._target)
+            try:
+                self.input = request.json
+            except BadRequest:
+                self.input = None
         else:
             logging.debug("No request context to copy")
+            self.input = None
 
         # Private state properties
         self._status: str = "pending"  # Task status
@@ -79,9 +83,6 @@ class ActionThread(threading.Thread):
         self._end_time = None  # Task end time
 
         # Public state properties
-        self.input: dict = (
-            {}
-        )  # Input arguments. TODO: Automate this. Currently manual via Action.dispatch_request
         self.progress: int = None  # Percent progress of the task
         self.data = {}  # Dictionary of custom data added during the task
         self.log = Deque(
@@ -369,9 +370,8 @@ class ThreadLogHandler(logging.Handler):
         :param record:
 
         """
-        self.dest.append(LogRecordSchema().dump(record))
+        self.dest.append(record)
         # TODO: think about whether any of the keys are security flaws
-        # (this is why I don't dump the whole logrecord)
 
 
 # Backwards compatibility
