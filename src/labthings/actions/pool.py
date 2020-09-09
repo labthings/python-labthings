@@ -2,15 +2,15 @@ import logging
 import threading
 from functools import wraps
 
+from ..deque import Deque
 from .thread import ActionThread
 
 
-# TODO: Handle discarding old actions. Action views now use deques
 class Pool:
     """ """
 
-    def __init__(self):
-        self.threads = set()
+    def __init__(self, maxlen: int = 100):
+        self.threads = Deque(maxlen=maxlen)
 
     def add(self, thread: ActionThread):
         """
@@ -18,7 +18,7 @@ class Pool:
         :param thread: ActionThread: 
 
         """
-        self.threads.add(thread)
+        self.threads.append(thread)
 
     def start(self, thread: ActionThread):
         """
