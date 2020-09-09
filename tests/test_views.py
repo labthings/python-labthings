@@ -177,4 +177,4 @@ def test_action_view_stop(app):
     action_thread = Index._deque[0]
     assert action_thread.default_stop_timeout == 0
     action_thread.stop()
-    assert action_thread.status == "terminated"
+    assert action_thread.status == "cancelled"

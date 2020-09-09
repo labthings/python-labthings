@@ -65,7 +65,7 @@ def test_action_stop(thing_client):
         response = c.delete(f"/actions/{task_id}")
         assert response.status_code == 200
     # Test task was stopped
-    assert task_obj._status == "stopped"
+    assert task_obj._status == "cancelled"
 
 
 def test_action_terminate(thing_client):
@@ -85,7 +85,7 @@ def test_action_terminate(thing_client):
         response = c.delete(f"/actions/{task_id}", json={"timeout": "0"})
         assert response.status_code == 200
     # Test task was stopped
-    assert task_obj._status == "terminated"
+    assert task_obj._status == "cancelled"
 
 
 def test_action_kill_missing(thing_client):
