@@ -1,6 +1,4 @@
 from logging import StreamHandler
-
-from .schema import LogRecordSchema
 from .find import current_labthing
 
 
