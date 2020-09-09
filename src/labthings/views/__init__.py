@@ -9,7 +9,6 @@ from werkzeug.wrappers import Response as ResponseBase
 
 from ..actions.pool import Pool
 from ..deque import Deque
-from ..event import PropertyStatusEvent
 from ..find import current_labthing
 from ..marshalling import marshal_with, use_args
 from ..representations import DEFAULT_REPRESENTATIONS
@@ -180,12 +179,6 @@ class ActionView(View):
         if self.default_stop_timeout is not None:
             task.default_stop_timeout = self.default_stop_timeout
 
-        # Keep a copy of the raw, unmarshalled JSON input in the task
-        try:
-            task.input = request.json
-        except BadRequest:
-            task.input = None
-
         # Wait up to 2 second for the action to complete or error
         try:
             task.get(block=True, timeout=self.wait_for)
@@ -239,22 +232,7 @@ class PropertyView(View):
             meth = marshal_with(self.schema)(meth)
 
         # Generate basic response
-        resp = self.represent_response(meth(*args, **kwargs))
-
-        # Emit property event
-        if request.method in ("POST", "PUT"):
-            property_value = self.get_value()
-            property_name = getattr(self, "endpoint", None) or getattr(
-                self, "__name__", "unknown"
-            )
-
-            if current_labthing():
-                current_labthing().message(
-                    PropertyStatusEvent(property_name),
-                    property_value,
-                )
-
-        return resp
+        return self.represent_response(meth(*args, **kwargs))
 
 
 class EventView(View):
