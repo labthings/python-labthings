@@ -117,10 +117,9 @@ class ActionThread(threading.Thread):
         ==============  =============================================
         ``pending``     Not yet started
         ``running``     Currently in-progress
-        ``success``     Finished without error
+        ``completed``   Finished without error
+        ``cancelled``   Thread stopped after a cancel request
         ``error``       Exception occured in thread
-        ``stopped``     Thread finished cleanly after a stop request
-        ``terminated``  Thread killed after stop request timed out
         ==============  =============================================
         """
         return self._status
@@ -194,11 +193,11 @@ class ActionThread(threading.Thread):
             self.started.set()
             try:
                 self._return_value = f(*args, **kwargs)
-                self._status = "success"
+                self._status = "completed"
             except (ActionKilledException, SystemExit) as e:
                 logging.error(e)
-                # Set state to terminated
-                self._status = "terminated"
+                # Set state to stopped
+                self._status = "cancelled"
                 self.progress = None
             except Exception as e:  # skipcq: PYL-W0703
                 logging.error(e)
@@ -294,8 +293,8 @@ class ActionThread(threading.Thread):
         while self._is_thread_proc_running():
             pass
 
-        # Set state to terminated
-        self._status = "terminated"
+        # Set state to stopped
+        self._status = "cancelled"
         self.progress = None
         return True
 
@@ -318,7 +317,7 @@ class ActionThread(threading.Thread):
             # If the thread has stopped
             if not self.is_alive():
                 # Break
-                self._status = "stopped"
+                self._status = "cancelled"
                 return True
         # If the timeout tracker stopped before the thread died, kill it
         logging.warning(f"Forcefully terminating thread {self}")
