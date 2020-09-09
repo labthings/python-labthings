@@ -1,6 +1,5 @@
 from flask import has_request_context, request
 
-from .event import Event
 from .find import current_labthing
 from .json.schemas import rule_to_params, rule_to_path, schema_to_json
 from .utilities import ResourceURL, get_docstring, snake_to_camel

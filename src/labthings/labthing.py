@@ -13,7 +13,6 @@ from .default_views.events import LoggingEventView
 from .default_views.docs import SwaggerUIView, docs_blueprint
 from .default_views.extensions import ExtensionList
 from .default_views.root import RootView
-from .event import Event
 from .extensions import BaseExtension
 from .httperrorhandler import SerializedExceptionHandler
 from .json.encoder import LabThingsJSONEncoder
