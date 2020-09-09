@@ -63,41 +63,20 @@ class FieldSchema(Schema):
         """
         return self.serialize(value)
 
-
-class TaskSchema(Schema):
-    """Legacy schema for background actions. Will eventually be replaced by ActionSchema,"""
-
-    _ID = fields.String(data_key="id")
-    target_string = fields.String(data_key="function")
-    _status = fields.String(data_key="status")
-    progress = fields.String()
-    data = fields.Raw()
-    _return_value = fields.Raw(data_key="return")
-    _start_time = fields.DateTime(data_key="start_time")
-    _end_time = fields.DateTime(data_key="end_time")
-    log = fields.List(fields.Dict())
-
-    links = fields.Dict()
+class LogRecordSchema(Schema):
+    name = fields.String()
+    message = fields.String()
+    levelname = fields.String()
+    levelno = fields.Integer()
+    lineno = fields.Integer()
+    filename = fields.String()
+    created = fields.DateTime()
 
     @pre_dump
-    def generate_links(self, data, **kwargs):
-        """
-
-        :param data:
-        :param **kwargs:
-
-        """
-        try:
-            url = url_for(TASK_ENDPOINT, task_id=data.id, _external=True)
-        except BuildError:
-            url = None
-        data.links = {
-            "self": {
-                "href": url,
-                "mimetype": "application/json",
-                **description_from_view(view_class_from_endpoint(TASK_ENDPOINT)),
-            }
-        }
+    def preprocess(self, data, **kwargs):
+        data.message = data.getMessage()
+        if not isinstance(data.created, datetime):
+            data.created = datetime.fromtimestamp(data.created)
         return data
 
 
@@ -105,19 +84,15 @@ class ActionSchema(Schema):
     """ """
 
     _ID = fields.String(data_key="id")
-    _status = fields.String(data_key="status")
-    progress = fields.String()
+    _status = fields.String(
+        data_key="status",
+        OneOf=["pending", "running", "completed", "cancelled", "error"],
+    )
+    progress = fields.Integer()
     data = fields.Raw()
-    # _return_value = fields.Raw(data_key="output")
     _request_time = fields.DateTime(data_key="timeRequested")
     _end_time = fields.DateTime(data_key="timeCompleted")
-    # TODO: Make a proper log schema
-    log = fields.List(fields.Dict())
-
-    # Dump unformatted input and output
-    # Function-level marshal_with will handle formatting
-    output = fields.Field()
-    input = fields.Field()
+    log = fields.List(fields.Nested(LogRecordSchema()))
 
     href = fields.String()
     links = fields.Dict()
@@ -165,12 +140,14 @@ def build_action_schema(output_schema: Schema, input_schema: Schema, name: str =
     if not name.endswith("Action"):
         name = f"{name}Action"
 
-    class_attrs = {"output": None, "input": None}
+    class_attrs = {}
 
     for key, schema in {"output": output_schema, "input": input_schema}.items():
-
+        # If no schema is given, move on
+        if schema is None:
+            pass
         # If a real schema, nest it
-        if isinstance(schema, Schema):
+        elif isinstance(schema, Schema):
             class_attrs[key] = fields.Nested(schema)
         # If a dictionary schema, build a real schema then nest it
         elif isinstance(schema, Mapping):
@@ -178,9 +155,6 @@ def build_action_schema(output_schema: Schema, input_schema: Schema, name: str =
         # If a single field, set it as the output Field, and override its data_key
         elif isinstance(schema, fields.Field):
             class_attrs[key] = schema
-        # Otherwise allow any
-        elif schema is None:
-            class_attrs[key] = fields.Raw()
         else:
             raise TypeError(
                 f"Unsupported schema type {schema}. "
@@ -238,21 +212,4 @@ class ExtensionSchema(Schema):
 
         data.links = d
 
-        return data
-
-
-class LogRecordSchema(Schema):
-    name = fields.String()
-    message = fields.String()
-    levelname = fields.String()
-    levelno = fields.Integer()
-    lineno = fields.Integer()
-    filename = fields.String()
-    created = fields.DateTime()
-
-    @pre_dump
-    def preprocess(self, data, **kwargs):
-        data.message = data.getMessage()
-        if not isinstance(data.created, datetime):
-            data.created = datetime.fromtimestamp(data.created)
         return data
