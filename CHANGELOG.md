@@ -1,3 +1,8 @@
+# [v1.0.0](https://github.com/labthings/python-labthings/compare/v1.0.0-beta.1...v1.0.0) (2020-09-18)
+
+* Bump webargs from 6.1.0 to 6.1.1 ([3a64b22](https://github.com/labthings/python-labthings/commit/3a64b22))
+
+
 # [v1.0.0-beta.1](https://github.com/labthings/python-labthings/compare/v0.8.0...v1.0.0-beta.1) (2020-09-09)
 
 
