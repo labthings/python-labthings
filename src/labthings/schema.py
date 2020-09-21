@@ -174,6 +174,7 @@ def build_action_schema(output_schema: Schema, input_schema: Schema, name: str =
 
 
 class EventSchema(Schema):
+    event = fields.String()
     timestamp = fields.DateTime()
     data = fields.Raw()
 

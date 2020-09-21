@@ -264,7 +264,10 @@ class EventView(View):
 
     @classmethod
     def emit(cls, data):
-        d = {"timestamp": datetime.datetime.now()}
+        d = {
+            "event": getattr(cls, "endpoint", None),
+            "timestamp": datetime.datetime.now(),
+        }
         if data:
             if cls.schema:
                 d["data"] = cls.schema.dump(data)
