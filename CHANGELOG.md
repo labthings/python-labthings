@@ -1,3 +1,9 @@
+# [v1.1.0](https://github.com/labthings/python-labthings/compare/v1.0.0...v1.1.0) (2020-09-21)
+
+
+* Added "action" key to action objects ([9478f82](https://github.com/labthings/python-labthings/commit/9478f82))
+
+
 # [v1.0.0](https://github.com/labthings/python-labthings/compare/v1.0.0-beta.1...v1.0.0) (2020-09-18)
 
 * Bump webargs from 6.1.0 to 6.1.1 ([3a64b22](https://github.com/labthings/python-labthings/commit/3a64b22))
