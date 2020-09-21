@@ -2,7 +2,7 @@ from flask import has_request_context, request
 
 from .find import current_labthing
 from .json.schemas import rule_to_params, rule_to_path, schema_to_json
-from .utilities import ResourceURL, get_docstring, snake_to_camel
+from .utilities import ResourceURL, get_docstring
 from .views import View
 from .schema import build_action_schema
 
@@ -269,8 +269,7 @@ class ThingDescription:
 
         """
         endpoint = getattr(view, "endpoint", None) or getattr(rules[0], "endpoint")
-        key = snake_to_camel(endpoint)
-        self.properties[key] = self.view_to_thing_property(rules, view)
+        self.properties[endpoint] = self.view_to_thing_property(rules, view)
 
     def action(self, rules: list, view: View):
         """Add a view representing an Action.
@@ -288,8 +287,7 @@ class ThingDescription:
                 but it does not have a POST method."
             )
         endpoint = getattr(view, "endpoint", None) or getattr(rules[0], "endpoint")
-        key = snake_to_camel(endpoint)
-        self.actions[key] = self.view_to_thing_action(rules, view)
+        self.actions[endpoint] = self.view_to_thing_action(rules, view)
 
     def event(self, rules: list, view: View):
         """Add a view representing an event queue.
@@ -299,5 +297,4 @@ class ThingDescription:
 
         """
         endpoint = getattr(view, "endpoint", None) or getattr(rules[0], "endpoint")
-        key = snake_to_camel(endpoint)
-        self.events[key] = self.view_to_thing_event(rules, view)
+        self.events[endpoint] = self.view_to_thing_event(rules, view)

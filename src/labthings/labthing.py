@@ -26,7 +26,7 @@ from .names import (
 )
 from .representations import DEFAULT_REPRESENTATIONS
 from .td import ThingDescription
-from .utilities import camel_to_snake, clean_url_string
+from .utilities import snake_to_camel, clean_url_string
 from .views import ActionView, PropertyView, EventView
 
 # from apispec.ext.marshmallow import MarshmallowPlugin
@@ -376,7 +376,7 @@ class LabThing:
             labthing.add_view(Foo, '/foo', endpoint="foo")
             labthing.add_view(FooSpecial, '/special/foo', endpoint="foo")
         """
-        endpoint = endpoint or camel_to_snake(view.__name__)
+        endpoint = endpoint or snake_to_camel(view.__name__)
 
         logging.debug(f"{endpoint}: {type(view)} @ {urls}")
 
@@ -410,7 +410,7 @@ class LabThing:
         return decorator
 
     def _register_view(self, app, view, *urls, endpoint=None, **kwargs):
-        endpoint = endpoint or camel_to_snake(view.__name__)
+        endpoint = endpoint or view.__name__
         self.endpoints.add(endpoint)
         resource_class_args = kwargs.pop("resource_class_args", ())
         resource_class_kwargs = kwargs.pop("resource_class_kwargs", {})

@@ -174,7 +174,7 @@ class ActionView(View):
             current_labthing().actions if current_labthing() else self._emergency_pool
         )
         # Make a task out of the views `post` method
-        task = pool.spawn(meth, *args, **kwargs)
+        task = pool.spawn(self.endpoint, meth, *args, **kwargs)
         # Optionally override the threads default_stop_timeout
         if self.default_stop_timeout is not None:
             task.default_stop_timeout = self.default_stop_timeout

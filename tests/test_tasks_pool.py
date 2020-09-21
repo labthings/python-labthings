@@ -7,7 +7,7 @@ def test_spawn_without_context(task_pool):
     def task_func():
         pass
 
-    task_obj = task_pool.spawn(task_func)
+    task_obj = task_pool.spawn("task_func", task_func)
     assert isinstance(task_obj, threading.Thread)
 
 
@@ -16,7 +16,7 @@ def test_spawn_with_context(app_ctx, task_pool):
         pass
 
     with app_ctx.test_request_context():
-        task_obj = task_pool.spawn(task_func)
+        task_obj = task_pool.spawn("task_func", task_func)
         assert isinstance(task_obj, threading.Thread)
 
 
@@ -24,7 +24,7 @@ def test_update_task_data(task_pool):
     def task_func():
         actions.update_action_data({"key": "value"})
 
-    task_obj = task_pool.spawn(task_func)
+    task_obj = task_pool.spawn("task_func", task_func)
     task_obj.join()
     assert task_obj.data == {"key": "value"}
 
@@ -38,7 +38,7 @@ def test_update_task_progress(task_pool):
     def task_func():
         actions.update_action_progress(100)
 
-    task_obj = task_pool.spawn(task_func)
+    task_obj = task_pool.spawn("task_func", task_func)
     task_obj.join()
     assert task_obj.progress == 100
 
@@ -65,7 +65,7 @@ def test_discard_id(task_pool):
     def task_func():
         pass
 
-    task_obj = task_pool.spawn(task_func)
+    task_obj = task_pool.spawn("task_func", task_func)
     assert str(task_obj.id) in task_pool.to_dict()
     task_obj.join()
 
@@ -80,7 +80,7 @@ def test_cleanup_task(task_pool):
         pass
 
     # Make sure at least 1 actions is around
-    task_pool.spawn(task_func)
+    task_pool.spawn("task_func", task_func)
 
     # Wait for all actions to finish
     task_pool.join()

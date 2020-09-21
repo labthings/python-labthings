@@ -15,7 +15,7 @@ class Pool:
     def add(self, thread: ActionThread):
         """
 
-        :param thread: ActionThread: 
+        :param thread: ActionThread:
 
         """
         self.threads.append(thread)
@@ -23,21 +23,21 @@ class Pool:
     def start(self, thread: ActionThread):
         """
 
-        :param thread: ActionThread: 
+        :param thread: ActionThread:
 
         """
         self.add(thread)
         thread.start()
 
-    def spawn(self, function, *args, **kwargs):
+    def spawn(self, action: str, function, *args, **kwargs):
         """
 
-        :param function: 
-        :param *args: 
-        :param **kwargs: 
+        :param function:
+        :param *args:
+        :param **kwargs:
 
         """
-        thread = ActionThread(target=function, args=args, kwargs=kwargs)
+        thread = ActionThread(action, target=function, args=args, kwargs=kwargs)
         self.start(thread)
         return thread
 
@@ -90,7 +90,7 @@ class Pool:
     def discard_id(self, task_id):
         """
 
-        :param task_id: 
+        :param task_id:
 
         """
         marked_for_discard = set()
@@ -122,7 +122,7 @@ class Pool:
 
 def current_action():
     """Return the ActionThread instance in which the caller is currently running.
-    
+
     If this function is called from outside an ActionThread, it will return None.
 
 
@@ -137,7 +137,7 @@ def current_action():
 
 def update_action_progress(progress: int):
     """Update the progress of the ActionThread in which the caller is currently running.
-    
+
     If this function is called from outside an ActionThread, it will do nothing.
 
     :param progress: int: Action progress, in percent (0-100)
@@ -151,7 +151,7 @@ def update_action_progress(progress: int):
 
 def update_action_data(data: dict):
     """Update the data of the ActionThread in which the caller is currently running.
-    
+
     If this function is called from outside an ActionThread, it will do nothing.
 
     :param data: dict: Action data dictionary

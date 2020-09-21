@@ -64,6 +64,7 @@ class FieldSchema(Schema):
         """
         return self.serialize(value)
 
+
 class LogRecordSchema(Schema):
     name = fields.String()
     message = fields.String()
@@ -85,6 +86,7 @@ class LogRecordSchema(Schema):
 class ActionSchema(Schema):
     """ """
 
+    action = fields.String()
     _ID = fields.String(data_key="id")
     _status = fields.String(
         data_key="status",
@@ -95,7 +97,7 @@ class ActionSchema(Schema):
     _request_time = fields.DateTime(data_key="timeRequested")
     _end_time = fields.DateTime(data_key="timeCompleted")
     log = fields.List(fields.Nested(LogRecordSchema()))
-    
+
     input = fields.Raw()
     output = fields.Raw()
 

@@ -11,7 +11,7 @@ def test_task_with_args():
         pass
 
     task_obj = thread.ActionThread(
-        target=task_func, args=("String arg",), kwargs={"kwarg": True}
+        "task_func", target=task_func, args=("String arg",), kwargs={"kwarg": True}
     )
     assert isinstance(task_obj, threading.Thread)
     assert task_obj._target == task_func
@@ -23,7 +23,7 @@ def test_task_without_args():
     def task_func():
         pass
 
-    task_obj = thread.ActionThread(target=task_func)
+    task_obj = thread.ActionThread("task_func", target=task_func)
 
     assert isinstance(task_obj, threading.Thread)
     assert task_obj._target == task_func
@@ -36,7 +36,7 @@ def test_task_properties():
         pass
 
     task_obj = thread.ActionThread(
-        target=task_func, args=("String arg",), kwargs={"kwarg": True}
+        "task_func", target=task_func, args=("String arg",), kwargs={"kwarg": True}
     )
     assert task_obj.status == task_obj._status
     assert task_obj.id == task_obj._ID
@@ -49,7 +49,7 @@ def test_task_update_progress():
         pool.current_action().update_progress(100)
         return
 
-    task_obj = thread.ActionThread(target=task_func)
+    task_obj = thread.ActionThread("task_func", target=task_func)
 
     task_obj.start()
     task_obj.join()
@@ -61,7 +61,7 @@ def test_task_update_data():
         pool.current_action().update_data({"key": "value"})
         return
 
-    task_obj = thread.ActionThread(target=task_func)
+    task_obj = thread.ActionThread("task_func", target=task_func)
 
     task_obj.start()
     task_obj.join()
@@ -72,7 +72,7 @@ def test_task_start():
     def task_func():
         return "Return value"
 
-    task_obj = thread.ActionThread(target=task_func)
+    task_obj = thread.ActionThread("task_func", target=task_func)
 
     assert task_obj._status == "pending"
     assert task_obj._return_value is None
@@ -88,7 +88,7 @@ def test_task_get():
         time.sleep(0.1)
         return "Return value"
 
-    task_obj = thread.ActionThread(target=task_func)
+    task_obj = thread.ActionThread("task_func", target=task_func)
     task_obj.start()
     assert task_obj.get() == "Return value"
 
@@ -98,7 +98,7 @@ def test_task_get_noblock():
         time.sleep(0.1)
         return "Return value"
 
-    task_obj = thread.ActionThread(target=task_func)
+    task_obj = thread.ActionThread("task_func", target=task_func)
     task_obj.start()
     task_obj.join()
     assert task_obj.get(block=False, timeout=0) == "Return value"
@@ -109,7 +109,7 @@ def test_task_get_noblock_timeout():
         time.sleep(0.1)
         return "Return value"
 
-    task_obj = thread.ActionThread(target=task_func)
+    task_obj = thread.ActionThread("task_func", target=task_func)
     task_obj.start()
     with pytest.raises(TimeoutError):
         assert task_obj.get(block=False, timeout=0)
@@ -121,7 +121,7 @@ def test_task_exception():
     def task_func():
         raise exc_to_raise
 
-    task_obj = thread.ActionThread(target=task_func)
+    task_obj = thread.ActionThread("task_func", target=task_func)
     task_obj.start()
     task_obj.join()
 
@@ -134,7 +134,7 @@ def test_task_stop():
         while not pool.current_action().stopped:
             time.sleep(0)
 
-    task_obj = thread.ActionThread(target=task_func)
+    task_obj = thread.ActionThread("task_func", target=task_func)
     task_obj.start()
     task_obj.started.wait()
     assert task_obj._status == "running"
@@ -149,7 +149,7 @@ def test_task_stop_timeout():
         while True:
             time.sleep(0)
 
-    task_obj = thread.ActionThread(target=task_func)
+    task_obj = thread.ActionThread("task_func", target=task_func)
     task_obj.start()
     task_obj.started.wait()
     assert task_obj._status == "running"
@@ -164,7 +164,7 @@ def test_task_terminate():
         while True:
             time.sleep(0.5)
 
-    task_obj = thread.ActionThread(target=task_func)
+    task_obj = thread.ActionThread("task_func", target=task_func)
     task_obj.start()
     task_obj.started.wait()
     assert task_obj._status == "running"
@@ -178,7 +178,7 @@ def test_task_terminate_not_running():
     def task_func():
         return
 
-    task_obj = thread.ActionThread(target=task_func)
+    task_obj = thread.ActionThread("task_func", target=task_func)
     task_obj.start()
     task_obj.join()
     assert task_obj.terminate() is False

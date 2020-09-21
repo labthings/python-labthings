@@ -23,7 +23,7 @@ def test_actions_list(thing_client):
     def task_func():
         pass
 
-    task_obj = current_labthing().actions.spawn(task_func)
+    task_obj = current_labthing().actions.spawn("task_func", task_func)
 
     with thing_client as c:
         response = c.get("/actions").json
@@ -35,7 +35,7 @@ def test_action_representation(thing_client):
     def task_func():
         pass
 
-    task_obj = current_labthing().actions.spawn(task_func)
+    task_obj = current_labthing().actions.spawn("task_func", task_func)
     task_id = str(task_obj.id)
 
     with thing_client as c:
@@ -53,7 +53,7 @@ def test_action_stop(thing_client):
         while not current_action().stopping:
             time.sleep(0)
 
-    task_obj = current_labthing().actions.spawn(task_func)
+    task_obj = current_labthing().actions.spawn("task_func", task_func)
     task_id = str(task_obj.id)
 
     # Wait for task to start
@@ -73,7 +73,7 @@ def test_action_terminate(thing_client):
         while True:
             time.sleep(0)
 
-    task_obj = current_labthing().actions.spawn(task_func)
+    task_obj = current_labthing().actions.spawn("task_func", task_func)
     task_id = str(task_obj.id)
 
     # Wait for task to start

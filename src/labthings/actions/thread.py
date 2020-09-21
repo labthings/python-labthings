@@ -24,6 +24,7 @@ class ActionThread(threading.Thread):
 
     def __init__(
         self,
+        action,
         target=None,
         name=None,
         args=None,
@@ -45,6 +46,9 @@ class ActionThread(threading.Thread):
         # Safely populate missing arguments
         args = args or ()
         kwargs = kwargs or {}
+
+        # Action resource corresponding to this action object
+        self.action = action
 
         # A UUID for the ActionThread (not the same as the threading.Thread ident)
         self._ID = uuid.uuid4()  # Task ID
