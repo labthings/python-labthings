@@ -138,8 +138,13 @@ class ActionThread(threading.Thread):
 
     @property
     def stopped(self):
-        """ """
+        """Has the thread been cancelled"""
         return self.stopping.is_set()
+
+    @property
+    def cancelled(self):
+        """Alias of `stopped`"""
+        return self.stopped
 
     def update_progress(self, progress: int):
         """
