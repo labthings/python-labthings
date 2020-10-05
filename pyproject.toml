@@ -22,7 +22,7 @@ zeroconf = ">=0.24.5,<0.29.0"
 apispec_webframeworks = "^0.5.2"
 
 [tool.poetry.dev-dependencies]
-pytest = "^6.0"
+pytest = "^6.1"
 black = {version = "^20.8b1",allow-prereleases = true}
 pytest-cov = "^2.10.1"
 numpy = "^1.19.1"
