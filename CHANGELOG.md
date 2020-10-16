@@ -1,3 +1,12 @@
+# [v1.1.1](https://github.com/labthings/python-labthings/compare/v1.1.0...v1.1.1) (2020-10-16)
+
+
+* Added alias of "stopped" ([d524fd8](https://github.com/labthings/python-labthings/commit/d524fd8))
+* Fix #152 ([564ec1b](https://github.com/labthings/python-labthings/commit/564ec1b)), closes [#152](https://github.com/labthings/python-labthings/issues/152)
+* Updated dependencies ([abc732c](https://github.com/labthings/python-labthings/commit/abc732c))
+* Updated Events to new spec ([379bf9a](https://github.com/labthings/python-labthings/commit/379bf9a))
+
+
 # [v1.1.0](https://github.com/labthings/python-labthings/compare/v1.0.0...v1.1.0) (2020-09-21)
 
 
