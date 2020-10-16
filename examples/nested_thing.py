@@ -35,7 +35,7 @@ class MyComponent:
     def noisy_pdf(self, x_value, mu=0.0, sigma=25.0):
         """
         Generate a noisy gaussian function (to act as some pretend data)
-        
+
         Our noise is inversely proportional to self.magic_denoise
         """
         x_value = float(x_value - mu) / sigma

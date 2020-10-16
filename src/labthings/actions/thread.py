@@ -5,11 +5,11 @@ import threading
 import traceback
 import uuid
 
-from flask import request, copy_current_request_context, has_request_context
+from flask import copy_current_request_context, has_request_context, request
 from werkzeug.exceptions import BadRequest
 
-from ..utilities import TimeoutTracker
 from ..deque import LockableDeque
+from ..utilities import TimeoutTracker
 
 _LOG = logging.getLogger(__name__)
 

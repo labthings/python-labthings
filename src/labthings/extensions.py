@@ -13,7 +13,7 @@ from .views.builder import static_from
 
 class BaseExtension:
     """Parent class for all extensions.
-    
+
     Handles binding route views and forms.
 
 
@@ -65,10 +65,10 @@ class BaseExtension:
     def add_view(self, view_class, *urls, endpoint=None, **kwargs):
         """
 
-        :param view_class: 
-        :param *urls: 
+        :param view_class:
+        :param *urls:
         :param endpoint:  (Default value = None)
-        :param **kwargs: 
+        :param **kwargs:
 
         """
         # Remove all leading slashes from view route
@@ -99,7 +99,7 @@ class BaseExtension:
     def on_register(self, function, args=None, kwargs=None):
         """
 
-        :param function: 
+        :param function:
         :param args:  (Default value = None)
         :param kwargs:  (Default value = None)
 
@@ -114,8 +114,8 @@ class BaseExtension:
     def on_component(self, component_name: str, function, args=None, kwargs=None):
         """
 
-        :param component_name: str: 
-        :param function: 
+        :param component_name: str:
+        :param function:
         :param args:  (Default value = None)
         :param kwargs:  (Default value = None)
 
@@ -146,8 +146,8 @@ class BaseExtension:
     def add_meta(self, key, val):
         """
 
-        :param key: 
-        :param val: 
+        :param key:
+        :param val:
 
         """
         self._meta[key] = val
@@ -172,8 +172,8 @@ class BaseExtension:
     def add_method(self, method, method_name):
         """
 
-        :param method: 
-        :param method_name: 
+        :param method:
+        :param method_name:
 
         """
         self.methods[method_name] = method
@@ -188,7 +188,7 @@ class BaseExtension:
     def static_file_url(self, filename: str):
         """
 
-        :param filename: str: 
+        :param filename: str:
 
         """
         static_repr = self.views.get("static")
@@ -228,7 +228,7 @@ def find_extensions_in_file(extension_path: str, module_name="extensions") -> li
     :param module_name: Name of the module to load extensions into.
             Defaults to "extensions".
     :type module_name: str
-    :param extension_path: str: 
+    :param extension_path: str:
     :returns: List of extension objects
     :rtype: list
 
@@ -261,7 +261,7 @@ def find_extensions(extension_dir: str, module_name="extensions") -> list:
     :param module_name: Name of the module to load extensions into.
             Defaults to "extensions".
     :type module_name: str
-    :param extension_dir: str: 
+    :param extension_dir: str:
     :returns: List of extension objects
     :rtype: list
 

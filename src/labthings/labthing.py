@@ -9,8 +9,8 @@ from flask import url_for
 from .actions.pool import Pool
 from .apispec import FlaskLabThingsPlugin, MarshmallowPlugin
 from .default_views.actions import ActionObjectView, ActionQueueView
-from .default_views.events import LoggingEventView
 from .default_views.docs import SwaggerUIView, docs_blueprint
+from .default_views.events import LoggingEventView
 from .default_views.extensions import ExtensionList
 from .default_views.root import RootView
 from .extensions import BaseExtension
@@ -26,8 +26,8 @@ from .names import (
 )
 from .representations import DEFAULT_REPRESENTATIONS
 from .td import ThingDescription
-from .utilities import snake_to_camel, clean_url_string
-from .views import ActionView, PropertyView, EventView
+from .utilities import clean_url_string, snake_to_camel
+from .views import ActionView, EventView, PropertyView
 
 # from apispec.ext.marshmallow import MarshmallowPlugin
 

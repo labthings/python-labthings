@@ -6,7 +6,7 @@ from _thread import get_ident
 
 class ClientEvent(object):
     """An event-signaller object with per-client setting and waiting.
-    
+
     A client can be any Greenlet or native Thread. This can be used, for example,
     to signal to clients that new data is available
 

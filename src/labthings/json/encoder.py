@@ -12,7 +12,7 @@ class LabThingsJSONEncoder(JSONEncoder):
     def default(self, o):
         """
 
-        :param o: 
+        :param o:
 
         """
         if isinstance(o, set):
@@ -30,9 +30,9 @@ class LabThingsJSONEncoder(JSONEncoder):
 def encode_json(data, encoder=LabThingsJSONEncoder, **settings):
     """Makes JSON encoded data using the LabThings JSON encoder
 
-    :param data: 
+    :param data:
     :param encoder:  (Default value = LabThingsJSONEncoder)
-    :param **settings: 
+    :param **settings:
 
     """
     return json.dumps(data, cls=encoder, **settings) + "\n"

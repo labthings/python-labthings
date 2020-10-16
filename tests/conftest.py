@@ -37,6 +37,7 @@ class Helpers:
 def helpers():
     return Helpers
 
+
 class JsonClient(FlaskClient):
     def open(self, *args, **kwargs):
         kwargs.setdefault(

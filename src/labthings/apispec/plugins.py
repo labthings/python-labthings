@@ -7,9 +7,9 @@ from flask.views import http_method_funcs
 
 from .. import fields
 from ..json.schemas import schema_to_json
-from ..schema import build_action_schema, EventSchema
+from ..schema import EventSchema, build_action_schema
 from ..utilities import get_docstring, get_summary, merge
-from ..views import ActionView, PropertyView, EventView, View
+from ..views import ActionView, EventView, PropertyView, View
 
 
 class ExtendedOpenAPIConverter(OpenAPIConverter):

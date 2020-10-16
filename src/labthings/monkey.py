@@ -4,8 +4,8 @@ import logging
 def patch_all(*args, **kwargs):
     """
 
-    :param *args: 
-    :param **kwargs: 
+    :param *args:
+    :param **kwargs:
 
     """
     logging.warning(

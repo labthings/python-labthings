@@ -36,4 +36,8 @@ def output_json(data, code, headers=None):
     return resp
 
 
-DEFAULT_REPRESENTATIONS = OrderedDict({"application/json": output_json,})
+DEFAULT_REPRESENTATIONS = OrderedDict(
+    {
+        "application/json": output_json,
+    }
+)

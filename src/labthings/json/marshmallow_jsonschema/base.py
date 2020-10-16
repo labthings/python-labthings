@@ -91,7 +91,7 @@ class JSONSchema(Schema):
     def get_properties(self, obj):
         """Fill out properties field.
 
-        :param obj: 
+        :param obj:
 
         """
         properties = self.dict_class()
@@ -113,7 +113,7 @@ class JSONSchema(Schema):
     def get_required(self, obj):
         """Fill out required field.
 
-        :param obj: 
+        :param obj:
 
         """
         required = []
@@ -127,9 +127,9 @@ class JSONSchema(Schema):
     def _from_python_type(self, obj, field, pytype):
         """Get schema definition from python type.
 
-        :param obj: 
-        :param field: 
-        :param pytype: 
+        :param obj:
+        :param field:
+        :param pytype:
 
         """
         json_schema = {}
@@ -163,7 +163,7 @@ class JSONSchema(Schema):
     def _get_python_type(self, field):
         """Get python type based on field subclass
 
-        :param field: 
+        :param field:
 
         """
         for map_class, pytype in MARSHMALLOW_TO_PY_TYPES_PAIRS:
@@ -175,8 +175,8 @@ class JSONSchema(Schema):
     def _get_schema_for_field(self, obj, field):
         """Get schema and validators for field.
 
-        :param obj: 
-        :param field: 
+        :param obj:
+        :param field:
 
         """
         if hasattr(field, "_jsonschema_type_mapping"):
@@ -207,8 +207,8 @@ class JSONSchema(Schema):
     def _from_nested_schema(self, obj, field):
         """Support nested field.
 
-        :param obj: 
-        :param field: 
+        :param obj:
+        :param field:
 
         """
         if isinstance(field.nested, (str, bytes)):
@@ -256,8 +256,8 @@ class JSONSchema(Schema):
     def dump(self, obj, **kwargs):
         """Take obj for later use: using class name to namespace definition.
 
-        :param obj: 
-        :param **kwargs: 
+        :param obj:
+        :param **kwargs:
 
         """
         self.obj = obj

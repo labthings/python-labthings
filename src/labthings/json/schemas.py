@@ -81,7 +81,7 @@ def argument_to_param(argument, rule, override=None):
 def field_to_property(field):
     """
 
-    :param field: 
+    :param field:
 
     """
     return JSONSchema()._get_schema_for_field(Schema(), field)
@@ -90,7 +90,7 @@ def field_to_property(field):
 def map_to_schema(schema_dict: dict):
     """
 
-    :param schema_dict: dict: 
+    :param schema_dict: dict:
 
     """
     d = {}
@@ -109,7 +109,7 @@ def map_to_schema(schema_dict: dict):
 def schema_to_json(schema):
     """
 
-    :param schema: 
+    :param schema:
 
     """
     if schema is None:

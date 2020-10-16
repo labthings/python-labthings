@@ -1,5 +1,5 @@
-import socket
 import hashlib
+import socket
 
 from werkzeug.serving import run_simple
 from zeroconf import IPVersion, ServiceInfo, Zeroconf, get_all_addresses
@@ -45,7 +45,9 @@ class Server:
         if self.labthing:
             host = f"{self.labthing.safe_title}._labthing._tcp.local."
             if len(host) > 63:
-                host = f"{hashlib.sha1(host.encode()).hexdigest()}._labthing._tcp.local."
+                host = (
+                    f"{hashlib.sha1(host.encode()).hexdigest()}._labthing._tcp.local."
+                )
             print(f"Registering zeroconf {host}")
             # Get list of host addresses
             mdns_addresses = {
@@ -84,7 +86,14 @@ class Server:
 
         # Create WSGIServer
         try:
-            run_simple(self.host, self.port, self.app, use_debugger=self.debug, threaded=True, processes=1)
+            run_simple(
+                self.host,
+                self.port,
+                self.app,
+                use_debugger=self.debug,
+                threaded=True,
+                processes=1,
+            )
         finally:
             # When server stops
             if self.zeroconf_server:

@@ -7,7 +7,9 @@ from labthings.sync import lock
 # Fixtures
 
 
-@pytest.fixture(params=["StrictLock", "CompositeLock"],)
+@pytest.fixture(
+    params=["StrictLock", "CompositeLock"],
+)
 def this_lock(request):
     # Create a fresh lock for each test
     if request.param == "StrictLock":

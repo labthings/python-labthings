@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
+import logging
+
 from labthings import ActionView, PropertyView, create_app, fields, find_component, op
 from labthings.example_components import PretendSpectrometer
-
-import logging
 
 """
 Class for our lab component functionality. This could include serial communication,

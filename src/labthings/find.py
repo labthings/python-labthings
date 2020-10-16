@@ -18,7 +18,7 @@ __all__ = [
 
 def current_labthing(app=None):
     """The LabThing instance handling current requests.
-    
+
     Searches for a valid LabThing extension attached to the current Flask context.
 
     :param app:  (Default value = None)

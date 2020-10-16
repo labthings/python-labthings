@@ -79,7 +79,8 @@ def test_add_method(lt_extension):
         pass
 
     lt_extension.add_method(
-        f, "method_name",
+        f,
+        "method_name",
     )
     assert lt_extension.method_name == f
 
@@ -89,13 +90,15 @@ def test_add_method_name_clash(lt_extension):
         pass
 
     lt_extension.add_method(
-        f, "method_name",
+        f,
+        "method_name",
     )
     assert lt_extension.method_name == f
 
     with pytest.raises(NameError):
         lt_extension.add_method(
-            f, "method_name",
+            f,
+            "method_name",
         )
 
 

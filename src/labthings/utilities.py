@@ -63,7 +63,7 @@ class ResourceURL(UserString):
 def http_status_message(code):
     """Maps an HTTP status code to the textual status
 
-    :param code: 
+    :param code:
 
     """
     return HTTP_STATUS_CODES.get(code, "")
@@ -99,7 +99,7 @@ def view_class_from_endpoint(endpoint: str):
 
     :param endpoint: Endpoint corresponding to View class
     :type endpoint: str
-    :param endpoint: str: 
+    :param endpoint: str:
     :returns: View class attached to the specified endpoint
     :rtype: View
 
@@ -110,7 +110,7 @@ def view_class_from_endpoint(endpoint: str):
 def unpack(value):
     """
 
-    :param value: 
+    :param value:
 
     """
     if not isinstance(value, tuple):
@@ -134,7 +134,7 @@ def unpack(value):
 def clean_url_string(url: str):
     """
 
-    :param url: str: 
+    :param url: str:
 
     """
     if not url:
@@ -174,7 +174,7 @@ def get_summary(obj):
 
 def merge(first: dict, second: dict):
     """Recursively update a dictionary
-    
+
     This will take an "update_dictionary",
     and recursively merge it with "destination_dict".
 
@@ -182,8 +182,8 @@ def merge(first: dict, second: dict):
     :type first: dict
     :param second: New data dictionary
     :type second: dict
-    :param first: dict: 
-    :param second: dict: 
+    :param first: dict:
+    :param second: dict:
     :returns: Merged dictionary
     :rtype: dict
 
@@ -219,8 +219,8 @@ def rapply(data, func, *args, apply_to_iterables=True, **kwargs):
     :param func: Function to apply to all non-iterable values
     :param apply_to_iterables: Apply the function to elements in lists/tuples (Default value = True)
     :type apply_to_iterables: bool
-    :param *args: 
-    :param **kwargs: 
+    :param *args:
+    :param **kwargs:
     :returns: Updated dictionary
     :rtype: dict
 
@@ -252,8 +252,8 @@ def rapply(data, func, *args, apply_to_iterables=True, **kwargs):
 def get_by_path(root, items):
     """Access a nested object in root by item sequence.
 
-    :param root: 
-    :param items: 
+    :param root:
+    :param items:
 
     """
     return reduce(operator.getitem, items, root)
@@ -262,9 +262,9 @@ def get_by_path(root, items):
 def set_by_path(root, items, value):
     """Set a value in a nested object in root by item sequence.
 
-    :param root: 
-    :param items: 
-    :param value: 
+    :param root:
+    :param items:
+    :param value:
 
     """
     get_by_path(root, items[:-1])[items[-1]] = value
@@ -272,7 +272,7 @@ def set_by_path(root, items, value):
 
 def create_from_path(items):
     """Create a dictionary from a list of nested keys.RuntimeError
-    
+
     E.g. ["foo", "bar", "baz"] will become
     {
         "foo": {
@@ -337,7 +337,7 @@ def snake_to_camel(snake_str):
 
     :param name: snake_case string
     :type name: str
-    :param snake_str: 
+    :param snake_str:
     :returns: lowerCamelCase string
     :rtype: str
 
@@ -352,7 +352,7 @@ def path_relative_to(source_file, *paths):
     :param source_file: Module __file__ attribute
     :param source_file: Module __file__ attribute
         paths {str} -- Paths to add to source file location
-    :param *paths: 
+    :param *paths:
 
     """
     return os.path.join(os.path.abspath(os.path.dirname(source_file)), *paths)

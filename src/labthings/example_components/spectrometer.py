@@ -17,7 +17,7 @@ class PretendSpectrometer:
     def make_spectrum(self, x, mu=0.0, sigma=25.0):
         """
         Generate a noisy gaussian function (to act as some pretend data)
-        
+
         Our noise is inversely proportional to self.integration_time
         """
         x = float(x - mu) / sigma

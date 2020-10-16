@@ -19,7 +19,7 @@ class SerializedExceptionHandler:
     def std_handler(self, error):
         """
 
-        :param error: 
+        :param error:
 
         """
         logging.error(error)
@@ -45,7 +45,7 @@ class SerializedExceptionHandler:
     def init_app(self, app):
         """
 
-        :param app: 
+        :param app:
 
         """
         self.app = app
@@ -57,7 +57,7 @@ class SerializedExceptionHandler:
     def register(self, exception_or_code, handler=None):
         """
 
-        :param exception_or_code: 
+        :param exception_or_code:
         :param handler:  (Default value = None)
 
         """

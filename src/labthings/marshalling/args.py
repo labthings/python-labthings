@@ -21,8 +21,8 @@ class use_body:
         def wrapper(*args, **kwargs):
             """
 
-            :param *args: 
-            :param **kwargs: 
+            :param *args:
+            :param **kwargs:
 
             """
             # Get data from request

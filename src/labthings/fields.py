@@ -82,7 +82,7 @@ class Bytes(Field):
     def _validate(self, value):
         """
 
-        :param value: 
+        :param value:
 
         """
         if not isinstance(value, bytes):
@@ -94,10 +94,10 @@ class Bytes(Field):
     def _deserialize(self, value, attr, data, **kwargs):
         """
 
-        :param value: 
-        :param attr: 
-        :param data: 
-        :param **kwargs: 
+        :param value:
+        :param attr:
+        :param data:
+        :param **kwargs:
 
         """
         if isinstance(value, bytes):

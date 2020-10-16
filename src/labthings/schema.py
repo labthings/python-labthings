@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+import logging
 from collections.abc import Mapping
 from datetime import datetime
-import logging
 
 from flask import url_for
 from marshmallow import Schema, pre_dump, pre_load, validate

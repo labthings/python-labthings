@@ -8,7 +8,7 @@ from flask.views import MethodView
 
 def static_from(static_folder: str, name=None):
     """
-    :param static_folder: str: 
+    :param static_folder: str:
     :param name:  (Default value = None)
     """
 

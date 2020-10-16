@@ -19,7 +19,9 @@ class ExtensionMeasurementAction(ActionView):
 
     args = {
         "averages": fields.Integer(
-            missing=10, example=10, description="Number of data sets to average over",
+            missing=10,
+            example=10,
+            description="Number of data sets to average over",
         )
     }
 
@@ -66,7 +68,7 @@ class MyComponent:
     def noisy_pdf(self, x, mu=0.0, sigma=25.0):
         """
         Generate a noisy gaussian function (to act as some pretend data)
-        
+
         Our noise is inversely proportional to self.magic_denoise
         """
         x = float(x - mu) / sigma

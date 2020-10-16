@@ -32,8 +32,8 @@ def schema_to_converter(schema):
 def marshal(response, converter):
     """
 
-    :param response: 
-    :param converter: 
+    :param response:
+    :param converter:
 
     """
     if isinstance(response, ResponseBase):

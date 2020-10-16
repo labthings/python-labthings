@@ -1,6 +1,6 @@
-from collections import OrderedDict
 import datetime
 import threading
+from collections import OrderedDict
 
 from flask import abort, request
 from flask.views import MethodView
