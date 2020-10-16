@@ -184,18 +184,10 @@ def test_task_terminate_not_running():
     assert task_obj.terminate() is False
 
 
-def test_task_log_without_thread():
-
-    task_log_handler = thread.ThreadLogHandler()
-
-    # Should always return True if not attached to a thread
-    assert task_log_handler.check_thread(record=None)
-
-
 def test_task_log_with_incorrect_thread():
 
     task_obj = thread.ActionThread(None)
-    task_log_handler = thread.ThreadLogHandler(thread=task_obj)
+    task_log_handler = thread.ThreadLogHandler(task_obj, task_obj._log)
 
     # Should always return False if called from outside the log handlers thread
     assert task_log_handler.thread == task_obj
