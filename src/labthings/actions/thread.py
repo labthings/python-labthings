@@ -6,9 +6,10 @@ import traceback
 import uuid
 
 from flask import request, copy_current_request_context, has_request_context
+from werkzeug.exceptions import BadRequest
 
 from ..utilities import TimeoutTracker
-from ..deque import Deque
+from ..deque import LockableDeque
 
 _LOG = logging.getLogger(__name__)
 
@@ -89,7 +90,7 @@ class ActionThread(threading.Thread):
         # Public state properties
         self.progress: int = None  # Percent progress of the task
         self.data = {}  # Dictionary of custom data added during the task
-        self.log = Deque(
+        self._log = LockableDeque(
             None, log_len
         )  # The log will hold dictionary objects with log information
 
@@ -111,6 +112,11 @@ class ActionThread(threading.Thread):
         Return value of the Action function. If the Action is still running, returns None.
         """
         return self._return_value
+
+    @property
+    def log(self):
+        with self._log as logdeque:
+            return list(logdeque)
 
     @property
     def status(self):
@@ -195,7 +201,7 @@ class ActionThread(threading.Thread):
             nonlocal self
 
             # Capture just this thread's log messages
-            handler = ThreadLogHandler(thread=self, dest=self.log)
+            handler = ThreadLogHandler(self, self._log)
             logging.getLogger().addHandler(handler)
 
             self._status = "running"
@@ -336,7 +342,11 @@ class ActionThread(threading.Thread):
 
 class ThreadLogHandler(logging.Handler):
     def __init__(
-        self, thread=None, dest=None, level=logging.INFO, default_log_len: int = 100
+        self,
+        thread: ActionThread,
+        dest: LockableDeque,
+        level=logging.INFO,
+        default_log_len: int = 100,
     ):
         """Set up a log handler that appends messages to a list.
 
@@ -358,7 +368,7 @@ class ThreadLogHandler(logging.Handler):
         logging.Handler.__init__(self)
         self.setLevel(level)
         self.thread = thread
-        self.dest = dest if dest is not None else Deque(None, default_log_len)
+        self.dest = dest
         self.addFilter(self.check_thread)
 
     def check_thread(self, record):
@@ -379,9 +389,6 @@ class ThreadLogHandler(logging.Handler):
         :param record:
 
         """
-        self.dest.append(record)
+        with self.dest as logdeque:
+            logdeque.append(record)
         # TODO: think about whether any of the keys are security flaws
-
-
-# Backwards compatibility
-ActionThread = ActionThread
