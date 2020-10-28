@@ -1,3 +1,9 @@
+# [v1.1.2](https://github.com/labthings/python-labthings/compare/v1.1.1...v1.1.2) (2020-10-28)
+
+
+* Fixed ActionView deque being common to all subclasses ([37cc448](https://github.com/labthings/python-labthings/commit/37cc448))
+
+
 # [v1.1.1](https://github.com/labthings/python-labthings/compare/v1.1.0...v1.1.1) (2020-10-16)
 
 
