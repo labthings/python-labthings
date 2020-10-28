@@ -134,11 +134,17 @@ class ActionView(View):
     }  # Mapping of Thing Description ops to class methods
     _cls_tags = {"actions"}
     _deque = Deque()  # Action queue
-    _emergency_pool = Pool()
+    _emergency_pool = Pool()  # Emergency thread pool (common to all ActionView subclasses)
 
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
+
+    def __init_subclass__(cls):
+        """
+        Here we handle all class attributes that should be specific to each subclass of ActionView.
+        Without this block, for example, all subclasses of ActionView will share the superclass _deque.
+        """
+        cls._deque = Deque()  # Action queue
 
     @classmethod
     def get(cls):
