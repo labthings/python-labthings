@@ -26,7 +26,7 @@ class use_body:
 
             """
             # Get data from request
-            data = request.data or None
+            data = request.get_json(silent=True) or request.data or None
 
             # If no data is there
             if not data:
