@@ -134,7 +134,9 @@ class ActionView(View):
     }  # Mapping of Thing Description ops to class methods
     _cls_tags = {"actions"}
     _deque = Deque()  # Action queue
-    _emergency_pool = Pool()  # Emergency thread pool (common to all ActionView subclasses)
+    _emergency_pool = (
+        Pool()
+    )  # Emergency thread pool (common to all ActionView subclasses)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
