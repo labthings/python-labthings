@@ -1,3 +1,9 @@
+# [v1.1.3](https://github.com/labthings/python-labthings/compare/v1.1.2...v1.1.3) (2020-11-12)
+
+
+* Attempt JSON parsing in use_body ([7602317](https://github.com/labthings/python-labthings/commit/7602317))
+
+
 # [v1.1.2](https://github.com/labthings/python-labthings/compare/v1.1.1...v1.1.2) (2020-10-28)
 
 
