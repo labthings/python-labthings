@@ -15,7 +15,7 @@ class use_body:
     """Gets the request body as a single value and adds it as a positional argument"""
 
     def __init__(
-        self, schema: Union[Schema, Field, Dict[str, Union[Field, type]]], **kwargs
+        self, schema: Union[Schema, Field, Dict[str, Union[Field, type]]], **_
     ):
         self.schema = schema
 

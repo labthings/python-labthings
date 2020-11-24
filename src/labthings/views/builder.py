@@ -20,7 +20,7 @@ def static_from(static_folder: str, name=None) -> Type[MethodView]:
         name = f"static-{uid}"
 
     # Create inner functions
-    def _get(self, path=""):
+    def _get(_, path=""):
         """
         :param path:  (Default value = "")
         """
