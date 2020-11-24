@@ -1,3 +1,13 @@
+# [v1.1.5](https://github.com/labthings/python-labthings/compare/v1.1.4...v1.1.5) (2020-11-24)
+
+
+* Added py.typed ([5a59ce7](https://github.com/labthings/python-labthings/commit/5a59ce7))
+* Added PyLint analysis ([4c14e35](https://github.com/labthings/python-labthings/commit/4c14e35))
+* Fixed dump method signature ([0ec347c](https://github.com/labthings/python-labthings/commit/0ec347c))
+* Fixed Poetry install in publish stage ([63b4c1f](https://github.com/labthings/python-labthings/commit/63b4c1f))
+* Fixed pylint workflow path ([8440f9d](https://github.com/labthings/python-labthings/commit/8440f9d))
+* Formatting ([62ba495](https://github.com/labthings/python-labthings/commit/62ba495))
+
 # [v1.1.4](https://github.com/labthings/python-labthings/compare/v1.1.3...v1.1.4) (2020-11-24)
 
 
