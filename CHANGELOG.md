@@ -1,3 +1,12 @@
+# [v1.1.4](https://github.com/labthings/python-labthings/compare/v1.1.3...v1.1.4) (2020-11-24)
+
+
+* Added a bunch of type definitions ([3104d86](https://github.com/labthings/python-labthings/commit/3104d86), [a767205](https://github.com/labthings/python-labthings/commit/a767205))
+* Fixed __all__ in root ([0568b48](https://github.com/labthings/python-labthings/commit/0568b48))
+* Updated CI to use snok/install-poetry ([be14a44](https://github.com/labthings/python-labthings/commit/be14a44))
+* Added mypy to CI ([fa1ff0b](https://github.com/labthings/python-labthings/commit/fa1ff0b))
+
+
 # [v1.1.3](https://github.com/labthings/python-labthings/compare/v1.1.2...v1.1.3) (2020-11-12)
 
 
