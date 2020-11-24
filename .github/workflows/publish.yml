@@ -38,7 +38,7 @@ jobs:
         run: poetry run mypy src
 
       - name: Lint with PyLint
-        run: poetry run pylint .\src\labthings\
+        run: poetry run pylint src/labthings/
 
       - name: Test with pytest
         run: poetry run pytest
