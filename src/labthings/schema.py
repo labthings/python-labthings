@@ -56,13 +56,13 @@ class FieldSchema(Schema):
 
         return self.field.serialize("value", obj)
 
-    def dump(self, value: Any, *_):  # pylint: disable=arguments-differ
+    # We disable pylint unused-argument so we can keep the same signature as the base class
+    # pylint: disable=unused-argument
+    def dump(self, obj: Any, *, many: Optional[bool] = None):
         """
-
         :param value:
-
         """
-        return self.serialize(value)
+        return self.serialize(obj)
 
 
 class LogRecordSchema(Schema):
