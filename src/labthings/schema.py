@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
-from collections.abc import Mapping
+from typing import Optional, Union, Dict
 from datetime import datetime
 
 from flask import url_for
@@ -8,7 +8,7 @@ from marshmallow import Schema, pre_dump, pre_load, validate
 from werkzeug.routing import BuildError
 
 from . import fields
-from .names import ACTION_ENDPOINT, EXTENSION_LIST_ENDPOINT, TASK_ENDPOINT
+from .names import ACTION_ENDPOINT, EXTENSION_LIST_ENDPOINT
 from .utilities import description_from_view, view_class_from_endpoint
 
 __all__ = [
@@ -131,7 +131,11 @@ class ActionSchema(Schema):
         return data
 
 
-def build_action_schema(output_schema: Schema, input_schema: Schema, name: str = None):
+def build_action_schema(
+    output_schema: Optional[Union[Schema, Dict]],
+    input_schema: Optional[Union[Schema, Dict]],
+    name: Optional[str] = None,
+):
     """Builds a complete schema for a given ActionView. That is, it reads any input and output
     schemas attached to the POST method, and nests them within the input/output fields of
     the generic ActionSchema.
@@ -157,7 +161,7 @@ def build_action_schema(output_schema: Schema, input_schema: Schema, name: str =
         elif isinstance(schema, Schema):
             class_attrs[key] = fields.Nested(schema)
         # If a dictionary schema, build a real schema then nest it
-        elif isinstance(schema, Mapping):
+        elif isinstance(schema, dict):
             class_attrs[key] = fields.Nested(Schema.from_dict(schema))
         # If a single field, set it as the output Field, and override its data_key
         elif isinstance(schema, fields.Field):

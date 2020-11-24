@@ -1,8 +1,8 @@
 import re
-from collections.abc import Mapping
-
 import werkzeug.routing
 from marshmallow import Schema, fields
+
+from typing import Dict, List, Union, Optional, Any
 
 from .marshmallow_jsonschema import JSONSchema
 
@@ -17,7 +17,7 @@ CONVERTER_MAPPING = {
 DEFAULT_TYPE = ("string", None)
 
 
-def rule_to_path(rule):
+def rule_to_path(rule) -> str:
     """Convert a Flask rule into an JSON schema formatted URL path
 
     :param rule: Flask rule object
@@ -28,7 +28,7 @@ def rule_to_path(rule):
     return PATH_RE.sub(r"{\1}", rule.rule)
 
 
-def rule_to_params(rule, overrides=None):
+def rule_to_params(rule: werkzeug.routing.Rule, overrides=None) -> List[Dict[str, Any]]:
     """Convert a Flask rule into JSON schema URL parameters description
 
     :param rule: Flask rule object
@@ -50,7 +50,11 @@ def rule_to_params(rule, overrides=None):
     return result
 
 
-def argument_to_param(argument, rule, override=None):
+def argument_to_param(
+    argument: str,
+    rule: werkzeug.routing.Rule,
+    override: Optional[Dict[str, str]] = None,
+) -> Dict[str, Any]:
     """Convert a Flask rule into APISpec URL parameters description
 
     :param argument: URL argument
@@ -62,10 +66,10 @@ def argument_to_param(argument, rule, override=None):
     :rtype: dict
 
     """
-    param = {"in": "path", "name": argument, "required": True}
+    param: Dict[str, Any] = {"in": "path", "name": argument, "required": True}
     type_, format_ = CONVERTER_MAPPING.get(
         # skipcq: PYL-W0212
-        type(rule._converters[argument]),
+        type(rule._converters[argument]),  # type: ignore
         DEFAULT_TYPE,
     )
     param["schema"] = {}
@@ -78,7 +82,7 @@ def argument_to_param(argument, rule, override=None):
     return param
 
 
-def field_to_property(field):
+def field_to_property(field: fields.Field):
     """
 
     :param field:
@@ -87,26 +91,9 @@ def field_to_property(field):
     return JSONSchema()._get_schema_for_field(Schema(), field)
 
 
-def map_to_schema(schema_dict: dict):
-    """
-
-    :param schema_dict: dict:
-
-    """
-    d = {}
-
-    for k, v in schema_dict.items():
-        if isinstance(v, fields.Field):
-            d[k] = v
-        elif isinstance(v, Mapping):
-            d[k] = fields.Nested(Schema.from_dict(v))
-        else:
-            raise TypeError(f"Invalid field type {type(v)} for schema")
-
-    return Schema.from_dict(d)
-
-
-def schema_to_json(schema):
+def schema_to_json(
+    schema: Union[fields.Field, Schema, Dict[str, Union[fields.Field, type]]]
+) -> dict:
     """
 
     :param schema:
@@ -116,8 +103,8 @@ def schema_to_json(schema):
         return None
     if isinstance(schema, fields.Field):
         return field_to_property(schema)
-    elif isinstance(schema, Mapping):
-        return JSONSchema().dump(map_to_schema(schema)())
+    elif isinstance(schema, Dict):
+        return JSONSchema().dump(Schema.from_dict(schema)())
     elif isinstance(schema, Schema):
         return JSONSchema().dump(schema)
     else:

@@ -7,6 +7,8 @@ from importlib import util
 
 from flask import url_for
 
+from typing import List, Dict, Callable
+
 from .utilities import camel_to_snake, get_docstring, snake_to_spine
 from .views.builder import static_from
 
@@ -27,19 +29,19 @@ class BaseExtension:
         static_url_path="/static",
         static_folder=None,
     ):
-        self._views = (
+        self._views: dict = (
             {}
         )  # Key: Full, Python-safe ID. Val: Original rule, and view class
-        self._rules = {}  # Key: Original rule. Val: View class
-        self._meta = {}  # Extra metadata to add to the extension description
+        self._rules: dict = {}  # Key: Original rule. Val: View class
+        self._meta: dict = {}  # Extra metadata to add to the extension description
 
-        self._on_registers = (
-            []
-        )  # List of dictionaries of functions to run on registration
+        self._on_registers: List[
+            Dict
+        ] = []  # List of dictionaries of functions to run on registration
 
-        self._on_components = (
-            []
-        )  # List of dictionaries of functions to run as components are added
+        self._on_components: List[
+            Dict
+        ] = []  # List of dictionaries of functions to run as components are added
 
         self._cls = str(self)  # String description of extension instance
 
@@ -47,7 +49,7 @@ class BaseExtension:
         self.description = description or get_docstring(self)
         self.version = str(version)
 
-        self.methods = {}
+        self.methods: Dict[str, Callable] = {}
 
         self.static_view_class = static_from(static_folder)
         self.add_view(
@@ -169,7 +171,7 @@ class BaseExtension:
         """ """
         return snake_to_spine(self._name_python_safe)
 
-    def add_method(self, method, method_name):
+    def add_method(self, method: Callable, method_name: str):
         """
 
         :param method:
@@ -240,7 +242,7 @@ def find_extensions_in_file(extension_path: str, module_name="extensions") -> li
     sys.modules[spec.name] = mod
 
     try:
-        spec.loader.exec_module(mod)
+        spec.loader.exec_module(mod)  # type: ignore
     except Exception:  # skipcq: PYL-W0703
         logging.error(
             f"Exception in extension path {extension_path}: \n{traceback.format_exc()}"
@@ -248,7 +250,9 @@ def find_extensions_in_file(extension_path: str, module_name="extensions") -> li
         return []
     else:
         if hasattr(mod, "__extensions__"):
-            return [getattr(mod, ext_name) for ext_name in mod.__extensions__]
+            return [
+                getattr(mod, ext_name) for ext_name in getattr(mod, "__extensions__")
+            ]
         else:
             return find_instances_in_module(mod, BaseExtension)
 

@@ -1,14 +1,14 @@
 from collections import OrderedDict
+from typing import Any, Optional
 
-from flask import current_app, make_response
+from flask import current_app, make_response, Response
 
 from .find import current_labthing
-from .json.encoder import JSONEncoder as FlaskJSONEncoder
-from .json.encoder import LabThingsJSONEncoder, encode_json
+from .json.encoder import encode_json, JSONEncoder as FlaskJSONEncoder
 from .utilities import PY3
 
 
-def output_json(data, code, headers=None):
+def output_json(data: Any, code: int, headers: Optional[dict] = None) -> Response:
     """Makes a Flask response with a JSON encoded body, using app JSON settings
 
     :param data: Data to be serialised

@@ -1,16 +1,15 @@
-import collections.abc
 import copy
 import operator
 import os
 import re
 import sys
 import time
-import typing
 from collections import UserString
 from functools import reduce
 
+from typing import Type, Callable, Dict, Any, Tuple, Union, List, Iterable
+
 from flask import current_app, has_request_context, request
-from flask.views import http_method_funcs
 from werkzeug.http import HTTP_STATUS_CODES
 
 PY3 = sys.version_info > (3,)
@@ -43,8 +42,8 @@ class ResourceURL(UserString):
         self.protocol = protocol.rstrip("://")
         UserString.__init__(self, path)
 
-    @property
-    def data(self):
+    @property  # type: ignore
+    def data(self) -> str:  # type: ignore
         if self.external and has_request_context():
             prefix = request.host_url.rstrip("/")
             # Optional protocol override
@@ -60,7 +59,7 @@ class ResourceURL(UserString):
         self.path = path
 
 
-def http_status_message(code):
+def http_status_message(code: int) -> str:
     """Maps an HTTP status code to the textual status
 
     :param code:
@@ -69,7 +68,7 @@ def http_status_message(code):
     return HTTP_STATUS_CODES.get(code, "")
 
 
-def description_from_view(view_class):
+def description_from_view(view_class: Type) -> dict:
     """Create a dictionary description of a Flask View
 
     :param view_class: Flask View class
@@ -94,7 +93,7 @@ def description_from_view(view_class):
     return d
 
 
-def view_class_from_endpoint(endpoint: str):
+def view_class_from_endpoint(endpoint: str) -> Type:
     """Retrieve a Flask view class from a given endpoint
 
     :param endpoint: Endpoint corresponding to View class
@@ -107,7 +106,7 @@ def view_class_from_endpoint(endpoint: str):
     return getattr(current_app.view_functions.get(endpoint), "view_class", None)
 
 
-def unpack(value):
+def unpack(value: Any) -> Tuple:
     """
 
     :param value:
@@ -131,7 +130,7 @@ def unpack(value):
     return value, 200, {}
 
 
-def clean_url_string(url: str):
+def clean_url_string(url: str) -> str:
     """
 
     :param url: str:
@@ -145,7 +144,7 @@ def clean_url_string(url: str):
         return url
 
 
-def get_docstring(obj, remove_newlines=True):
+def get_docstring(obj: Any, remove_newlines=True) -> str:
     """Return the docstring of an object
 
     :param obj: Any Python object
@@ -162,7 +161,7 @@ def get_docstring(obj, remove_newlines=True):
     return ""
 
 
-def get_summary(obj):
+def get_summary(obj: Any) -> str:
     """Return the first line of the dosctring of an object
 
     :param obj: Any Python object
@@ -172,7 +171,7 @@ def get_summary(obj):
     return get_docstring(obj, remove_newlines=False).partition("\n")[0].strip()
 
 
-def merge(first: dict, second: dict):
+def merge(first: dict, second: dict) -> dict:
     """Recursively update a dictionary
 
     This will take an "update_dictionary",
@@ -202,7 +201,7 @@ def merge(first: dict, second: dict):
             else:
                 destination_dict[k] = v
         # Recursively merge dictionaries if the element is a dictionary
-        elif isinstance(v, collections.abc.Mapping):
+        elif isinstance(v, dict):
             if k not in destination_dict:
                 destination_dict[k] = {}
             destination_dict[k] = merge(destination_dict.get(k, {}), v)
@@ -212,7 +211,13 @@ def merge(first: dict, second: dict):
     return destination_dict
 
 
-def rapply(data, func, *args, apply_to_iterables=True, **kwargs):
+def rapply(
+    data: Union[Dict, List, Tuple, Iterable],
+    func: Callable,
+    *args,
+    apply_to_iterables: bool = True,
+    **kwargs
+) -> Union[Dict, List]:
     """Recursively apply a function to a dictionary, list, array, or tuple
 
     :param data: Input iterable data
@@ -227,7 +232,7 @@ def rapply(data, func, *args, apply_to_iterables=True, **kwargs):
     """
 
     # If the object is a dictionary
-    if isinstance(data, collections.abc.Mapping):
+    if isinstance(data, Dict):
         return {
             key: rapply(
                 val, func, *args, apply_to_iterables=apply_to_iterables, **kwargs
@@ -235,11 +240,7 @@ def rapply(data, func, *args, apply_to_iterables=True, **kwargs):
             for key, val in data.items()
         }
     # If the object is a list, tuple, or range
-    elif apply_to_iterables and (
-        isinstance(data, typing.List)
-        or isinstance(data, typing.Tuple)
-        or isinstance(data, range)
-    ):
+    elif apply_to_iterables and (isinstance(data, Iterable)):
         return [
             rapply(x, func, *args, apply_to_iterables=apply_to_iterables, **kwargs)
             for x in data
@@ -249,7 +250,7 @@ def rapply(data, func, *args, apply_to_iterables=True, **kwargs):
         return func(data, *args, **kwargs)
 
 
-def get_by_path(root, items):
+def get_by_path(root: Dict[Any, Any], items: List[Any]) -> dict:
     """Access a nested object in root by item sequence.
 
     :param root:
@@ -259,7 +260,7 @@ def get_by_path(root, items):
     return reduce(operator.getitem, items, root)
 
 
-def set_by_path(root, items, value):
+def set_by_path(root: Dict[Any, Any], items: List[Any], value: Any):
     """Set a value in a nested object in root by item sequence.
 
     :param root:
@@ -270,7 +271,7 @@ def set_by_path(root, items, value):
     get_by_path(root, items[:-1])[items[-1]] = value
 
 
-def create_from_path(items):
+def create_from_path(items: List[Any]) -> dict:
     """Create a dictionary from a list of nested keys.RuntimeError
 
     E.g. ["foo", "bar", "baz"] will become
@@ -288,13 +289,13 @@ def create_from_path(items):
     :rtype: dict
 
     """
-    tree_dict = {}
+    tree_dict: Dict[Any, Any] = {}
     for key in reversed(items):
         tree_dict = {key: tree_dict}
     return tree_dict
 
 
-def camel_to_snake(name):
+def camel_to_snake(name: str) -> str:
     """Convert a CamelCase string into snake_case
 
     :param name: CamelCase string
@@ -307,7 +308,7 @@ def camel_to_snake(name):
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
 
-def camel_to_spine(name):
+def camel_to_spine(name: str) -> str:
     """Convert a CamelCase string into spine-case
 
     :param name: CamelCase string
@@ -320,7 +321,7 @@ def camel_to_spine(name):
     return re.sub("([a-z0-9])([A-Z])", r"\1-\2", s1).lower()
 
 
-def snake_to_spine(name):
+def snake_to_spine(name: str) -> str:
     """Convert a snake_case string into spine-case
 
     :param name: snake_case string
@@ -332,7 +333,7 @@ def snake_to_spine(name):
     return name.replace("_", "-")
 
 
-def snake_to_camel(snake_str):
+def snake_to_camel(snake_str: str) -> str:
     """Convert a snake_case string into lowerCamelCase
 
     :param name: snake_case string
@@ -346,7 +347,7 @@ def snake_to_camel(snake_str):
     return components[0] + "".join(x.title() for x in components[1:])
 
 
-def path_relative_to(source_file, *paths):
+def path_relative_to(source_file: str, *paths: str):
     """Given a python module __file__, return an absolute path relative to its location
 
     :param source_file: Module __file__ attribute

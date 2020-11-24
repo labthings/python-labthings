@@ -3,19 +3,23 @@ from functools import update_wrapper, wraps
 
 from flask import abort, request
 from marshmallow.exceptions import ValidationError
-from webargs import flaskparser
+from webargs import flaskparser  # type: ignore
 
 from ..fields import Field
-from ..schema import FieldSchema
+from ..schema import FieldSchema, Schema
+
+from typing import Union, Dict, Callable
 
 
 class use_body:
     """Gets the request body as a single value and adds it as a positional argument"""
 
-    def __init__(self, schema, **kwargs):
+    def __init__(
+        self, schema: Union[Schema, Field, Dict[str, Union[Field, type]]], **kwargs
+    ):
         self.schema = schema
 
-    def __call__(self, f):
+    def __call__(self, f: Callable):
         # Wrapper function
         @wraps(f)
         def wrapper(*args, **kwargs):
@@ -55,7 +59,9 @@ class use_body:
 class use_args:
     """Equivalent to webargs.flask_parser.use_args"""
 
-    def __init__(self, schema, **kwargs):
+    def __init__(
+        self, schema: Union[Schema, Field, Dict[str, Union[Field, type]]], **kwargs
+    ):
         self.schema = schema
 
         if isinstance(schema, Field):
@@ -63,7 +69,7 @@ class use_args:
         else:
             self.wrapper = flaskparser.use_args(schema, **kwargs)
 
-    def __call__(self, f):
+    def __call__(self, f: Callable):
         # Wrapper function
         update_wrapper(self.wrapper, f)
         return self.wrapper(f)

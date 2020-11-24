@@ -8,6 +8,8 @@ import uuid
 from flask import copy_current_request_context, has_request_context, request
 from werkzeug.exceptions import BadRequest
 
+from typing import Optional, Iterable, Dict, Any, Callable
+
 from ..deque import LockableDeque
 from ..utilities import TimeoutTracker
 
@@ -25,12 +27,12 @@ class ActionThread(threading.Thread):
 
     def __init__(
         self,
-        action,
-        target=None,
-        name=None,
-        args=None,
-        kwargs=None,
-        daemon=True,
+        action: str,
+        target: Optional[Callable] = None,
+        name: Optional[str] = None,
+        args: Optional[Iterable[Any]] = None,
+        kwargs: Optional[Dict[str, Any]] = None,
+        daemon: bool = True,
         default_stop_timeout: int = 5,
         log_len: int = 100,
     ):
@@ -39,14 +41,10 @@ class ActionThread(threading.Thread):
             group=None,
             target=target,
             name=name,
-            args=args,
-            kwargs=kwargs,
+            args=args or (),
+            kwargs=kwargs or {},
             daemon=daemon,
         )
-
-        # Safely populate missing arguments
-        args = args or ()
-        kwargs = kwargs or {}
 
         # Action resource corresponding to this action object
         self.action = action
@@ -55,18 +53,20 @@ class ActionThread(threading.Thread):
         self._ID = uuid.uuid4()  # Task ID
 
         # Event to track if the task has started
-        self.started = threading.Event()
+        self.started: threading.Event = threading.Event()
         # Event to track if the user has requested stop
-        self.stopping = threading.Event()
-        self.default_stop_timeout = default_stop_timeout
+        self.stopping: threading.Event = threading.Event()
+        self.default_stop_timeout: int = default_stop_timeout
 
         # Make _target, _args, and _kwargs available to the subclass
-        self._target = target
-        self._args = args
-        self._kwargs = kwargs
+        self._target: Optional[Callable] = target
+        self._args: Iterable[Any] = args or ()
+        self._kwargs: Dict[str, Any] = kwargs or {}
 
         # Nice string representation of target function
-        self.target_string = f"{self._target}(args={self._args}, kwargs={self._kwargs})"
+        self.target_string: str = (
+            f"{self._target}(args={self._args}, kwargs={self._kwargs})"
+        )
 
         # copy_current_request_context allows threads to access flask current_app
         if has_request_context():
@@ -82,14 +82,14 @@ class ActionThread(threading.Thread):
 
         # Private state properties
         self._status: str = "pending"  # Task status
-        self._return_value = None  # Return value
-        self._request_time = datetime.datetime.now()
-        self._start_time = None  # Task start time
-        self._end_time = None  # Task end time
+        self._return_value: Optional[Any] = None  # Return value
+        self._request_time: datetime.datetime = datetime.datetime.now()
+        self._start_time: Optional[datetime.datetime] = None  # Task start time
+        self._end_time: Optional[datetime.datetime] = None  # Task end time
 
         # Public state properties
-        self.progress: int = None  # Percent progress of the task
-        self.data = {}  # Dictionary of custom data added during the task
+        self.progress: Optional[int] = None  # Percent progress of the task
+        self.data: dict = {}  # Dictionary of custom data added during the task
         self._log = LockableDeque(
             None, log_len
         )  # The log will hold dictionary objects with log information
@@ -100,14 +100,14 @@ class ActionThread(threading.Thread):
         )  # Lock obtained while self._target is running
 
     @property
-    def id(self):
+    def id(self) -> uuid.UUID:
         """
         UUID for the thread. Note this not the same as the native thread ident.
         """
         return self._ID
 
     @property
-    def output(self):
+    def output(self) -> Any:
         """
         Return value of the Action function. If the Action is still running, returns None.
         """
@@ -119,7 +119,7 @@ class ActionThread(threading.Thread):
             return list(logdeque)
 
     @property
-    def status(self):
+    def status(self) -> str:
         """
         Current running status of the thread.
 
@@ -136,19 +136,19 @@ class ActionThread(threading.Thread):
         return self._status
 
     @property
-    def dead(self):
+    def dead(self) -> bool:
         """
         Has the thread finished, by any means (return, exception, termination).
         """
         return not self.is_alive()
 
     @property
-    def stopped(self):
+    def stopped(self) -> bool:
         """Has the thread been cancelled"""
         return self.stopping.is_set()
 
     @property
-    def cancelled(self):
+    def cancelled(self) -> bool:
         """Alias of `stopped`"""
         return self.stopped
 
@@ -162,7 +162,7 @@ class ActionThread(threading.Thread):
         # Update progress of the task
         self.progress = progress
 
-    def update_data(self, data: dict):
+    def update_data(self, data: Dict[Any, Any]):
         """
 
         :param data: dict:
@@ -183,7 +183,7 @@ class ActionThread(threading.Thread):
             # an argument that has a member that points to the thread.
             del self._target, self._args, self._kwargs
 
-    def _thread_proc(self, f):
+    def _thread_proc(self, f: Callable):
         """Wraps the target function to handle recording `status` and `return` to `state`.
         Happens inside the task thread.
 
@@ -228,7 +228,7 @@ class ActionThread(threading.Thread):
 
         return wrapped
 
-    def get(self, block=True, timeout=None):
+    def get(self, block: bool = True, timeout: Optional[int] = None):
         """Start waiting for the task to finish before returning
 
         :param block:  (Default value = True)
@@ -275,7 +275,7 @@ class ActionThread(threading.Thread):
                 % (exc_type, self.name, self.ident, result)
             )
 
-    def _is_thread_proc_running(self):
+    def _is_thread_proc_running(self) -> bool:
         """Test if thread funtion (_thread_proc) is running,
         by attemtping to acquire the lock _thread_proc acquires at runtime.
 
@@ -285,13 +285,13 @@ class ActionThread(threading.Thread):
         :rtype: bool
 
         """
-        could_acquire = self._running_lock.acquire(0)
+        could_acquire = self._running_lock.acquire(False)
         if could_acquire:
             self._running_lock.release()
             return False
         return True
 
-    def terminate(self, exception=ActionKilledException):
+    def terminate(self, exception=ActionKilledException) -> bool:
         """
 
         :param exception:  (Default value = ActionKilledException)
@@ -314,7 +314,7 @@ class ActionThread(threading.Thread):
         self.progress = None
         return True
 
-    def stop(self, timeout=None, exception=ActionKilledException):
+    def stop(self, timeout=None, exception=ActionKilledException) -> bool:
         """Sets the threads internal stopped event, waits for timeout seconds for the
         thread to stop nicely, then forcefully kills the thread.
 

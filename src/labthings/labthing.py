@@ -2,8 +2,10 @@ import logging
 import uuid
 import weakref
 
-from apispec import APISpec
-from apispec_webframeworks.flask import FlaskPlugin
+from typing import Dict, List, Set, Any, Tuple, Type, Optional
+
+from apispec import APISpec  # type: ignore
+from apispec_webframeworks.flask import FlaskPlugin  # type: ignore
 from flask import url_for
 
 from .actions.pool import Pool
@@ -27,7 +29,7 @@ from .names import (
 from .representations import DEFAULT_REPRESENTATIONS
 from .td import ThingDescription
 from .utilities import clean_url_string, snake_to_camel
-from .views import ActionView, EventView, PropertyView
+from .views import ActionView, EventView, PropertyView, View
 
 # from apispec.ext.marshmallow import MarshmallowPlugin
 
@@ -70,7 +72,7 @@ class LabThing:
         title: str = "",
         description: str = "",
         version: str = "0.0.0",
-        types: list = None,
+        types: Optional[List[str]] = None,
         format_flask_exceptions: bool = True,
         external_links: bool = True,
         json_encoder=LabThingsJSONEncoder,
@@ -80,47 +82,51 @@ class LabThing:
         else:
             self.id = id_
 
-        if types is None:
-            types = []
         self.app = app  # Becomes a Flask app
 
-        self.components = (
-            {}
-        )  # Dictionary of attached component objects, available to extensions
+        self.components: Dict[
+            str, Any
+        ] = {}  # Dictionary of attached component objects, available to extensions
 
-        self.extensions = {}  # Dictionary of LabThings extension objects
+        self.extensions: Dict[
+            str, BaseExtension
+        ] = {}  # Dictionary of LabThings extension objects
 
         self.actions = Pool()  # Pool of threads for Actions
 
-        self.views = []  # List of View classes
-        self._property_views = {}  # Dictionary of PropertyView views
-        self._action_views = {}  # Dictionary of ActionView views
-        self._event_views = {}  # Dictionary of EventView views
+        self.views: List[Tuple] = []  # List of View classes
+        self._property_views: Dict[
+            str, Type[PropertyView]
+        ] = {}  # Dictionary of PropertyView views
+        self._action_views: Dict[
+            str, Type[ActionView]
+        ] = {}  # Dictionary of ActionView views
+        self._event_views: Dict[
+            str, Type[EventView]
+        ] = {}  # Dictionary of EventView views
 
-        self.subscribers = set()  # Set of connected event subscribers
-
-        self.endpoints = set()  # Set of endpoint strings
+        self.endpoints: Set[str] = set()  # Set of endpoint strings
 
         self.url_prefix = prefix  # Global URL prefix for all LabThings views
 
-        self.types = types or []
+        self.types: List[str] = types or []
 
-        self._description = description
-        self._title = title
-        self._version = version
+        self._description: str = description
+        self._title: str = title
+        self._version: str = version
 
         # Flags for error handling
-        self.format_flask_exceptions = format_flask_exceptions
+        self.format_flask_exceptions: bool = format_flask_exceptions
 
         # Logging handler
-        self.log_handler = LabThingLogger(self)
+        self.log_handler: LabThingLogger = LabThingLogger(self)
         logging.getLogger().addHandler(self.log_handler)
 
         # Representation formatter map
         self.representations = DEFAULT_REPRESENTATIONS
 
         # OpenAPI spec for Swagger docs
-        self.spec = APISpec(
+        self.spec: APISpec = APISpec(
             title=self.title,
             version=self.version,
             openapi_version="3.0.2",
@@ -139,7 +145,7 @@ class LabThing:
     @property
     def description(
         self,
-    ):
+    ) -> str:
         """
         Human-readable description of the Thing
         """
@@ -155,7 +161,7 @@ class LabThing:
         self.spec.description = description
 
     @property
-    def title(self):
+    def title(self) -> str:
         """
         Human-readable title of the Thing
         """
@@ -171,7 +177,7 @@ class LabThing:
         self.spec.title = title
 
     @property
-    def safe_title(self):
+    def safe_title(self) -> str:
         """
         Lowercase title with no whitespace
         """
@@ -183,9 +189,7 @@ class LabThing:
         return title
 
     @property
-    def version(
-        self,
-    ):
+    def version(self) -> str:
         """
         Version number of the Thing
         """
@@ -278,13 +282,16 @@ class LabThing:
         """
         self.components[component_name] = component_object
 
+        def dummy(*_):
+            pass
+
         for extension_object in self.extensions.values():
             # For each on_component function
             for com_func in extension_object._on_components:
                 # If the component matches
                 if com_func.get("component", "") == component_name:
                     # Call the function
-                    com_func.get("function")(
+                    com_func.get("function", dummy)(
                         component_object,
                         *com_func.get("args"),
                         **com_func.get("kwargs"),
@@ -292,7 +299,7 @@ class LabThing:
 
     # Extension stuff
 
-    def register_extension(self, extension_object):
+    def register_extension(self, extension_object: BaseExtension):
         """
         Add an extension to the LabThing. This will add API views and lifecycle
         functions from the extension to the LabThing
@@ -301,6 +308,10 @@ class LabThing:
         :type extension_object: labthings.extensions.BaseExtension
 
         """
+
+        def dummy(*_):
+            pass
+
         # Type check
         if isinstance(extension_object, BaseExtension):
             self.extensions[extension_object.name] = extension_object
@@ -323,7 +334,9 @@ class LabThing:
         # For each on_register function
         for reg_func in extension_object._on_registers:
             # Call the function
-            reg_func.get("function")(*reg_func.get("args"), **reg_func.get("kwargs"))
+            reg_func.get("function", dummy)(
+                *reg_func.get("args"), **reg_func.get("kwargs")
+            )
 
         # For each on_component function
         for com_func in extension_object._on_components:
@@ -331,7 +344,7 @@ class LabThing:
             # If the component has already been added
             if key in self.components:
                 # Call the function
-                com_func.get("function")(
+                com_func.get("function", dummy)(
                     self.components.get(key),
                     *com_func.get("args"),
                     **com_func.get("kwargs"),
@@ -339,7 +352,7 @@ class LabThing:
 
     # Resource stuff
 
-    def _complete_url(self, url_part, registration_prefix):
+    def _complete_url(self, url_part: str, registration_prefix: str) -> str:
         """This method is used to defer the construction of the final url in
         the case that the Api is created with a Blueprint.
 
@@ -352,7 +365,9 @@ class LabThing:
         u = "".join(clean_url_string(part) for part in parts if part)
         return u if u else "/"
 
-    def add_view(self, view, *urls, endpoint=None, **kwargs):
+    def add_view(
+        self, view: Type[View], *urls: str, endpoint: Optional[str] = None, **kwargs
+    ):
         """Adds a view to the api.
 
         :param view: View class
@@ -385,7 +400,7 @@ class LabThing:
 
         self.views.append((view, urls, endpoint, kwargs))
 
-    def view(self, *urls, **kwargs):
+    def view(self, *urls: str, **kwargs):
         """Wraps a :class:`labthings.View` class, adding it to the LabThing.
         Parameters are the same as :meth:`~labthings.LabThing.add_view`.
 
@@ -409,7 +424,14 @@ class LabThing:
 
         return decorator
 
-    def _register_view(self, app, view, *urls, endpoint=None, **kwargs):
+    def _register_view(
+        self,
+        app,
+        view: Type[View],
+        *urls: str,
+        endpoint: Optional[str] = None,
+        **kwargs,
+    ):
         endpoint = endpoint or view.__name__
         self.endpoints.add(endpoint)
         resource_class_args = kwargs.pop("resource_class_args", ())
@@ -456,7 +478,7 @@ class LabThing:
 
     # Utilities
 
-    def url_for(self, view, **values):
+    def url_for(self, view: Type[View], **values):
         """Generates a URL to the given resource.
         Works like :func:`flask.url_for`.
 
@@ -475,7 +497,7 @@ class LabThing:
             values["_external"] = True
         return url_for(endpoint, **values)
 
-    def add_root_link(self, view, rel, kwargs=None, params=None):
+    def add_root_link(self, view: Type[View], rel: str, kwargs=None, params=None):
         """
 
         :param view:

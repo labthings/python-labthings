@@ -1,6 +1,7 @@
 import logging
 import threading
-from functools import wraps
+
+from typing import Dict
 
 from ..deque import Deque
 from .thread import ActionThread
@@ -41,7 +42,7 @@ class Pool:
         self.start(thread)
         return thread
 
-    def kill(self, timeout=5):
+    def kill(self, timeout: int = 5):
         """
 
         :param timeout:  (Default value = 5)
@@ -73,7 +74,7 @@ class Pool:
         """
         return {str(t.id): t.state for t in self.threads}
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, ActionThread]:
         """
 
 
@@ -84,8 +85,8 @@ class Pool:
         """
         return {str(t.id): t for t in self.threads}
 
-    def get(self, task_id):
-        return self.to_dict.get(task_id, None)
+    def get(self, task_id: str):
+        return self.to_dict().get(task_id, None)
 
     def discard_id(self, task_id):
         """
