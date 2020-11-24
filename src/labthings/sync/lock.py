@@ -2,6 +2,8 @@ import logging
 from contextlib import contextmanager
 from threading import _RLock, current_thread
 
+from typing import Optional
+
 sentinel = object()
 
 
@@ -38,7 +40,7 @@ class StrictLock:
 
     """
 
-    def __init__(self, timeout=-1, name=None):
+    def __init__(self, timeout: int = -1, name: Optional[str] = None):
         self._lock = _RLock()
         self.timeout = timeout
         self.name = name
@@ -49,7 +51,7 @@ class StrictLock:
         return self._lock._owner
 
     @contextmanager
-    def __call__(self, timeout=sentinel, blocking=True):
+    def __call__(self, timeout=sentinel, blocking: bool = True):
         result = self.acquire(timeout=timeout, blocking=blocking)
         yield result
         if result:
@@ -59,7 +61,7 @@ class StrictLock:
         """ """
         return bool(self._lock._count)
 
-    def acquire(self, blocking=True, timeout=sentinel, _strict=True):
+    def acquire(self, blocking: bool = True, timeout=sentinel, _strict: bool = True):
         """
 
         :param blocking:  (Default value = True)
@@ -105,7 +107,7 @@ class CompositeLock:
 
     """
 
-    def __init__(self, locks, timeout=-1):
+    def __init__(self, locks, timeout: int = -1):
         self.locks = locks
         self.timeout = timeout
 
@@ -115,13 +117,13 @@ class CompositeLock:
         return [lock._owner for lock in self.locks]
 
     @contextmanager
-    def __call__(self, timeout=sentinel, blocking=True):
+    def __call__(self, timeout=sentinel, blocking: bool = True):
         result = self.acquire(timeout=timeout, blocking=blocking)
         yield result
         if result:
             self.release()
 
-    def acquire(self, blocking=True, timeout=sentinel):
+    def acquire(self, blocking: bool = True, timeout=sentinel):
         """
 
         :param blocking:  (Default value = True)

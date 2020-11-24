@@ -7,6 +7,8 @@ from flask.views import MethodView
 from werkzeug.exceptions import BadRequest
 from werkzeug.wrappers import Response as ResponseBase
 
+from typing import Dict, Optional, Set, List
+
 from ..actions.pool import Pool
 from ..deque import Deque
 from ..find import current_labthing
@@ -27,15 +29,15 @@ class View(MethodView):
 
     """
 
-    endpoint = None  # Store the View endpoint for use in specs
+    endpoint: Optional[str] = None  # Store the View endpoint for use in specs
 
     # Basic view spec metadata
-    tags: list = []  # Custom tags the user can add
-    title: None
+    tags: List[str] = []  # Custom tags the user can add
+    title: Optional[str] = None
 
     # Internal
-    _cls_tags = set()  # Class tags that shouldn't be removed
-    _opmap = {}  # Mapping of Thing Description ops to class methods
+    _cls_tags: Set[str] = set()  # Class tags that shouldn't be removed
+    _opmap: Dict[str, str] = {}  # Mapping of Thing Description ops to class methods
 
     def __init__(self, *args, **kwargs):
         MethodView.__init__(self, *args, **kwargs)
@@ -109,14 +111,14 @@ class ActionView(View):
     """ """
 
     # Data formatting
-    schema: Schema = None  # Schema for Action response
-    args: dict = None  # Schema for input arguments
-    semtype: str = None  # Semantic type string
+    schema: Optional[Schema] = None  # Schema for Action response
+    args: Optional[dict] = None  # Schema for input arguments
+    semtype: Optional[str] = None  # Semantic type string
 
     # Spec overrides
-    content_type = "application/json"  # Input contentType
-    response_content_type = "application/json"  # Output contentType
-    responses = {}  # Custom responses for invokeaction
+    content_type: str = "application/json"  # Input contentType
+    response_content_type: str = "application/json"  # Output contentType
+    responses: dict = {}  # Custom responses for invokeaction
 
     # Spec parameters
     safe: bool = False  # Does the action complete WITHOUT changing the Thing state
@@ -126,13 +128,15 @@ class ActionView(View):
     wait_for: int = (
         1  # Time in seconds to wait before returning the action as pending/running
     )
-    default_stop_timeout: int = None  # Time in seconds to wait for the action thread to end after a stop request before terminating it forcefully
+    default_stop_timeout: Optional[
+        int
+    ] = None  # Time in seconds to wait for the action thread to end after a stop request before terminating it forcefully
 
     # Internal
-    _opmap = {
+    _opmap: Dict[str, str] = {
         "invokeaction": "post"
     }  # Mapping of Thing Description ops to class methods
-    _cls_tags = {"actions"}
+    _cls_tags: Set[str] = {"actions"}
     _deque = Deque()  # Action queue
     _emergency_pool = (
         Pool()
@@ -207,12 +211,12 @@ class PropertyView(View):
     """ """
 
     # Data formatting
-    schema: Schema = None  # Schema for input AND output
-    semtype: str = None  # Semantic type string
+    schema: Optional[Schema] = None  # Schema for input AND output
+    semtype: Optional[str] = None  # Semantic type string
 
     # Spec overrides
     content_type = "application/json"  # Input and output contentType
-    responses = {}  # Custom responses for all interactions
+    responses: dict = {}  # Custom responses for all interactions
 
     # Internal
     _opmap = {
@@ -247,8 +251,8 @@ class EventView(View):
     """ """
 
     # Data formatting
-    schema: Schema = None  # Schema for Event data
-    semtype: str = None  # Semantic type string
+    schema: Optional[Schema] = None  # Schema for Event data
+    semtype: Optional[str] = None  # Semantic type string
 
     # Spec overrides
     content_type = "application/json"  # Input contentType

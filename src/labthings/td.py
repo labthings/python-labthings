@@ -1,13 +1,17 @@
 from flask import has_request_context, request
 
+from typing import Dict, List, Type, Any
+
 from .find import current_labthing
 from .json.schemas import rule_to_params, rule_to_path, schema_to_json
 from .schema import build_action_schema
 from .utilities import ResourceURL, get_docstring
-from .views import View
+from .views import View, PropertyView, ActionView, EventView
 
 
-def view_to_thing_forms(rules: list, view: View, external: bool = True):
+def view_to_thing_forms(
+    rules: list, view: Type[View], external: bool = True
+) -> List[dict]:
     """Build a W3C form description for an general View
 
     :param rules: List of Flask rules
@@ -59,21 +63,21 @@ class ThingDescription:
 
     def __init__(self, external_links: bool = True):
         # Public attributes
-        self.properties = {}
-        self.actions = {}
-        self.events = {}
+        self.properties: Dict[str, dict] = {}
+        self.actions: Dict[str, dict] = {}
+        self.events: Dict[str, dict] = {}
 
         # Private attributes
-        self._links = []
+        self._links: List[dict] = []
 
         # Settings
-        self.external_links = external_links
+        self.external_links: bool = external_links
 
         # Init
         super().__init__()
 
     @property
-    def links(self):
+    def links(self) -> List[Dict]:
         """ """
         td_links = []
         for link_description in self._links:
@@ -85,12 +89,12 @@ class ThingDescription:
                         **link_description.get("params"),
                         _external=self.external_links,
                     ),
-                    **link_description.get("kwargs"),
+                    **link_description.get("kwargs"),  # type: ignore
                 }
             )
         return td_links
 
-    def add_link(self, view, rel, kwargs=None, params=None):
+    def add_link(self, view: Type[View], rel: str, kwargs=None, params=None):
         """
 
         :param view:
@@ -107,7 +111,7 @@ class ThingDescription:
             {"rel": rel, "view": view, "params": params, "kwargs": kwargs}
         )
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         """ """
         td = {
             "@context": [
@@ -131,16 +135,16 @@ class ThingDescription:
 
         return td
 
-    def view_to_thing_property(self, rules: list, view: View):
+    def view_to_thing_property(self, rules: list, view: Type[PropertyView]) -> dict:
         """
 
         :param rules: list:
-        :param view: View:
+        :param view: PropertyView:
 
         """
 
         # Basic description
-        prop_description = {
+        prop_description: Dict[str, Any] = {
             "title": getattr(view, "title", None) or view.__name__,
             "description": getattr(view, "description", None) or get_docstring(view),
             "readOnly": not (
@@ -167,12 +171,13 @@ class ThingDescription:
 
         # Add URI variables
         for prop_rule in rules:
-            params_dict = {}
+            params_dict: Dict[str, Any] = {}
             for param in rule_to_params(prop_rule):
                 params_dict.update(
                     {
-                        param.get("name"): {
-                            "type": param.get("type") or param.get("schema").get("type")
+                        param.get("name", {}): {
+                            "type": param.get("type")
+                            or param.get("schema", {}).get("type")
                         }
                     }
                 )
@@ -182,7 +187,7 @@ class ThingDescription:
 
         return prop_description
 
-    def view_to_thing_event(self, rules: list, view: View):
+    def view_to_thing_event(self, rules: list, view: Type[EventView]) -> dict:
         """
 
         :param rules: list:
@@ -191,11 +196,10 @@ class ThingDescription:
         """
 
         # Basic description
-        event_description = {
+        event_description: Dict[str, Any] = {
             "title": getattr(view, "title", None) or view.__name__,
             "description": getattr(view, "description", None) or get_docstring(view),
             "forms": view_to_thing_forms(rules, view, external=self.external_links),
-            "uriVariables": {},
         }
 
         semtype = getattr(view, "semtype", None)
@@ -213,23 +217,25 @@ class ThingDescription:
             event_description["data"] = event_schema_json
 
         # Add URI variables
+        uri_variables: Dict[str, Dict] = {}
         for event_rule in rules:
-            params_dict = {}
+            params_dict: Dict[str, Any] = {}
             for param in rule_to_params(event_rule):
                 params_dict.update(
                     {
-                        param.get("name"): {
-                            "type": param.get("type") or param.get("schema").get("type")
+                        str(param.get("name")): {
+                            "type": param.get("type")
+                            or param.get("schema", {}).get("type")
                         }
                     }
                 )
-            event_description["uriVariables"].update(params_dict)
-        if not event_description["uriVariables"]:
-            del event_description["uriVariables"]
+            uri_variables.update(params_dict)
+        if uri_variables:
+            event_description["uriVariables"] = uri_variables
 
         return event_description
 
-    def view_to_thing_action(self, rules: list, view: View):
+    def view_to_thing_action(self, rules: list, view: Type[ActionView]) -> dict:
         """
 
         :param rules: list:
@@ -263,7 +269,7 @@ class ThingDescription:
 
         return action_description
 
-    def property(self, rules: list, view: View):
+    def property(self, rules: list, view: Type[PropertyView]):
         """
 
         :param rules: list:
@@ -273,7 +279,7 @@ class ThingDescription:
         endpoint = getattr(view, "endpoint", None) or getattr(rules[0], "endpoint")
         self.properties[endpoint] = self.view_to_thing_property(rules, view)
 
-    def action(self, rules: list, view: View):
+    def action(self, rules: list, view: Type[ActionView]):
         """Add a view representing an Action.
 
         NB at present this will fail for any view that doesn't support POST
@@ -291,7 +297,7 @@ class ThingDescription:
         endpoint = getattr(view, "endpoint", None) or getattr(rules[0], "endpoint")
         self.actions[endpoint] = self.view_to_thing_action(rules, view)
 
-    def event(self, rules: list, view: View):
+    def event(self, rules: list, view: Type[EventView]):
         """Add a view representing an event queue.
 
         :param rules: list:

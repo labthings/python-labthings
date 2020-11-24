@@ -1,4 +1,3 @@
-import logging
 import weakref
 
 from flask import current_app, url_for
@@ -69,7 +68,7 @@ def registered_components(labthing_instance=None):
     return labthing_instance.components
 
 
-def find_component(component_name, labthing_instance=None):
+def find_component(component_name: str, labthing_instance=None):
     """Find a particular LabThings Component registered to a LabThing instance
 
     :param component_name: Fully qualified name of the component
@@ -89,7 +88,7 @@ def find_component(component_name, labthing_instance=None):
         return None
 
 
-def find_extension(extension_name, labthing_instance=None):
+def find_extension(extension_name: str, labthing_instance=None):
     """Find a particular LabThings Extension registered to a LabThing instance
 
     :param extension_name: Fully qualified name of the extension

@@ -2,11 +2,13 @@ import glob
 import os
 import uuid
 
+from typing import Type
+
 from flask import abort, send_file
 from flask.views import MethodView
 
 
-def static_from(static_folder: str, name=None):
+def static_from(static_folder: str, name=None) -> Type[MethodView]:
     """
     :param static_folder: str:
     :param name:  (Default value = None)

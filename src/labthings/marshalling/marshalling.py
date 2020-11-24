@@ -1,5 +1,6 @@
 from collections.abc import Mapping
 from functools import wraps
+from flask.wrappers import Response
 
 from marshmallow import Schema as _Schema
 from werkzeug.wrappers import Response as ResponseBase
@@ -8,8 +9,10 @@ from ..fields import Field
 from ..schema import FieldSchema, Schema
 from ..utilities import unpack
 
+from typing import Union, Dict, Callable, Tuple
 
-def schema_to_converter(schema):
+
+def schema_to_converter(schema: Union[Schema, Field, Dict[str, Union[Field, type]]]):
     """Convert a schema into a converter function,
     which takes a value as an argument and returns
     marshalled data
@@ -29,7 +32,7 @@ def schema_to_converter(schema):
         return None
 
 
-def marshal(response, converter):
+def marshal(response: Union[Tuple, ResponseBase], converter: Callable):
     """
 
     :param response:
@@ -46,7 +49,7 @@ def marshal(response, converter):
 
 
 class marshal_with:
-    def __init__(self, schema):
+    def __init__(self, schema: Union[Schema, Field, Dict[str, Union[Field, type]]]):
         """Decorator to format the return of a function with a Marshmallow schema
 
         :param schema: Marshmallow schema, field, or dict of Fields, describing
@@ -56,7 +59,7 @@ class marshal_with:
         self.schema = schema
         self.converter = schema_to_converter(self.schema)
 
-    def __call__(self, f):
+    def __call__(self, f: Callable):
         # Wrapper function
         @wraps(f)
         def wrapper(*args, **kwargs):

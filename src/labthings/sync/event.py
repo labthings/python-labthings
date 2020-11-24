@@ -58,7 +58,7 @@ class ClientEvent(object):
                 for remove_key in remove_keys:
                     del self.events[remove_key]
 
-    def clear(self):
+    def clear(self) -> bool:
         """Clear frame event, once processed."""
         ident = get_ident()
         if ident not in self.events:
