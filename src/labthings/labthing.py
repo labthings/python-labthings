@@ -287,7 +287,7 @@ class LabThing:
 
         for extension_object in self.extensions.values():
             # For each on_component function
-            for com_func in extension_object._on_components:
+            for com_func in extension_object.on_components:
                 # If the component matches
                 if com_func.get("component", "") == component_name:
                     # Call the function
@@ -332,14 +332,14 @@ class LabThing:
             )
 
         # For each on_register function
-        for reg_func in extension_object._on_registers:
+        for reg_func in extension_object.on_registers:
             # Call the function
             reg_func.get("function", dummy)(
                 *reg_func.get("args"), **reg_func.get("kwargs")
             )
 
         # For each on_component function
-        for com_func in extension_object._on_components:
+        for com_func in extension_object.on_components:
             key = com_func.get("component", "")
             # If the component has already been added
             if key in self.components:
@@ -393,7 +393,7 @@ class LabThing:
         """
         endpoint = endpoint or snake_to_camel(view.__name__)
 
-        logging.debug(f"{endpoint}: {type(view)} @ {urls}")
+        logging.debug("%s: %s @ %s", endpoint, type(view), urls)
 
         if self.app is not None:
             self._register_view(self.app, view, *urls, endpoint=endpoint, **kwargs)
@@ -449,8 +449,9 @@ class LabThing:
             app.add_url_rule(rule, view_func=resource_func, endpoint=endpoint, **kwargs)
 
         # There might be a better way to do this than _rules_by_endpoint,
-        # but I can't find one so this will do for now. Skipping PYL-W0212
-        flask_rules = app.url_map._rules_by_endpoint.get(endpoint)  # skipcq: PYL-W0212
+        # but I can't find one so this will do for now.
+        # pylint: disable=protected-access
+        flask_rules = app.url_map._rules_by_endpoint.get(endpoint)
         with app.test_request_context():
             self.spec.path(view=resource_func, interaction=view)
 

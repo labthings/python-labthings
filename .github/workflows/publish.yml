@@ -37,6 +37,9 @@ jobs:
       - name: Analyse with MyPy
         run: poetry run mypy src
 
+      - name: Lint with PyLint
+        run: poetry run pylint src/labthings/
+
       - name: Test with pytest
         run: poetry run pytest
 
@@ -54,8 +57,13 @@ jobs:
         with:
           python-version: 3.7
 
-      - name: Install Poetry
-        uses: dschep/install-poetry-action@v1.3
+      - name: Install and configure Poetry
+        uses: snok/install-poetry@v1.1.1
+        with:
+          version: 1.1.4
+          virtualenvs-create: true
+          virtualenvs-in-project: false
+          virtualenvs-path: ~/.virtualenvs
 
       - name: Set Poetry config
         env:

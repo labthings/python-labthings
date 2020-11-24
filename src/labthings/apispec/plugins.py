@@ -25,13 +25,14 @@ class ExtendedOpenAPIConverter(OpenAPIConverter):
         OpenAPIConverter.init_attribute_functions(self, *args, **kwargs)
         self.attribute_functions.append(self.jsonschema_type_mapping)
 
-    def jsonschema_type_mapping(self, field, **kwargs):
+    def jsonschema_type_mapping(self, field, **_):
         """
         :param field:
         :param **kwargs:
         """
         ret = {}
         if hasattr(field, "_jsonschema_type_mapping"):
+            # pylint: disable=protected-access
             schema = field._jsonschema_type_mapping()
             ret.update(schema)
         return ret
@@ -246,6 +247,7 @@ class FlaskLabThingsPlugin(BasePlugin):
         )
         return d
 
+    # pylint: disable=signature-differs
     def operation_helper(self, path, operations, **kwargs):
         """Path helper that allows passing a Flask view function."""
         # rule = self._rule_for_view(interaction.dispatch_request, app=app)

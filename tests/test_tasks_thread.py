@@ -191,4 +191,4 @@ def test_task_log_with_incorrect_thread():
 
     # Should always return False if called from outside the log handlers thread
     assert task_log_handler.thread == task_obj
-    assert not task_log_handler.check_thread(record=None)
+    assert not task_log_handler.check_thread()

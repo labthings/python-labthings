@@ -48,6 +48,7 @@ class StrictLock:
     @property
     def _owner(self):
         """ """
+        # pylint: disable=protected-access
         return self._lock._owner
 
     @contextmanager
@@ -59,6 +60,7 @@ class StrictLock:
 
     def locked(self):
         """ """
+        # pylint: disable=protected-access
         return bool(self._lock._count)
 
     def acquire(self, blocking: bool = True, timeout=sentinel, _strict: bool = True):
@@ -93,6 +95,7 @@ class StrictLock:
 
     def _is_owned(self):
         """ """
+        # pylint: disable=protected-access
         return self._lock._is_owned()
 
 
@@ -114,6 +117,7 @@ class CompositeLock:
     @property
     def _owner(self):
         """ """
+        # pylint: disable=protected-access
         return [lock._owner for lock in self.locks]
 
     @contextmanager
@@ -144,7 +148,7 @@ class CompositeLock:
 
         if not lock_all:
             self._emergency_release()
-            logging.error(f"Unable to acquire {self} within {timeout} seconds")
+            logging.error("Unable to acquire %s within %s seconds", self, timeout)
             raise LockError("ACQUIRE_ERROR", self)
 
         return True
@@ -167,6 +171,7 @@ class CompositeLock:
     def _emergency_release(self):
         """ """
         for lock in self.locks:
+            # pylint: disable=protected-access
             if lock.locked() and lock._is_owned():
                 lock.release()
 
@@ -176,4 +181,5 @@ class CompositeLock:
 
     def _is_owned(self):
         """ """
+        # pylint: disable=protected-access
         return all(lock._is_owned() for lock in self.locks)

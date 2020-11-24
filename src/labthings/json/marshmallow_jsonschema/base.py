@@ -204,7 +204,7 @@ class JSONSchema(Schema):
                     schema = FIELD_VALIDATORS[base_class](schema, field, validator, obj)
         return schema
 
-    def _from_nested_schema(self, obj, field):
+    def _from_nested_schema(self, _, field):
         """Support nested field.
 
         :param obj:
@@ -217,17 +217,12 @@ class JSONSchema(Schema):
             nested = field.nested
 
         if isclass(nested) and issubclass(nested, Schema):
-            name = nested.__name__
             only = field.only
             exclude = field.exclude
-            nested_cls = nested
             nested_instance = nested(only=only, exclude=exclude)
         else:
-            nested_cls = nested.__class__
-            name = nested_cls.__name__
             nested_instance = nested
 
-        outer_name = obj.__class__.__name__
         # If this is not a schema we've seen, and it's not this schema (checking this for recursive schemas),
         # put it in our list of schema defs
         wrapped_nested = self.__class__(nested=True)
