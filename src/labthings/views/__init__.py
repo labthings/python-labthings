@@ -1,10 +1,8 @@
 import datetime
-import threading
 from collections import OrderedDict
 
-from flask import abort, request
+from flask import request
 from flask.views import MethodView
-from werkzeug.exceptions import BadRequest
 from werkzeug.wrappers import Response as ResponseBase
 
 from typing import Dict, Optional, Set, List
@@ -142,9 +140,6 @@ class ActionView(View):
         Pool()
     )  # Emergency thread pool (common to all ActionView subclasses)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def __init_subclass__(cls):
         """
         Here we handle all class attributes that should be specific to each subclass of ActionView.
@@ -263,9 +258,6 @@ class EventView(View):
     }  # Mapping of Thing Description ops to class methods
     _cls_tags = {"events"}
     _deque = Deque()  # Action queue
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
     @classmethod
     def get(cls):

@@ -7,7 +7,7 @@ import time
 from collections import UserString
 from functools import reduce
 
-from typing import Type, Callable, Dict, Any, Tuple, Union, List, Iterable
+from typing import Type, Callable, Dict, Any, Tuple, Union, List
 
 from flask import current_app, has_request_context, request
 from werkzeug.http import HTTP_STATUS_CODES
@@ -228,7 +228,7 @@ def rapply(
     """
 
     # If the object is a dictionary
-    if isinstance(data, Dict):
+    if isinstance(data, dict):
         return {
             key: rapply(
                 val, func, *args, apply_to_iterables=apply_to_iterables, **kwargs

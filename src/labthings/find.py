@@ -27,7 +27,7 @@ def current_labthing(app=None):
     # reach the Flask app object. Just using current_app returns
     # a wrapper, which breaks it's use in Task threads
     try:
-        app = current_app._get_current_object()  # skipcq: PYL-W0212
+        app = current_app._get_current_object()  # pylint: disable=protected-access
     except RuntimeError:
         return None
     ext = app.extensions.get(EXTENSION_NAME, None)

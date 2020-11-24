@@ -70,7 +70,7 @@ class ActionThread(threading.Thread):
 
         # copy_current_request_context allows threads to access flask current_app
         if has_request_context():
-            logging.debug(f"Copying request context to {self._target}")
+            logging.debug("Copying request context to %s", self._target)
             self._target = copy_current_request_context(self._target)
             try:
                 self.input = request.json
@@ -298,7 +298,7 @@ class ActionThread(threading.Thread):
         :raises which: should cause the thread to exit silently
 
         """
-        _LOG.warning(f"Terminating thread {self}")
+        _LOG.warning("Terminating thread %s", self)
         if not (self.is_alive() or self._is_thread_proc_running()):
             logging.debug("Cannot kill thread that is no longer running.")
             return False
@@ -336,7 +336,7 @@ class ActionThread(threading.Thread):
                 self._status = "cancelled"
                 return True
         # If the timeout tracker stopped before the thread died, kill it
-        logging.warning(f"Forcefully terminating thread {self}")
+        logging.warning("Forcefully terminating thread %s", self)
         return self.terminate(exception=exception)
 
 
@@ -346,7 +346,6 @@ class ThreadLogHandler(logging.Handler):
         thread: ActionThread,
         dest: LockableDeque,
         level=logging.INFO,
-        default_log_len: int = 100,
     ):
         """Set up a log handler that appends messages to a list.
 
@@ -371,7 +370,7 @@ class ThreadLogHandler(logging.Handler):
         self.dest = dest
         self.addFilter(self.check_thread)
 
-    def check_thread(self, record):
+    def check_thread(self, *_):
         """Determine if a thread matches the desired record
 
         :param record:

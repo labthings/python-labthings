@@ -1,7 +1,7 @@
 import logging
 
 
-def patch_all(*args, **kwargs):
+def patch_all(*_):
     """
 
     :param *args:

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
-from typing import Optional, Union, Dict
+from typing import Optional, Union, Dict, Any
 from datetime import datetime
 
 from flask import url_for
@@ -56,7 +56,7 @@ class FieldSchema(Schema):
 
         return self.field.serialize("value", obj)
 
-    def dump(self, value):
+    def dump(self, value: Any, *_):  # pylint: disable=arguments-differ
         """
 
         :param value:
@@ -75,7 +75,7 @@ class LogRecordSchema(Schema):
     created = fields.DateTime()
 
     @pre_dump
-    def preprocess(self, data, **kwargs):
+    def preprocess(self, data, **_):
         if isinstance(data, logging.LogRecord):
             data.message = data.getMessage()
             if not isinstance(data.created, datetime):
@@ -105,7 +105,7 @@ class ActionSchema(Schema):
     links = fields.Dict()
 
     @pre_dump
-    def generate_links(self, data, **kwargs):
+    def generate_links(self, data, **_):
         """
 
         :param data:
@@ -195,7 +195,7 @@ class ExtensionSchema(Schema):
     links = fields.Dict()
 
     @pre_dump
-    def generate_links(self, data, **kwargs):
+    def generate_links(self, data, **_):
         """
 
         :param data:

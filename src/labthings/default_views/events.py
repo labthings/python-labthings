@@ -1,4 +1,3 @@
-from .. import fields
 from ..schema import LogRecordSchema
 from ..views import EventView
 

@@ -1,6 +1,5 @@
 from collections.abc import Mapping
 from functools import wraps
-from flask.wrappers import Response
 
 from marshmallow import Schema as _Schema
 from werkzeug.wrappers import Response as ResponseBase
@@ -21,6 +20,9 @@ def schema_to_converter(schema: Union[Schema, Field, Dict[str, Union[Field, type
 
     """
     if isinstance(schema, Mapping):
+        # Please ignore the pylint disable below,
+        # GeneratedSchema definitely does have a `dump` member
+        # pylint: disable=no-member
         return Schema.from_dict(schema)().dump
     # Case of schema as a single Field
     elif isinstance(schema, Field):

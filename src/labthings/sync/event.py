@@ -62,7 +62,7 @@ class ClientEvent(object):
         """Clear frame event, once processed."""
         ident = get_ident()
         if ident not in self.events:
-            logging.error(f"Mismatched ident. Current: {ident}, available:")
+            logging.error("Mismatched ident. Current: %s, available:", ident)
             logging.error(self.events.keys())
             return False
         self.events[get_ident()][0].clear()

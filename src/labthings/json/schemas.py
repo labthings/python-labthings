@@ -68,7 +68,7 @@ def argument_to_param(
     """
     param: Dict[str, Any] = {"in": "path", "name": argument, "required": True}
     type_, format_ = CONVERTER_MAPPING.get(
-        # skipcq: PYL-W0212
+        # pylint: disable=protected-access
         type(rule._converters[argument]),  # type: ignore
         DEFAULT_TYPE,
     )
@@ -88,6 +88,7 @@ def field_to_property(field: fields.Field):
     :param field:
 
     """
+    # pylint: disable=protected-access
     return JSONSchema()._get_schema_for_field(Schema(), field)
 
 
@@ -103,7 +104,7 @@ def schema_to_json(
         return None
     if isinstance(schema, fields.Field):
         return field_to_property(schema)
-    elif isinstance(schema, Dict):
+    elif isinstance(schema, dict):
         return JSONSchema().dump(Schema.from_dict(schema)())
     elif isinstance(schema, Schema):
         return JSONSchema().dump(schema)

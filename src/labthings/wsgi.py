@@ -22,9 +22,7 @@ class Server:
     :type zeroconf: bool
     """
 
-    def __init__(
-        self, app, host="0.0.0.0", port=7485, debug=False, zeroconf=True, **kwargs
-    ):
+    def __init__(self, app, host="0.0.0.0", port=7485, debug=False, zeroconf=True):
         self.app = app
         # Find LabThing attached to app
         with app.app_context():
@@ -103,7 +101,7 @@ class Server:
                 self.zeroconf_server.close()
             print("Server stopped")
 
-    def run(self, host=None, port=None, debug=None, zeroconf=None, **kwargs):
+    def run(self, host=None, port=None, debug=None, zeroconf=None):
         """Starts the server allowing for runtime parameters. Designed to immitate
         the old Flask app.run style of starting an app
 
