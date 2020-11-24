@@ -51,6 +51,7 @@ __all__ = [
     "update_action_progress",
     "update_action_data",
     "ActionKilledException",
+    "marshalling",
     "extensions",
     "views",
     "fields",
@@ -58,5 +59,6 @@ __all__ = [
     "json",
     "PropertyView",
     "ActionView",
+    "EventView",
     "op",
 ]
