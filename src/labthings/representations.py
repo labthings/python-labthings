@@ -4,8 +4,14 @@ from typing import Any, Optional
 from flask import current_app, make_response, Response
 
 from .find import current_labthing
-from .json.encoder import encode_json, JSONEncoder as FlaskJSONEncoder
+from .json.encoder import (
+    LabThingsJSONEncoder,
+    encode_json,
+    JSONEncoder as FlaskJSONEncoder,
+)
 from .utilities import PY3
+
+__all__ = ["LabThingsJSONEncoder", "DEFAULT_REPRESENTATIONS", "output_json"]
 
 
 def output_json(data: Any, code: int, headers: Optional[dict] = None) -> Response:
