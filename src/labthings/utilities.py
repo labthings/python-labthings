@@ -212,11 +212,7 @@ def merge(first: dict, second: dict) -> dict:
 
 
 def rapply(
-    data: Union[Dict, List, Tuple, Iterable],
-    func: Callable,
-    *args,
-    apply_to_iterables: bool = True,
-    **kwargs
+    data: Any, func: Callable, *args, apply_to_iterables: bool = True, **kwargs
 ) -> Union[Dict, List]:
     """Recursively apply a function to a dictionary, list, array, or tuple
 
@@ -240,7 +236,7 @@ def rapply(
             for key, val in data.items()
         }
     # If the object is a list, tuple, or range
-    elif apply_to_iterables and (isinstance(data, Iterable)):
+    elif apply_to_iterables and (isinstance(data, (list, tuple, range))):
         return [
             rapply(x, func, *args, apply_to_iterables=apply_to_iterables, **kwargs)
             for x in data
