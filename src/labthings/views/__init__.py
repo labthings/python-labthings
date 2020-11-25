@@ -1,6 +1,6 @@
 import datetime
 from collections import OrderedDict
-from typing import Dict, List, Optional, Set
+from typing import Union, Dict, List, Optional, Set
 
 from flask import request
 from flask.views import MethodView
@@ -12,10 +12,14 @@ from ..find import current_labthing
 from ..marshalling import marshal_with, use_args
 from ..representations import DEFAULT_REPRESENTATIONS
 from ..schema import ActionSchema, EventSchema, Schema, build_action_schema
+from ..fields import Field
 from ..utilities import unpack
 from . import builder, op
 
 __all__ = ["MethodView", "View", "ActionView", "PropertyView", "op", "builder"]
+
+# Type alias for convenience
+OptionalSchema = Optional[Union[Schema, Dict[str, Field]]]
 
 
 class View(MethodView):
@@ -108,8 +112,8 @@ class ActionView(View):
     """ """
 
     # Data formatting
-    schema: Optional[Schema] = None  # Schema for Action response
-    args: Optional[dict] = None  # Schema for input arguments
+    schema: OptionalSchema = None  # Schema for Action response
+    args: OptionalSchema = None  # Schema for input arguments
     semtype: Optional[str] = None  # Semantic type string
 
     # Spec overrides
@@ -205,7 +209,7 @@ class PropertyView(View):
     """ """
 
     # Data formatting
-    schema: Optional[Schema] = None  # Schema for input AND output
+    schema: OptionalSchema = None  # Schema for input AND output
     semtype: Optional[str] = None  # Semantic type string
 
     # Spec overrides
@@ -245,7 +249,7 @@ class EventView(View):
     """ """
 
     # Data formatting
-    schema: Optional[Schema] = None  # Schema for Event data
+    schema: OptionalSchema = None  # Schema for Event data
     semtype: Optional[str] = None  # Semantic type string
 
     # Spec overrides
