@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
-from typing import Optional, Union, Dict, Any
 from datetime import datetime
+from typing import Any, Dict, Optional, Union
 
 from flask import url_for
 from marshmallow import Schema, pre_dump, pre_load, validate

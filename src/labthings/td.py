@@ -1,12 +1,12 @@
-from flask import has_request_context, request
+from typing import Any, Dict, List, Type
 
-from typing import Dict, List, Type, Any
+from flask import has_request_context, request
 
 from .find import current_labthing
 from .json.schemas import rule_to_params, rule_to_path, schema_to_json
 from .schema import build_action_schema
 from .utilities import ResourceURL, get_docstring
-from .views import View, PropertyView, ActionView, EventView
+from .views import ActionView, EventView, PropertyView, View
 
 
 def view_to_thing_forms(

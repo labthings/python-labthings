@@ -1,7 +1,6 @@
 import logging
 from contextlib import contextmanager
 from threading import _RLock, current_thread
-
 from typing import Optional
 
 sentinel = object()

@@ -1,14 +1,11 @@
 from collections import OrderedDict
 from typing import Any, Optional
 
-from flask import current_app, make_response, Response
+from flask import Response, current_app, make_response
 
 from .find import current_labthing
-from .json.encoder import (
-    LabThingsJSONEncoder,
-    encode_json,
-    JSONEncoder as FlaskJSONEncoder,
-)
+from .json.encoder import JSONEncoder as FlaskJSONEncoder
+from .json.encoder import LabThingsJSONEncoder, encode_json
 from .utilities import PY3
 
 __all__ = ["LabThingsJSONEncoder", "DEFAULT_REPRESENTATIONS", "output_json"]

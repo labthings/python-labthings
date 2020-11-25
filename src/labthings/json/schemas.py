@@ -1,8 +1,8 @@
 import re
+from typing import Any, Dict, List, Optional, Union
+
 import werkzeug.routing
 from marshmallow import Schema, fields
-
-from typing import Dict, List, Union, Optional, Any
 
 from .marshmallow_jsonschema import JSONSchema
 

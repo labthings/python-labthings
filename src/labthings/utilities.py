@@ -6,8 +6,7 @@ import sys
 import time
 from collections import UserString
 from functools import reduce
-
-from typing import Type, Callable, Dict, Any, Tuple, Union, List
+from typing import Any, Callable, Dict, List, Tuple, Type, Union
 
 from flask import current_app, has_request_context, request
 from werkzeug.http import HTTP_STATUS_CODES

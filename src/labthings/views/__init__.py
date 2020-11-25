@@ -1,11 +1,10 @@
 import datetime
 from collections import OrderedDict
+from typing import Dict, List, Optional, Set
 
 from flask import request
 from flask.views import MethodView
 from werkzeug.wrappers import Response as ResponseBase
-
-from typing import Dict, Optional, Set, List
 
 from ..actions.pool import Pool
 from ..deque import Deque

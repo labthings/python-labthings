@@ -4,10 +4,9 @@ import os
 import sys
 import traceback
 from importlib import util
+from typing import Callable, Dict, List, Union
 
 from flask import url_for
-
-from typing import List, Dict, Callable, Union
 
 from .utilities import camel_to_snake, get_docstring, snake_to_spine
 from .views.builder import static_from

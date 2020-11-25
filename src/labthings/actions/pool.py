@@ -1,6 +1,5 @@
 import logging
 import threading
-
 from typing import Dict
 
 from ..deque import Deque

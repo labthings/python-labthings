@@ -1,7 +1,6 @@
 import glob
 import os
 import uuid
-
 from typing import Type
 
 from flask import abort, send_file

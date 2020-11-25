@@ -1,5 +1,6 @@
 from collections.abc import Mapping
 from functools import wraps
+from typing import Callable, Dict, Tuple, Union
 
 from marshmallow import Schema as _Schema
 from werkzeug.wrappers import Response as ResponseBase
@@ -7,8 +8,6 @@ from werkzeug.wrappers import Response as ResponseBase
 from ..fields import Field
 from ..schema import FieldSchema, Schema
 from ..utilities import unpack
-
-from typing import Union, Dict, Callable, Tuple
 
 
 def schema_to_converter(schema: Union[Schema, Field, Dict[str, Union[Field, type]]]):

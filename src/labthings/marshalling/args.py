@@ -1,5 +1,6 @@
 import logging
 from functools import update_wrapper, wraps
+from typing import Callable, Dict, Union
 
 from flask import abort, request
 from marshmallow.exceptions import ValidationError
@@ -7,8 +8,6 @@ from webargs import flaskparser  # type: ignore
 
 from ..fields import Field
 from ..schema import FieldSchema, Schema
-
-from typing import Union, Dict, Callable
 
 
 class use_body:

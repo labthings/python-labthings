@@ -1,8 +1,7 @@
 import logging
 import uuid
 import weakref
-
-from typing import Dict, List, Set, Any, Tuple, Type, Optional
+from typing import Any, Dict, List, Optional, Set, Tuple, Type
 
 from apispec import APISpec  # type: ignore
 from apispec_webframeworks.flask import FlaskPlugin  # type: ignore

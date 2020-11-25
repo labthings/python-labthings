@@ -4,11 +4,10 @@ import logging
 import threading
 import traceback
 import uuid
+from typing import Any, Callable, Dict, Iterable, Optional
 
 from flask import copy_current_request_context, has_request_context, request
 from werkzeug.exceptions import BadRequest
-
-from typing import Optional, Iterable, Dict, Any, Callable
 
 from ..deque import LockableDeque
 from ..utilities import TimeoutTracker

@@ -1,7 +1,9 @@
 import re
 
 from apispec import BasePlugin  # type: ignore
-from apispec.ext.marshmallow import MarshmallowPlugin as _MarshmallowPlugin  # type: ignore
+from apispec.ext.marshmallow import (
+    MarshmallowPlugin as _MarshmallowPlugin,  # type: ignore
+)
 from apispec.ext.marshmallow import OpenAPIConverter
 from flask.views import http_method_funcs
 
