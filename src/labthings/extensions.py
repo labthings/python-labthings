@@ -64,6 +64,10 @@ class BaseExtension:
         return self._views
 
     @property
+    def rules(self):
+        return self._rules
+
+    @property
     def on_components(self):
         return self._on_components
 
