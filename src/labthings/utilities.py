@@ -245,7 +245,7 @@ def rapply(
         return func(data, *args, **kwargs)
 
 
-def get_by_path(root: Dict[Any, Any], items: List[Any]) -> dict:
+def get_by_path(root: Dict[Any, Any], items: List[Any]) -> Any:
     """Access a nested object in root by item sequence.
 
     :param root:
