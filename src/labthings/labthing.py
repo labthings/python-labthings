@@ -1,11 +1,12 @@
 import logging
 import uuid
 import weakref
-from typing import Any, Dict, List, Optional, Set, Tuple, Type
+from json import JSONEncoder
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type
 
 from apispec import APISpec
 from apispec_webframeworks.flask import FlaskPlugin
-from flask import url_for
+from flask import url_for, Flask
 
 from .actions.pool import Pool
 from .apispec import FlaskLabThingsPlugin, MarshmallowPlugin
@@ -65,7 +66,7 @@ class LabThing:
 
     def __init__(
         self,
-        app=None,
+        app: Optional[Flask] = None,
         id_: str = None,
         prefix: str = "",
         title: str = "",
@@ -81,7 +82,7 @@ class LabThing:
         else:
             self.id = id_
 
-        self.app = app  # Becomes a Flask app
+        self.app: Optional[Flask] = app  # Becomes a Flask app
 
         self.components: Dict[
             str, Any
@@ -122,7 +123,7 @@ class LabThing:
         logging.getLogger().addHandler(self.log_handler)
 
         # Representation formatter map
-        self.representations = DEFAULT_REPRESENTATIONS
+        self.representations: Dict[str, Callable] = DEFAULT_REPRESENTATIONS
 
         # OpenAPI spec for Swagger docs
         self.spec: APISpec = APISpec(
@@ -133,10 +134,12 @@ class LabThing:
         )
 
         # Thing description
-        self.thing_description = ThingDescription(external_links=external_links)
+        self.thing_description: ThingDescription = ThingDescription(
+            external_links=external_links
+        )
 
         # JSON encoder class
-        self.json_encoder = json_encoder
+        self.json_encoder: JSONEncoder = json_encoder
 
         if app is not None:
             self.init_app(app)
