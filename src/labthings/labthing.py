@@ -3,8 +3,8 @@ import uuid
 import weakref
 from typing import Any, Dict, List, Optional, Set, Tuple, Type
 
-from apispec import APISpec  # type: ignore
-from apispec_webframeworks.flask import FlaskPlugin  # type: ignore
+from apispec import APISpec
+from apispec_webframeworks.flask import FlaskPlugin
 from flask import url_for
 
 from .actions.pool import Pool

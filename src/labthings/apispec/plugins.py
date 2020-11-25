@@ -1,8 +1,8 @@
 import re
 
-from apispec import BasePlugin  # type: ignore
+from apispec import BasePlugin
 
-from apispec.ext.marshmallow import (  # type: ignore
+from apispec.ext.marshmallow import (
     MarshmallowPlugin as _MarshmallowPlugin,
 )
 from apispec.ext.marshmallow import OpenAPIConverter

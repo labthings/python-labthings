@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_cors import CORS  # type: ignore
+from flask_cors import CORS
 
 from .labthing import LabThing
 

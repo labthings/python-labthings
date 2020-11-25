@@ -4,7 +4,7 @@ from typing import Callable, Dict, Union
 
 from flask import abort, request
 from marshmallow.exceptions import ValidationError
-from webargs import flaskparser  # type: ignore
+from webargs import flaskparser
 
 from ..fields import Field
 from ..schema import FieldSchema, Schema
