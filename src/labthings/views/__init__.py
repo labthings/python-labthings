@@ -19,7 +19,7 @@ from . import builder, op
 __all__ = ["MethodView", "View", "ActionView", "PropertyView", "op", "builder"]
 
 # Type alias for convenience
-OptionalSchema = Optional[Union[Schema, Dict[str, Field]]]
+OptionalSchema = Optional[Union[Schema, Field, Dict[str, Field]]]
 
 
 class View(MethodView):
