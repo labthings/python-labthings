@@ -1,3 +1,12 @@
+# [v1.2.0](https://github.com/labthings/python-labthings/compare/v1.1.6...v1.2.0) (2020-11-30)
+
+
+* Add extension property to views and added LABTHINGS_EXTENSIONS class list loader ([15c364a](https://github.com/labthings/python-labthings/commit/15c364a))
+* Added set_extension method to View class ([427b12e](https://github.com/labthings/python-labthings/commit/427b12e))
+* Allow (but warn) instances in LABTHINGS_EXTENSIONS list ([0165bc7](https://github.com/labthings/python-labthings/commit/0165bc7))
+* Switch away from dunder to LABTHINGS_EXTENSIONS ([3b6e9af](https://github.com/labthings/python-labthings/commit/3b6e9af))
+
+
 # [v1.1.6](https://github.com/labthings/python-labthings/compare/v1.1.5...v1.1.6) (2020-11-30)
 
 
