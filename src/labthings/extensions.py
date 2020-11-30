@@ -262,11 +262,25 @@ def find_extensions_in_file(extension_path: str, module_name="extensions") -> li
         )
         return []
     else:
-        if hasattr(mod, "__extensions__"):
+        if hasattr(mod, "LABTHINGS_EXTENSIONS"):
+            return [
+                ext_obj
+                for ext_obj in getattr(mod, "LABTHINGS_EXTENSIONS")
+                if isinstance(ext_obj, BaseExtension)
+            ]
+        elif hasattr(mod, "__extensions__"):
+            logging.warning(
+                "Explicit extension list using the __extensions__ global is deprecated.",
+                "Please use LABTHINGS_EXTENSIONS instead.",
+            )
             return [
                 getattr(mod, ext_name) for ext_name in getattr(mod, "__extensions__")
             ]
         else:
+            logging.warning(
+                "No LTX_MANIFEST found for %s. Searching for implicit extension objects.",
+                extension_path,
+            )
             return find_instances_in_module(mod, BaseExtension)
 
 
