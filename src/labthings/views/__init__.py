@@ -8,7 +8,7 @@ from werkzeug.wrappers import Response as ResponseBase
 
 from ..actions.pool import Pool
 from ..deque import Deque
-from ..find import current_labthing
+from ..find import current_labthing, find_extension
 from ..marshalling import marshal_with, use_args
 from ..representations import DEFAULT_REPRESENTATIONS
 from ..schema import ActionSchema, EventSchema, Schema, build_action_schema
@@ -40,6 +40,11 @@ class View(MethodView):
     _cls_tags: Set[str] = set()  # Class tags that shouldn't be removed
     _opmap: Dict[str, str] = {}  # Mapping of Thing Description ops to class methods
 
+    # Name of parent extension, if one exists.
+    # This is only used for extension development where Views are added to the extension.
+    # We store the name instead of the object itself to prevent circular references.
+    _parent_extension_name: Optional[str] = None
+
     def __init__(self, *args, **kwargs):
         MethodView.__init__(self, *args, **kwargs)
 
@@ -49,6 +54,16 @@ class View(MethodView):
             if current_labthing()
             else DEFAULT_REPRESENTATIONS
         )
+
+    @property
+    def extension(self):
+        if self._parent_extension_name:
+            return find_extension(self._parent_extension_name)
+        return None
+
+    @classmethod
+    def set_extension(cls, extension_name: str):
+        cls._parent_extension_name = extension_name
 
     @classmethod
     def get_tags(cls):
@@ -257,7 +272,7 @@ class EventView(View):
 
     # Internal
     _opmap = {
-        "subscribeevent": "get",
+        "subscribeevent": "get"
     }  # Mapping of Thing Description ops to class methods
     _cls_tags = {"events"}
     _deque = Deque()  # Action queue
