@@ -1,3 +1,15 @@
+# [v1.1.6](https://github.com/labthings/python-labthings/compare/v1.1.5...v1.1.6) (2020-11-30)
+
+
+* Added extra type defs ([d90e9c1](https://github.com/labthings/python-labthings/commit/d90e9c1))
+* Added public rules property ([bd58673](https://github.com/labthings/python-labthings/commit/bd58673))
+* Bump apispec from 3.3.2 to 4.0.0 ([5ed03fe](https://github.com/labthings/python-labthings/commit/5ed03fe))
+* Fixed get_by_path to allow returning Any type value ([e9ed244](https://github.com/labthings/python-labthings/commit/e9ed244))
+* Fixed mypy ignore ([cf33d1e](https://github.com/labthings/python-labthings/commit/cf33d1e))
+* Fixed view schema type annotations ([6ef3f4a](https://github.com/labthings/python-labthings/commit/6ef3f4a))
+* Global mypy ignore_missing_imports = True ([53e077c](https://github.com/labthings/python-labthings/commit/53e077c))
+
+
 # [v1.1.5](https://github.com/labthings/python-labthings/compare/v1.1.4...v1.1.5) (2020-11-24)
 
 
