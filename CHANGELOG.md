@@ -1,3 +1,9 @@
+# [v1.2.1](https://github.com/labthings/python-labthings/compare/v1.2.0...v1.2.1) (2020-11-30)
+
+
+* Allow Fields in OptionalSchema type ([c22927e](https://github.com/labthings/python-labthings/commit/c22927e))
+
+
 # [v1.2.0](https://github.com/labthings/python-labthings/compare/v1.1.6...v1.2.0) (2020-11-30)
 
 
