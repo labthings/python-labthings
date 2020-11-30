@@ -9,6 +9,7 @@ from typing import Callable, Dict, List, Union
 from flask import url_for
 
 from .utilities import camel_to_snake, get_docstring, snake_to_spine
+from .views import View as BaseView
 from .views.builder import static_from
 
 
@@ -110,7 +111,8 @@ class BaseExtension:
             self._rules[url] = self._views[endpoint]
 
         # Store this extension name as the View owner
-        view_class.set_extension(self.name)
+        if issubclass(view_class, BaseView):
+            view_class.set_extension(self.name)
 
     def on_register(self, function, args=None, kwargs=None):
         """
