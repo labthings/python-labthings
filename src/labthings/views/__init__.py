@@ -62,6 +62,10 @@ class View(MethodView):
         return None
 
     @classmethod
+    def set_extension(cls, extension_name: str):
+        cls._parent_extension_name = extension_name
+
+    @classmethod
     def get_tags(cls):
         """ """
         return cls._cls_tags.union(set(cls.tags))

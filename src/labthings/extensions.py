@@ -110,7 +110,7 @@ class BaseExtension:
             self._rules[url] = self._views[endpoint]
 
         # Store this extension name as the View owner
-        view_class._parent_extension_name = self.name
+        view_class.set_extension(self.name)
 
     def on_register(self, function, args=None, kwargs=None):
         """
