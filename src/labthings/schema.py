@@ -16,9 +16,11 @@ __all__ = [
     "pre_load",
     "pre_dump",
     "validate",
+    "FuzzySchemaType"
 ]
 
-
+# Type alias for a Schema, Field, or Dict of Fields or Types
+FuzzySchemaType = Union[Schema, fields.Field, Dict[str, Union[fields.Field, type]]]
 class FieldSchema(Schema):
     """ "Virtual schema" for handling individual fields treated as schemas.
 
@@ -132,8 +134,8 @@ class ActionSchema(Schema):
 
 
 def build_action_schema(
-    output_schema: Optional[Union[Schema, Dict]],
-    input_schema: Optional[Union[Schema, Dict]],
+    output_schema: Optional[FuzzySchemaType],
+    input_schema: Optional[FuzzySchemaType],
     name: Optional[str] = None,
 ):
     """Builds a complete schema for a given ActionView. That is, it reads any input and output
@@ -151,7 +153,7 @@ def build_action_schema(
     if not name.endswith("Action"):
         name = f"{name}Action"
 
-    class_attrs = {}
+    class_attrs: Dict[str, Union[fields.Nested, fields.Field]] = {}
 
     for key, schema in {"output": output_schema, "input": input_schema}.items():
         # If no schema is given, move on

@@ -11,7 +11,7 @@ from ..deque import Deque
 from ..find import current_labthing, find_extension
 from ..marshalling import marshal_with, use_args
 from ..representations import DEFAULT_REPRESENTATIONS
-from ..schema import ActionSchema, EventSchema, Schema, build_action_schema
+from ..schema import ActionSchema, EventSchema, Schema, FuzzySchemaType, build_action_schema
 from ..fields import Field
 from ..utilities import unpack
 from . import builder, op
@@ -19,7 +19,7 @@ from . import builder, op
 __all__ = ["MethodView", "View", "ActionView", "PropertyView", "op", "builder"]
 
 # Type alias for convenience
-OptionalSchema = Optional[Union[Schema, Field, Dict[str, Field]]]
+OptionalSchema = Optional[FuzzySchemaType]
 
 
 class View(MethodView):
