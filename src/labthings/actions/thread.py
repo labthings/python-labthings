@@ -215,7 +215,6 @@ class ActionThread(threading.Thread):
                 self._status = "cancelled"
                 self.progress = None
             except Exception as e:  # skipcq: PYL-W0703
-                logging.error(e)
                 logging.error(traceback.format_exc())
                 self._return_value = str(e)
                 self._status = "error"
