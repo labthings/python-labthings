@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "labthings"
-version = "1.2.1"
+version = "1.2.2"
 description = "Python implementation of LabThings, based on the Flask microframework"
 readme = "README.md"
 repository = "https://github.com/labthings/python-labthings/"
@@ -26,7 +26,6 @@ apispec_webframeworks = "^0.5.2"
 pytest = "^6.0"
 black = {version = "^20.8b1",allow-prereleases = true}
 pytest-cov = "^2.10.1"
-numpy = "^1.19.1"
 jsonschema = "^3.2.0"
 pylint = "^2.6.0"
 sphinx = "^3.2.1"

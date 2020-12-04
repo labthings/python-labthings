@@ -1,3 +1,19 @@
+# [v1.2.2](https://github.com/labthings/python-labthings/compare/v1.2.1...v1.2.2) (2020-12-04)
+
+
+### Fix
+
+* Remove duplicated action exception log ([fe5fa4e](https://github.com/labthings/python-labthings/commit/fe5fa4e))
+
+* MyPy fixes ([dc7547a](https://github.com/labthings/python-labthings/commit/dc7547a))
+
+
+# [](https://github.com/labthings/python-labthings/compare/v1.2.1...v) (2020-12-04)
+
+
+* MyPy fixes ([dc7547a](https://github.com/labthings/python-labthings/commit/dc7547a))
+
+
 # [v1.2.1](https://github.com/labthings/python-labthings/compare/v1.2.0...v1.2.1) (2020-11-30)
 
 
