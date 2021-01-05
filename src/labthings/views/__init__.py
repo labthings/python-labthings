@@ -1,6 +1,6 @@
 import datetime
 from collections import OrderedDict
-from typing import Union, Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set
 
 from flask import request
 from flask.views import MethodView
@@ -11,8 +11,12 @@ from ..deque import Deque
 from ..find import current_labthing, find_extension
 from ..marshalling import marshal_with, use_args
 from ..representations import DEFAULT_REPRESENTATIONS
-from ..schema import ActionSchema, EventSchema, Schema, FuzzySchemaType, build_action_schema
-from ..fields import Field
+from ..schema import (
+    ActionSchema,
+    EventSchema,
+    FuzzySchemaType,
+    build_action_schema,
+)
 from ..utilities import unpack
 from . import builder, op
 

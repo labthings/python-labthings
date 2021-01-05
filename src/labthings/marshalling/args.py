@@ -1,6 +1,6 @@
 import logging
 from functools import update_wrapper, wraps
-from typing import Callable, Dict, Union
+from typing import Callable, Union, Mapping
 
 from flask import abort, request
 from marshmallow.exceptions import ValidationError
@@ -10,15 +10,8 @@ from ..fields import Field
 from ..schema import FieldSchema, Schema
 
 
-class use_body:
-    """Gets the request body as a single value and adds it as a positional argument"""
-
-    def __init__(
-        self, schema: Union[Schema, Field, Dict[str, Union[Field, type]]], **_
-    ):
-        self.schema = schema
-
-    def __call__(self, f: Callable):
+def use_body(schema: Field, **_) -> Callable:
+    def inner(f: Callable):
         # Wrapper function
         @wraps(f)
         def wrapper(*args, **kwargs):
@@ -34,17 +27,17 @@ class use_body:
             # If no data is there
             if not data:
                 # If data is required
-                if self.schema.required:
+                if schema.required:
                     # Abort
                     return abort(400)
                 # Otherwise, look for the schema fields 'missing' property
-                if self.schema.missing:
-                    data = self.schema.missing
+                if schema.missing:
+                    data = schema.missing
 
             # Serialize data if it exists
             if data:
                 try:
-                    data = FieldSchema(self.schema).deserialize(data)
+                    data = FieldSchema(schema).deserialize(data)
                 except ValidationError as e:
                     logging.error(e)
                     return abort(400)
@@ -54,13 +47,13 @@ class use_body:
 
         return wrapper
 
+    return inner
+
 
 class use_args:
     """Equivalent to webargs.flask_parser.use_args"""
 
-    def __init__(
-        self, schema: Union[Schema, Field, Dict[str, Union[Field, type]]], **kwargs
-    ):
+    def __init__(self, schema: Union[Schema, Field, Mapping[str, Field]], **kwargs):
         self.schema = schema
 
         if isinstance(schema, Field):

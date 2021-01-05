@@ -11,16 +11,12 @@ from . import fields
 from .names import ACTION_ENDPOINT, EXTENSION_LIST_ENDPOINT
 from .utilities import description_from_view, view_class_from_endpoint
 
-__all__ = [
-    "Schema",
-    "pre_load",
-    "pre_dump",
-    "validate",
-    "FuzzySchemaType"
-]
+__all__ = ["Schema", "pre_load", "pre_dump", "validate", "FuzzySchemaType"]
 
 # Type alias for a Schema, Field, or Dict of Fields or Types
 FuzzySchemaType = Union[Schema, fields.Field, Dict[str, Union[fields.Field, type]]]
+
+
 class FieldSchema(Schema):
     """ "Virtual schema" for handling individual fields treated as schemas.
 
