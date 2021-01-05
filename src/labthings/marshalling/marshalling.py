@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 from functools import wraps
-from typing import Callable, Dict, Tuple, Union
+from typing import Callable, Dict, Tuple, Union, Optional
 
 from marshmallow import Schema as _Schema
 from werkzeug.wrappers import Response as ResponseBase
@@ -10,7 +10,9 @@ from ..schema import FieldSchema, Schema
 from ..utilities import unpack
 
 
-def schema_to_converter(schema: Union[Schema, Field, Dict[str, Union[Field, type]]]):
+def schema_to_converter(
+    schema: Union[Schema, Field, Dict[str, Union[Field, type]]]
+) -> Optional[Callable]:
     """Convert a schema into a converter function,
     which takes a value as an argument and returns
     marshalled data
