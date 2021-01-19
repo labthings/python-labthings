@@ -548,7 +548,7 @@ python-versions = "*"
 
 [[package]]
 name = "sphinx"
-version = "3.4.2"
+version = "3.4.3"
 description = "Python documentation generator"
 category = "dev"
 optional = false
@@ -790,7 +790,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "21371862967ce66b4d2e2b2144742398b245423d32d937d29393a7d4ddf4dc8e"
+content-hash = "bace10b45f161ace7b5c8712c662994932babbc4dd208c687396bc9bfa92d9f3"
 
 [metadata.files]
 alabaster = [
@@ -1132,8 +1132,8 @@ snowballstemmer = [
     {file = "snowballstemmer-2.0.0.tar.gz", hash = "sha256:df3bac3df4c2c01363f3dd2cfa78cce2840a79b9f1c2d2de9ce8d31683992f52"},
 ]
 sphinx = [
-    {file = "Sphinx-3.4.2-py3-none-any.whl", hash = "sha256:b8aa4eb5502c53d3b5ca13a07abeedacd887f7770c198952fd5b9530d973e767"},
-    {file = "Sphinx-3.4.2.tar.gz", hash = "sha256:77dec5ac77ca46eee54f59cf477780f4fb23327b3339ef39c8471abb829c1285"},
+    {file = "Sphinx-3.4.3-py3-none-any.whl", hash = "sha256:c314c857e7cd47c856d2c5adff514ac2e6495f8b8e0f886a8a37e9305dfea0d8"},
+    {file = "Sphinx-3.4.3.tar.gz", hash = "sha256:41cad293f954f7d37f803d97eb184158cfd90f51195131e94875bc07cd08b93c"},
 ]
 sphinx-autoapi = [
     {file = "sphinx-autoapi-1.5.1.tar.gz", hash = "sha256:4d50878323b80b66abdc4046c1632636473414653bac450b58832b8ee9f6a9a6"},
