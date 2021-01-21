@@ -25,7 +25,7 @@ apispec_webframeworks = "^0.5.2"
 [tool.poetry.dev-dependencies]
 pytest = "^6.2"
 black = {version = "^20.8b1",allow-prereleases = true}
-pytest-cov = "^2.11.0"
+pytest-cov = "^2.11.1"
 jsonschema = "^3.2.0"
 pylint = "^2.6.0"
 sphinx = "^3.4.3"
