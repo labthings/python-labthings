@@ -234,6 +234,13 @@ class ActionView(View):
         if task.output and isinstance(task.output, ResponseBase):
             return self.represent_response((task.output, 200))
 
+        # If the action fails quickly, propagate the exception.
+        # This allows us to handle validation errors nicely.
+        # TODO: do we want to do this for all exceptions, or just
+        # werkzeug.exceptions.HTTPException instances?
+        if task._exception is not None:
+            raise e
+
         return self.represent_response((ActionSchema().dump(task), 201))
 
 

@@ -85,6 +85,7 @@ class ActionThread(threading.Thread):
         self._request_time: datetime.datetime = datetime.datetime.now()
         self._start_time: Optional[datetime.datetime] = None  # Task start time
         self._end_time: Optional[datetime.datetime] = None  # Task end time
+        self._exception: Optional[Exception] = None  # Propagate exceptions helpfully
 
         # Public state properties
         self.progress: Optional[int] = None  # Percent progress of the task
@@ -218,6 +219,7 @@ class ActionThread(threading.Thread):
                 logging.error(traceback.format_exc())
                 self._return_value = str(e)
                 self._status = "error"
+                self._exception = e
                 raise e
             finally:
                 self._end_time = datetime.datetime.now()
