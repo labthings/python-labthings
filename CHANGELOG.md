@@ -1,3 +1,22 @@
+# [v1.2.4](https://github.com/labthings/python-labthings/compare/v1.2.3...v1.2.4) (2021-03-22)
+
+- [Security] Bump jinja2 from 2.11.2 to 2.11.3 ([16ec89b](https://github.com/labthings/python-labthings/commit/16ec89b))
+- [Security] Bump urllib3 from 1.26.2 to 1.26.3 ([05af37c](https://github.com/labthings/python-labthings/commit/05af37c))
+- Bump apispec from 4.0.0 to 4.2.0 ([e3e1d81](https://github.com/labthings/python-labthings/commit/e3e1d81))
+- Bump apispec from 4.2.0 to 4.3.0 ([1e6743b](https://github.com/labthings/python-labthings/commit/1e6743b))
+- Bump flask-cors from 3.0.9 to 3.0.10 ([72ef6b7](https://github.com/labthings/python-labthings/commit/72ef6b7))
+- Bump mypy from 0.790 to 0.800 ([81df983](https://github.com/labthings/python-labthings/commit/81df983))
+- Bump mypy from 0.800 to 0.812 ([c96f660](https://github.com/labthings/python-labthings/commit/c96f660))
+- Bump pylint from 2.6.0 to 2.7.2 ([44a6973](https://github.com/labthings/python-labthings/commit/44a6973))
+- Bump pytest from 6.2.1 to 6.2.2 ([6c75aec](https://github.com/labthings/python-labthings/commit/6c75aec))
+- Bump pytest-cov from 2.10.1 to 2.11.0 ([921eb47](https://github.com/labthings/python-labthings/commit/921eb47))
+- Bump pytest-cov from 2.11.0 to 2.11.1 ([86572bf](https://github.com/labthings/python-labthings/commit/86572bf))
+- Bump sphinx from 3.4.2 to 3.4.3 ([3458f95](https://github.com/labthings/python-labthings/commit/3458f95))
+- Bump sphinx from 3.4.3 to 3.5.3 ([64e5e07](https://github.com/labthings/python-labthings/commit/64e5e07))
+- Bump sphinx-autoapi from 1.5.1 to 1.6.0 ([30ead18](https://github.com/labthings/python-labthings/commit/30ead18))
+- Bump sphinx-autoapi from 1.6.0 to 1.7.0 ([cb93348](https://github.com/labthings/python-labthings/commit/cb93348))
+- v1.2.3 ([c0cf4a7](https://github.com/labthings/python-labthings/commit/c0cf4a7))
+
 # [v1.2.3](https://github.com/labthings/python-labthings/compare/v1.2.2...v1.2.3) (2021-01-05)
 
 - Added basic marshalling tests ([0b2cbbb](https://github.com/labthings/python-labthings/commit/0b2cbbb))
