@@ -19,7 +19,7 @@ marshmallow = "^3.4.0"
 webargs = ">=6,<9"
 apispec = ">=3.2,<5.0"
 flask-cors = "^3.0.8"
-zeroconf = ">=0.24.5,<0.29.0"
+zeroconf = ">=0.24.5,<0.32.0"
 apispec_webframeworks = "^0.5.2"
 
 [tool.poetry.dev-dependencies]
