@@ -31,7 +31,7 @@ pylint = "^2.7.2"
 sphinx = "^3.5.3"
 sphinx-autoapi = "^1.8.1"
 sphinx-rtd-theme = "^0.5.2"
-mypy = "^0.812"
+mypy = "^0.910"
 
 [tool.black]
 exclude = '(\.eggs|\.git|\.venv|node_modules/)'
