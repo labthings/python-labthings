@@ -8,7 +8,7 @@ python-versions = "*"
 
 [[package]]
 name = "apispec"
-version = "4.6.0"
+version = "4.7.0"
 description = "A pluggable API specification generator. Currently supports the OpenAPI Specification (f.k.a. the Swagger specification)."
 category = "main"
 optional = false
@@ -801,8 +801,8 @@ alabaster = [
     {file = "alabaster-0.7.12.tar.gz", hash = "sha256:a661d72d58e6ea8a57f7a86e37d86716863ee5e92788398526d58b26a4e4dc02"},
 ]
 apispec = [
-    {file = "apispec-4.6.0-py2.py3-none-any.whl", hash = "sha256:6a62e8c5a9f85715089083d013f23ddbbee948c188910e31fad2192f90a49974"},
-    {file = "apispec-4.6.0.tar.gz", hash = "sha256:a896f97394b7d046d46c65262e51e45241dd8d9d71eedebcdb2d7024b775eec4"},
+    {file = "apispec-4.7.0-py2.py3-none-any.whl", hash = "sha256:dca934a18b9c10002244cf853905f6deab0bd319aa196a822704d9499400ad8f"},
+    {file = "apispec-4.7.0.tar.gz", hash = "sha256:bfa1bec8b5b2cea6727e020c3a6fe11d963088dd2ed616e11475ceaf2d676937"},
 ]
 apispec-webframeworks = [
     {file = "apispec-webframeworks-0.5.2.tar.gz", hash = "sha256:0db35b267914b3f8c562aca0261957dbcb4176f255eacc22520277010818dcf3"},
