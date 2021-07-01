@@ -18,7 +18,6 @@ from ..schema import (
     build_action_schema,
 )
 from ..utilities import unpack
-from . import builder, op
 
 __all__ = ["MethodView", "View", "ActionView", "PropertyView", "op", "builder"]
 
