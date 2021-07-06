@@ -173,7 +173,7 @@ class ActionView(View):
         """
         List running and completed actions.
 
-        Actions are run with `POST` requests.  See the `POST` method for this URL for 
+        Actions are run with `POST` requests.  See the `POST` method for this URL for
         details of the action.  Sending a `GET` request to an action endpoint will return
         action descriptions for each time the action has been run, including whether they
         have completed, and any return values.
