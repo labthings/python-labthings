@@ -8,7 +8,7 @@ python-versions = "*"
 
 [[package]]
 name = "apispec"
-version = "4.6.0"
+version = "4.7.1"
 description = "A pluggable API specification generator. Currently supports the OpenAPI Specification (f.k.a. the Swagger specification)."
 category = "main"
 optional = false
@@ -19,7 +19,7 @@ PyYAML = {version = ">=3.10", optional = true, markers = "extra == \"yaml\""}
 
 [package.extras]
 dev = ["PyYAML (>=3.10)", "prance[osv] (>=0.11)", "marshmallow (>=3.10.0)", "pytest", "mock", "flake8 (==3.9.2)", "flake8-bugbear (==21.4.3)", "pre-commit (>=2.4,<3.0)", "tox"]
-docs = ["marshmallow (>=3.0.0)", "pyyaml (==5.4.1)", "sphinx (==4.0.2)", "sphinx-issues (==1.2.0)", "sphinx-rtd-theme (==0.5.2)"]
+docs = ["marshmallow (>=3.0.0)", "pyyaml (==5.4.1)", "sphinx (==4.0.3)", "sphinx-issues (==1.2.0)", "sphinx-rtd-theme (==0.5.2)"]
 lint = ["flake8 (==3.9.2)", "flake8-bugbear (==21.4.3)", "pre-commit (>=2.4,<3.0)"]
 tests = ["PyYAML (>=3.10)", "prance[osv] (>=0.11)", "marshmallow (>=3.10.0)", "pytest", "mock"]
 validation = ["prance[osv] (>=0.11)"]
@@ -801,8 +801,8 @@ alabaster = [
     {file = "alabaster-0.7.12.tar.gz", hash = "sha256:a661d72d58e6ea8a57f7a86e37d86716863ee5e92788398526d58b26a4e4dc02"},
 ]
 apispec = [
-    {file = "apispec-4.6.0-py2.py3-none-any.whl", hash = "sha256:6a62e8c5a9f85715089083d013f23ddbbee948c188910e31fad2192f90a49974"},
-    {file = "apispec-4.6.0.tar.gz", hash = "sha256:a896f97394b7d046d46c65262e51e45241dd8d9d71eedebcdb2d7024b775eec4"},
+    {file = "apispec-4.7.1-py2.py3-none-any.whl", hash = "sha256:6613dbc39f41cd58942a697f11c8762ba18422bd173fe0bdfc1535b83d3f84f0"},
+    {file = "apispec-4.7.1.tar.gz", hash = "sha256:79029486d36a0d7f3c659dbf6ae50a91fbed0c22dcd5376f592e076c130bc7f9"},
 ]
 apispec-webframeworks = [
     {file = "apispec-webframeworks-0.5.2.tar.gz", hash = "sha256:0db35b267914b3f8c562aca0261957dbcb4176f255eacc22520277010818dcf3"},
