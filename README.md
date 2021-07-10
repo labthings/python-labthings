@@ -37,7 +37,7 @@ and register is as a Thing property
 """
 
 
-# Wrap in a semantic annotation to autmatically set schema and args
+# Wrap in a semantic annotation to automatically set schema and args
 class DenoiseProperty(PropertyView):
     """Value of integration_time"""
 
