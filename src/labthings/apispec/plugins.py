@@ -60,14 +60,19 @@ class FlaskLabThingsPlugin(BasePlugin):
 
         for method in http_method_funcs:
             if hasattr(interaction, method):
+                prop = getattr(interaction, method)
                 d[method] = {
-                    "description": getattr(interaction, "description", None)
-                    or get_docstring(interaction),
-                    "summary": getattr(interaction, "summary", None)
+                    "description": getattr(prop, "description", None)
+                    or get_docstring(prop, remove_newlines=False)
+                    or getattr(interaction, "description", None)
+                    or get_docstring(interaction, remove_newlines=False),
+                    "summary": getattr(prop, "summary", None)
+                    or get_summary(prop)
+                    or getattr(interaction, "summary", None)
                     or get_summary(interaction),
                     "tags": list(interaction.get_tags()),
                     "responses": {
-                        "default": {
+                        "5XX": {
                             "description": "Unexpected error",
                             "content": {
                                 "application/json": {

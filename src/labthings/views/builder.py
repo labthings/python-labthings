@@ -4,10 +4,10 @@ import uuid
 from typing import Type
 
 from flask import abort, send_file
-from flask.views import MethodView
+from . import View
 
 
-def static_from(static_folder: str, name=None) -> Type[MethodView]:
+def static_from(static_folder: str, name=None) -> Type[View]:
     """
     :param static_folder: str:
     :param name:  (Default value = None)
@@ -37,6 +37,6 @@ def static_from(static_folder: str, name=None) -> Type[MethodView]:
             return send_file(indexes[0])
 
     # Generate a basic property class
-    generated_class = type(name, (MethodView, object), {"get": _get})
+    generated_class = type(name, (View, object), {"get": _get})
 
     return generated_class

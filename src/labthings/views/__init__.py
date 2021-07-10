@@ -18,7 +18,6 @@ from ..schema import (
     build_action_schema,
 )
 from ..utilities import unpack
-from . import builder, op
 
 __all__ = ["MethodView", "View", "ActionView", "PropertyView", "op", "builder"]
 
@@ -172,7 +171,12 @@ class ActionView(View):
     @classmethod
     def get(cls):
         """
-        Default method for GET requests. Returns the action queue (including already finished actions) for this action
+        List running and completed actions.
+
+        Actions are run with `POST` requests.  See the `POST` method for this URL for
+        details of the action.  Sending a `GET` request to an action endpoint will return
+        action descriptions for each time the action has been run, including whether they
+        have completed, and any return values.
         """
         queue_schema = build_action_schema(cls.schema, cls.args)(many=True)
         return queue_schema.dump(cls._deque)
