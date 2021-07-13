@@ -10,8 +10,9 @@ from flask.views import http_method_funcs
 
 from .. import fields
 from ..json.schemas import schema_to_json
-from ..schema import EventSchema, build_action_schema
+from ..schema import EventSchema, ActionSchema, Schema, build_action_schema
 from ..utilities import get_docstring, get_summary, merge
+from .utilities import ensure_schema, get_marshamallow_plugin
 from ..views import ActionView, EventView, PropertyView, View
 
 
@@ -54,6 +55,10 @@ RE_URL = re.compile(r"<(?:[^:<>]+:)?([^<>]+)>")
 class FlaskLabThingsPlugin(BasePlugin):
     """APIspec plugin for Flask LabThings"""
 
+    def init_spec(self, spec):
+        self.spec = spec
+        return super().init_spec(spec)
+
     @classmethod
     def spec_for_interaction(cls, interaction):
         d = {}
@@ -88,11 +93,13 @@ class FlaskLabThingsPlugin(BasePlugin):
                         }
                     },
                 }
+                if hasattr(prop, "responses"):
+                    d[method]["responses"].update(prop.responses)
         return d
 
     @classmethod
     def spec_for_property(cls, prop):
-        class_json_schema = schema_to_json(prop.schema) if prop.schema else None
+        class_schema = ensure_schema(prop.schema) or {}
 
         d = cls.spec_for_interaction(prop)
 
@@ -104,21 +111,13 @@ class FlaskLabThingsPlugin(BasePlugin):
                     {
                         "requestBody": {
                             "content": {
-                                prop.content_type: (
-                                    {"schema": class_json_schema}
-                                    if class_json_schema
-                                    else {}
-                                )
+                                prop.content_type: { "schema": class_schema }
                             }
                         },
                         "responses": {
                             200: {
                                 "content": {
-                                    prop.content_type: (
-                                        {"schema": class_json_schema}
-                                        if class_json_schema
-                                        else {}
-                                    )
+                                    prop.content_type: { "schema": class_schema }
                                 },
                                 "description": "Write property",
                             }
@@ -134,11 +133,7 @@ class FlaskLabThingsPlugin(BasePlugin):
                     "responses": {
                         200: {
                             "content": {
-                                prop.content_type: (
-                                    {"schema": class_json_schema}
-                                    if class_json_schema
-                                    else {}
-                                )
+                                prop.content_type: { "schema": class_schema }
                             },
                             "description": "Read property",
                         }
@@ -152,17 +147,30 @@ class FlaskLabThingsPlugin(BasePlugin):
 
         return d
 
-    @classmethod
-    def spec_for_action(cls, action):
-        class_args = schema_to_json(action.args)
-        action_json_schema = schema_to_json(
-            build_action_schema(action.schema, action.args)()
-        )
-        queue_json_schema = schema_to_json(
-            build_action_schema(action.schema, action.args)(many=True)
-        )
+    def spec_for_action(self, action):
+        action_input = ensure_schema(action.args)
+        action_output = ensure_schema(action.schema)
+        # We combine input/output parameters with ActionSchema using an
+        # allOf directive, so we don't end up duplicating the schema
+        # for every action.
+        if action_output or action_input:
+            # It would be neater to combine the schemas in OpenAPI with allOf
+            # but this seems to break everything and I don't know why!!
+            plugin = get_marshamallow_plugin(self.spec)
+            action_io_schema = build_action_schema(action_output, action_input, base_class=Schema)
+            action_schema = {
+                "allOf": [
+                    plugin.resolver.resolve_schema_dict(ActionSchema),
+                    plugin.resolver.resolve_schema_dict(action_io_schema),
+                ]
+            }
+            # The line below builds an ActionSchema subclass.  This works and
+            # is valid, but results in ActionSchema being duplicated many times...
+            #action_schema = build_action_schema(action_output, action_input)
+        else:
+            action_schema = ActionSchema
 
-        d = cls.spec_for_interaction(action)
+        d = self.spec_for_interaction(action)
 
         # Add in Action spec
         d = merge(
@@ -172,7 +180,7 @@ class FlaskLabThingsPlugin(BasePlugin):
                     "requestBody": {
                         "content": {
                             action.content_type: (
-                                {"schema": class_args} if class_args else {}
+                                {"schema": action_input} if action_input else {}
                             )
                         }
                     },
@@ -181,24 +189,17 @@ class FlaskLabThingsPlugin(BasePlugin):
                         # 200 responses with cls.responses = {200: {...}}
                         200: {
                             "description": "Action completed immediately",
-                            # Allow customising 200 (immediate response) content type
+                            # Allow customising 200 (immediate response) content type?
+                            # TODO: I'm not convinced it's still possible to customise this.
                             "content": {
-                                action.response_content_type: (
-                                    {"schema": action_json_schema}
-                                    if action_json_schema
-                                    else {}
-                                )
+                                "application/json": { "schema": action_schema }
                             },
                         },
                         201: {
                             "description": "Action started",
                             # Our POST 201 MUST be application/json
                             "content": {
-                                "application/json": (
-                                    {"schema": action_json_schema}
-                                    if action_json_schema
-                                    else {}
-                                )
+                                "application/json": { "schema": action_schema }
                             },
                         },
                     },
@@ -210,9 +211,12 @@ class FlaskLabThingsPlugin(BasePlugin):
                             "description": "Action queue",
                             "content": {
                                 "application/json": (
-                                    {"schema": queue_json_schema}
-                                    if queue_json_schema
-                                    else {}
+                                    {
+                                        "schema": {
+                                            "type": "array",
+                                            "items": action_schema,
+                                        }
+                                    }
                                 )
                             },
                         }
