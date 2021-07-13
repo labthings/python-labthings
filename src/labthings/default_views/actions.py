@@ -7,27 +7,23 @@ from ..schema import ActionSchema
 from ..views import View
 
 
-
 class ActionQueueView(View):
     """List of all actions from the session"""
 
     def get(self):
         """Action queue
-        
-        This endpoint returns a list of all actions that have run since 
-        the server was started, including ones that have completed and 
-        actions that are still running.  Each entry includes links to 
+
+        This endpoint returns a list of all actions that have run since
+        the server was started, including ones that have completed and
+        actions that are still running.  Each entry includes links to
         manage and inspect that action.
         """
         return ActionSchema(many=True).dump(current_labthing().actions.threads)
+
     get.responses = {
         "200": {
             "description": "List of Action objects",
-            "content": {
-                "application/json": {
-                    "schema": ActionSchema(many=True)
-                }
-            }
+            "content": {"application/json": {"schema": ActionSchema(many=True)}},
         }
     }
 
@@ -43,7 +39,7 @@ class ActionObjectView(View):
 
     def get(self, task_id):
         """Show the status of an Action
-        
+
         A `GET` request will return the current status
         of an action, including logs.  For completed
         actions, it will include the return value.
@@ -56,24 +52,19 @@ class ActionObjectView(View):
         task = task_dict.get(task_id)
 
         return ActionSchema().dump(task)
+
     get.responses = {
         "200": {
             "description": "Action object",
-            "content": {
-                "application/json": {
-                    "schema": ActionSchema
-                }
-            }
+            "content": {"application/json": {"schema": ActionSchema}},
         },
-        "404": {
-            "description": "Action not found"
-        }
+        "404": {"description": "Action not found"},
     }
 
     @use_args({"timeout": fields.Int()})
     def delete(self, args, task_id):
         """Cancel a running Action
-        
+
         A `DELETE` request will stop a running action.
         """
         timeout = args.get("timeout", None)
@@ -85,16 +76,11 @@ class ActionObjectView(View):
         task = task_dict.get(task_id)
         task.stop(timeout=timeout)
         return ActionSchema().dump(task)
+
     delete.responses = {
         "200": {
             "description": "Action object that was cancelled",
-            "content": {
-                "application/json": {
-                    "schema": ActionSchema
-                }
-            }
+            "content": {"application/json": {"schema": ActionSchema}},
         },
-        "404": {
-            "description": "Action not found"
-        }
+        "404": {"description": "Action not found"},
     }

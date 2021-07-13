@@ -24,6 +24,6 @@ class RootView(View):
     get.responses = {
         "200": {
             "description": "W3C Thing Description",
-            "content": {"application/json":{}},
+            "content": {"application/json": {}},
         }
     }

@@ -37,7 +37,9 @@ def static_from(static_folder: str, name=None) -> Type[View]:
             return send_file(indexes[0])
 
     _get.summary = "Serve static files"
-    _get.description = "Files and folders within this path will be served from a static directory."
+    _get.description = (
+        "Files and folders within this path will be served from a static directory."
+    )
     _get.responses = {
         "200": {
             "description": "Static file",

@@ -88,7 +88,9 @@ class ActionSchema(Schema):
     _ID = fields.String(data_key="id")
     _status = fields.String(
         data_key="status",
-        validate=validate.OneOf(["pending", "running", "completed", "cancelled", "error"]),
+        validate=validate.OneOf(
+            ["pending", "running", "completed", "cancelled", "error"]
+        ),
     )
     progress = fields.Integer()
     data = fields.Raw()
@@ -128,6 +130,7 @@ class ActionSchema(Schema):
 
         return data
 
+
 def nest_if_needed(schema):
     """Convert a schema, dict, or field into a field."""
     # If we have a real schema, nest it
@@ -139,12 +142,13 @@ def nest_if_needed(schema):
     # If a single field, set it as the output Field, and override its data_key
     if isinstance(schema, fields.Field):
         return schema
-    
+
     raise TypeError(
         f"Unsupported schema type {schema}. "
         "Ensure schema is a Schema object, Field object, "
         "or dictionary of Field objects"
     )
+
 
 def build_action_schema(
     output_schema: Optional[FuzzySchemaType],
@@ -161,7 +165,7 @@ def build_action_schema(
     :param name: str:  (Default value = None)
 
     """
-    #FIXME: this seems to lose the schemas.  I suspect this is down to `nest_if_needed`.
+    # FIXME: this seems to lose the schemas.  I suspect this is down to `nest_if_needed`.
     # Create a name for the generated schema
     if not name:
         name = str(id(output_schema))
@@ -172,7 +176,9 @@ def build_action_schema(
         pass
 
     GenSchema.__name__ = name
-    GenSchema.__doc__ = f"Description of an action, with specific parameters for `{name}`"
+    GenSchema.__doc__ = (
+        f"Description of an action, with specific parameters for `{name}`"
+    )
     if input_schema:
         GenSchema.input = nest_if_needed(input_schema)
     if output_schema:
@@ -182,10 +188,8 @@ def build_action_schema(
 
 
 def openapi_array(schema: FuzzySchemaType) -> Dict:
-    return {
-        "type":"array",
-        "items": schema
-    }
+    return {"type": "array", "items": schema}
+
 
 class EventSchema(Schema):
     event = fields.String()

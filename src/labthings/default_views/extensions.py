@@ -16,14 +16,10 @@ class ExtensionList(View):
         Describes server methods, web views, and other relevant Lab Things metadata.
         """
         return ExtensionSchema(many=True).dump(registered_extensions().values() or [])
-    
+
     get.responses = {
         "200": {
             "description": "A list of available extensions and their properties",
-            "content": {
-                "application/json":{
-                    "schema": ExtensionSchema
-                }
-            }
+            "content": {"application/json": {"schema": ExtensionSchema}},
         }
     }
