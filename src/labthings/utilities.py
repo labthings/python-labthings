@@ -144,11 +144,21 @@ def clean_url_string(url: str) -> str:
         return url
 
 
-def get_docstring(obj: Any, remove_newlines=True) -> str:
+def get_docstring(obj: Any, remove_newlines=True, remove_summary=False) -> str:
     """Return the docstring of an object
+
+    If `remove_newlines` is `True` (default), newlines are removed from the string.
+    If `remove_summary` is `True` (not default), and the docstring's second line
+    is blank, the first two lines are removed.  If the docstring follows the
+    convention of a one-line summary, a blank line, and a description, this will
+    get just the description.
+
+    If `remove_newlines` is `False`, the docstring is processed by
+    `inspect.cleandoc()` to remove whitespace from the start of each line.
 
     :param obj: Any Python object
     :param remove_newlines: bool (Default value = True)
+    :param remove_summary: bool (Default value = False)
     :returns: str: Object docstring
 
     """
@@ -158,6 +168,10 @@ def get_docstring(obj: Any, remove_newlines=True) -> str:
     if remove_newlines:
         stripped = [line.strip() for line in ds.splitlines() if line]
         return " ".join(stripped).replace("\n", " ").replace("\r", "")
+    if remove_summary:
+        lines = ds.splitlines()
+        if len(lines) > 2 and lines[1].strip() == "":
+            ds = "\n".join(lines[2:])
     return inspect.cleandoc(ds)  # Strip spurious indentation/newlines
 
 
