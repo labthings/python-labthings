@@ -12,7 +12,8 @@ def field2property(field):
     return converter.field2pattern(field)
 
 def ensure_schema(
-    schema: Union[fields.Field, Schema, Dict[str, Union[fields.Field, type]]]
+    schema: Union[fields.Field, Schema, Dict[str, Union[fields.Field, type]]], 
+    name: str = "GeneratedFromDict"
 ) -> Union[dict, Schema]:
     """Create a Schema object, or OpenAPI dictionary, given a Field, Schema, or Dict.
     """
@@ -21,7 +22,7 @@ def ensure_schema(
     if isinstance(schema, fields.Field):
         return field2property(schema)
     elif isinstance(schema, dict):
-        return Schema.from_dict(schema)()
+        return Schema.from_dict(schema, name=name)()
     elif isinstance(schema, Schema):
         return schema
     else:

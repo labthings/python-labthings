@@ -148,16 +148,22 @@ class FlaskLabThingsPlugin(BasePlugin):
         return d
 
     def spec_for_action(self, action):
-        action_input = ensure_schema(action.args)
-        action_output = ensure_schema(action.schema)
+        action_input = ensure_schema(action.args, name=f"{action.__name__}InputSchema")
+        action_output = ensure_schema(action.schema, name=f"{action.__name__}OutputSchema")
         # We combine input/output parameters with ActionSchema using an
         # allOf directive, so we don't end up duplicating the schema
         # for every action.
         if action_output or action_input:
             # It would be neater to combine the schemas in OpenAPI with allOf
-            # but this seems to break everything and I don't know why!!
+            # I think the code below does it - but I'm not yet convinced it is working
+            #TODO: add tests to validate this
             plugin = get_marshamallow_plugin(self.spec)
-            action_io_schema = build_action_schema(action_output, action_input, base_class=Schema)
+            action_io_schema = build_action_schema(
+                action_output, 
+                action_input, 
+                base_class=Schema, 
+                name=f"{action.__name__}InputOutputSchema"
+            )
             action_schema = {
                 "allOf": [
                     plugin.resolver.resolve_schema_dict(ActionSchema),
