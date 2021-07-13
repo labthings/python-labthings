@@ -88,7 +88,7 @@ class ActionSchema(Schema):
     _ID = fields.String(data_key="id")
     _status = fields.String(
         data_key="status",
-        OneOf=["pending", "running", "completed", "cancelled", "error"],
+        validate=validate.OneOf(["pending", "running", "completed", "cancelled", "error"]),
     )
     progress = fields.Integer()
     data = fields.Raw()
@@ -128,11 +128,29 @@ class ActionSchema(Schema):
 
         return data
 
+def nest_if_needed(schema):
+    """Convert a schema, dict, or field into a field."""
+    # If we have a real schema, nest it
+    if isinstance(schema, Schema):
+        return fields.Nested(schema)
+    # If a dictionary schema, build a real schema then nest it
+    if isinstance(schema, dict):
+        return fields.Nested(Schema.from_dict(schema))
+    # If a single field, set it as the output Field, and override its data_key
+    if isinstance(schema, fields.Field):
+        return schema
+    
+    raise TypeError(
+        f"Unsupported schema type {schema}. "
+        "Ensure schema is a Schema object, Field object, "
+        "or dictionary of Field objects"
+    )
 
 def build_action_schema(
     output_schema: Optional[FuzzySchemaType],
     input_schema: Optional[FuzzySchemaType],
     name: Optional[str] = None,
+    base_class: type = ActionSchema,
 ):
     """Builds a complete schema for a given ActionView. That is, it reads any input and output
     schemas attached to the POST method, and nests them within the input/output fields of
@@ -149,31 +167,24 @@ def build_action_schema(
     if not name.endswith("Action"):
         name = f"{name}Action"
 
-    class_attrs: Dict[str, Union[fields.Nested, fields.Field]] = {}
+    class GenSchema(base_class):
+        pass
 
-    for key, schema in {"output": output_schema, "input": input_schema}.items():
-        # If no schema is given, move on
-        if schema is None:
-            pass
-        # If a real schema, nest it
-        elif isinstance(schema, Schema):
-            class_attrs[key] = fields.Nested(schema)
-        # If a dictionary schema, build a real schema then nest it
-        elif isinstance(schema, dict):
-            class_attrs[key] = fields.Nested(Schema.from_dict(schema))
-        # If a single field, set it as the output Field, and override its data_key
-        elif isinstance(schema, fields.Field):
-            class_attrs[key] = schema
-        else:
-            raise TypeError(
-                f"Unsupported schema type {schema}. "
-                "Ensure schema is a Schema object, Field object, "
-                "or dictionary of Field objects"
-            )
+    GenSchema.__name__ = name
+    GenSchema.__doc__ = f"Description of an action, with specific parameters for `{name}`"
+    if input_schema:
+        GenSchema.input = nest_if_needed(input_schema)
+    if output_schema:
+        GenSchema.output = nest_if_needed(output_schema)
 
-    # Build a Schema class for the Action
-    return type(name, (ActionSchema,), class_attrs)
+    return GenSchema
 
+
+def openapi_array(schema: FuzzySchemaType) -> Dict:
+    return {
+        "type":"array",
+        "items": schema
+    }
 
 class EventSchema(Schema):
     event = fields.String()
