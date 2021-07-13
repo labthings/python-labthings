@@ -64,3 +64,11 @@ def test_build_action_schema_typeerror():
     output_schema = object()
     with pytest.raises(TypeError):
         action_schema = schema.build_action_schema(input_schema, output_schema)
+
+def test_nest_if_needed():
+    nested_schema = schema.nest_if_needed(schema.ActionSchema())
+    assert isinstance(nested_schema, fields.Field)
+    nested_dict = schema.nest_if_needed({"name": fields.Integer()})
+    assert isinstance(nested_schema, fields.Field)
+    nested_field = schema.nest_if_needed(fields.Boolean())
+    assert isinstance(nested_schema, fields.Field) 

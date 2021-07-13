@@ -158,16 +158,16 @@ class FlaskLabThingsPlugin(BasePlugin):
             # I think the code below does it - but I'm not yet convinced it is working
             #TODO: add tests to validate this
             plugin = get_marshamallow_plugin(self.spec)
-            action_io_schema = build_action_schema(
-                action_output, 
-                action_input, 
-                base_class=Schema, 
-                name=f"{action.__name__}InputOutputSchema"
-            )
             action_schema = {
                 "allOf": [
                     plugin.resolver.resolve_schema_dict(ActionSchema),
-                    plugin.resolver.resolve_schema_dict(action_io_schema),
+                    {
+                        "type": "object",
+                        "parameters": {
+                            "input": plugin.resolver.resolve_schema_dict(action_input),
+                            "output": plugin.resolver.resolve_schema_dict(action_output),
+                        }
+                    }
                 ]
             }
             # The line below builds an ActionSchema subclass.  This works and

@@ -161,6 +161,7 @@ def build_action_schema(
     :param name: str:  (Default value = None)
 
     """
+    #FIXME: this seems to lose the schemas.  I suspect this is down to `nest_if_needed`.
     # Create a name for the generated schema
     if not name:
         name = str(id(output_schema))
