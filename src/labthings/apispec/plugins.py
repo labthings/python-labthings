@@ -110,14 +110,12 @@ class FlaskLabThingsPlugin(BasePlugin):
                     d.get(method, {}),
                     {
                         "requestBody": {
-                            "content": {
-                                prop.content_type: { "schema": class_schema }
-                            }
+                            "content": {prop.content_type: {"schema": class_schema}}
                         },
                         "responses": {
                             200: {
                                 "content": {
-                                    prop.content_type: { "schema": class_schema }
+                                    prop.content_type: {"schema": class_schema}
                                 },
                                 "description": "Write property",
                             }
@@ -132,9 +130,7 @@ class FlaskLabThingsPlugin(BasePlugin):
                 {
                     "responses": {
                         200: {
-                            "content": {
-                                prop.content_type: { "schema": class_schema }
-                            },
+                            "content": {prop.content_type: {"schema": class_schema}},
                             "description": "Read property",
                         }
                     },
@@ -149,30 +145,42 @@ class FlaskLabThingsPlugin(BasePlugin):
 
     def spec_for_action(self, action):
         action_input = ensure_schema(action.args, name=f"{action.__name__}InputSchema")
-        action_output = ensure_schema(action.schema, name=f"{action.__name__}OutputSchema")
+        action_output = ensure_schema(
+            action.schema, name=f"{action.__name__}OutputSchema"
+        )
         # We combine input/output parameters with ActionSchema using an
         # allOf directive, so we don't end up duplicating the schema
         # for every action.
         if action_output or action_input:
             # It would be neater to combine the schemas in OpenAPI with allOf
             # I think the code below does it - but I'm not yet convinced it is working
-            #TODO: add tests to validate this
+            # TODO: add tests to validate this
             plugin = get_marshamallow_plugin(self.spec)
+            action_input_dict = (
+                plugin.resolver.resolve_schema_dict(action_input)
+                if action_input
+                else {}
+            )
+            action_output_dict = (
+                plugin.resolver.resolve_schema_dict(action_output)
+                if action_output
+                else {}
+            )
             action_schema = {
                 "allOf": [
                     plugin.resolver.resolve_schema_dict(ActionSchema),
                     {
                         "type": "object",
-                        "parameters": {
-                            "input": plugin.resolver.resolve_schema_dict(action_input),
-                            "output": plugin.resolver.resolve_schema_dict(action_output),
-                        }
-                    }
+                        "properties": {
+                            "input": action_input_dict,
+                            "output": action_output_dict,
+                        },
+                    },
                 ]
             }
             # The line below builds an ActionSchema subclass.  This works and
             # is valid, but results in ActionSchema being duplicated many times...
-            #action_schema = build_action_schema(action_output, action_input)
+            # action_schema = build_action_schema(action_output, action_input)
         else:
             action_schema = ActionSchema
 
@@ -197,16 +205,12 @@ class FlaskLabThingsPlugin(BasePlugin):
                             "description": "Action completed immediately",
                             # Allow customising 200 (immediate response) content type?
                             # TODO: I'm not convinced it's still possible to customise this.
-                            "content": {
-                                "application/json": { "schema": action_schema }
-                            },
+                            "content": {"application/json": {"schema": action_schema}},
                         },
                         201: {
                             "description": "Action started",
                             # Our POST 201 MUST be application/json
-                            "content": {
-                                "application/json": { "schema": action_schema }
-                            },
+                            "content": {"application/json": {"schema": action_schema}},
                         },
                     },
                 },
