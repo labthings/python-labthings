@@ -50,6 +50,22 @@ def static_from(static_folder: str, name=None) -> Type[View]:
     }
 
     # Generate a basic property class
-    generated_class = type(name, (View, object), {"get": _get})
+    generated_class = type(
+        name,
+        (View, object),
+        {
+            "get": _get,
+            "parameters": [
+                {
+                    "name": "path",
+                    "in": "path",
+                    "description": "Path to the static file",
+                    "required": True,
+                    "schema": {"type": "string"},
+                    "example": "style.css",
+                }
+            ],
+        },
+    )
 
     return generated_class

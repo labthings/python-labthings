@@ -28,6 +28,16 @@ class ActionQueueView(View):
     }
 
 
+TASK_ID_PARAMETER = {
+    "name": "task_id",
+    "in": "path",
+    "description": "The unique ID of the action",
+    "required": True,
+    "schema": {"type": "string"},
+    "example": "eeae7ae9-0c0d-45a4-9ef2-7b84bb67a1d1",
+}
+
+
 class ActionObjectView(View):
     """Manage a particular action.
 
@@ -36,6 +46,8 @@ class ActionObjectView(View):
 
 
     """
+
+    parameters = [TASK_ID_PARAMETER]
 
     def get(self, task_id):
         """Show the status of an Action
