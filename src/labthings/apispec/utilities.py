@@ -1,6 +1,5 @@
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec.ext.marshmallow.field_converter import FieldConverterMixin
-from apispec.ext.marshmallow.schema_resolver import SchemaResolver
 from marshmallow import Schema
 from typing import Dict, Union
 from .. import fields
