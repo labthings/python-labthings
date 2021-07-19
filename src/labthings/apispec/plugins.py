@@ -10,7 +10,7 @@ from flask.views import http_method_funcs
 
 from .. import fields
 from ..json.schemas import schema_to_json
-from ..schema import EventSchema, ActionSchema, Schema, build_action_schema
+from ..schema import EventSchema, ActionSchema
 from ..utilities import get_docstring, get_summary, merge
 from .utilities import ensure_schema, get_marshamallow_plugin
 from ..views import ActionView, EventView, PropertyView, View
@@ -54,6 +54,7 @@ RE_URL = re.compile(r"<(?:[^:<>]+:)?([^<>]+)>")
 
 class FlaskLabThingsPlugin(BasePlugin):
     """APIspec plugin for Flask LabThings"""
+    spec = None
 
     def init_spec(self, spec):
         self.spec = spec
@@ -67,14 +68,18 @@ class FlaskLabThingsPlugin(BasePlugin):
             if hasattr(interaction, method):
                 prop = getattr(interaction, method)
                 d[method] = {
-                    "description": getattr(prop, "description", None)
-                    or get_docstring(prop, remove_newlines=False)
-                    or getattr(interaction, "description", None)
-                    or get_docstring(interaction, remove_newlines=False),
-                    "summary": getattr(prop, "summary", None)
-                    or get_summary(prop)
-                    or getattr(interaction, "summary", None)
-                    or get_summary(interaction),
+                    "description": (
+                        getattr(prop, "description", None)
+                        or get_docstring(prop, remove_newlines=False)
+                        or getattr(interaction, "description", None)
+                        or get_docstring(interaction, remove_newlines=False)
+                    ),
+                    "summary": (
+                        getattr(prop, "summary", None)
+                        or get_summary(prop)
+                        or getattr(interaction, "summary", None)
+                        or get_summary(interaction)
+                    ),
                     "tags": list(interaction.get_tags()),
                     "responses": {
                         "5XX": {
@@ -92,9 +97,14 @@ class FlaskLabThingsPlugin(BasePlugin):
                             },
                         }
                     },
+                    "parameters": [],
                 }
-                if hasattr(prop, "responses"):
-                    d[method]["responses"].update(prop.responses)
+                # Allow custom responses from the class, overridden by the method
+                d[method]["responses"].update(getattr(interaction, "responses", {}))
+                d[method]["responses"].update(getattr(prop, "responses", {}))
+                # Allow custom parameters from the class & method
+                d[method]["parameters"].extend(getattr(interaction, "parameters", {}))
+                d[method]["parameters"].extend(getattr(prop, "parameters", {}))
         return d
 
     @classmethod
