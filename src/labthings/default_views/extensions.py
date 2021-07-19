@@ -1,7 +1,7 @@
 """Top-level representation of attached and enabled Extensions"""
 from ..find import registered_extensions
 from ..schema import ExtensionSchema
-from ..views import View
+from ..views import View, described_operation
 
 
 class ExtensionList(View):
@@ -9,6 +9,7 @@ class ExtensionList(View):
 
     tags = ["extensions"]
 
+    @described_operation
     def get(self):
         """List enabled extensions.
 

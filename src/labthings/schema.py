@@ -172,19 +172,17 @@ def build_action_schema(
     if not name.endswith("Action"):
         name = f"{name}Action"
 
-    class GenSchema(base_class):
-        pass
+    class_attrs: Dict[str, Union[fields.Nested, fields.Field, str]] = {}
 
-    GenSchema.__name__ = name
-    GenSchema.__doc__ = (
-        f"Description of an action, with specific parameters for `{name}`"
-    )
+    class_attrs[
+        "__doc__"
+    ] = f"Description of an action, with specific parameters for `{name}`"
     if input_schema:
-        GenSchema.input = nest_if_needed(input_schema)
+        class_attrs["input"] = nest_if_needed(input_schema)
     if output_schema:
-        GenSchema.output = nest_if_needed(output_schema)
+        class_attrs["output"] = nest_if_needed(output_schema)
 
-    return GenSchema
+    return type(name, (base_class,), class_attrs)
 
 
 def openapi_array(schema: FuzzySchemaType) -> Dict:

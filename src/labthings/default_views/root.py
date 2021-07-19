@@ -1,10 +1,11 @@
 from ..find import current_labthing
-from ..views import View
+from ..views import View, described_operation
 
 
 class RootView(View):
     """W3C Thing Description"""
 
+    @described_operation
     def get(self):
         """Thing Description
         ---

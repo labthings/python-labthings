@@ -1,6 +1,7 @@
 import datetime
 from collections import OrderedDict
-from typing import Dict, List, Optional, Set
+from typing import Callable, Dict, List, Optional, Set, cast
+from typing_extensions import Protocol
 
 from flask import request
 from flask.views import MethodView
@@ -23,6 +24,18 @@ __all__ = ["MethodView", "View", "ActionView", "PropertyView", "op", "builder"]
 
 # Type alias for convenience
 OptionalSchema = Optional[FuzzySchemaType]
+
+
+class DescribedOperation(Protocol):
+    summary: str
+    description: str
+    parameters: List
+    responses: Dict
+
+
+def described_operation(func: Callable) -> DescribedOperation:
+    """Add type information so mypy permits us to use attributes"""
+    return cast(DescribedOperation, func)
 
 
 class View(MethodView):
@@ -168,6 +181,7 @@ class ActionView(View):
         """
         cls._deque = Deque()  # Action queue
 
+    @described_operation
     @classmethod
     def get(cls):
         """
@@ -285,6 +299,7 @@ class EventView(View):
     _cls_tags = {"events"}
     _deque = Deque()  # Action queue
 
+    @described_operation
     @classmethod
     def get(cls):
         """

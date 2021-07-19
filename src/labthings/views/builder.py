@@ -4,7 +4,7 @@ import uuid
 from typing import Type
 
 from flask import abort, send_file
-from . import View
+from . import View, described_operation
 
 
 def static_from(static_folder: str, name=None) -> Type[View]:
@@ -19,6 +19,7 @@ def static_from(static_folder: str, name=None) -> Type[View]:
         name = f"static-{uid}"
 
     # Create inner functions
+    @described_operation
     def _get(_, path=""):
         """
         :param path:  (Default value = "")

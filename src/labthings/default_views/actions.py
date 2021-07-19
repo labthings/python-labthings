@@ -4,12 +4,13 @@ from .. import fields
 from ..find import current_labthing
 from ..marshalling import use_args
 from ..schema import ActionSchema
-from ..views import View
+from ..views import View, described_operation
 
 
 class ActionQueueView(View):
     """List of all actions from the session"""
 
+    @described_operation
     def get(self):
         """Action queue
 
@@ -49,6 +50,7 @@ class ActionObjectView(View):
 
     parameters = [TASK_ID_PARAMETER]
 
+    @described_operation
     def get(self, task_id):
         """Show the status of an Action
 
@@ -73,6 +75,7 @@ class ActionObjectView(View):
         "404": {"description": "Action not found"},
     }
 
+    @described_operation
     @use_args({"timeout": fields.Int()})
     def delete(self, args, task_id):
         """Cancel a running Action

@@ -54,6 +54,7 @@ RE_URL = re.compile(r"<(?:[^:<>]+:)?([^<>]+)>")
 
 class FlaskLabThingsPlugin(BasePlugin):
     """APIspec plugin for Flask LabThings"""
+
     spec = None
 
     def init_spec(self, spec):
