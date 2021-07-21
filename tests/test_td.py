@@ -2,6 +2,7 @@ import pytest
 
 from labthings import fields
 from labthings.views import ActionView, PropertyView, View, op
+from apispec.utils import validate_spec
 
 
 @pytest.fixture
@@ -9,12 +10,14 @@ def thing_description(thing):
     return thing.thing_description
 
 
-def test_td_init(helpers, thing_description, app_ctx, schemas_path):
+def test_td_init(helpers, thing, thing_description, app_ctx, schemas_path):
     assert thing_description
     helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
+    validate_spec(thing.spec)
 
 
-def test_td_add_link(helpers, thing_description, view_cls, app_ctx, schemas_path):
+def test_td_add_link(helpers, thing, thing_description, view_cls, app_ctx, schemas_path):
+    thing.add_view(view_cls, "/test_view_cls")
     thing_description.add_link(view_cls, "rel")
     assert {
         "rel": "rel",
@@ -24,9 +27,10 @@ def test_td_add_link(helpers, thing_description, view_cls, app_ctx, schemas_path
     } in thing_description._links
 
     helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
+    validate_spec(thing.spec)
 
 
-def test_td_add_link_options(thing_description, view_cls):
+def test_td_add_link_options(thing, thing_description, view_cls):
     thing_description.add_link(
         view_cls, "rel", kwargs={"kwarg": "kvalue"}, params={"param": "pvalue"}
     )
@@ -36,9 +40,10 @@ def test_td_add_link_options(thing_description, view_cls):
         "params": {"param": "pvalue"},
         "kwargs": {"kwarg": "kvalue"},
     } in thing_description._links
+    validate_spec(thing.spec)
 
 
-def test_td_links(thing_description, app_ctx, view_cls):
+def test_td_links(thing, thing_description, app_ctx, view_cls):
     thing_description.add_link(
         view_cls, "rel", kwargs={"kwarg": "kvalue"}, params={"param": "pvalue"}
     )
@@ -47,9 +52,10 @@ def test_td_links(thing_description, app_ctx, view_cls):
         assert {"rel": "rel", "href": "", "kwarg": "kvalue"} in (
             thing_description.links
         )
+    validate_spec(thing.spec)
 
 
-def test_td_action(helpers, app, thing_description, app_ctx, schemas_path):
+def test_td_action(helpers, thing, app, thing_description, app_ctx, schemas_path):
     class Index(ActionView):
         def post(self):
             return "POST"
@@ -62,9 +68,10 @@ def test_td_action(helpers, app, thing_description, app_ctx, schemas_path):
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("actions")
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
+    validate_spec(thing.spec)
 
 
-def test_td_action_with_schema(helpers, app, thing_description, app_ctx, schemas_path):
+def test_td_action_with_schema(helpers, thing, app, thing_description, app_ctx, schemas_path):
     class Index(ActionView):
         args = {"integer": fields.Int()}
         semtype = "ToggleAction"
@@ -80,9 +87,11 @@ def test_td_action_with_schema(helpers, app, thing_description, app_ctx, schemas
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("actions")
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
+        
+    validate_spec(thing.spec)
 
 
-def test_td_property(helpers, app, thing_description, app_ctx, schemas_path):
+def test_td_property(helpers, app, thing, thing_description, app_ctx, schemas_path):
     class Index(PropertyView):
         def get(self):
             return "GET"
@@ -95,10 +104,11 @@ def test_td_property(helpers, app, thing_description, app_ctx, schemas_path):
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("properties")
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
+    validate_spec(thing.spec)
 
 
 def test_td_property_with_schema(
-    helpers, app, thing_description, app_ctx, schemas_path
+    helpers, app, thing, thing_description, app_ctx, schemas_path
 ):
     class Index(PropertyView):
         schema = fields.Int(required=True)
@@ -114,10 +124,11 @@ def test_td_property_with_schema(
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("properties")
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
+    validate_spec(thing.spec)
 
 
 def test_td_property_with_url_param(
-    helpers, app, thing_description, app_ctx, schemas_path
+    helpers, app, thing, thing_description, app_ctx, schemas_path
 ):
     class Index(PropertyView):
         def get(self):
@@ -131,9 +142,10 @@ def test_td_property_with_url_param(
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("properties")
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
+    validate_spec(thing.spec)
 
 
-def test_td_property_write_only(helpers, app, thing_description, app_ctx, schemas_path):
+def test_td_property_write_only(helpers, app, thing, thing_description, app_ctx, schemas_path):
     class Index(PropertyView):
         schema = fields.Int()
 
@@ -148,10 +160,12 @@ def test_td_property_write_only(helpers, app, thing_description, app_ctx, schema
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("properties")
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
+    
+    validate_spec(thing.spec)
 
 
 def test_td_property_post_to_write(
-    helpers, app, thing_description, app_ctx, schemas_path
+    helpers, app, thing, thing_description, app_ctx, schemas_path
 ):
     class Index(PropertyView):
         @op.writeproperty
@@ -177,10 +191,11 @@ def test_td_property_post_to_write(
             == "POST"
         )
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
+    validate_spec(thing.spec)
 
 
 def test_td_property_different_content_type(
-    helpers, app, thing_description, app_ctx, schemas_path
+    helpers, app, thing, thing_description, app_ctx, schemas_path
 ):
     class Index(PropertyView):
         content_type = "text/plain; charset=us-ascii"
@@ -198,10 +213,11 @@ def test_td_property_different_content_type(
         for form in thing_description.to_dict()["properties"]["index"]["forms"]:
             assert form["contentType"] == "text/plain; charset=us-ascii"
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
+    validate_spec(thing.spec)
 
 
 def test_td_action_different_response_type(
-    helpers, app, thing_description, app_ctx, schemas_path
+    helpers, app, thing, thing_description, app_ctx, schemas_path
 ):
     class Index(ActionView):
         schema = fields.Int()
@@ -220,3 +236,4 @@ def test_td_action_different_response_type(
         for form in thing_description.to_dict()["actions"]["index"]["forms"]:
             assert form["response"]["contentType"] == "text/plain; charset=us-ascii"
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
+    validate_spec(thing.spec)
