@@ -47,9 +47,9 @@ docs_blueprint = Blueprint(
 )
 
 docs_blueprint.add_url_rule("/swagger", view_func=APISpecView.as_view("swagger_json"))
-docs_blueprint.add_url_rule("/openapi", view_func=APISpecView.as_view("swagger_json"))
-docs_blueprint.add_url_rule("/swagger.yaml", view_func=APISpecYAMLView.as_view("swagger_yaml"))
-docs_blueprint.add_url_rule("/openapi.yaml", view_func=APISpecYAMLView.as_view("swagger_yaml"))
+docs_blueprint.add_url_rule("/openapi", endpoint="swagger_json")
+docs_blueprint.add_url_rule("/openapi.json", endpoint="swagger_json")
+docs_blueprint.add_url_rule("/openapi.yaml", view_func=APISpecYAMLView.as_view("openapi_yaml"))
 docs_blueprint.add_url_rule(
     "/swagger-ui", view_func=SwaggerUIView.as_view("swagger_ui")
 )
