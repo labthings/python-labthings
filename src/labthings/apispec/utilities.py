@@ -1,7 +1,9 @@
+from typing import Dict, Union
+
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec.ext.marshmallow.field_converter import FieldConverterMixin
 from marshmallow import Schema
-from typing import Dict, Union
+
 from .. import fields
 
 

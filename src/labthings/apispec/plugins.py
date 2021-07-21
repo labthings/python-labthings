@@ -1,20 +1,17 @@
 import re
-
-from apispec import BasePlugin
 from copy import deepcopy
 
-from apispec.ext.marshmallow import (
-    MarshmallowPlugin as _MarshmallowPlugin,
-)
+from apispec import BasePlugin
+from apispec.ext.marshmallow import MarshmallowPlugin as _MarshmallowPlugin
 from apispec.ext.marshmallow import OpenAPIConverter
 from flask.views import http_method_funcs
 
 from .. import fields
 from ..json.schemas import schema_to_json
-from ..schema import EventSchema, ActionSchema
+from ..schema import ActionSchema, EventSchema
 from ..utilities import get_docstring, get_summary, merge
-from .utilities import ensure_schema, get_marshamallow_plugin
 from ..views import ActionView, EventView, PropertyView, View
+from .utilities import ensure_schema, get_marshamallow_plugin
 
 
 class ExtendedOpenAPIConverter(OpenAPIConverter):
@@ -102,11 +99,17 @@ class FlaskLabThingsPlugin(BasePlugin):
                     "parameters": [],
                 }
                 # Allow custom responses from the class, overridden by the method
-                d[method]["responses"].update(deepcopy(getattr(interaction, "responses", {})))
+                d[method]["responses"].update(
+                    deepcopy(getattr(interaction, "responses", {}))
+                )
                 d[method]["responses"].update(deepcopy(getattr(prop, "responses", {})))
                 # Allow custom parameters from the class & method
-                d[method]["parameters"].extend(deepcopy(getattr(interaction, "parameters", {})))
-                d[method]["parameters"].extend(deepcopy(getattr(prop, "parameters", {})))
+                d[method]["parameters"].extend(
+                    deepcopy(getattr(interaction, "parameters", {}))
+                )
+                d[method]["parameters"].extend(
+                    deepcopy(getattr(prop, "parameters", {}))
+                )
         return d
 
     @classmethod

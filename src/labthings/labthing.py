@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type
 
 from apispec import APISpec
 from apispec_webframeworks.flask import FlaskPlugin
-from flask import url_for, Flask
+from flask import Flask, url_for
 
 from .actions.pool import Pool
 from .apispec import FlaskLabThingsPlugin, MarshmallowPlugin

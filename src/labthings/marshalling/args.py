@@ -1,6 +1,6 @@
 import logging
 from functools import update_wrapper, wraps
-from typing import Callable, Union, Mapping
+from typing import Callable, Mapping, Union
 
 from flask import abort, request
 from marshmallow.exceptions import ValidationError

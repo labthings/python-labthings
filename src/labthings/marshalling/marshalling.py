@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 from functools import wraps
-from typing import Callable, Dict, Tuple, Union, Optional
+from typing import Callable, Dict, Optional, Tuple, Union
 
 from marshmallow import Schema as _Schema
 from werkzeug.wrappers import Response as ResponseBase
