@@ -1,6 +1,7 @@
 import re
 
 from apispec import BasePlugin
+from copy import deepcopy
 
 from apispec.ext.marshmallow import (
     MarshmallowPlugin as _MarshmallowPlugin,
@@ -101,11 +102,11 @@ class FlaskLabThingsPlugin(BasePlugin):
                     "parameters": [],
                 }
                 # Allow custom responses from the class, overridden by the method
-                d[method]["responses"].update(getattr(interaction, "responses", {}))
-                d[method]["responses"].update(getattr(prop, "responses", {}))
+                d[method]["responses"].update(deepcopy(getattr(interaction, "responses", {})))
+                d[method]["responses"].update(deepcopy(getattr(prop, "responses", {})))
                 # Allow custom parameters from the class & method
-                d[method]["parameters"].extend(getattr(interaction, "parameters", {}))
-                d[method]["parameters"].extend(getattr(prop, "parameters", {}))
+                d[method]["parameters"].extend(deepcopy(getattr(interaction, "parameters", {})))
+                d[method]["parameters"].extend(deepcopy(getattr(prop, "parameters", {})))
         return d
 
     @classmethod
@@ -147,10 +148,6 @@ class FlaskLabThingsPlugin(BasePlugin):
                     },
                 },
             )
-
-        # Enable custom responses from all methods
-        for method in d.keys():
-            d[method]["responses"].update(prop.responses)
 
         return d
 
@@ -245,8 +242,6 @@ class FlaskLabThingsPlugin(BasePlugin):
                 },
             },
         )
-        # Enable custom responses from POST
-        d["post"]["responses"].update(action.responses)
         return d
 
     @classmethod
