@@ -16,7 +16,13 @@ def field2property(field):
 
 
 def ensure_schema(
-    schema: Union[fields.Field, Type[fields.Field], Schema, Type[Schema], Dict[str, Union[fields.Field, type]]],
+    schema: Union[
+        fields.Field,
+        Type[fields.Field],
+        Schema,
+        Type[Schema],
+        Dict[str, Union[fields.Field, type]],
+    ],
     name: str = "GeneratedFromDict",
 ) -> Union[dict, Schema]:
     """Create a Schema object, or OpenAPI dictionary, given a Field, Schema, or Dict.

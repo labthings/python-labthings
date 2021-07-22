@@ -5,19 +5,19 @@ NB in order to avoid duplicating the examples, OpenAPI spec validation is also
 done in test_td.py.
 """
 
+import apispec
 import pytest
+import yaml
+from apispec.ext.marshmallow import MarshmallowPlugin
+from apispec.utils import validate_spec
+from marshmallow import validate
 
 from labthings import fields, schema
 from labthings.actions.thread import ActionThread
+from labthings.apispec import utilities
 from labthings.extensions import BaseExtension
 from labthings.schema import LogRecordSchema, Schema
-from labthings.views import ActionView, PropertyView, EventView
-from marshmallow import validate
-import apispec
-from apispec.utils import validate_spec
-from apispec.ext.marshmallow import MarshmallowPlugin
-from labthings.apispec import utilities
-import yaml
+from labthings.views import ActionView, EventView, PropertyView
 
 
 def test_openapi(thing):

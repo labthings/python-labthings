@@ -1,8 +1,8 @@
 import pytest
+from apispec.utils import validate_spec
 
 from labthings import fields
 from labthings.views import ActionView, PropertyView, View, op
-from apispec.utils import validate_spec
 
 
 @pytest.fixture
