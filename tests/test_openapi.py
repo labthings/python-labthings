@@ -18,11 +18,11 @@ from labthings.apispec import utilities
 from labthings.extensions import BaseExtension
 from labthings.schema import LogRecordSchema, Schema
 from labthings.views import ActionView, EventView, PropertyView
+from labthings.utilities import get_by_path
 
 
-def test_openapi(thing):
-    """Make an example Thing and check its openapi description validates"""
-
+@pytest.fixture
+def thing_with_some_views(thing):
     class TestAction(ActionView):
         args = {"n": fields.Integer()}
 
@@ -53,8 +53,33 @@ def test_openapi(thing):
 
     thing.add_view(TestFieldProperty, "TestFieldProperty")
 
-    thing.spec.to_yaml()
-    validate_spec(thing.spec)
+    return thing
+
+
+def test_openapi(thing_with_some_views):
+    """Make an example Thing and check its openapi description validates"""
+
+    thing_with_some_views.spec.to_yaml()
+    thing_with_some_views.spec.to_dict()
+    validate_spec(thing_with_some_views.spec)
+
+
+def test_duplicate_action_name(thing_with_some_views):
+    """Check that name clashes don't overwrite schemas"""
+    t = thing_with_some_views
+
+    class TestAction(ActionView):
+        args = {"m": fields.Integer()}
+
+        def post(self):
+            return "POST"
+
+    t.add_view(TestAction, "TestActionM", endpoint="TestActionM")
+
+    api = t.spec.to_dict()
+    original_input_schema = get_by_path(api, ["paths", "/TestAction", "post"])
+    modified_input_schema = get_by_path(api, ["paths", "/TestActionM", "post"])
+    assert original_input_schema != modified_input_schema
 
 
 def test_ensure_schema_field_instance():
