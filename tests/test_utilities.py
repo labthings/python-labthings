@@ -19,6 +19,11 @@ def example_class():
             """
             return self
 
+        def class_method_oneline(self):
+            """One line docstring.
+            """
+            return self
+
         def class_method_no_docstring(self):
             return self
 
@@ -41,6 +46,10 @@ def test_get_docstring(example_class):
     assert (
         utilities.get_docstring(example_class.class_method, remove_summary=True)
         == "Third line of class method docstring. "
+    )
+    assert (
+        utilities.get_docstring(example_class.class_method_oneline, remove_summary=True)
+        == "One line docstring. "
     )
     assert (
         utilities.get_docstring(
