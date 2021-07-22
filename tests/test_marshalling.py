@@ -1,6 +1,6 @@
+from labthings import fields
 from labthings.marshalling import marshalling as ms
 from labthings.schema import Schema
-from labthings import fields
 
 
 def test_schema_to_converter_schema():

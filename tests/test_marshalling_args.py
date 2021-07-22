@@ -1,6 +1,6 @@
-from labthings import views, fields
-from labthings.schema import Schema
+from labthings import fields, views
 from labthings.marshalling.args import use_args, use_body
+from labthings.schema import Schema
 
 
 def test_use_body_string(app, client):

@@ -88,7 +88,9 @@ class ActionSchema(Schema):
     _ID = fields.String(data_key="id")
     _status = fields.String(
         data_key="status",
-        OneOf=["pending", "running", "completed", "cancelled", "error"],
+        validate=validate.OneOf(
+            ["pending", "running", "completed", "cancelled", "error"]
+        ),
     )
     progress = fields.Integer()
     data = fields.Raw()
@@ -129,14 +131,40 @@ class ActionSchema(Schema):
         return data
 
 
+def nest_if_needed(schema):
+    """Convert a schema, dict, or field into a field."""
+    # If we have a real schema, nest it
+    if isinstance(schema, Schema):
+        return fields.Nested(schema)
+    # If a dictionary schema, build a real schema then nest it
+    if isinstance(schema, dict):
+        return fields.Nested(Schema.from_dict(schema))
+    # If a single field, set it as the output Field, and override its data_key
+    if isinstance(schema, fields.Field):
+        return schema
+
+    raise TypeError(
+        f"Unsupported schema type {schema}. "
+        "Ensure schema is a Schema object, Field object, "
+        "or dictionary of Field objects"
+    )
+
+
 def build_action_schema(
     output_schema: Optional[FuzzySchemaType],
     input_schema: Optional[FuzzySchemaType],
     name: Optional[str] = None,
+    base_class: type = ActionSchema,
 ):
-    """Builds a complete schema for a given ActionView. That is, it reads any input and output
-    schemas attached to the POST method, and nests them within the input/output fields of
-    the generic ActionSchema.
+    """Builds a complete schema for a given ActionView.
+
+    This method combines input and output schemas for a particular
+    Action with the generic ActionSchema to give a specific ActionSchema
+    subclass for that Action.
+
+    This is used in the Thing Description (where it is serialised to
+    JSON in-place) but not in the OpenAPI description (where the input,
+    output, and ActionSchema schemas are combined using `allOf`.)
 
     :param output_schema: Schema:
     :param input_schema: Schema:
@@ -149,30 +177,17 @@ def build_action_schema(
     if not name.endswith("Action"):
         name = f"{name}Action"
 
-    class_attrs: Dict[str, Union[fields.Nested, fields.Field]] = {}
+    class_attrs: Dict[str, Union[fields.Nested, fields.Field, str]] = {}
 
-    for key, schema in {"output": output_schema, "input": input_schema}.items():
-        # If no schema is given, move on
-        if schema is None:
-            pass
-        # If a real schema, nest it
-        elif isinstance(schema, Schema):
-            class_attrs[key] = fields.Nested(schema)
-        # If a dictionary schema, build a real schema then nest it
-        elif isinstance(schema, dict):
-            class_attrs[key] = fields.Nested(Schema.from_dict(schema))
-        # If a single field, set it as the output Field, and override its data_key
-        elif isinstance(schema, fields.Field):
-            class_attrs[key] = schema
-        else:
-            raise TypeError(
-                f"Unsupported schema type {schema}. "
-                "Ensure schema is a Schema object, Field object, "
-                "or dictionary of Field objects"
-            )
+    class_attrs[
+        "__doc__"
+    ] = f"Description of an action, with specific parameters for `{name}`"
+    if input_schema:
+        class_attrs["input"] = nest_if_needed(input_schema)
+    if output_schema:
+        class_attrs["output"] = nest_if_needed(output_schema)
 
-    # Build a Schema class for the Action
-    return type(name, (ActionSchema,), class_attrs)
+    return type(name, (base_class,), class_attrs)
 
 
 class EventSchema(Schema):

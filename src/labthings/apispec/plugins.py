@@ -1,18 +1,17 @@
 import re
+from copy import deepcopy
 
 from apispec import BasePlugin
-
-from apispec.ext.marshmallow import (
-    MarshmallowPlugin as _MarshmallowPlugin,
-)
+from apispec.ext.marshmallow import MarshmallowPlugin as _MarshmallowPlugin
 from apispec.ext.marshmallow import OpenAPIConverter
 from flask.views import http_method_funcs
 
 from .. import fields
 from ..json.schemas import schema_to_json
-from ..schema import EventSchema, build_action_schema
+from ..schema import ActionSchema, EventSchema
 from ..utilities import get_docstring, get_summary, merge
 from ..views import ActionView, EventView, PropertyView, View
+from .utilities import ensure_schema, get_marshmallow_plugin
 
 
 class ExtendedOpenAPIConverter(OpenAPIConverter):
@@ -54,6 +53,12 @@ RE_URL = re.compile(r"<(?:[^:<>]+:)?([^<>]+)>")
 class FlaskLabThingsPlugin(BasePlugin):
     """APIspec plugin for Flask LabThings"""
 
+    spec = None
+
+    def init_spec(self, spec):
+        self.spec = spec
+        return super().init_spec(spec)
+
     @classmethod
     def spec_for_interaction(cls, interaction):
         d = {}
@@ -62,14 +67,18 @@ class FlaskLabThingsPlugin(BasePlugin):
             if hasattr(interaction, method):
                 prop = getattr(interaction, method)
                 d[method] = {
-                    "description": getattr(prop, "description", None)
-                    or get_docstring(prop, remove_newlines=False)
-                    or getattr(interaction, "description", None)
-                    or get_docstring(interaction, remove_newlines=False),
-                    "summary": getattr(prop, "summary", None)
-                    or get_summary(prop)
-                    or getattr(interaction, "summary", None)
-                    or get_summary(interaction),
+                    "description": (
+                        getattr(prop, "description", None)
+                        or get_docstring(prop, remove_newlines=False)
+                        or getattr(interaction, "description", None)
+                        or get_docstring(interaction, remove_newlines=False)
+                    ),
+                    "summary": (
+                        getattr(prop, "summary", None)
+                        or get_summary(prop)
+                        or getattr(interaction, "summary", None)
+                        or get_summary(interaction)
+                    ),
                     "tags": list(interaction.get_tags()),
                     "responses": {
                         "5XX": {
@@ -87,12 +96,25 @@ class FlaskLabThingsPlugin(BasePlugin):
                             },
                         }
                     },
+                    "parameters": [],
                 }
+                # Allow custom responses from the class, overridden by the method
+                d[method]["responses"].update(
+                    deepcopy(getattr(interaction, "responses", {}))
+                )
+                d[method]["responses"].update(deepcopy(getattr(prop, "responses", {})))
+                # Allow custom parameters from the class & method
+                d[method]["parameters"].extend(
+                    deepcopy(getattr(interaction, "parameters", {}))
+                )
+                d[method]["parameters"].extend(
+                    deepcopy(getattr(prop, "parameters", {}))
+                )
         return d
 
     @classmethod
     def spec_for_property(cls, prop):
-        class_json_schema = schema_to_json(prop.schema) if prop.schema else None
+        class_schema = ensure_schema(prop.schema) or {}
 
         d = cls.spec_for_interaction(prop)
 
@@ -103,22 +125,12 @@ class FlaskLabThingsPlugin(BasePlugin):
                     d.get(method, {}),
                     {
                         "requestBody": {
-                            "content": {
-                                prop.content_type: (
-                                    {"schema": class_json_schema}
-                                    if class_json_schema
-                                    else {}
-                                )
-                            }
+                            "content": {prop.content_type: {"schema": class_schema}}
                         },
                         "responses": {
                             200: {
                                 "content": {
-                                    prop.content_type: (
-                                        {"schema": class_json_schema}
-                                        if class_json_schema
-                                        else {}
-                                    )
+                                    prop.content_type: {"schema": class_schema}
                                 },
                                 "description": "Write property",
                             }
@@ -133,36 +145,57 @@ class FlaskLabThingsPlugin(BasePlugin):
                 {
                     "responses": {
                         200: {
-                            "content": {
-                                prop.content_type: (
-                                    {"schema": class_json_schema}
-                                    if class_json_schema
-                                    else {}
-                                )
-                            },
+                            "content": {prop.content_type: {"schema": class_schema}},
                             "description": "Read property",
                         }
                     },
                 },
             )
 
-        # Enable custom responses from all methods
-        for method in d.keys():
-            d[method]["responses"].update(prop.responses)
-
         return d
 
-    @classmethod
-    def spec_for_action(cls, action):
-        class_args = schema_to_json(action.args)
-        action_json_schema = schema_to_json(
-            build_action_schema(action.schema, action.args)()
+    def spec_for_action(self, action):
+        action_input = ensure_schema(action.args, name=f"{action.__name__}InputSchema")
+        action_output = ensure_schema(
+            action.schema, name=f"{action.__name__}OutputSchema"
         )
-        queue_json_schema = schema_to_json(
-            build_action_schema(action.schema, action.args)(many=True)
-        )
+        # We combine input/output parameters with ActionSchema using an
+        # allOf directive, so we don't end up duplicating the schema
+        # for every action.
+        if action_output or action_input:
+            # It would be neater to combine the schemas in OpenAPI with allOf
+            # I think the code below does it - but I'm not yet convinced it is working
+            # TODO: add tests to validate this
+            plugin = get_marshmallow_plugin(self.spec)
+            action_input_dict = (
+                plugin.resolver.resolve_schema_dict(action_input)
+                if action_input
+                else {}
+            )
+            action_output_dict = (
+                plugin.resolver.resolve_schema_dict(action_output)
+                if action_output
+                else {}
+            )
+            action_schema = {
+                "allOf": [
+                    plugin.resolver.resolve_schema_dict(ActionSchema),
+                    {
+                        "type": "object",
+                        "properties": {
+                            "input": action_input_dict,
+                            "output": action_output_dict,
+                        },
+                    },
+                ]
+            }
+            # The line below builds an ActionSchema subclass.  This works and
+            # is valid, but results in ActionSchema being duplicated many times...
+            # action_schema = build_action_schema(action_output, action_input)
+        else:
+            action_schema = ActionSchema
 
-        d = cls.spec_for_interaction(action)
+        d = self.spec_for_interaction(action)
 
         # Add in Action spec
         d = merge(
@@ -172,7 +205,7 @@ class FlaskLabThingsPlugin(BasePlugin):
                     "requestBody": {
                         "content": {
                             action.content_type: (
-                                {"schema": class_args} if class_args else {}
+                                {"schema": action_input} if action_input else {}
                             )
                         }
                     },
@@ -181,25 +214,14 @@ class FlaskLabThingsPlugin(BasePlugin):
                         # 200 responses with cls.responses = {200: {...}}
                         200: {
                             "description": "Action completed immediately",
-                            # Allow customising 200 (immediate response) content type
-                            "content": {
-                                action.response_content_type: (
-                                    {"schema": action_json_schema}
-                                    if action_json_schema
-                                    else {}
-                                )
-                            },
+                            # Allow customising 200 (immediate response) content type?
+                            # TODO: I'm not convinced it's still possible to customise this.
+                            "content": {"application/json": {"schema": action_schema}},
                         },
                         201: {
                             "description": "Action started",
                             # Our POST 201 MUST be application/json
-                            "content": {
-                                "application/json": (
-                                    {"schema": action_json_schema}
-                                    if action_json_schema
-                                    else {}
-                                )
-                            },
+                            "content": {"application/json": {"schema": action_schema}},
                         },
                     },
                 },
@@ -210,9 +232,12 @@ class FlaskLabThingsPlugin(BasePlugin):
                             "description": "Action queue",
                             "content": {
                                 "application/json": (
-                                    {"schema": queue_json_schema}
-                                    if queue_json_schema
-                                    else {}
+                                    {
+                                        "schema": {
+                                            "type": "array",
+                                            "items": action_schema,
+                                        }
+                                    }
                                 )
                             },
                         }
@@ -220,8 +245,6 @@ class FlaskLabThingsPlugin(BasePlugin):
                 },
             },
         )
-        # Enable custom responses from POST
-        d["post"]["responses"].update(action.responses)
         return d
 
     @classmethod
