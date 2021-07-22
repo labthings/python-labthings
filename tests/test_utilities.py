@@ -48,7 +48,7 @@ def test_get_docstring(example_class):
     )
     assert (
         utilities.get_docstring(example_class.class_method_oneline, remove_summary=True)
-        == "One line docstring. "
+        == "One line docstring."
     )
     assert (
         utilities.get_docstring(
