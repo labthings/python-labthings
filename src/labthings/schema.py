@@ -185,10 +185,6 @@ def build_action_schema(
     return type(name, (base_class,), class_attrs)
 
 
-def openapi_array(schema: FuzzySchemaType) -> Dict:
-    return {"type": "array", "items": schema}
-
-
 class EventSchema(Schema):
     event = fields.String()
     timestamp = fields.DateTime()
