@@ -16,7 +16,9 @@ def test_td_init(helpers, thing, thing_description, app_ctx, schemas_path):
     validate_spec(thing.spec)
 
 
-def test_td_add_link(helpers, thing, thing_description, view_cls, app_ctx, schemas_path):
+def test_td_add_link(
+    helpers, thing, thing_description, view_cls, app_ctx, schemas_path
+):
     thing.add_view(view_cls, "/test_view_cls")
     thing_description.add_link(view_cls, "rel")
     assert {
@@ -71,7 +73,9 @@ def test_td_action(helpers, thing, app, thing_description, app_ctx, schemas_path
     validate_spec(thing.spec)
 
 
-def test_td_action_with_schema(helpers, thing, app, thing_description, app_ctx, schemas_path):
+def test_td_action_with_schema(
+    helpers, thing, app, thing_description, app_ctx, schemas_path
+):
     class Index(ActionView):
         args = {"integer": fields.Int()}
         semtype = "ToggleAction"
@@ -87,7 +91,7 @@ def test_td_action_with_schema(helpers, thing, app, thing_description, app_ctx, 
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("actions")
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
-        
+
     validate_spec(thing.spec)
 
 
@@ -145,7 +149,9 @@ def test_td_property_with_url_param(
     validate_spec(thing.spec)
 
 
-def test_td_property_write_only(helpers, app, thing, thing_description, app_ctx, schemas_path):
+def test_td_property_write_only(
+    helpers, app, thing, thing_description, app_ctx, schemas_path
+):
     class Index(PropertyView):
         schema = fields.Int()
 
@@ -160,7 +166,7 @@ def test_td_property_write_only(helpers, app, thing, thing_description, app_ctx,
     with app_ctx.test_request_context():
         assert "index" in thing_description.to_dict().get("properties")
         helpers.validate_thing_description(thing_description, app_ctx, schemas_path)
-    
+
     validate_spec(thing.spec)
 
 
