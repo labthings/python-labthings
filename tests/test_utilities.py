@@ -20,8 +20,7 @@ def example_class():
             return self
 
         def class_method_oneline(self):
-            """One line docstring.
-            """
+            """One line docstring."""
             return self
 
         def class_method_no_docstring(self):
