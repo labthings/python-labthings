@@ -8,8 +8,9 @@ from apispec.ext.marshmallow import MarshmallowPlugin
 from flask import Flask
 from flask.testing import FlaskClient
 from flask.views import MethodView
+from marshmallow import validate
 
-from labthings import LabThing
+from labthings import LabThing, fields
 from labthings.actions import Pool
 from labthings.json import encode_json
 from labthings.views import ActionView, PropertyView, View
@@ -177,6 +178,41 @@ def thing(app):
 def thing_ctx(thing):
     with thing.app.app_context():
         yield thing.app
+
+
+@pytest.fixture
+def thing_with_some_views(thing):
+    class TestAction(ActionView):
+        args = {"n": fields.Integer()}
+
+        def post(self):
+            return "POST"
+
+    thing.add_view(TestAction, "TestAction")
+
+    class TestProperty(PropertyView):
+        schema = {"count": fields.Integer()}
+
+        def get(self):
+            return 1
+
+        def post(self, args):
+            pass
+
+    thing.add_view(TestProperty, "TestProperty")
+
+    class TestFieldProperty(PropertyView):
+        schema = fields.String(validate=validate.OneOf(["one", "two"]))
+
+        def get(self):
+            return "one"
+
+        def post(self, args):
+            pass
+
+    thing.add_view(TestFieldProperty, "TestFieldProperty")
+
+    return thing
 
 
 @pytest.fixture()

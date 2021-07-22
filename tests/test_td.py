@@ -16,6 +16,16 @@ def test_td_init(helpers, thing, thing_description, app_ctx, schemas_path):
     validate_spec(thing.spec)
 
 
+def test_interesting_td(helpers, thing_with_some_views, app_ctx, schemas_path):
+    td = thing_with_some_views.thing_description
+    helpers.validate_thing_description(td, app_ctx, schemas_path)
+    validate_spec(thing_with_some_views.spec)
+    # Check the arguments were preserved OK for TestAction
+    assert td.actions["TestAction"]["input"]["properties"] == {
+        "n": {"type": "number", "format": "integer"}
+    }
+
+
 def test_td_add_link(
     helpers, thing, thing_description, view_cls, app_ctx, schemas_path
 ):

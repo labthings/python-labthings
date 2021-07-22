@@ -156,16 +156,21 @@ def build_action_schema(
     name: Optional[str] = None,
     base_class: type = ActionSchema,
 ):
-    """Builds a complete schema for a given ActionView. That is, it reads any input and output
-    schemas attached to the POST method, and nests them within the input/output fields of
-    the generic ActionSchema.
+    """Builds a complete schema for a given ActionView.
+
+    This method combines input and output schemas for a particular
+    Action with the generic ActionSchema to give a specific ActionSchema
+    subclass for that Action.
+
+    This is used in the Thing Description (where it is serialised to
+    JSON in-place) but not in the OpenAPI description (where the input,
+    output, and ActionSchema schemas are combined using `allOf`.)
 
     :param output_schema: Schema:
     :param input_schema: Schema:
     :param name: str:  (Default value = None)
 
     """
-    # FIXME: this seems to lose the schemas.  I suspect this is down to `nest_if_needed`.
     # Create a name for the generated schema
     if not name:
         name = str(id(output_schema))

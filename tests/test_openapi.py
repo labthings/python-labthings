@@ -10,7 +10,6 @@ import pytest
 import yaml
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec.utils import validate_spec
-from marshmallow import validate
 
 from labthings import fields, schema
 from labthings.actions.thread import ActionThread
@@ -19,41 +18,6 @@ from labthings.extensions import BaseExtension
 from labthings.schema import LogRecordSchema, Schema
 from labthings.views import ActionView, EventView, PropertyView
 from labthings.utilities import get_by_path
-
-
-@pytest.fixture
-def thing_with_some_views(thing):
-    class TestAction(ActionView):
-        args = {"n": fields.Integer()}
-
-        def post(self):
-            return "POST"
-
-    thing.add_view(TestAction, "TestAction")
-
-    class TestProperty(PropertyView):
-        schema = {"count": fields.Integer()}
-
-        def get(self):
-            return 1
-
-        def post(self, args):
-            pass
-
-    thing.add_view(TestProperty, "TestProperty")
-
-    class TestFieldProperty(PropertyView):
-        schema = fields.String(validate=validate.OneOf(["one", "two"]))
-
-        def get(self):
-            return "one"
-
-        def post(self, args):
-            pass
-
-    thing.add_view(TestFieldProperty, "TestFieldProperty")
-
-    return thing
 
 
 def test_openapi(thing_with_some_views):
@@ -74,7 +38,12 @@ def test_duplicate_action_name(thing_with_some_views):
         def post(self):
             return "POST"
 
-    t.add_view(TestAction, "TestActionM", endpoint="TestActionM")
+    with pytest.warns(UserWarning):
+        t.add_view(TestAction, "TestActionM", endpoint="TestActionM")
+
+    for v in t._action_views.values():
+        # We should have two actions with the same name
+        assert v.__name__ == "TestAction"
 
     api = t.spec.to_dict()
     original_input_schema = get_by_path(api, ["paths", "/TestAction", "post"])
