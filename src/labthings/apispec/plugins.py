@@ -11,7 +11,7 @@ from ..json.schemas import schema_to_json
 from ..schema import ActionSchema, EventSchema
 from ..utilities import get_docstring, get_summary, merge
 from ..views import ActionView, EventView, PropertyView, View
-from .utilities import ensure_schema, get_marshamallow_plugin
+from .utilities import ensure_schema, get_marshmallow_plugin
 
 
 class ExtendedOpenAPIConverter(OpenAPIConverter):
@@ -166,7 +166,7 @@ class FlaskLabThingsPlugin(BasePlugin):
             # It would be neater to combine the schemas in OpenAPI with allOf
             # I think the code below does it - but I'm not yet convinced it is working
             # TODO: add tests to validate this
-            plugin = get_marshamallow_plugin(self.spec)
+            plugin = get_marshmallow_plugin(self.spec)
             action_input_dict = (
                 plugin.resolver.resolve_schema_dict(action_input)
                 if action_input
