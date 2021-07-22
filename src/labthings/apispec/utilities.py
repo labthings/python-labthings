@@ -1,5 +1,5 @@
 from inspect import isclass
-from typing import Dict, Union
+from typing import Dict, Type, Union, cast
 
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec.ext.marshmallow.field_converter import FieldConverterMixin
@@ -16,7 +16,7 @@ def field2property(field):
 
 
 def ensure_schema(
-    schema: Union[fields.Field, Schema, Dict[str, Union[fields.Field, type]]],
+    schema: Union[fields.Field, Type[fields.Field], Schema, Type[Schema], Dict[str, Union[fields.Field, type]]],
     name: str = "GeneratedFromDict",
 ) -> Union[dict, Schema]:
     """Create a Schema object, or OpenAPI dictionary, given a Field, Schema, or Dict.
@@ -33,18 +33,19 @@ def ensure_schema(
         return None
     if isinstance(schema, fields.Field):
         return field2property(schema)
-    if isclass(schema) and issubclass(schema, fields.Field):
-        return field2property(schema())
     elif isinstance(schema, dict):
         return Schema.from_dict(schema, name=name)()
     elif isinstance(schema, Schema):
         return schema
-    elif isclass(schema) and issubclass(schema, Schema):
-        return schema()
-    else:
-        raise TypeError(
-            f"Invalid schema type {type(schema)}. Must be a Schema or Mapping/dict"
-        )
+    if isclass(schema):
+        schema = cast(Type, schema)
+        if issubclass(schema, fields.Field):
+            return field2property(schema())
+        elif issubclass(schema, Schema):
+            return schema()
+    raise TypeError(
+        f"Invalid schema type {type(schema)}. Must be a Schema or Mapping/dict"
+    )
 
 
 def get_marshmallow_plugin(spec):
