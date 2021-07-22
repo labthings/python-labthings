@@ -165,13 +165,13 @@ def get_docstring(obj: Any, remove_newlines=True, remove_summary=False) -> str:
     ds = obj.__doc__
     if not ds:
         return ""
-    if remove_newlines:
-        stripped = [line.strip() for line in ds.splitlines() if line]
-        return " ".join(stripped).replace("\n", " ").replace("\r", "")
     if remove_summary:
         lines = ds.splitlines()
         if len(lines) > 2 and lines[1].strip() == "":
             ds = "\n".join(lines[2:])
+    if remove_newlines:
+        stripped = [line.strip() for line in ds.splitlines() if line]
+        return " ".join(stripped).replace("\n", " ").replace("\r", "")
     return inspect.cleandoc(ds)  # Strip spurious indentation/newlines
 
 
