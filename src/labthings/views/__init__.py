@@ -239,7 +239,7 @@ class ActionView(View):
         # TODO: do we want to do this for all exceptions, or just
         # werkzeug.exceptions.HTTPException instances?
         if task._exception is not None:
-            raise e
+            raise task._exception
 
         return self.represent_response((ActionSchema().dump(task), 201))
 
