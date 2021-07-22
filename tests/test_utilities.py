@@ -7,15 +7,15 @@ from labthings.views import View
 @pytest.fixture
 def example_class():
     class ExampleClass:
-        """
-        First line of class docstring.
-        Second line of class docstring.
+        """First line of class docstring.
+
+        Third line of class docstring.
         """
 
         def class_method(self):
-            """
-            First line of class method docstring.
-            Second line of class method docstring.
+            """First line of class method docstring.
+
+            Third line of class method docstring.
             """
             return self
 
@@ -28,17 +28,26 @@ def example_class():
 def test_get_docstring(example_class):
     assert (
         utilities.get_docstring(example_class)
-        == "First line of class docstring. Second line of class docstring. "
+        == "First line of class docstring. Third line of class docstring. "
     )
     assert (
         utilities.get_docstring(example_class, remove_newlines=False)
-        == "First line of class docstring.\nSecond line of class docstring."
+        == "First line of class docstring.\n\nThird line of class docstring."
     )
-
-    assert utilities.get_docstring(example_class.class_method) == (
-        "First line of class method docstring. Second line of class method docstring. "
+    assert (
+        utilities.get_docstring(example_class.class_method)
+        == "First line of class method docstring. Third line of class method docstring. "
     )
-
+    assert (
+        utilities.get_docstring(example_class.class_method, remove_summary=True)
+        == "Third line of class method docstring. "
+    )
+    assert (
+        utilities.get_docstring(
+            example_class.class_method, remove_newlines=False, remove_summary=True
+        ).strip()
+        == "Third line of class method docstring."
+    )
     assert utilities.get_docstring(example_class.class_method_no_docstring) == ""
 
 

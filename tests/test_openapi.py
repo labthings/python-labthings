@@ -10,34 +10,120 @@ import pytest
 from labthings import fields, schema
 from labthings.actions.thread import ActionThread
 from labthings.extensions import BaseExtension
+from labthings.schema import LogRecordSchema, Schema
 from labthings.views import ActionView, PropertyView, EventView
 from marshmallow import validate
+import apispec
 from apispec.utils import validate_spec
+from apispec.ext.marshmallow import MarshmallowPlugin
+from labthings.apispec import utilities
+import yaml
+
 
 def test_openapi(thing):
     """Make an example Thing and check its openapi description validates"""
+
     class TestAction(ActionView):
         args = {"n": fields.Integer()}
+
         def post(self):
             return "POST"
+
     thing.add_view(TestAction, "TestAction")
 
     class TestProperty(PropertyView):
         schema = {"count": fields.Integer()}
+
         def get(self):
             return 1
+
         def post(self, args):
             pass
+
     thing.add_view(TestProperty, "TestProperty")
 
     class TestFieldProperty(PropertyView):
         schema = fields.String(validate=validate.OneOf(["one", "two"]))
+
         def get(self):
             return "one"
+
         def post(self, args):
             pass
+
     thing.add_view(TestFieldProperty, "TestFieldProperty")
-    
-    
+
     thing.spec.to_yaml()
     validate_spec(thing.spec)
+
+
+def test_ensure_schema_field_instance():
+    ret = utilities.ensure_schema(fields.Integer())
+    assert ret == {"type": "integer"}
+
+
+def test_ensure_schema_field_class():
+    ret = utilities.ensure_schema(fields.Integer)
+    assert ret == {"type": "integer"}
+
+
+def test_ensure_schema_class():
+    ret = utilities.ensure_schema(LogRecordSchema)
+    assert isinstance(ret, Schema)
+
+
+def test_ensure_schema_instance():
+    ret = utilities.ensure_schema(LogRecordSchema())
+    assert isinstance(ret, Schema)
+
+
+def test_ensure_schema_dict():
+    ret = utilities.ensure_schema(
+        {
+            "count": fields.Integer(),
+            "name": fields.String(),
+        }
+    )
+    assert isinstance(ret, Schema)
+
+
+def test_ensure_schema_none():
+    assert utilities.ensure_schema(None) is None
+
+
+def test_ensure_schema_error():
+    with pytest.raises(TypeError):
+        utilities.ensure_schema(Exception)
+
+
+def test_get_marshmallow_plugin(spec):
+    p = utilities.get_marshmallow_plugin(spec)
+    assert isinstance(p, MarshmallowPlugin)
+
+
+def test_get_marchmallow_plugin_empty():
+    spec = apispec.APISpec("test", "0", "3.0")
+    with pytest.raises(Exception):
+        utilities.get_marshmallow_plugin(spec)
+
+
+def dict_is_openapi(d):
+    for k in ["paths", "components"]:
+        assert k in d.keys()
+    assert d["openapi"].startswith("3.0")
+    return True
+
+
+def test_openapi_json_endpoint(thing):
+    c = thing.app.test_client()
+    r = c.get("/docs/openapi")
+    assert r.status_code == 200
+    assert dict_is_openapi(r.get_json())
+
+
+def test_openapi_yaml_endpoint(thing):
+    c = thing.app.test_client()
+
+    r = c.get("/docs/openapi.yaml")
+    assert r.status_code == 200
+    assert dict_is_openapi(yaml.safe_load(r.data))
