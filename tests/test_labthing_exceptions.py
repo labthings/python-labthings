@@ -65,7 +65,7 @@ def test_blank_exception(app):
     e = Exception()
     e.message = None
 
-    # Test a 404 HTTPException
+    # Test an empty Exception
     response = error_handler.std_handler(e)
 
     response_json = json.dumps(response[0])
