@@ -5,7 +5,7 @@ import jsonschema
 import pytest
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
-from flask import Flask
+from flask import Flask, abort
 from flask.testing import FlaskClient
 from flask.views import MethodView
 from marshmallow import validate
@@ -188,7 +188,7 @@ def thing_with_some_views(thing):
         def post(self):
             return "POST"
 
-    thing.add_view(TestAction, "TestAction")
+    thing.add_view(TestAction, "/TestAction")
 
     class TestProperty(PropertyView):
         schema = {"count": fields.Integer()}
@@ -199,7 +199,7 @@ def thing_with_some_views(thing):
         def post(self, args):
             pass
 
-    thing.add_view(TestProperty, "TestProperty")
+    thing.add_view(TestProperty, "/TestProperty")
 
     class TestFieldProperty(PropertyView):
         schema = fields.String(validate=validate.OneOf(["one", "two"]))
@@ -210,7 +210,28 @@ def thing_with_some_views(thing):
         def post(self, args):
             pass
 
-    thing.add_view(TestFieldProperty, "TestFieldProperty")
+    thing.add_view(TestFieldProperty, "/TestFieldProperty")
+    
+    class FailAction(ActionView):
+        wait_for = 1.0
+        def post(self):
+            raise Exception("This action is meant to fail with an Exception")
+    
+    thing.add_view(FailAction, "/FailAction")
+
+    class AbortAction(ActionView):
+        wait_for = 1.0
+        def post(self):
+            abort(418, "I'm a teapot! This action should abort with an HTTP code 418")
+    
+    thing.add_view(AbortAction, "/AbortAction")
+
+    class ActionWithValidation(ActionView):
+        wait_for = 1.0
+        args = {"test_arg": fields.String(validate=validate.OneOf(["one", "two"]))}
+        def post(self):
+            return True
+    thing.add_view(ActionWithValidation, "/ActionWithValidation")
 
     return thing
 
