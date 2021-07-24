@@ -6,6 +6,7 @@ from flask import request
 from flask.views import MethodView
 from typing_extensions import Protocol
 from werkzeug.wrappers import Response as ResponseBase
+from werkzeug.exceptions import HTTPException
 
 from ..actions.pool import Pool
 from ..deque import Deque
@@ -234,12 +235,12 @@ class ActionView(View):
         if task.output and isinstance(task.output, ResponseBase):
             return self.represent_response((task.output, 200))
 
-        # If the action fails quickly, propagate the exception.
+        # If the action fails quickly with an HTTPException, propagate it.
         # This allows us to handle validation errors nicely.
-        # TODO: do we want to do this for all exceptions, or just
-        # werkzeug.exceptions.HTTPException instances?
-        if task._exception is not None:
-            raise task._exception
+        # Similarly, calling Flask's `abort(404)` will work during the
+        # timeout period, as it uses the same mechanism.
+        if task.exception and isinstance(task.exception, HTTPException):
+            raise task.exception
 
         return self.represent_response((ActionSchema().dump(task), 201))
 
