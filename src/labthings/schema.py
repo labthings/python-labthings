@@ -82,7 +82,11 @@ class LogRecordSchema(Schema):
 
 
 class ActionSchema(Schema):
-    """ """
+    """Represents a running or completed Action
+    
+    Actions can run in the background, started by one request
+    and subsequently polled for updates.  This schema represents
+    one Action."""
 
     action = fields.String()
     _ID = fields.String(data_key="id")
