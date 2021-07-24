@@ -152,6 +152,11 @@ class ActionThread(threading.Thread):
         """Alias of `stopped`"""
         return self.stopped
 
+    @property
+    def exception(self) -> Optional[Exception]:
+        """The Exception that caused the action to fail."""
+        return self._exception
+
     def update_progress(self, progress: int):
         """
         Update the progress of the ActionThread.
