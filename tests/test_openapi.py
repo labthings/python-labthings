@@ -16,8 +16,8 @@ from labthings.actions.thread import ActionThread
 from labthings.apispec import utilities
 from labthings.extensions import BaseExtension
 from labthings.schema import LogRecordSchema, Schema
-from labthings.views import ActionView, EventView, PropertyView
 from labthings.utilities import get_by_path
+from labthings.views import ActionView, EventView, PropertyView
 
 
 def test_openapi(thing_with_some_views):

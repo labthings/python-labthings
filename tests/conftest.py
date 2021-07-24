@@ -211,26 +211,30 @@ def thing_with_some_views(thing):
             pass
 
     thing.add_view(TestFieldProperty, "/TestFieldProperty")
-    
+
     class FailAction(ActionView):
         wait_for = 1.0
+
         def post(self):
             raise Exception("This action is meant to fail with an Exception")
-    
+
     thing.add_view(FailAction, "/FailAction")
 
     class AbortAction(ActionView):
         wait_for = 1.0
+
         def post(self):
             abort(418, "I'm a teapot! This action should abort with an HTTP code 418")
-    
+
     thing.add_view(AbortAction, "/AbortAction")
 
     class ActionWithValidation(ActionView):
         wait_for = 1.0
         args = {"test_arg": fields.String(validate=validate.OneOf(["one", "two"]))}
+
         def post(self):
             return True
+
     thing.add_view(ActionWithValidation, "/ActionWithValidation")
 
     return thing

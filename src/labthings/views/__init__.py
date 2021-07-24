@@ -5,8 +5,8 @@ from typing import Callable, Dict, List, Optional, Set, cast
 from flask import request
 from flask.views import MethodView
 from typing_extensions import Protocol
-from werkzeug.wrappers import Response as ResponseBase
 from werkzeug.exceptions import HTTPException
+from werkzeug.wrappers import Response as ResponseBase
 
 from ..actions.pool import Pool
 from ..deque import Deque
