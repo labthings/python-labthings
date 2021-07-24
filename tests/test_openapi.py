@@ -108,16 +108,13 @@ def dict_is_openapi(d):
     return True
 
 
-def test_openapi_json_endpoint(thing):
-    c = thing.app.test_client()
-    r = c.get("/docs/openapi")
+def test_openapi_json_endpoint(thing, client):
+    r = client.get("/docs/openapi")
     assert r.status_code == 200
     assert dict_is_openapi(r.get_json())
 
 
-def test_openapi_yaml_endpoint(thing):
-    c = thing.app.test_client()
-
-    r = c.get("/docs/openapi.yaml")
+def test_openapi_yaml_endpoint(thing, client):
+    r = client.get("/docs/openapi.yaml")
     assert r.status_code == 200
     assert dict_is_openapi(yaml.safe_load(r.data))
