@@ -43,13 +43,14 @@ def test_action_abort(thing_with_some_views, client):
     r = client.post("/AbortAction")
     assert r.status_code == 418
 
+
 @pytest.mark.filterwarnings("ignore:Exception in thread")
 def test_action_abort_late(thing_with_some_views, client, caplog):
     """Check HTTPExceptions raised late are just regular errors."""
     caplog.set_level(logging.ERROR)
     caplog.clear()
     r = client.post("/AbortAction", data=json.dumps({"abort_after": 0.2}))
-    assert r.status_code == 201 # Should have started OK
+    assert r.status_code == 201  # Should have started OK
     time.sleep(0.3)
     # Now check the status - should be error
     r2 = client.get(r.get_json()["links"]["self"]["href"])
@@ -57,13 +58,9 @@ def test_action_abort_late(thing_with_some_views, client, caplog):
     # Check it was logged as well
     error_was_raised = False
     for r in caplog.records:
-        if (
-            r.levelname == "ERROR"
-            and "HTTPException" in r.message
-        ):
+        if r.levelname == "ERROR" and "HTTPException" in r.message:
             error_was_raised = True
     assert error_was_raised
-        
 
 
 def test_action_validate(thing_with_some_views, client):

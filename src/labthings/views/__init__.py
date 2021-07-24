@@ -217,10 +217,14 @@ class ActionView(View):
         pool = (
             current_labthing().actions if current_labthing() else self._emergency_pool
         )
-        error_lock = threading.RLock() # This indicates that we'll handle errors for now
+        # We pass in this lock to tell the Action thread that we'll deal
+        # with HTTP errors in this thread
+        error_lock = threading.RLock()
         with error_lock:
             # Make a task out of the views `post` method
-            task = pool.spawn(self.endpoint, meth, *args, http_error_lock=error_lock, **kwargs)
+            task = pool.spawn(
+                self.endpoint, meth, *args, http_error_lock=error_lock, **kwargs
+            )
             # Optionally override the threads default_stop_timeout
             if self.default_stop_timeout is not None:
                 task.default_stop_timeout = self.default_stop_timeout
@@ -233,7 +237,6 @@ class ActionView(View):
                 task.get(block=True, timeout=self.wait_for)
             except TimeoutError:
                 pass
-
 
         # If the action returns quickly, and returns a valid Response, return it as-is
         if task.output and isinstance(task.output, ResponseBase):

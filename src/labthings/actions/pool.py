@@ -29,7 +29,7 @@ class Pool:
         self.add(thread)
         thread.start()
 
-    def spawn(self, action: str, function, http_error_lock=None, *args, **kwargs):
+    def spawn(self, action: str, function, *args, http_error_lock=None, **kwargs):
         """
 
         :param function:
@@ -38,11 +38,11 @@ class Pool:
 
         """
         thread = ActionThread(
-            action, 
-            target=function, 
-            http_error_lock=http_error_lock, 
-            args=args, 
-            kwargs=kwargs
+            action,
+            target=function,
+            http_error_lock=http_error_lock,
+            args=args,
+            kwargs=kwargs,
         )
         self.start(thread)
         return thread

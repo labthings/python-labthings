@@ -40,7 +40,7 @@ class ActionThread(threading.Thread):
     * The exception appearing in the logs with a traceback
     * The exception being raised in the background thread.
     However, `HTTPException` subclasses are used in Flask/Werkzeug web apps to
-    return HTTP status codes indicating specific errors, and so merit being 
+    return HTTP status codes indicating specific errors, and so merit being
     handled differently.
 
     Normally, when an Action is initiated, the thread handling the HTTP request
@@ -49,14 +49,14 @@ class ActionThread(threading.Thread):
     in the Action thread before the initiating thread has sent an HTTP response,
     we **don't** want to propagate the error here, but instead want to re-raise
     it in the calling thread.  This will then mean that the HTTP request is
-    answered with the appropriate error code, rather than returning a `201` 
+    answered with the appropriate error code, rather than returning a `201`
     code, along with a description of the task (showing that it was successfully
     started, but also showing that it subsequently failed with an error).
 
-    In order to activate this behaviour, we must pass in a `threading.Lock` 
+    In order to activate this behaviour, we must pass in a `threading.Lock`
     object.  This lock should already be acquired by the request-handling
     thread.  If an error occurs, and this lock is acquired, the exception
-    should not be re-raised until the calling thread has had the chance to deal 
+    should not be re-raised until the calling thread has had the chance to deal
     with it.
     """
 
@@ -70,7 +70,7 @@ class ActionThread(threading.Thread):
         daemon: bool = True,
         default_stop_timeout: int = 5,
         log_len: int = 100,
-        http_error_lock: Optional[threading.Lock] = None
+        http_error_lock: Optional[threading.Lock] = None,
     ):
         threading.Thread.__init__(
             self,
@@ -271,8 +271,6 @@ class ActionThread(threading.Thread):
                     )
                     logging.error(traceback.format_exc())
                     raise e
-                else:
-                    logging.info(f"Propagating {e} back to request handler")
             except Exception as e:  # skipcq: PYL-W0703
                 self._exception = e
                 logging.error(traceback.format_exc())
@@ -284,7 +282,6 @@ class ActionThread(threading.Thread):
                 if self._exception:
                     self._return_value = str(self._exception)
                     self._status = "error"
-
 
         return wrapped
 
