@@ -41,9 +41,12 @@ def test_duplicate_action_name(thing_with_some_views):
     with pytest.warns(UserWarning):
         t.add_view(TestAction, "TestActionM", endpoint="TestActionM")
 
+    # We should have two actions with the same name
+    actions_named_testaction = 0
     for v in t._action_views.values():
-        # We should have two actions with the same name
-        assert v.__name__ == "TestAction"
+        if v.__name__ == "TestAction":
+            actions_named_testaction += 1
+    assert actions_named_testaction >= 2
 
     api = t.spec.to_dict()
     original_input_schema = get_by_path(api, ["paths", "/TestAction", "post"])
