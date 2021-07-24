@@ -1,4 +1,5 @@
 import datetime
+import threading
 from collections import OrderedDict
 from typing import Callable, Dict, List, Optional, Set, cast
 
@@ -216,20 +217,23 @@ class ActionView(View):
         pool = (
             current_labthing().actions if current_labthing() else self._emergency_pool
         )
-        # Make a task out of the views `post` method
-        task = pool.spawn(self.endpoint, meth, *args, **kwargs)
-        # Optionally override the threads default_stop_timeout
-        if self.default_stop_timeout is not None:
-            task.default_stop_timeout = self.default_stop_timeout
+        error_lock = threading.RLock() # This indicates that we'll handle errors for now
+        with error_lock:
+            # Make a task out of the views `post` method
+            task = pool.spawn(self.endpoint, meth, *args, http_error_lock=error_lock, **kwargs)
+            # Optionally override the threads default_stop_timeout
+            if self.default_stop_timeout is not None:
+                task.default_stop_timeout = self.default_stop_timeout
 
-        # Wait up to 2 second for the action to complete or error
-        try:
-            task.get(block=True, timeout=self.wait_for)
-        except TimeoutError:
-            pass
+            # Log the action to the view's deque
+            self._deque.append(task)
 
-        # Log the action to the view's deque
-        self._deque.append(task)
+            # Wait up to 2 second for the action to complete or error
+            try:
+                task.get(block=True, timeout=self.wait_for)
+            except TimeoutError:
+                pass
+
 
         # If the action returns quickly, and returns a valid Response, return it as-is
         if task.output and isinstance(task.output, ResponseBase):

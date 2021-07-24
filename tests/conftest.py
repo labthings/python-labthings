@@ -1,5 +1,6 @@
 import json
 import os
+import time
 
 import jsonschema
 import pytest
@@ -213,7 +214,7 @@ def thing_with_some_views(thing):
     thing.add_view(TestFieldProperty, "/TestFieldProperty")
 
     class FailAction(ActionView):
-        wait_for = 1.0
+        wait_for = 0.1
 
         def post(self):
             raise Exception("This action is meant to fail with an Exception")
@@ -221,18 +222,21 @@ def thing_with_some_views(thing):
     thing.add_view(FailAction, "/FailAction")
 
     class AbortAction(ActionView):
-        wait_for = 1.0
+        wait_for = 0.1
+        args = {"abort_after": fields.Number()}
 
-        def post(self):
+        def post(self, args):
+            if args.get("abort_after", 0) > 0:
+                time.sleep(args["abort_after"])
             abort(418, "I'm a teapot! This action should abort with an HTTP code 418")
 
     thing.add_view(AbortAction, "/AbortAction")
 
     class ActionWithValidation(ActionView):
-        wait_for = 1.0
+        wait_for = 0.1
         args = {"test_arg": fields.String(validate=validate.OneOf(["one", "two"]))}
 
-        def post(self):
+        def post(self, args):
             return True
 
     thing.add_view(ActionWithValidation, "/ActionWithValidation")
