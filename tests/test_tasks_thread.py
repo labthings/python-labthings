@@ -115,6 +115,7 @@ def test_task_get_noblock_timeout():
         assert task_obj.get(block=False, timeout=0)
 
 
+@pytest.mark.filterwarnings("ignore:Exception in thread")
 def test_task_exception():
     exc_to_raise = Exception("Exception message")
 

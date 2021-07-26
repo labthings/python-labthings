@@ -1,10 +1,12 @@
 import datetime
+import threading
 from collections import OrderedDict
 from typing import Callable, Dict, List, Optional, Set, cast
 
 from flask import request
 from flask.views import MethodView
 from typing_extensions import Protocol
+from werkzeug.exceptions import HTTPException
 from werkzeug.wrappers import Response as ResponseBase
 
 from ..actions.pool import Pool
@@ -215,24 +217,37 @@ class ActionView(View):
         pool = (
             current_labthing().actions if current_labthing() else self._emergency_pool
         )
-        # Make a task out of the views `post` method
-        task = pool.spawn(self.endpoint, meth, *args, **kwargs)
-        # Optionally override the threads default_stop_timeout
-        if self.default_stop_timeout is not None:
-            task.default_stop_timeout = self.default_stop_timeout
+        # We pass in this lock to tell the Action thread that we'll deal
+        # with HTTP errors in this thread
+        error_lock = threading.RLock()
+        with error_lock:
+            # Make a task out of the views `post` method
+            task = pool.spawn(
+                self.endpoint, meth, *args, http_error_lock=error_lock, **kwargs
+            )
+            # Optionally override the threads default_stop_timeout
+            if self.default_stop_timeout is not None:
+                task.default_stop_timeout = self.default_stop_timeout
 
-        # Wait up to 2 second for the action to complete or error
-        try:
-            task.get(block=True, timeout=self.wait_for)
-        except TimeoutError:
-            pass
+            # Log the action to the view's deque
+            self._deque.append(task)
 
-        # Log the action to the view's deque
-        self._deque.append(task)
+            # Wait up to 2 second for the action to complete or error
+            try:
+                task.get(block=True, timeout=self.wait_for)
+            except TimeoutError:
+                pass
 
         # If the action returns quickly, and returns a valid Response, return it as-is
         if task.output and isinstance(task.output, ResponseBase):
             return self.represent_response((task.output, 200))
+
+        # If the action fails quickly with an HTTPException, propagate it.
+        # This allows us to handle validation errors nicely.
+        # Similarly, calling Flask's `abort(404)` will work during the
+        # timeout period, as it uses the same mechanism.
+        if task.exception and isinstance(task.exception, HTTPException):
+            raise task.exception
 
         return self.represent_response((ActionSchema().dump(task), 201))
 

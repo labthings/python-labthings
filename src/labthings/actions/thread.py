@@ -7,7 +7,7 @@ import uuid
 from typing import Any, Callable, Dict, Iterable, Optional
 
 from flask import copy_current_request_context, has_request_context, request
-from werkzeug.exceptions import BadRequest
+from werkzeug.exceptions import BadRequest, HTTPException
 
 from ..deque import LockableDeque
 from ..utilities import TimeoutTracker
@@ -22,6 +22,42 @@ class ActionKilledException(SystemExit):
 class ActionThread(threading.Thread):
     """
     A native thread with extra functionality for tracking progress and thread termination.
+
+    Arguments:
+    * `action` is the name of the action that's running
+    * `target`, `name`, `args`, `kwargs` and `daemon` are passed to `threading.Thread`
+      (though the defualt for `daemon` is changed to `True`)
+    * `default_stop_timeout` specifies how long we wait for the `target` function to
+      stop nicely (e.g. by checking the `stopping` Event )
+    * `log_len` gives the number of log entries before we start dumping them
+    * `http_error_lock` allows the calling thread to handle some
+      errors initially.  See below.
+
+    ## Error propagation
+    If the `target` function throws an Exception, by default this will result in:
+    * The thread terminating
+    * The Action's status being set to `error`
+    * The exception appearing in the logs with a traceback
+    * The exception being raised in the background thread.
+    However, `HTTPException` subclasses are used in Flask/Werkzeug web apps to
+    return HTTP status codes indicating specific errors, and so merit being
+    handled differently.
+
+    Normally, when an Action is initiated, the thread handling the HTTP request
+    does not return immediately - it waits for a short period to check whether
+    the Action has completed or returned an error.  If an HTTPError is raised
+    in the Action thread before the initiating thread has sent an HTTP response,
+    we **don't** want to propagate the error here, but instead want to re-raise
+    it in the calling thread.  This will then mean that the HTTP request is
+    answered with the appropriate error code, rather than returning a `201`
+    code, along with a description of the task (showing that it was successfully
+    started, but also showing that it subsequently failed with an error).
+
+    In order to activate this behaviour, we must pass in a `threading.Lock`
+    object.  This lock should already be acquired by the request-handling
+    thread.  If an error occurs, and this lock is acquired, the exception
+    should not be re-raised until the calling thread has had the chance to deal
+    with it.
     """
 
     def __init__(
@@ -34,6 +70,7 @@ class ActionThread(threading.Thread):
         daemon: bool = True,
         default_stop_timeout: int = 5,
         log_len: int = 100,
+        http_error_lock: Optional[threading.Lock] = None,
     ):
         threading.Thread.__init__(
             self,
@@ -56,6 +93,8 @@ class ActionThread(threading.Thread):
         # Event to track if the user has requested stop
         self.stopping: threading.Event = threading.Event()
         self.default_stop_timeout: int = default_stop_timeout
+        # Allow the calling thread to handle HTTP errors for a short time at the start
+        self.http_error_lock = http_error_lock or threading.Lock()
 
         # Make _target, _args, and _kwargs available to the subclass
         self._target: Optional[Callable] = target
@@ -85,6 +124,7 @@ class ActionThread(threading.Thread):
         self._request_time: datetime.datetime = datetime.datetime.now()
         self._start_time: Optional[datetime.datetime] = None  # Task start time
         self._end_time: Optional[datetime.datetime] = None  # Task end time
+        self._exception: Optional[Exception] = None  # Propagate exceptions helpfully
 
         # Public state properties
         self.progress: Optional[int] = None  # Percent progress of the task
@@ -151,6 +191,11 @@ class ActionThread(threading.Thread):
         """Alias of `stopped`"""
         return self.stopped
 
+    @property
+    def exception(self) -> Optional[Exception]:
+        """The Exception that caused the action to fail."""
+        return self._exception
+
     def update_progress(self, progress: int):
         """
         Update the progress of the ActionThread.
@@ -214,15 +259,29 @@ class ActionThread(threading.Thread):
                 # Set state to stopped
                 self._status = "cancelled"
                 self.progress = None
+            except HTTPException as e:
+                self._exception = e
+                # If the lock is acquired elsewhere, assume the error
+                # will be handled there.
+                if self.http_error_lock.acquire(blocking=False):
+                    self.http_error_lock.release()
+                    logging.error(
+                        "An HTTPException occurred in an action thread, but "
+                        "the parent request was no longer waiting for it."
+                    )
+                    logging.error(traceback.format_exc())
+                    raise e
             except Exception as e:  # skipcq: PYL-W0703
+                self._exception = e
                 logging.error(traceback.format_exc())
-                self._return_value = str(e)
-                self._status = "error"
                 raise e
             finally:
                 self._end_time = datetime.datetime.now()
                 logging.getLogger().removeHandler(handler)  # Stop logging this thread
                 # If we don't remove the handler, it's a memory leak.
+                if self._exception:
+                    self._return_value = str(self._exception)
+                    self._status = "error"
 
         return wrapped
 

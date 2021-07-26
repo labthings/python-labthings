@@ -16,8 +16,8 @@ from labthings.actions.thread import ActionThread
 from labthings.apispec import utilities
 from labthings.extensions import BaseExtension
 from labthings.schema import LogRecordSchema, Schema
-from labthings.views import ActionView, EventView, PropertyView
 from labthings.utilities import get_by_path
+from labthings.views import ActionView, EventView, PropertyView
 
 
 def test_openapi(thing_with_some_views):
@@ -41,9 +41,12 @@ def test_duplicate_action_name(thing_with_some_views):
     with pytest.warns(UserWarning):
         t.add_view(TestAction, "TestActionM", endpoint="TestActionM")
 
+    # We should have two actions with the same name
+    actions_named_testaction = 0
     for v in t._action_views.values():
-        # We should have two actions with the same name
-        assert v.__name__ == "TestAction"
+        if v.__name__ == "TestAction":
+            actions_named_testaction += 1
+    assert actions_named_testaction >= 2
 
     api = t.spec.to_dict()
     original_input_schema = get_by_path(api, ["paths", "/TestAction", "post"])
@@ -108,16 +111,13 @@ def dict_is_openapi(d):
     return True
 
 
-def test_openapi_json_endpoint(thing):
-    c = thing.app.test_client()
-    r = c.get("/docs/openapi")
+def test_openapi_json_endpoint(thing, client):
+    r = client.get("/docs/openapi")
     assert r.status_code == 200
     assert dict_is_openapi(r.get_json())
 
 
-def test_openapi_yaml_endpoint(thing):
-    c = thing.app.test_client()
-
-    r = c.get("/docs/openapi.yaml")
+def test_openapi_yaml_endpoint(thing, client):
+    r = client.get("/docs/openapi.yaml")
     assert r.status_code == 200
     assert dict_is_openapi(yaml.safe_load(r.data))
