@@ -1,3 +1,105 @@
+# [v1.3.0](https://github.com/labthings/python-labthings/compare/v1.2.4...v1.3.0) (2021-07-25)
+
+## Minor fixes and security updates
+* :pencil2: Fix typo in README.md ([3ab2d12](https://github.com/labthings/python-labthings/commit/3ab2d12))
+* [Security] Bump py from 1.9.0 to 1.10.0 ([f1eb043](https://github.com/labthings/python-labthings/commit/f1eb043))
+* [Security] Bump urllib3 from 1.26.3 to 1.26.4 ([215fa94](https://github.com/labthings/python-labthings/commit/215fa94))
+* Bump apispec from 4.6.0 to 4.7.1 ([e62c570](https://github.com/labthings/python-labthings/commit/e62c570))
+* Bump marshmallow from 3.10.0 to 3.12.1 ([131f9d4](https://github.com/labthings/python-labthings/commit/131f9d4))
+* Bump marshmallow from 3.12.1 to 3.12.2 ([8333b65](https://github.com/labthings/python-labthings/commit/8333b65))
+* Bump pylint from 2.8.3 to 2.9.3 ([93eba68](https://github.com/labthings/python-labthings/commit/93eba68))
+* Bump pylint from 2.9.3 to 2.9.4 ([f43ead9](https://github.com/labthings/python-labthings/commit/f43ead9))
+* Bump pytest from 6.2.2 to 6.2.4 ([7fa0983](https://github.com/labthings/python-labthings/commit/7fa0983))
+* Bump pytest from 6.2.2 to 6.2.4 ([a4516d5](https://github.com/labthings/python-labthings/commit/a4516d5))
+* Bump sphinx from 3.5.4 to 4.1.0 ([cc15230](https://github.com/labthings/python-labthings/commit/cc15230))
+* Bump sphinx from 4.1.0 to 4.1.1 ([2297f79](https://github.com/labthings/python-labthings/commit/2297f79))
+* Bump sphinx-autoapi from 1.7.0 to 1.8.1 ([6c0feea](https://github.com/labthings/python-labthings/commit/6c0feea))
+* Bump sphinx-rtd-theme from 0.5.1 to 0.5.2 ([baa5c8b](https://github.com/labthings/python-labthings/commit/baa5c8b))
+* Bump webargs from 7.0.1 to 8.0.0 ([6bcc454](https://github.com/labthings/python-labthings/commit/6bcc454))
+* Bump zeroconf from 0.28.8 to 0.31.0 ([219b0a3](https://github.com/labthings/python-labthings/commit/219b0a3))
+* Bump zeroconf from 0.31.0 to 0.32.1 ([0e511f5](https://github.com/labthings/python-labthings/commit/0e511f5))
+* Bump zeroconf from 0.32.1 to 0.33.0 ([6903b18](https://github.com/labthings/python-labthings/commit/6903b18))
+* Bump zeroconf from 0.33.0 to 0.33.1 ([bd6d804](https://github.com/labthings/python-labthings/commit/bd6d804))
+* Upgrade to GitHub-native Dependabot ([4061871](https://github.com/labthings/python-labthings/commit/4061871))
+
+## Error handline improvements
+Exceptions in Action threads end up quietly reported in the Action description.  This was preventing 
+Marshmallow from validating Action arguments, which was a problem.  This release changes the behaviour slightly
+so that if arguments are invalid, or if `flask.abort()` is called at the start of an action, it responds
+with an HTTP error code rather than a `201 Created` response.
+
+Commits that support this:
+* added a docstring ([850592f](https://github.com/labthings/python-labthings/commit/850592f))
+* added read-only property for _exception ([e87152d](https://github.com/labthings/python-labthings/commit/e87152d))
+* Added tests for action errors -> HTTP codes ([1a7a93b](https://github.com/labthings/python-labthings/commit/1a7a93b))
+* Fix assertion for duplicate actions ([75c75b9](https://github.com/labthings/python-labthings/commit/75c75b9))
+* Fix a comment ([23c720a](https://github.com/labthings/python-labthings/commit/23c720a))
+* fix typo ([f816354](https://github.com/labthings/python-labthings/commit/f816354))
+* Linting fixes ([1c97565](https://github.com/labthings/python-labthings/commit/1c97565))
+* Only propagate HTTP exceptions ([50f9936](https://github.com/labthings/python-labthings/commit/50f9936))
+* Propagate exceptions from action threads ([e26663f](https://github.com/labthings/python-labthings/commit/e26663f))
+* Properly handle late HTTPExceptions ([671d403](https://github.com/labthings/python-labthings/commit/671d403))
+* Tidied API test code ([bbb08b8](https://github.com/labthings/python-labthings/commit/bbb08b8))
+* Whitespace/isort fixes ([89c1ddf](https://github.com/labthings/python-labthings/commit/89c1ddf))
+
+
+## Documentation improvements
+This release changes the way documentation propagates through LabThings and Flask to the OpenAPI description.
+The current release doesn't change the contents of the Thing Description, but it does mean that the OpenAPI
+output is valid, and that's now tested for some common cases in the CI.
+
+Important things to note are:
+* `View` classes can now attach properties *either* to the class, or to individual methods.
+* `summary` and `description` properties will be used if present, or the docstring will be used if not.
+* `responses` and `parameters` properties set the method's responses and parameters.  If set on the class,
+  they will be used for all methods.
+
+Attributes have been added to built-in views as needed to produce valid OpenAPI documentation, though there
+is always room to add more meaningful descriptions.  Documentation is now much more thoroughly tested,
+including using `apispec` and `prance` to check the OpenAPI description is valid.
+
+Commits that form a part of this effort:
+* Add YAML version of openapi docs ([39d91e7](https://github.com/labthings/python-labthings/commit/39d91e7))
+* Added a test for OpenAPI serialisation ([52851f4](https://github.com/labthings/python-labthings/commit/52851f4))
+* Added APISpec utilities ([f49aedb](https://github.com/labthings/python-labthings/commit/f49aedb))
+* Added APISpec validation to dependencies ([1935f25](https://github.com/labthings/python-labthings/commit/1935f25))
+* Added more unit tests ([8490acb](https://github.com/labthings/python-labthings/commit/8490acb))
+* Added OpenAPI validation to tests ([a100fa9](https://github.com/labthings/python-labthings/commit/a100fa9))
+* added remove_summary option to get_docstring ([cd4a994](https://github.com/labthings/python-labthings/commit/cd4a994))
+* Added some more tests of thing description ([54d5df9](https://github.com/labthings/python-labthings/commit/54d5df9))
+* Added the "YAML" extra to apispec ([345d544](https://github.com/labthings/python-labthings/commit/345d544))
+* Allow per-Operation docstrings ([05b2747](https://github.com/labthings/python-labthings/commit/05b2747))
+* Avoid premature serialisation ([9ec6fa2](https://github.com/labthings/python-labthings/commit/9ec6fa2))
+* Better response descriptions for builtin endpoints ([f161213](https://github.com/labthings/python-labthings/commit/f161213))
+* blackened ([c52a66d](https://github.com/labthings/python-labthings/commit/c52a66d))
+* Blackened ([e21c6e2](https://github.com/labthings/python-labthings/commit/e21c6e2))
+* Check duplicate action names ([f39851c](https://github.com/labthings/python-labthings/commit/f39851c))
+* Cope with missing input/output schemas ([8f1cc14](https://github.com/labthings/python-labthings/commit/8f1cc14))
+* Documented parameters for actions & static ([38fb5ca](https://github.com/labthings/python-labthings/commit/38fb5ca))
+* Eliminate built action schemas ([67a9257](https://github.com/labthings/python-labthings/commit/67a9257))
+* Exhaustive testing for docstring additions ([704cba9](https://github.com/labthings/python-labthings/commit/704cba9))
+* Fix OneOf and tidy up build_action_schema ([c6c0b5b](https://github.com/labthings/python-labthings/commit/c6c0b5b))
+* Fix OpenAPI route registration ([7ba0950](https://github.com/labthings/python-labthings/commit/7ba0950))
+* Fix whitespace in docstring test ([af6a8d3](https://github.com/labthings/python-labthings/commit/af6a8d3))
+* Fixed remove_summary and remove_newlines ([f6ba74e](https://github.com/labthings/python-labthings/commit/f6ba74e))
+* Fixed typing in ensure_schema ([9b51698](https://github.com/labthings/python-labthings/commit/9b51698))
+* Fixes from unit testing ([b9f9fc9](https://github.com/labthings/python-labthings/commit/b9f9fc9))
+* Format fixes ([a5a9ed9](https://github.com/labthings/python-labthings/commit/a5a9ed9))
+* Format fixes ([001d6bb](https://github.com/labthings/python-labthings/commit/001d6bb))
+* formatting fixes ([e27e904](https://github.com/labthings/python-labthings/commit/e27e904))
+* linter fixes ([8ddfaec](https://github.com/labthings/python-labthings/commit/8ddfaec))
+* Linting and typing fixes ([8353bcb](https://github.com/labthings/python-labthings/commit/8353bcb))
+* Manage indentation better in docstrings ([559b769](https://github.com/labthings/python-labthings/commit/559b769))
+* More helpful docstring for ActionView.get ([6819f23](https://github.com/labthings/python-labthings/commit/6819f23))
+* propagate parameters and responses per-operation ([9ea10f5](https://github.com/labthings/python-labthings/commit/9ea10f5))
+* Provide names for generated schemas ([8654d02](https://github.com/labthings/python-labthings/commit/8654d02))
+* Removed unused function ([674d09f](https://github.com/labthings/python-labthings/commit/674d09f))
+* Removed unused import ([5f9d284](https://github.com/labthings/python-labthings/commit/5f9d284))
+* Swap MethodView for View in builder.static_from ([2f12098](https://github.com/labthings/python-labthings/commit/2f12098))
+* Use deepcopy to avoid modifying responses ([bfc6fc4](https://github.com/labthings/python-labthings/commit/bfc6fc4))
+* Whitespace fixes ([a27e16a](https://github.com/labthings/python-labthings/commit/a27e16a))
+
+
 # [v1.2.4](https://github.com/labthings/python-labthings/compare/v1.2.3...v1.2.4) (2021-03-22)
 
 - [Security] Bump jinja2 from 2.11.2 to 2.11.3 ([16ec89b](https://github.com/labthings/python-labthings/commit/16ec89b))
