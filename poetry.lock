@@ -673,7 +673,7 @@ test = ["pytest", "pytest-cov", "html5lib", "cython", "typed-ast"]
 
 [[package]]
 name = "sphinx-autoapi"
-version = "1.8.1"
+version = "1.8.3"
 description = "Sphinx API documentation generator"
 category = "dev"
 optional = false
@@ -886,7 +886,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "3446c25bd53ee82548185b14d8d2af2e931943f05936e7e13e7b581fddd23425"
+content-hash = "27bb76a13a76a8cfb2687cf8115d32673906775896ab704885af340b85674fe0"
 
 [metadata.files]
 alabaster = [
@@ -1322,8 +1322,8 @@ sphinx = [
     {file = "Sphinx-4.1.1.tar.gz", hash = "sha256:23c846a1841af998cb736218539bb86d16f5eb95f5760b1966abcd2d584e62b8"},
 ]
 sphinx-autoapi = [
-    {file = "sphinx-autoapi-1.8.1.tar.gz", hash = "sha256:842c0a8f49c824803f7edee31cb1cabd5001a987553bec7b4681283ec9e47d4a"},
-    {file = "sphinx_autoapi-1.8.1-py2.py3-none-any.whl", hash = "sha256:aa453c1011e64ebdf6937539de4d65fe9c6a94c62c5522d2bcdf9aed5cd41ff1"},
+    {file = "sphinx-autoapi-1.8.3.tar.gz", hash = "sha256:27ee224fbade3c06567a3428de710e99d8bd527d8008e838630c7f49a2d62b8b"},
+    {file = "sphinx_autoapi-1.8.3-py2.py3-none-any.whl", hash = "sha256:2d0062e5da2e53cc66356302861fccc37ca8e930a7a95753692050933f11d653"},
 ]
 sphinx-rtd-theme = [
     {file = "sphinx_rtd_theme-0.5.2-py2.py3-none-any.whl", hash = "sha256:4a05bdbe8b1446d77a01e20a23ebc6777c74f43237035e76be89699308987d6f"},
