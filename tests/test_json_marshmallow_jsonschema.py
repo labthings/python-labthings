@@ -289,18 +289,23 @@ def test_readonly():
 
 
 def test_allow_none():
-    """A field with allow_none set to True should have type null as additional."""
+    """A field with allow_none set to True should be able to be null.
+
+    Note that this has been modified from JSONSchema behaviour: in
+    JSONSchema, "type" should be set to `["string", "null"]`.  This
+    is not allowed in Thing Descriptions, so instead we need to use
+    `oneOf`.  Our modified JSON schema library does this."""
 
     class TestSchema(Schema):
         id = fields.Integer(required=True)
-        readonly_fld = fields.String(allow_none=True)
+        nullable_fld = fields.String(allow_none=True)
 
     schema = TestSchema()
 
     dumped = validate_and_dump(schema)
 
-    assert dumped["properties"]["readonly_fld"] == {
-        "type": ["string", "null"],
+    assert dumped["properties"]["nullable_fld"] == {
+        "oneOf": [{"type": "string"}, {"type": "null"}],
     }
 
 

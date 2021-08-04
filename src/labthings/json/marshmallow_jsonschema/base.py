@@ -1,6 +1,7 @@
 import datetime
 import decimal
 import uuid
+from copy import deepcopy
 from inspect import isclass
 
 from marshmallow import Schema, fields, missing, validate
@@ -66,6 +67,26 @@ FIELD_VALIDATORS = {
     validate.Range: handle_range,
     validate.Regexp: handle_regexp,
 }
+
+
+def convert_type_list_to_oneof(schema):
+    """Avoid setting `type` to a list, using `oneOf`
+
+    JSONSchema allows datatypes to be specified as lists, which
+    means the type may be any of the specified values.  This is
+    not permitted by W3C Thing Description.  This function will
+    use the oneOf mechanism in JSONSchema to convert schemas
+    that use a list of types into a series of schemas each with
+    one type.  Those schemas are then nested together using
+    OneOf.
+    """
+    if "type" not in schema or type(schema["type"]) != list:
+        return schema
+    subschemas = []
+    for t in schema["type"]:
+        subschemas.append(deepcopy(schema))
+        subschemas[-1]["type"] = t
+    return {"oneOf": subschemas}
 
 
 class JSONSchema(Schema):
@@ -202,6 +223,8 @@ class JSONSchema(Schema):
                 )
                 if base_class is not None and base_class in FIELD_VALIDATORS:
                     schema = FIELD_VALIDATORS[base_class](schema, field, validator, obj)
+        if "type" in schema and type(schema["type"]) == list:
+            schema = convert_type_list_to_oneof(schema)
         return schema
 
     def _from_nested_schema(self, _, field):
