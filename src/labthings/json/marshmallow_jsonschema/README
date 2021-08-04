@@ -3,4 +3,22 @@ This submodule is a modified version of fuhrysteve/marshmallow-jsonschema, with 
 This will convert any Marshmallow schema into a JSON schema, without any schema references or additional properties. 
 It will create a basic, inline schema only.
 
+It has also been modified (with the addition of `.base.convert_type_list_to_oneof`) to avoid returning list values for
+the type of a schema (this is valid JSON schema, but is not permitted in Thing Description syntax).  Instead, we expand
+the list, by creating a copy of the schema for each type, and combining them using `oneOf`.  This means that
+`fields.String(allow_none=True)`, which would previously be rendered as:
+```json
+{"type": ["string", "null"]}
+```
+will be dumped as
+```json
+{
+    "oneOf": [
+        {"type": "string"},
+        {"type": "null"}
+    ]
+}
+```
+This is also valid JSONSchema, though clearly less elegant.  However, it's required by the thing description.
+
 https://github.com/fuhrysteve/marshmallow-jsonschema

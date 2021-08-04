@@ -79,6 +79,9 @@ def convert_type_list_to_oneof(schema):
     that use a list of types into a series of schemas each with
     one type.  Those schemas are then nested together using
     OneOf.
+
+    Schemas that do not have a type that is a list are returned
+    unmodified.
     """
     if "type" not in schema or type(schema["type"]) != list:
         return schema
@@ -223,8 +226,7 @@ class JSONSchema(Schema):
                 )
                 if base_class is not None and base_class in FIELD_VALIDATORS:
                     schema = FIELD_VALIDATORS[base_class](schema, field, validator, obj)
-        if "type" in schema and type(schema["type"]) == list:
-            schema = convert_type_list_to_oneof(schema)
+        schema = convert_type_list_to_oneof(schema)
         return schema
 
     def _from_nested_schema(self, _, field):
