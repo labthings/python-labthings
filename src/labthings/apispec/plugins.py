@@ -112,11 +112,10 @@ class FlaskLabThingsPlugin(BasePlugin):
                 )
         return d
 
-    @classmethod
-    def spec_for_property(cls, prop):
-        class_schema = ensure_schema(prop.schema) or {}
+    def spec_for_property(self, prop):
+        class_schema = ensure_schema(self.spec, prop.schema) or {}
 
-        d = cls.spec_for_interaction(prop)
+        d = self.spec_for_interaction(prop)
 
         # Add in writeproperty methods
         for method in ("put", "post"):
@@ -155,9 +154,11 @@ class FlaskLabThingsPlugin(BasePlugin):
         return d
 
     def spec_for_action(self, action):
-        action_input = ensure_schema(action.args, name=f"{action.__name__}InputSchema")
+        action_input = ensure_schema(
+            self.spec, action.args, name=f"{action.__name__}InputSchema"
+        )
         action_output = ensure_schema(
-            action.schema, name=f"{action.__name__}OutputSchema"
+            self.spec, action.schema, name=f"{action.__name__}OutputSchema"
         )
         # We combine input/output parameters with ActionSchema using an
         # allOf directive, so we don't end up duplicating the schema

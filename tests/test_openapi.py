@@ -54,43 +54,49 @@ def test_duplicate_action_name(thing_with_some_views):
     assert original_input_schema != modified_input_schema
 
 
-def test_ensure_schema_field_instance():
-    ret = utilities.ensure_schema(fields.Integer())
+def test_ensure_schema_field_instance(spec):
+    ret = utilities.ensure_schema(spec, fields.Integer())
     assert ret == {"type": "integer"}
 
 
-def test_ensure_schema_field_class():
-    ret = utilities.ensure_schema(fields.Integer)
+def test_ensure_schema_nullable_field_instance(spec):
+    ret = utilities.ensure_schema(spec, fields.Integer(allow_none=True))
+    assert ret == {"type": "integer", "nullable": True}
+
+
+def test_ensure_schema_field_class(spec):
+    ret = utilities.ensure_schema(spec, fields.Integer)
     assert ret == {"type": "integer"}
 
 
-def test_ensure_schema_class():
-    ret = utilities.ensure_schema(LogRecordSchema)
+def test_ensure_schema_class(spec):
+    ret = utilities.ensure_schema(spec, LogRecordSchema)
     assert isinstance(ret, Schema)
 
 
-def test_ensure_schema_instance():
-    ret = utilities.ensure_schema(LogRecordSchema())
+def test_ensure_schema_instance(spec):
+    ret = utilities.ensure_schema(spec, LogRecordSchema())
     assert isinstance(ret, Schema)
 
 
-def test_ensure_schema_dict():
+def test_ensure_schema_dict(spec):
     ret = utilities.ensure_schema(
+        spec,
         {
             "count": fields.Integer(),
             "name": fields.String(),
-        }
+        },
     )
     assert isinstance(ret, Schema)
 
 
-def test_ensure_schema_none():
-    assert utilities.ensure_schema(None) is None
+def test_ensure_schema_none(spec):
+    assert utilities.ensure_schema(spec, None) is None
 
 
-def test_ensure_schema_error():
+def test_ensure_schema_error(spec):
     with pytest.raises(TypeError):
-        utilities.ensure_schema(Exception)
+        utilities.ensure_schema(spec, Exception)
 
 
 def test_get_marshmallow_plugin(spec):

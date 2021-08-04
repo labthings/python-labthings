@@ -213,6 +213,17 @@ def thing_with_some_views(thing):
 
     thing.add_view(TestFieldProperty, "/TestFieldProperty")
 
+    class TestNullableFieldProperty(PropertyView):
+        schema = fields.Integer(allow_none=True)
+
+        def get(self):
+            return "one"
+
+        def post(self, args):
+            pass
+
+    thing.add_view(TestNullableFieldProperty, "/TestNullableFieldProperty")
+
     class FailAction(ActionView):
         wait_for = 0.1
 
