@@ -1,3 +1,11 @@
+# [v1.3.1](https://github.com/labthings/python-labthings/compare/v1.3.0...v1.3.1) (2021-08-04)
+
+This is a bugfix release, fixing errors that occurred if any fields had `allow_none` set to `True`:
+* Add readme and tidy up marshmallow_jsonschema ([49ea82d](https://github.com/labthings/python-labthings/commit/49ea82d))
+* Fix field2property for nullable values ([dc696dd](https://github.com/labthings/python-labthings/commit/dc696dd))
+* Handle nullable fields properly ([3174367](https://github.com/labthings/python-labthings/commit/3174367))
+
+
 # [v1.3.0](https://github.com/labthings/python-labthings/compare/v1.2.4...v1.3.0) (2021-07-25)
 
 ## Minor fixes and security updates
@@ -22,7 +30,7 @@
 * Bump zeroconf from 0.33.0 to 0.33.1 ([bd6d804](https://github.com/labthings/python-labthings/commit/bd6d804))
 * Upgrade to GitHub-native Dependabot ([4061871](https://github.com/labthings/python-labthings/commit/4061871))
 
-## Error handline improvements
+## Error handling improvements
 Exceptions in Action threads end up quietly reported in the Action description.  This was preventing 
 Marshmallow from validating Action arguments, which was a problem.  This release changes the behaviour slightly
 so that if arguments are invalid, or if `flask.abort()` is called at the start of an action, it responds
