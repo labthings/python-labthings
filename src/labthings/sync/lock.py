@@ -53,9 +53,11 @@ class StrictLock:
     @contextmanager
     def __call__(self, timeout=sentinel, blocking: bool = True):
         result = self.acquire(timeout=timeout, blocking=blocking)
-        yield result
-        if result:
-            self.release()
+        try:
+            yield result
+        finally:
+            if result:
+                self.release()
 
     def locked(self):
         """ """
@@ -122,9 +124,11 @@ class CompositeLock:
     @contextmanager
     def __call__(self, timeout=sentinel, blocking: bool = True):
         result = self.acquire(timeout=timeout, blocking=blocking)
-        yield result
-        if result:
-            self.release()
+        try:
+            yield result
+        finally:
+            if result:
+                self.release()
 
     def acquire(self, blocking: bool = True, timeout=sentinel):
         """
