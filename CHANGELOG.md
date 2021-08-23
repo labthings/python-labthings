@@ -1,3 +1,13 @@
+# [v1.3.2](https://github.com/labthings/python-labthings/compare/v1.3.1...v) (2021-08-23)
+
+This is a bugfix release, fixing the behavour of `StrictLock` and `CompositeLock` objects when
+used in `with` statements (#275).
+* Bump pylint from 2.9.5 to 2.10.2 ([655a583](https://github.com/labthings/python-labthings/commit/655a583))
+* Locks release on exception ([ed7855e](https://github.com/labthings/python-labthings/commit/ed7855e))
+* Test lock releases with/without arguments ([7151372](https://github.com/labthings/python-labthings/commit/7151372))
+* Test to ensure locks are released on error ([8bdc522](https://github.com/labthings/python-labthings/commit/8bdc522))
+
+
 # [v1.3.1](https://github.com/labthings/python-labthings/compare/v1.3.0...v1.3.1) (2021-08-04)
 
 This is a bugfix release, fixing errors that occurred if any fields had `allow_none` set to `True`:
