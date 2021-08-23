@@ -108,3 +108,13 @@ def test_rlock_acquire_timeout_fail(this_lock):
     with pytest.raises(lock.LockError):
         with this_lock(timeout=0.01):
             pass
+
+class DummyException(Exception):
+    pass
+
+def test_rlock_released_after_error(this_lock):
+    try:
+        with this_lock:
+            raise DummyException()
+    except DummyException:
+        assert not this_lock.locked()
