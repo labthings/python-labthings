@@ -108,3 +108,33 @@ def test_rlock_acquire_timeout_fail(this_lock):
     with pytest.raises(lock.LockError):
         with this_lock(timeout=0.01):
             pass
+
+class DummyException(Exception):
+    pass
+
+def test_rlock_released_after_error_args(this_lock):
+    """If an exception occurs in a with block, the lock should release.
+    
+    NB there are two sets of code that do this - one if arguments are 
+    given (i.e. the __call__ method of the lock class) and one without
+    arguments (i.e. the __enter__ and __exit__ methods).
+
+    See the following function for the no-arguments version.
+    """
+    try:
+        with this_lock():
+            assert this_lock.locked()
+            raise DummyException()
+    except DummyException:
+        pass
+    assert not this_lock.locked()
+
+def test_rlock_released_after_error_noargs(this_lock):
+    """If an exception occurs in a with block, the lock should release."""
+    try:
+        with this_lock:
+            assert this_lock.locked()
+            raise DummyException()
+    except DummyException:
+        pass
+    assert not this_lock.locked()
