@@ -30,7 +30,7 @@ jsonschema = "^3.2.0"
 pylint = "^2.10.2"
 sphinx = "^4.1.1"
 sphinx-autoapi = "^1.8.4"
-sphinx-rtd-theme = "^0.5.2"
+sphinx-rtd-theme = "^1.0.0"
 mypy = "^0.812"
 
 [tool.black]
