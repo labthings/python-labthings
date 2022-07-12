@@ -8,7 +8,7 @@ python-versions = "*"
 
 [[package]]
 name = "apispec"
-version = "4.7.1"
+version = "5.1.1"
 description = "A pluggable API specification generator. Currently supports the OpenAPI Specification (f.k.a. the Swagger specification)."
 category = "main"
 optional = false
@@ -19,10 +19,11 @@ prance = {version = ">=0.11", extras = ["osv"], optional = true, markers = "extr
 PyYAML = {version = ">=3.10", optional = true, markers = "extra == \"yaml\""}
 
 [package.extras]
-dev = ["PyYAML (>=3.10)", "prance[osv] (>=0.11)", "marshmallow (>=3.10.0)", "pytest", "mock", "flake8 (==3.9.2)", "flake8-bugbear (==21.4.3)", "pre-commit (>=2.4,<3.0)", "tox"]
-docs = ["marshmallow (>=3.0.0)", "pyyaml (==5.4.1)", "sphinx (==4.0.3)", "sphinx-issues (==1.2.0)", "sphinx-rtd-theme (==0.5.2)"]
-lint = ["flake8 (==3.9.2)", "flake8-bugbear (==21.4.3)", "pre-commit (>=2.4,<3.0)"]
-tests = ["PyYAML (>=3.10)", "prance[osv] (>=0.11)", "marshmallow (>=3.10.0)", "pytest", "mock"]
+dev = ["PyYAML (>=3.10)", "prance[osv] (>=0.11)", "marshmallow (>=3.13.0)", "pytest", "mock", "flake8 (==3.9.2)", "flake8-bugbear (==21.9.1)", "pre-commit (>=2.4,<3.0)", "tox"]
+docs = ["marshmallow (>=3.13.0)", "pyyaml (==5.4.1)", "sphinx (==4.2.0)", "sphinx-issues (==1.2.0)", "sphinx-rtd-theme (==1.0.0)"]
+lint = ["flake8 (==3.9.2)", "flake8-bugbear (==21.9.1)", "pre-commit (>=2.4,<3.0)"]
+marshmallow = ["marshmallow (>=3.13.0)"]
+tests = ["PyYAML (>=3.10)", "prance[osv] (>=0.11)", "marshmallow (>=3.13.0)", "pytest", "mock"]
 validation = ["prance[osv] (>=0.11)"]
 yaml = ["PyYAML (>=3.10)"]
 
@@ -922,7 +923,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "fd3e4e410861a5c5b2380fea822dfe813ba90c47dd1d1730de8b755405de28bd"
+content-hash = "62be8cfef1f7123d6751d7b075c30361a7ff282f33f1c6d6462d7d19fdc61676"
 
 [metadata.files]
 alabaster = [
@@ -930,8 +931,8 @@ alabaster = [
     {file = "alabaster-0.7.12.tar.gz", hash = "sha256:a661d72d58e6ea8a57f7a86e37d86716863ee5e92788398526d58b26a4e4dc02"},
 ]
 apispec = [
-    {file = "apispec-4.7.1-py2.py3-none-any.whl", hash = "sha256:6613dbc39f41cd58942a697f11c8762ba18422bd173fe0bdfc1535b83d3f84f0"},
-    {file = "apispec-4.7.1.tar.gz", hash = "sha256:79029486d36a0d7f3c659dbf6ae50a91fbed0c22dcd5376f592e076c130bc7f9"},
+    {file = "apispec-5.1.1-py3-none-any.whl", hash = "sha256:5bc5404b19259aeeb307ce9956e2c1a97722c6a130ef414671dfc21acd622afc"},
+    {file = "apispec-5.1.1.tar.gz", hash = "sha256:d167890e37f14f3f26b588ff2598af35faa5c27612264ea1125509c8ff860834"},
 ]
 apispec-webframeworks = [
     {file = "apispec-webframeworks-0.5.2.tar.gz", hash = "sha256:0db35b267914b3f8c562aca0261957dbcb4176f255eacc22520277010818dcf3"},
